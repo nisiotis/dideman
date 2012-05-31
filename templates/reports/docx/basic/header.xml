@@ -1,0 +1,343 @@
+﻿    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblInd w:w="-20" w:type="dxa"/>
+        <w:tblCellMar>
+          <w:left w:w="10" w:type="dxa"/>
+          <w:right w:w="10" w:type="dxa"/>
+        </w:tblCellMar>
+        <w:tblLook w:val="0000"/>
+      </w:tblPr>
+      <w:tblGrid>
+        <w:gridCol w:w="4800"/>
+        <w:gridCol w:w="1175"/>
+        <w:gridCol w:w="4000"/>
+      </w:tblGrid>
+      <w:tr w:rsidR="001420B7" w:rsidTr="00F43BD4">
+        <w:trPr>
+          <w:trHeight w:val="900"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="4661" w:type="dxa"/>
+            <w:vMerge w:val="restart"/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+              <w:jc w:val="center"/>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:noProof/>
+                <w:lang w:eastAsia="el-GR" w:bidi="ar-SA"/>
+              </w:rPr>
+              <w:drawing>
+                <wp:inline distT="0" distB="0" distL="0" distR="0">
+                  <wp:extent cx="532130" cy="523240"/>
+                  <wp:effectExtent l="0" t="0" r="0" b="0"/>
+                  <wp:docPr id="1" name="Picture" descr="A description..."/>
+                  <wp:cNvGraphicFramePr>
+                    <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+                  </wp:cNvGraphicFramePr>
+                  <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                    <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                      <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                        <pic:nvPicPr>
+                          <pic:cNvPr id="0" name="Picture" descr="A description..."/>
+                          <pic:cNvPicPr>
+                            <a:picLocks noChangeAspect="1" noChangeArrowheads="1"/>
+                          </pic:cNvPicPr>
+                        </pic:nvPicPr>
+                        <pic:blipFill>
+                          <a:blip r:embed="rId5" cstate="print"/>
+                          <a:srcRect/>
+                          <a:stretch>
+                            <a:fillRect/>
+                          </a:stretch>
+                        </pic:blipFill>
+                        <pic:spPr bwMode="auto">
+                          <a:xfrm>
+                            <a:off x="0" y="0"/>
+                            <a:ext cx="532130" cy="523240"/>
+                          </a:xfrm>
+                          <a:prstGeom prst="rect">
+                            <a:avLst/>
+                          </a:prstGeom>
+                          <a:noFill/>
+                          <a:ln w="9525">
+                            <a:noFill/>
+                            <a:miter lim="800000"/>
+                            <a:headEnd/>
+                            <a:tailEnd/>
+                          </a:ln>
+                        </pic:spPr>
+                      </pic:pic>
+                    </a:graphicData>
+                  </a:graphic>
+                </wp:inline>
+              </w:drawing>
+            </w:r>
+          </w:p>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+              <w:jc w:val="center"/>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b/>
+                <w:bCs/>
+              </w:rPr>
+              <w:t>ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ ΥΠΟΥΡΓΕΙΟ ΠΑΙΔΕΙΑΣ ΔΙΑ ΒΙΟΥ ΜΑΘΗΣΗΣ ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ</w:t>
+            </w:r>
+          </w:p>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+              <w:jc w:val="center"/>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b/>
+                <w:bCs/>
+              </w:rPr>
+              <w:t>ΠΕΡΙΦΕΡΙΑΚΗ ΔΙΕΥΘΥΝΣΗ</w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:b/>
+                <w:bCs/>
+              </w:rPr>
+              <w:br/>
+              <w:t>Α’ ΒΑΘΜΙΑΣ ΚΑΙ Β’ ΒΑΘΜΙΑΣ  ΕΚΠΑΙΔΕΥΣΗΣ {{ dide_district }}</w:t>
+            </w:r>
+          </w:p>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+              <w:jc w:val="center"/>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b/>
+                <w:bCs/>
+              </w:rPr>
+              <w:t>ΔΙΕΥΘΥΝΣΗ Β’ ΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ {{ dide_place }}</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1181" w:type="dxa"/>
+            <w:vMerge w:val="restart"/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="001420B7">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="3836" w:type="dxa"/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+            <w:r>
+              <w:t>Ρόδος,{% if rec.header_date %} {{rec.header_date}} {% else %} {{date}} {% endif %}</w:t>
+            </w:r>
+          </w:p>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">Αρ. Πρωτ. : </w:t>
+            </w:r>
+            <w:r>
+              <w:rPr>
+                <w:b/>
+                <w:bCs/>
+              </w:rPr>
+              <w:t>{{rec.protocol_number}}</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="001420B7" w:rsidTr="00F43BD4">
+        <w:trPr>
+          <w:trHeight w:val="2876"/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="4661" w:type="dxa"/>
+            <w:vMerge/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="001420B7">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1181" w:type="dxa"/>
+            <w:vMerge/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="001420B7">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="3836" w:type="dxa"/>
+            <w:vMerge w:val="restart"/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b/>
+                <w:bCs/>
+              </w:rPr>
+              <w:t>ΠΡΟΣ : {{ rec.recipient }}</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr w:rsidR="001420B7" w:rsidTr="00F43BD4">
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="4661" w:type="dxa"/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+            <w:r>
+              <w:t>Ταχ. Διεύθυνση: {{address}}</w:t>
+            </w:r>
+          </w:p>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+            <w:r>
+              <w:t>Πληροφορίες: {{contact_person}} {{contact_email}}</w:t>
+            </w:r>
+          </w:p>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+            <w:r>
+              <w:t>Τηλέφωνο: {{telephone_number}}</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1181" w:type="dxa"/>
+            <w:vMerge/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="001420B7">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="3836" w:type="dxa"/>
+            <w:vMerge/>
+            <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
+            <w:tcMar>
+              <w:top w:w="0" w:type="dxa"/>
+              <w:left w:w="10" w:type="dxa"/>
+              <w:bottom w:w="0" w:type="dxa"/>
+              <w:right w:w="10" w:type="dxa"/>
+            </w:tcMar>
+          </w:tcPr>
+          <w:p w:rsidR="001420B7" w:rsidRDefault="001420B7">
+            <w:pPr>
+              <w:pStyle w:val="a9"/>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
+      <w:pPr>
+        <w:pStyle w:val="1"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="1"/>
+        </w:numPr>
+      </w:pPr>
+      <w:r>
+        <w:t>ΘΕΜΑ: {{subject}}</w:t>
+      </w:r>
+    </w:p>

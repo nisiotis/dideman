@@ -1,0 +1,15 @@
+﻿{% for rec in data %}
+  {% if include_header %}
+    {% include "reports/docx/basic/header.xml" %}
+  {% endif %}
+  {% include body_template_path %}
+  {% if include_footer %}
+    {% include "reports/docx/basic/footer.xml" %}
+  {% endif %}
+  {% if rec.cc %}
+    {% include "reports/docx/basic/cc.xml" %}
+  {% endif %}
+  {% if not forloop.last %}
+    {% include "reports/docx/basic/page-break.xml" %}
+  {% endif %}
+{% endfor %}

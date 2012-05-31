@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n %}
+{% load url from future %}
+{% load admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_label|capfirst|escape }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {{ action_title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<p>Είστε σίγουροι ότι θέλετε να αλλάξετε τα παρακάτω αντικείμενα τύπου <i>{{ objects_name }}</i> χρησιμοποιώντας την ενέργεια <b>{{action_title }}</b>;</p>
+{% for changeable_object in changeable_objects %}
+    <ul>{{ changeable_object|unordered_list }}</ul>
+{% endfor %}
+<form action="" method="post">{% csrf_token %}
+<div>
+{% for obj in queryset %}
+<input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+{% endfor %}
+<input type="hidden" name="action" value="{{ action_name }}" />
+<input type="hidden" name="post" value="yes" />
+<input type="submit" value="{% trans "Yes, I'm sure" %}" />
+</div>
+</form>
+{% endblock %}

@@ -1,0 +1,44 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις διατάξεις του Ν.3801/2009 άρθ. 18 παρ.2 (ΦΕΚ 163/4-9-2009).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Τις διατάξεις του Ν.1483/84 (ΦΕΚ 153/84 Α).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Την 821/88 ατομική γνωμοδότηση της νομικής Δ/νσης του ΥΠΕΠΘ, περί προστασίας και διευκόλυνσης εργαζομένων με οικογενειακές υποχρεώσεις.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>4. Την αίτηση του ενδιαφερόμενου.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε στον/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, αναπληρωτή εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.employee__organization_serving }} ειδική  άδεια λόγω τοκετού της συζύγου του με αποδοχές, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }}.</w:t>
+            </w:r>
+        </w:p>

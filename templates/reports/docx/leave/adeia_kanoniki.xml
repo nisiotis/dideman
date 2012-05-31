@@ -1,0 +1,54 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις  διατάξεις : </w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>α) του άρθρου 48 παρ 4 του Ν.3528/2007 (ΦΕΚ 26 Τ.Α΄) του υπαλληλικού κώδικα</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>β) του άρθρου 19 του Ν.3200/1995 ( ΦΕΚ 97 τ. Α΄) για διοικητική αποκέντρωση</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>γ) της απόφασης του  Υπουργού Προεδρίας της Κυβέρνησης αριθμ. Γ.332/1741/2-2-1981   (ΦΕΚ 87 τ Β΄) για τον τρόπο υπολογισμού της κανονικής άδειας απουσίας των δημοσίων υπαλλήλων και υπαλλήλων Ν.Π.Δ.Δ.</w:t>
+            </w:r>
+        </w:p>         
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Την αίτηση του/ης εκπαιδευτικού  </w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Την αριθμ. πρωτ. 21052 / 21-10-83 απόφαση της Νομαρχίας Δωδεκανήσου.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε στον/στην {{ rec.recipient }} του {{ rec.employee__fathername }}, εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.employee__organization_serving }} κανονική άδεια απουσίας με αποδοχές, {{ rec.duration }} εργασίμων ημερών από {{ rec.date_from }} έως {{ rec.date_to }} για τους λόγους που αναφέρει στην αίτησή του/της.</w:t>
+            </w:r>
+        </w:p>

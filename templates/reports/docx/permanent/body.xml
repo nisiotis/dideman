@@ -1,0 +1,8 @@
+  <w:p w:rsidR="000837CB" w:rsidRPr="008B54F4" w:rsidRDefault="00EF7676" w:rsidP="000837CB">
+      <w:pPr>
+        <w:pStyle w:val="a1"/>
+      </w:pPr>
+      <w:r>
+        <w:t> {{ rec.lastname }} {{ rec.firstname }} </w:t>
+      </w:r>
+  </w:p>

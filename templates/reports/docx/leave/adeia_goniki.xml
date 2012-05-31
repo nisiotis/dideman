@@ -1,0 +1,46 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις διατάξεις :</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>   α) του Ν.3528/2007, άρθ. 53, παρ. 6 που προβλέπεται για την παρακολούθηση της σχολικής επίδοσης</w:t>
+            </w:r>
+        </w:p>        
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>   β) την ΔΙΔΑΔ Φ53/1222/9-8-2007 (ΦΕΚ 1613/2007)</w:t>
+            </w:r>
+        </w:p>
+
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Την αίτηση του/της ενδιαφερομένου/ης</w:t>
+            </w:r>
+        </w:p>
+        
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε στην {{ rec.recipient }} του {{ rec.employee__fathername }}, εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.employee__organization_serving }} γονική άδεια από {{ rec.date_from }} έως {{ rec.date_to }} με αποδοχές.</w:t>
+            </w:r>
+        </w:p>

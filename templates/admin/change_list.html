@@ -1,0 +1,24 @@
+{% extends "copies/admin/change_list.html" %}
+{% load i18n admin_static admin_list %}
+{% load url from future %}
+{% load admin_urls %}
+{% load custom_admin_list %}
+
+{% block filters %}
+  {% if cl.has_filters %}
+   <div id="changelist-filter">
+     <h2>Φίλτρα</h2>
+      <div>
+        <li><a href="{{ cl.request.path  }}">Καθαρισμός Όλων</a></li>
+        <li><a href="{{ cl.request.path  }}filters/" onclick="return showAddAnotherPopup(this)">Αναλυτικά</a></li>
+      {% for spec in cl.filter_specs %}
+        {% if spec|is_free_date_filter %}
+          {% free_date_filter cl spec %}
+        {% else %}
+          {% admin_list_filter cl spec %}
+        {% endif %}
+      {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

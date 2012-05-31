@@ -1,0 +1,222 @@
+# -*- coding: utf-8 -*-
+from django.contrib import admin
+from django.contrib.admin.filters import (SimpleListFilter, FieldListFilter,
+                                          RelatedFieldListFilter,
+                                          BooleanFieldListFilter,
+                                          ChoicesFieldListFilter,
+                                          AllValuesFieldListFilter)
+from django.http import QueryDict
+from django.conf.urls import patterns, url
+from dideman.dide.util.settings import SETTINGS
+import django.contrib.admin.views.main as views
+
+
+class DideAdmin(admin.ModelAdmin):
+
+    class Media:
+        css = {'all': ('css/dide-admin.css', )}
+
+    filter_parameters = []
+
+    def get_extra_context(self, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update({'dide_place': SETTINGS['dide_place']})
+        return extra_context
+
+    def __init__(self, *args, **kwargs):
+        super(DideAdmin, self).__init__(*args, **kwargs)
+
+    def lookup_allowed(self, key, value):
+        return key in DideAdmin.filter_parameters or \
+            super(DideAdmin, self).lookup_allowed(key, value)
+
+    def get_urls(self):
+        url_patterns = patterns('',
+                                url('filters/$',
+                                    'dideman.dide.views.filters.%s' % \
+                                        self.model._meta.module_name))
+        return url_patterns + super(DideAdmin, self).get_urls()
+
+    def changelist_view(self, request, extra_context=None):
+        return super(DideAdmin, self).\
+            changelist_view(request, self.get_extra_context(extra_context))
+
+    @classmethod
+    def add_filter_parameter(cls, filter_name):
+        DideAdmin.filter_parameters.append(filter_name)
+
+
+OLD_IGNORED_PARAMS = views.__dict__['IGNORED_PARAMS']
+views.__dict__['IGNORED_PARAMS'] = \
+    list(views.__dict__['IGNORED_PARAMS']) + ['full_filters']
+
+
+def monkey_patch_method(cls, name, fn):
+    #takes a class a name and a function (fn) as parameters
+    #fn takes as a parameter the method named name and returns
+    #a new function which replaces the old method
+    method = fn(getattr(cls, name))
+    setattr(cls, name, method)
+
+
+def alter_changelist_constructor(fn):
+
+    def __init__(self, request, model, list_display, list_display_links,
+                 list_filter, date_hierarchy, search_fields,
+                 list_select_related, list_per_page, list_max_show_all,
+                 list_editable, model_admin):
+        fn(self, request, model, list_display, list_display_links,
+           list_filter, date_hierarchy, search_fields, list_select_related,
+           list_per_page, list_max_show_all, list_editable, model_admin)
+        self.request = request
+        self.param_lists = {}
+        for l in request.GET.lists():
+            key, val = l
+            if not isinstance(val, list) or \
+                    len(val) < 2 or key not in OLD_IGNORED_PARAMS:
+                self.param_lists[key] = val
+            else:
+                self.param_lists[key] = [val.pop()]
+    return __init__
+
+
+def alter_choices(fn):
+    def choices(self, cl):
+        gen = fn(self, cl)
+        yield gen.next()
+        while 1:
+            choice = gen.next()
+            GET_qd = cl.request.GET.copy()
+            GET_lookup_param_list = GET_qd.getlist(self.lookup_param, [])
+            parent_qd = QueryDict(choice['query_string'][1:]).copy()
+            parent_qd_value = parent_qd.get(self.lookup_param, None)
+            if self.modifier_value == 'OR':
+                if parent_qd_value in GET_lookup_param_list:
+                    GET_lookup_param_list.remove(parent_qd_value)
+                else:
+                    GET_lookup_param_list.append(parent_qd_value)
+                if not GET_lookup_param_list:
+                    del GET_qd[self.lookup_param]
+            else:
+                if self.lookup_param  in GET_lookup_param_list:
+                    del GET_qd[self.lookup_param]
+                GET_lookup_param_list = [parent_qd_value]
+            GET_qd.setlist(self.lookup_param, GET_lookup_param_list)
+            choice['query_string'] = '?%s' % GET_qd.urlencode()
+            choice['selected'] = parent_qd_value and \
+                parent_qd_value in cl.request.GET. \
+                getlist(self.lookup_param, [])
+            yield choice
+    return choices
+
+
+def alter_filter_constructor(fn):
+    def __init__(self, field, request, params, model, model_admin,
+                 field_path, *args, **kwargs):
+        fn(self, field, request, params, model, model_admin,
+           field_path, *args, **kwargs)
+        self.lookup_param = self.lookup_kwarg
+        self.modifier_name = '_m_' + self.lookup_param
+        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        views.__dict__['IGNORED_PARAMS'].append(self.modifier_name)
+    return __init__
+
+
+class BaseModifierFilter(object):
+    template_name = 'filter'
+    registered_filters = []
+
+    def __init__(self, *args, **kwargs):
+        super(BaseModifierFilter, self).__init__(*args, **kwargs)
+        BaseModifierFilter.registered_filters.append(self)
+
+    def filter_param(self, queryset, query_dict):
+        return queryset.filter(**query_dict)
+
+    def list_filter_context(self, cl):
+        return {'title': self.title, 'choices': list(self.choices(cl)),
+                'modifiers': self.modifiers(cl)}
+
+    def modifiers(self, cl):
+        GET_qd = cl.request.GET.copy()
+        GET_qd[self.modifier_name] = 'AND'
+        qs_and = '?%s' % GET_qd.urlencode()
+        GET_qd[self.modifier_name] = 'OR'
+        qs_or = '?%s' % GET_qd.urlencode()
+        modifier_and = {
+           'selected': self.modifier_value == 'AND',
+           'query_string': qs_and,
+           'display': u'Αποκλεισμός',
+        }
+        modifier_or = {
+            'selected': self.modifier_value == 'OR',
+            'query_string': qs_or,
+            'display': u'Σύνθεση',
+        }
+        return [modifier_and, modifier_or]
+
+    def queryset(self, request, queryset):
+        query_dict = {}
+        params = dict(request.GET.items())
+        for p in self.expected_parameters():
+            if p in params:
+                query_dict[p] = params[p]
+        if self.modifier_value != u'OR':
+            return self.filter_param(queryset, query_dict)
+        else:
+            try:
+                for param in self.expected_parameters():
+                    del query_dict[param]
+            except KeyError:
+                pass
+            queryset = self.filter_param(queryset, query_dict)
+            qs = queryset
+            is_first = True
+            for param in self.expected_parameters():
+                get_values = dict(request.GET.lists()).get(param, [])
+                if get_values:
+                    for value in get_values:
+                        if is_first:
+                            is_first = False
+                            qs = self.filter_param(queryset,
+                                                   {param: get_values[0]})
+                        else:
+                            qs = qs | self.filter_param(queryset,
+                                                        {param: value})
+        return qs
+
+
+class ModifierFieldListFilter(BaseModifierFilter, FieldListFilter):
+    def __init__(self, field, request, params, *args, **kwargs):
+        super(ModifierFieldListFilter, self).__init__(field,
+                                                      request, params,
+                                                      *args, **kwargs)
+        FieldListFilter.queryset = BaseModifierFilter.queryset
+
+
+class ModifierSimpleListFilter(BaseModifierFilter, SimpleListFilter):
+    def __init__(self, request, params, *args, **kwargs):
+        super(ModifierSimpleListFilter, self).__init__(request,
+                                                       params, *args, **kwargs)
+
+RelatedFieldListFilter.__bases__ = (ModifierFieldListFilter, )
+BooleanFieldListFilter.__bases__ = (ModifierFieldListFilter, )
+ChoicesFieldListFilter.__bases__ = (ModifierFieldListFilter, )
+AllValuesFieldListFilter.__bases__ = (ModifierFieldListFilter, )
+
+monkey_patch_method(RelatedFieldListFilter, 'choices', alter_choices)
+monkey_patch_method(BooleanFieldListFilter, 'choices', alter_choices)
+monkey_patch_method(ChoicesFieldListFilter, 'choices', alter_choices)
+monkey_patch_method(AllValuesFieldListFilter, 'choices', alter_choices)
+monkey_patch_method(SimpleListFilter, 'choices', alter_choices)
+
+
+monkey_patch_method(RelatedFieldListFilter, '__init__',
+                    alter_filter_constructor)
+monkey_patch_method(BooleanFieldListFilter, '__init__',
+                    alter_filter_constructor)
+monkey_patch_method(ChoicesFieldListFilter, '__init__',
+                    alter_filter_constructor)
+monkey_patch_method(AllValuesFieldListFilter, '__init__',
+                    alter_filter_constructor)
+monkey_patch_method(views.ChangeList, '__init__', alter_changelist_constructor)

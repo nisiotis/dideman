@@ -1,0 +1,106 @@
+﻿{% load url from future %}
+{% load admin_static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    {% load i18n %} 
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
+    {% block extrastyle %}{% endblock %}
+    <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}"admin/css/ie.css"{% endblock %}" /><![endif]-->
+    {% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}"admin/css/rtl.css"{% endblock %}" />
+    {% endif %}
+    <script type="text/javascript" src="/static/admin/js/core.js"></script>
+    <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+    <script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/admin/jsi18n/"></script>
+    <script type="text/javascript" src="/static/js/chosen.jquery.js"></script>
+    <script type="text/javascript" src="/static/js/chosen.jquery_ready.js"></script>
+    <script type="text/javascript" src="/static/admin/js/calendar.js"></script>
+    <script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
+    <script type="text/javascript">
+        function buildQS() {
+            var $ = django.jQuery, acc = [], str = '';
+            $('.chzn-select').map(function(idx, j) {
+                return {
+                    'name': j.name, 
+                    'values': $(j).val() || []}
+                }).each(function(idx, obj) {
+                    if(obj.values.length > 0) { 
+                        for(var i = 0; i < obj.values.length; i += 1) {
+                            acc.push({'name': obj.name, 'value': obj.values[i]});
+                        }
+                        acc.push({'name': '_m_' + obj.name, 'value': 'OR'});
+                    }
+                });
+            $('.free_date_filter').each(function(idx, el) {
+                var o = {};
+                $('#' + el.id + ' input').each(function(idx, input){
+                    o[el.id] = o[el.id] || [];
+                    o[el.id].push($(input).val())
+                })
+                for(var i in o) {
+                    if(o[el.id][0] != '01-01-1950' || o[el.id][1] != '31-08-2012') {
+                        acc.push({'name': i, 'value': o[el.id].join('|')});
+                        acc.push({'name': '_m_' + i, 'value': 'OR'});
+                    }
+                }
+            });
+            for(var i = 0; i < acc.length; i += 1) {
+                str += '&' + acc[i]['name'] + '=' + acc[i]['value'];
+            }
+            return str;
+        }
+        function submitParent() {
+            window.opener.location.href = window.opener.location.href.
+                split('/').
+                slice(0, -1).
+                join('/') + '/?' + buildQS();
+        }
+    </script>
+    {% block extrahead %}{% endblock %}
+    {% block blockbots %}
+    <meta name="robots" content="NONE,NOARCHIVE" />
+    {% endblock %}
+    <style>
+      table.valign td { vertical-align: middle } 
+    </style>
+</head>
+{% load full_filters %}
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+    <div id="container">
+        <div id="content">
+            <h1>Επιλέξτε φίλτρα</h1>
+            <div>
+                {% for select in selects %}
+                <h2>{{ select.attrs.title }}</h2>
+                <div class="chosen-container">
+                    {{ select|render_full_filter_select:select.attrs.name}}
+                </div>
+                {% endfor %}
+            </div>
+            {% for date_filter in date_filters %}
+            <div class="date-container">
+                <div>
+                    <h2>{{ date_filter.title }}</h2>
+                    <span class="free_date_filter" id="{{ date_filter.parameter_name }}">
+                        <input id="{{ date_filter.parameter_name }}_free_date_from" type="text" class="{{ date_filter.parameter_name }}_free_date_field vDateField" name="date_from" size="10" value="{{ date_filter.url_from_value }}" /> - 
+                        <input id="{{ date_filter.parameter_name }}_free_date_to" type="text" class="{{ date_filter.parameter_name }}_free_date_field vDateField" name="date_to" size="10" value="{{ date_filter.url_to_value }}" />
+                   </span>
+                </div>
+            </div>
+            {% endfor %}
+            <div style="padding-top:40px;margin-left:auto;margin-right:auto;width:500px">
+                <input type="button" value="{% trans 'Search' %}" onclick="submitParent();"/>
+            </div>
+        </div>
+        {% block footer %}
+        <div id="footer"></div>
+        {% endblock %}
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,22 @@
+﻿    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t>Βεβαιώνεται ότι ο/η {{rec.lastname}} {{rec.firstname}} του {{rec.fathername}}, καθηγητής/τρια του κλάδου {{rec.profession}} {{rec.profession__description}} είναι μόνιμος/η δημόσιος υπάλληλος και έχει οργανική θέση στο {{rec.permanent_post}}.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve">Η βεβαίωση αυτή χορηγείται στον ενδιαφερόμενο ύστερα από αίτηση του για κάθε νόμιμη χρήση.</w:t>
+      </w:r>
+    </w:p>

@@ -1,0 +1,66 @@
+﻿    <w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="5000" w:type="pct"/>
+        <w:tblLook w:val="04A0"/>
+      </w:tblPr>
+      <w:tblGrid>
+        <w:gridCol w:w="5495"/>
+        <w:gridCol w:w="4359"/>
+      </w:tblGrid>
+      <w:tr w:rsidR="008F6496" w:rsidTr="00F43BD4">
+        <w:trPr>
+          <w:cantSplit/>
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2788" w:type="pct"/>
+            <w:vAlign w:val="center"/>
+          </w:tcPr>
+          <w:p w:rsidR="008F6496" w:rsidRDefault="00F43BD4" w:rsidP="00F43BD4">
+            <w:pPr>
+              <w:jc w:val="center"/>
+            </w:pPr>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2212" w:type="pct"/>
+            <w:vAlign w:val="center"/>
+          </w:tcPr>
+          <w:p w:rsidR="00F43BD4" w:rsidRPr="00F43BD4" w:rsidRDefault="00F43BD4" w:rsidP="00F43BD4">
+            <w:pPr>
+              <w:jc w:val="center"/>
+              <w:rPr>
+                <w:b/>
+              </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00F43BD4">
+              <w:rPr>
+                <w:b/>
+              </w:rPr>
+              <w:t>Ο Διευθυντής</w:t>
+            </w:r>
+          </w:p>
+          <w:p w:rsidR="00F43BD4" w:rsidRPr="00F43BD4" w:rsidRDefault="00F43BD4" w:rsidP="00F43BD4">
+            <w:pPr>
+              <w:jc w:val="center"/>
+              <w:rPr>
+                <w:b/>
+              </w:rPr>
+            </w:pPr>
+          </w:p>
+          <w:p w:rsidR="008F6496" w:rsidRDefault="00F43BD4" w:rsidP="00F43BD4">
+            <w:pPr>
+              <w:jc w:val="center"/>
+            </w:pPr>
+            <w:r w:rsidRPr="00F43BD4">
+              <w:rPr>
+                <w:b/>
+              </w:rPr>
+              <w:t>{{ manager }}</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p w:rsidR="00000000" w:rsidRDefault="00F43BD4"/>

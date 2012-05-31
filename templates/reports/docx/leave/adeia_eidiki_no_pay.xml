@@ -1,0 +1,44 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις διατάξεις της παρ. 1 του άρθρου 51 του Ν.3528/2007 (ΦΕΚ τ.Α')</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Την αριθμ. ΣΤ5/23/14-4-2000 μεταβίβαση δικαιώματος υπογραφής με εντολή Υπουργού στους Δ/ντές των Δ/νσεων και Γραφείων Α/θμιας και Β/θμιας Εκπ/σης.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Την αίτηση του/της ενδιαφερόμενου/ης</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">τη χορήγηση άδειας άνευ αποδοχών στόν/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.employee__organization_serving }}, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }}.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">            
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Ο χρόνος της άδειας αυτής ... αποτελεί χρόνο πραγματικής υπηρεσίας.</w:t>
+            </w:r>
+        </w:p>

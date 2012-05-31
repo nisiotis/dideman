@@ -1,0 +1,49 @@
+{% load i18n %} 
+<h2>
+  {% blocktrans with title as filter_title %} {{ filter_title }} {% endblocktrans %}
+</h2>
+<script type="text/javascript">
+(function($, global){
+    var {{ parameter_name }}_free_date_filter = {
+      submit_form : function() {
+          $("#{{ parameter_name }}").val($("#{{ parameter_name }}_free_date_from").val() + "|" + $("#{{ parameter_name }}_free_date_to").val());
+          $("#{{ parameter_name }}_free_date_filter_form").submit();
+      },
+      clear_form : function() {
+        $("#{{ parameter_name }}_free_date_from").val("");
+        $("#{{ parameter_name }}_free_date_to").val("");
+      },
+    }
+    global['{{ parameter_name }}_free_date_filter'] = {{ parameter_name }}_free_date_filter;
+    $(document).ready(function(){
+      $(".{{ parameter_name }}_free_date_field").keyup(function(e) {
+        if(e.keyCode == 13) {
+          {{ parameter_name }}_free_date_filter.submit_form();
+        }
+      });
+    })
+})(django.jQuery, window)
+</script>
+
+<form id="{{ parameter_name }}_free_date_filter_form" action="{{ query_string }}" method="get">
+  <input id="{{ parameter_name  }}" name="{{ parameter_name  }}" type="hidden" />
+  {% for key, values in cl.param_lists.items %}
+    {% for val in values %}
+        {% ifnotequal key parameter_name %}
+            <input type="hidden" name="{{ key }}" value="{{ val }}"/>
+        {% endifnotequal %}
+    {% endfor %}
+  {% endfor %}
+</form>
+  <table>
+    <tr>
+      <td><label for="{{ parameter_name }}_free_date_from">Από</label></td>
+      <td><input id="{{ parameter_name }}_free_date_from" type="text" class="{{ parameter_name }}_free_date_field vDateField" name="date_from" size="10" value="{{ url_from_value }}" /></td>
+    </tr>
+    <tr>
+      <td><label for="{{ parameter_name }}_free_date_to">Έως</label></td>
+      <td><input id="{{ parameter_name }}_free_date_to" type="text" class="{{ parameter_name }}_free_date_field vDateField" name="date_to" size="10" value="{{ url_to_value }}" /></div></td>
+    </tr>
+  </table>
+  <input type="button" value="{% trans 'Search' %}" onclick="{{ parameter_name }}_free_date_filter.submit_form()" />
+  <input type="button" value="Καθαρισμός" onclick="{{ parameter_name }}_free_date_filter.clear_form()"  />

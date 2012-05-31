@@ -1,0 +1,20 @@
+﻿    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>Σας ανακοινώνουμε ότι για το σχολικό έτος {{current_year}} έχετε διατεθεί από το {{rec.organization_serving}} στα σχολεία : </w:t>
+      </w:r>
+    </w:p>
+    {% for s in rec.services %}
+     <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>{{ s }}</w:t>
+      </w:r>
+    </w:p>
+    {% endfor %}

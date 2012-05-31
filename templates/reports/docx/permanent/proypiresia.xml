@@ -1,0 +1,28 @@
+﻿    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t>Βεβαιώνεται ότι ο/η {{rec.lastname}} {{rec.firstname}} του {{rec.fathername}}, καθηγητής/τρια του κλάδου {{rec.profession}}-{{rec.profession__description}} με οργανική θέση στο {{rec.permanent_post}}, διορίστηκε στις {{rec.date_hired}} σύμφωνα με το Φ.Ε.Κ. {{rec.order_hired}}. Η αναγνωρισμένη προϋπηρεσία του/της είναι {{rec.formatted_recognised_experience}}, ενώ η συνολική του προϋπηρεσία ανέρχεται σε </w:t>
+      </w:r>
+      <w:r w:rsidRPr="00EC6E76">
+        <w:rPr>
+          <w:b/>
+        </w:rPr>
+        <w:t>{{ rec.total_experience }}.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve">Η βεβαίωση αυτή χορηγείται στον ενδιαφερόμενο ύστερα από αίτηση του για κάθε νόμιμη χρήση.</w:t>
+      </w:r>
+    </w:p>

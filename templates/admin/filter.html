@@ -1,0 +1,23 @@
+{% load i18n %} 
+<h2>
+  {% blocktrans with title as filter_title %} {{ filter_title }} {% endblocktrans %}
+</h2>
+  {% if modifiers %}
+<span class="modifier">[
+  {% for modifier in modifiers %}
+    {% if not forloop.first %}
+      | 
+    {% endif %}
+    <span class="selected">
+      <a{% if modifier.selected %} class="selected"{% endif %} href="{{ modifier.query_string }}">{{ modifier.display }}</a>
+    </span>
+  {% endfor %}
+  ]
+</span>
+{% endif %}
+<ul>
+{% for choice in choices %}
+    <li{% if choice.selected %} class="selected"{% endif %}>
+    <a href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a></li>
+{% endfor %}
+</ul>
