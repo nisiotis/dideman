@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from dideman.dide.sites import site
 from overrides.admin import DideAdmin
 from filters import (PermanentPostFilter, OrganizationServingFilter,
                      StudyFilter, DateHiredFilter, LeaveDateToFilter,
@@ -75,7 +74,7 @@ class EmployeeInline(admin.TabularInline):
 
 economic_fieldset =  (u'Οικονομικά στοιχεία', {
         'fields': ['vat_number', 'tax_office', 'bank', 'bank_account_number',
-                   'iban', 'social_security_registration_number','before_93',
+                   'iban', 'social_security_registration_number', 'before_93',
                    'has_family_subsidy', 'other_social_security',
                    'organization_paying']})
 
@@ -202,14 +201,14 @@ class SchoolTypeAdmin(DideAdmin):
     list_display = ('name', 'shift', 'category', 'rank')
 
 
-site.register(Permanent, PermanentAdmin)
-site.register(Profession, ProfessionAdmin)
-site.register(SchoolType, SchoolTypeAdmin)
-site.register(OtherOrganization, OtherOrganizationAdmin)
-site.register(School, SchoolAdmin)
-site.register(NonPermanent, NonPermanentAdmin)
-site.register(PlacementType, PlacementTypeAdmin)
-site.register(EmployeeLeave, EmployeeLeaveAdmin)
+admin.site.register(Permanent, PermanentAdmin)
+admin.site.register(Profession, ProfessionAdmin)
+admin.site.register(SchoolType, SchoolTypeAdmin)
+admin.site.register(OtherOrganization, OtherOrganizationAdmin)
+admin.site.register(School, SchoolAdmin)
+admin.site.register(NonPermanent, NonPermanentAdmin)
+admin.site.register(PlacementType, PlacementTypeAdmin)
+admin.site.register(EmployeeLeave, EmployeeLeaveAdmin)
 
-site.register((TransferArea, Leave, Responsibility, NonPermanentType,
+admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings))

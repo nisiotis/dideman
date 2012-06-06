@@ -117,11 +117,11 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-INSTALLED_APPS = [
+INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    #'django.contrib.sites',
+#    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
@@ -131,7 +131,7 @@ INSTALLED_APPS = [
     'dideman.dide',
     'south',
     #'debug_toolbar',
-]
+)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
