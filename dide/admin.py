@@ -72,7 +72,7 @@ class EmployeeInline(admin.TabularInline):
     model = Employee
     extra = 0
 
-economic_fieldset =  (u'Οικονομικά στοιχεία', {
+economic_fieldset = (u'Οικονομικά στοιχεία', {
         'fields': ['vat_number', 'tax_office', 'bank', 'bank_account_number',
                    'iban', 'social_security_registration_number', 'before_93',
                    'has_family_subsidy', 'other_social_security',
@@ -182,8 +182,8 @@ class EmployeeLeaveAdmin(DideAdmin):
               '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
 
     search_fields = ('employee__lastname',)
-    list_display = ('employee', 'profession', 'leave', 'date_to', 'date_from',
-                    'date_issued', 'duration')
+    list_display = ('employee', 'profession', 'leave',
+                    'date_to', 'date_from', 'date_issued', 'duration')
     list_filter = ('leave', 'employee__profession__unified_profession',
                    LeaveDateToFilter, LeaveDateFromFilter)
     actions = [CSVReport()] + sorted(leave_docx_reports,

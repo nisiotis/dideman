@@ -238,12 +238,10 @@ class Employee(models.Model):
     has_family_subsidy = models.BooleanField(u'Οικογενειακό επίδομα',
                                              default=False)
     other_social_security = models.ForeignKey(u'SocialSecurity',
-                                              verbose_name=
-                                              u'Άλλο ταμείο ασφάλισης',
+                                              verbose_name=u'Άλλο ταμείο ασφάλισης',
                                               null=True, blank=True)
     organization_paying = models.ForeignKey(Organization,
-                                            verbose_name=
-                                            u'Οργανισμός μισθοδοσίας',
+                                            verbose_name=u'Οργανισμός μισθοδοσίας',
                                             related_name='organization_paying',
                                             null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
@@ -264,8 +262,7 @@ class Employee(models.Model):
     study_years = models.IntegerField(u'Έτη φοίτησης', max_length=1,
                                       null=True,
                                       blank=True,
-                                      choices=map(lambda x: (x, str(x)),
-                                                  range(2,7)))
+                                      choices=[(x, str(x)) for x in range(2,7)])
     notes = models.TextField(u'Σημειώσεις', blank=True, default='')
     date_created = models.DateField(u'Ημερομηνία δημιουργίας',
                                     auto_now_add=True)
@@ -330,7 +327,7 @@ class Employee(models.Model):
     profession_description.short_description = u'Λεκτικό ειδικότητας'
 
     def __unicode__(self):
-        return self.lastname + ' ' + self.firstname
+        return u'%s %s (%s)' % (self.lastname, self.firstname, self.fathername)
 
 
 class SocialSecurity(models.Model):
@@ -465,13 +462,17 @@ class Permanent(Employee):
         return r[0] if r else None
     rank.short_description = u'Βαθμός'
 
+    def __unicode__(self):
+        return '%s %s  (%s)' % (self.lastname, self.firstname,
+                                 self.registration_number)
 
-PROMOTION_CHOICES = map(lambda x: (x, x), [u'ΣΤ', u'Ε4', u'Ε3', u'Ε2', u'Ε1',
-                                           u'Ε0', u'Δ4', u'Δ3', u'Δ2', u'Δ1',
-                                           u'Δ0', u'Γ4', u'Γ3', u'Γ2', u'Γ1',
-                                           u'Γ0', u'Β7', u'Β6', u'Β5', u'Β4',
-                                           u'Β3', u'Β2', u'Β1', u'Β0', u'Α5',
-                                           u'Α4', u'Α3', u'Α2', u'Α1', u'Α0'])
+
+PROMOTION_CHOICES = [(x, x) for x in [u'ΣΤ', u'Ε4', u'Ε3', u'Ε2', u'Ε1',
+                                      u'Ε0', u'Δ4', u'Δ3', u'Δ2', u'Δ1',
+                                      u'Δ0', u'Γ4', u'Γ3', u'Γ2', u'Γ1',
+                                      u'Γ0', u'Β7', u'Β6', u'Β5', u'Β4',
+                                      u'Β3', u'Β2', u'Β1', u'Β0', u'Α5',
+                                      u'Α4', u'Α3', u'Α2', u'Α1', u'Α0']]
 
 
 class Promotion(models.Model):
