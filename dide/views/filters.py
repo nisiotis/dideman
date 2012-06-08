@@ -19,8 +19,8 @@ def get_specs(request, model, model_admin):
                 if isinstance(list_filter, (tuple, list)):
                     field, field_list_filter_class = list_filter
                 else:
-                    field, field_list_filter_class = list_filter,
-                    FieldListFilter.create
+                    field, field_list_filter_class = (list_filter,
+                    FieldListFilter.create)
                 if not isinstance(field, models.Field):
                     field_path = field
                     field = get_fields_from_path(model, field_path)[-1]
