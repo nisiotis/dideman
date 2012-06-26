@@ -55,6 +55,12 @@ def render_template(request, model, model_admin):
                                'path': '/'.join(request.path.split('/')[:-2])})
 
 
+def application(request):
+    from dideman.dide.admin import ApplicationAdmin
+    from dideman.dide.models import Application
+    return render_template(request, Application, ApplicationAdmin)
+
+
 def permanent(request):
     from dideman.dide.admin import PermanentAdmin
     from dideman.dide.models import Permanent

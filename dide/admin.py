@@ -6,17 +6,24 @@ from filters import (PermanentPostFilter, OrganizationServingFilter,
                      LeaveDateFromFilter, CurrentlyServesFilter,
                      NonPermanentCurrentlyServesFilter,
                      TransferedFilter, NextPromotionInRangeFilter)
+from applications.filters import FinalisedFilter
 from models import (TransferArea, Leave, Responsibility, Profession,
                     Promotion, NonPermanentType,
                     NonPermanent, Permanent, Employee, DegreeCategory,
                     SchoolType, School, OtherOrganization, PlacementType,
                     Placement, EmployeeLeave, EmployeeResponsibility,
                     EmployeeDegree, Child, Loan, SocialSecurity,
-                    LoanCategory, Service, Settings)
+                    LoanCategory, Service, Settings, Application,
+                    ApplicationSet, ApplicationChoices, ApplicationType)
 from actions import CSVReport, FieldAction
 
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
+
+
+class ApplicationChoiceInline(admin.TabularInline):
+    model = ApplicationChoices
+    extra = 0
 
 
 class PromotionInline(admin.TabularInline):
@@ -71,6 +78,14 @@ class PermanentInline(admin.TabularInline):
 class EmployeeInline(admin.TabularInline):
     model = Employee
     extra = 0
+
+
+class ApplicationAdmin(DideAdmin):
+    list_display = ['employee', 'set', 'finalised']
+    list_filter = ['set__name', FinalisedFilter, 'employee__transfer_area',
+                   'employee__profession__unified_profession']
+    search_fields = ['employee__lastname']
+    inlines = [ApplicationChoiceInline]
 
 economic_fieldset = (u'Οικονομικά στοιχεία', {
         'fields': ['vat_number', 'tax_office', 'bank', 'bank_account_number',
@@ -209,6 +224,8 @@ admin.site.register(School, SchoolAdmin)
 admin.site.register(NonPermanent, NonPermanentAdmin)
 admin.site.register(PlacementType, PlacementTypeAdmin)
 admin.site.register(EmployeeLeave, EmployeeLeaveAdmin)
+admin.site.register(Application, ApplicationAdmin)
 
 admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,
-                     SocialSecurity, LoanCategory, DegreeCategory, Settings))
+                     SocialSecurity, LoanCategory, DegreeCategory, Settings,
+                     ApplicationSet, ApplicationType, ApplicationChoices))

@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" media="screen" href="css/redmond/jquery-ui-1.8.21.custom.css">
+    <script src="js/jquery-1.7.2.min.js"></script>
+    <script src="js/jquery-ui-1.8.21.custom.min.js"></script>
+	<style>
+      #wrap { width:640px; }
+      #right-col { float:left; padding:5px;}
+      #left-col { float:left; padding:5px; }
+      #ul-sort-clone { list-style-type: none;}
+	  #sortable span { float:right; }
+      .choice-num { margin:5px; padding: 5px; height:25px; width:50px;}
+      .choice { margin:5px; padding: 5px; height:25px; width:200px;}
+	</style>
+	<script>
+	  $(function() {
+	  $("#sortable").sortable();
+	  $("#sortable").disableSelection();
+	  });
+	</script>
+  </head>
+  <body>
+    <div id="wrap">
+      <div id="left-col">
+        <div>
+	      <div class="choice-num ui-state-default">1</div>
+	      <div class="choice-num ui-state-default">2</div>
+	      <div class="choice-num ui-state-default">3</div>
+	      <div class="choice-num ui-state-default">4</div>
+	      <div class="choice-num ui-state-default">5</div>
+        </div>
+      </div>
+      <div id="right-col">
+        <div id="sortable">
+          <div>
+	        <div class="choice ui-state-default">
+              <select id="school-1">
+                <option value="id-1">name-1</option>
+                <option value="id-2">name-2</option>
+                <option value="id-3">name-3</option>
+                <option value="id-4">name-4</option>
+                <option value="id-5">name-5</option>
+              </select>
+              <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+            </div>
+          </div>
+          <div>
+	        <div class="choice ui-state-default">
+              <select id="school-2">
+                <option value="id-1">name-1</option>
+                <option value="id-2">name-2</option>
+                <option value="id-3">name-3</option>
+                <option value="id-4">name-4</option>
+                <option value="id-5">name-5</option>
+              </select>
+              <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+            </div>
+          </div>
+          <div>
+	        <div class="choice ui-state-default">
+              <select id="school-3">
+                <option value="id-1">name-1</option>
+                <option value="id-2">name-2</option>
+                <option value="id-3">name-3</option>
+                <option value="id-4">name-4</option>
+                <option value="id-5">name-5</option>
+              </select>
+              <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+            </div>
+          </div>
+          <div>
+	        <div class="choice ui-state-default">
+              <select id="school-4">
+                <option value="id-1">name-1</option>
+                <option value="id-2">name-2</option>
+                <option value="id-3">name-3</option>
+                <option value="id-4">name-4</option>
+                <option value="id-5">name-5</option>
+              </select>
+              <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+            </div>
+          </div>
+          <div>
+	        <div class="choice ui-state-default">
+              <select id="school-5">
+                <option value="id-1">name-1</option>
+                <option value="id-2">name-2</option>
+                <option value="id-3">name-3</option>
+                <option value="id-4">name-4</option>
+                <option value="id-5">name-5</option>
+              </select>
+              <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+  </body>
+</html>

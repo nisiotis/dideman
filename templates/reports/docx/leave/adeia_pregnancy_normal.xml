@@ -1,0 +1,44 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις διατάξεις:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>  α) του άρθρου 52 παρ.1 του Ν.3528/2007(ΦΕΚ 26/9-2-07 ΤΑ΄) του υπαλληλικού κώδικα </w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>  β)του άρθρου 15 παρ.1 του Ν.1199/81 (ΦΕΚ 133 τ.Α΄) για την ρύθμιση θεμάτων κατάστασης υπαλλήλων του δημοσίου και των Ν.Π.Δ.Δ. όπως έχουν τροποποιηθεί με τις διατάξεις του άρθρου 8 παρ. 1 του Ν. 1400/1983 (ΦΕΚ 156 τ. Α') </w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Τη βεβαίωση του ... ...</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">τη χορήγηση κανονικής άδειας κυοφορίας με αποδοχές στην {{ rec.recipient }} του {{ rec.employee__fathername }}, αναπληρώτρια εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.employee__organization_serving }}, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }} για τους λόγους που αναφέρει στην αίτησή της.</w:t>
+            </w:r>
+        </w:p>

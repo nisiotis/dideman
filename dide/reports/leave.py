@@ -226,4 +226,12 @@ leave_docx_reports = [
                {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
                 'protocol_number': '{{protocol_number}}',
                 'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
-    ]
+
+    LeaveDocxReport(u'Άδεια Κανονική Κυοφορίας με Αποδοχές', 'adeia_pregnancy_normal.xml', 
+               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
+                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
+               {'subject': u'Χορήγηση κανονικής άδειας κυοφορίας με αποδοχές'},
+               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
+                'protocol_number': '{{protocol_number}}',
+                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
+                ]

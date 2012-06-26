@@ -1,0 +1,166 @@
+{% extends "applications/base.html" %}
+{% load i18n admin_static %}
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "jquery-ui/css/redmond/jquery-ui-1.8.21.custom.css" %}" />
+<script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
+<script src="{% static "jquery-ui/js/jquery-ui-1.8.21.custom.min.js" %}"></script>
+<style>
+  #wrap { width:640px; }
+  #right-col { float:left; padding:5px;}
+  #left-col { float:left; padding:5px; }
+  #ul-sort-clone { list-style-type: none;}
+  #sortable span { float:right; }
+  .choice-num { margin:5px; padding: 5px; height:25px; width:50px;}
+  .choice { margin:5px; padding: 5px; height:25px; width:200px;}
+</style>
+<script>
+  $(function() {
+    $("#sortable").sortable();
+    $("#sortable").disableSelection();
+  });
+  function getSelected() {
+    return $.makeArray(
+      $(".sort-sel")
+        .sortable("toArray")
+        .filter(function(index) { 
+           return this.selectedIndex !== 0 
+        })
+        .map(function(index) { 
+           return $(this).val() 
+        })
+    );
+  }
+  $(function() {
+    $("#bsubmit")
+      .click(function() {
+        $("#emp-choices").val(getSelected().join(";")); 
+        $("#emp-action").val("submit"); 
+        $("#edit-form").submit();
+    });
+    $("#bsave")
+      .click(function() {
+        $("#emp-choices").val(getSelected().join(";")); 
+        $("#emp-action").val("save"); 
+        $("#edit-form").submit();
+    });
+    $("#edit-form")
+      .submit(function() {
+        var arr = getSelected();
+        var copy = arr.slice();
+        if (arr.length !== $.unique(copy).length) {
+          alert('Κάποια επιλογή εμφανίζεται παραπάνω από μία φορές.');
+          return false;
+        }
+        if(arr.length === 0) {
+          alert('Δεν έχετε κάνει κάποια επιλογή.');
+          return false;
+        }
+      });
+  });
+</script>
+{% endblock %}
+{% block content %}
+<div id="content-main">
+  <ul class="messagelist">
+  {% if not application.finalised %}
+    <li class="info">Προσοχή, η αίτησή σας δεν έχει οριστικοιηθεί!</li>
+  {% else %}
+    <li class="info">Η αίτησή σας έχει οριστικοποιηθεί. Για την διασφάλισή σας παρακαλούμε να την στείλετε εκτυπωμένη με fax.</li>
+  {% endif %}
+  </ul>
+  <h1>{{ application.set.title }} </h1>
+    <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
+      <input type="hidden" id="emp-choices" name="emp-choices" />
+      <input type="hidden" id="emp-action" name="emp-action" />
+      <fieldset class="module aligned">
+        <h2>Στοιχεία εκπαιδευτικού</h2>
+        <div class="form-row field-lastname">
+          <div> 
+            <label>Επώνυμο : </label>
+            <p>{{ emp.lastname  }}</p>
+          </div>
+        </div>
+        <div class="form-row field-firstname">
+          <div>
+            <label>Όνομα : </label>
+            <p>{{ emp.firstname  }}</p>
+          </div>
+      </div>
+      <div class="form-row field-fathername">
+        <div>
+          <label>Πατρώνυμο : </label>
+            <p>{{ emp.fathername  }}</p>
+        </div>
+      </div>
+      <div class="form-row field-profession">
+        <div>
+          <label>Ειδικότητα : </label>
+          <p>{{ emp.profession  }}</p>
+        </div>
+      </div>
+      <div class="form-row field-registration_number">
+        <div>
+          <label>Αριθμός Μητρώου : </label>
+          <p>{{ emp.registration_number  }}</p>
+        </div>
+      </div>
+      <div class="form-row field-transfer_area">
+        <div>
+          <label>Περιοχή Μετάθεσης : </label>
+          <p>{{ emp.transfer_area  }}</p>
+        </div>
+      </div>
+      <h2>Στοιχεία Αίτησης</h2>
+      <div class="form-row field-colocation_municipality">
+        <div>
+          <label for="id_colocation_municipality">Δήμος Συνυπηρέτησης: </label>
+          <input id="id_colocation_municipality" type="text" class="vTextField" name="colocation_municipality" maxlength="100" value="{{ application.colocation_municipality }}"/>
+        </div>
+      </div>
+      <div class="form-row field-nativity_municipality">
+        <div>
+          <label for="id_nativity_municipality">Δήμος Εντοπιότητας: </label>
+          <input id="id_nativity_municipality" type="text" class="vTextField" name="nativity_municipality" maxlength="100"  value="{{ application.nativity_municipality }}"/>
+        </div>
+      </div>
+      <h2>Επιλογή Σχολείων</h2>
+      <div>
+        <div id="wrap">
+          <div id="left-col">
+            <div>
+            {% for i in options %}
+              <div class="choice-num ui-state-default">{{ forloop.counter }}</div>
+            {% endfor %}
+            </div>
+          </div>
+          <div id="right-col">
+            <div id="sortable">
+            {% for select in options %}
+              <div>
+                <div class="choice ui-state-default">
+                  <select name="school-{{ forloop.counter }}" class="sort-sel">
+                    <option value="0"> Καμία </option>
+                    {% for option in select %}
+                    <option value="{{ option.id }}"{% if option.selected %} selected="selected" {% endif %}>{{ option.name }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+                </div>
+              </div>
+              {% endfor %}
+            </div> <!--sortable-->
+          </div> <!--rightcol-->
+        </div> <!--wrap-->
+      </div>
+      <br clear="both" />
+      <div class="submit-row" style="text-align: center">
+        <input type="button" id="logout" value="Έξοδος" onclick="javascript:document.location.href=document.location.href+'?logout' "/>
+        <input type="reset" value="Καθαρισμός" />
+        <input type="button" id="bsave" value="Αποθήκευση" />
+        <input type="button" id="bsubmit" value="Οριστικοποίηση" />
+      </div>
+    </fieldset>  
+  </form>
+</div>
+{% endblock %}
