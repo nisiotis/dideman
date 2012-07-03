@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response, render
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Employee, Permanent, School, Application,
                                  ApplicationSet, ApplicationType,
-                                 ApplicationChoices, MoveInsideApplication)
+                                 ApplicationChoice, MoveInsideApplication)
 from dideman.dide.applications.forms import (EmployeeMatchForm,
                                              MoveInsideApplicationForm,
                                              TemporaryPositionApplicationForm)
@@ -103,7 +103,7 @@ def print_app(request, set_id):
 
     posn.next_pos()
     c.drawString(*posn.next_pos(), text=u'Επιλογές')
-    for x in ApplicationChoices.objects.filter(
+    for x in ApplicationChoice.objects.filter(
         application=app).order_by('position'):
         c.drawString(*posn.next_pos(),
                       text='%s. %s' % (x.position + 1, x.choice.name))
@@ -166,10 +166,10 @@ def edit(request, set_id):
                 app_choices = []
                 for i, choice in enumerate(choices):
                     app_choices.append(
-                        ApplicationChoices(application=app, choice_id=choice,
+                        ApplicationChoice(application=app, choice_id=choice,
                                            position=i))
-                    ApplicationChoices.objects.filter(application=app).delete()
-                    ApplicationChoices.objects.bulk_create(app_choices)
+                    ApplicationChoice.objects.filter(application=app).delete()
+                    ApplicationChoice.objects.bulk_create(app_choices)
 
             if request.POST['emp-action'] == 'submit' and form.is_valid():
                 app.datetime_finalised = datetime.datetime.now()
@@ -180,10 +180,10 @@ def edit(request, set_id):
         else:
             schools = _views_data[set.klass]['schools'](emp)
             choices_schools = [(x.choice_id, x.choice.name) for x in
-                       ApplicationChoices.objects
+                       ApplicationChoice.objects
                        .filter(application=app).order_by('position')]
             choices = [x.choice_id for x in
-                       ApplicationChoices.objects
+                       ApplicationChoice.objects
                        .filter(application=app).order_by('position')]
             app_len = _views_data[set.klass]['len'](schools)
             choices += [0] * (app_len - len(choices))

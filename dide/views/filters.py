@@ -107,3 +107,17 @@ def otherorganization(request):
     from dideman.dide.admin import OtherOrganizationAdmin
     from dideman.dide.models import OtherOrganization
     return render_template(request, OtherOrganization, OtherOrganizationAdmin)
+
+
+def temporarypositionapplication(request):
+    from dideman.dide.admin import TemporaryPositionApplicationAdmin
+    from dideman.dide.models import TemporaryPositionApplication
+    return render_template(request, TemporaryPositionApplication,
+                           TemporaryPositionApplicationAdmin)
+
+
+def moveinsideapplication(request):
+    from dideman.dide.admin import MoveInsideApplicationAdmin
+    from dideman.dide.models import MoveInsideApplication
+    return render_template(request, MoveInsideApplication,
+                           MoveInsideApplicationAdmin)

@@ -13,8 +13,9 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     SchoolType, School, OtherOrganization, PlacementType,
                     Placement, EmployeeLeave, EmployeeResponsibility,
                     EmployeeDegree, Child, Loan, SocialSecurity,
-                    LoanCategory, Service, Settings, Application,
-                    ApplicationSet, ApplicationChoices, ApplicationType)
+                    LoanCategory, Service, Settings, ApplicationSet,
+                    MoveInsideApplication, TemporaryPositionApplication,
+                    ApplicationChoice, ApplicationType)
 from actions import CSVReport, FieldAction
 
 from reports.permanent import permanent_docx_reports
@@ -22,7 +23,7 @@ from reports.leave import leave_docx_reports
 
 
 class ApplicationChoiceInline(admin.TabularInline):
-    model = ApplicationChoices
+    model = ApplicationChoice
     extra = 0
 
 
@@ -86,6 +87,22 @@ class ApplicationAdmin(DideAdmin):
                    'employee__profession__unified_profession']
     search_fields = ['employee__lastname']
     inlines = [ApplicationChoiceInline]
+    actions = [CSVReport(add=['employee__profession__description',
+                              'employee__profession__id',
+                              'employee__permanent__permanent_post',
+                              'employee__permanent__registration_number',
+                              'employee__permanent__date_hired',
+                              'join_choices'],
+                         exclude=['parent'])]
+
+
+class TemporaryPositionApplicationAdmin(ApplicationAdmin):
+    pass
+
+
+class MoveInsideApplicationAdmin(ApplicationAdmin):
+    pass
+
 
 economic_fieldset = (u'Οικονομικά στοιχεία', {
         'fields': ['vat_number', 'tax_office', 'bank', 'bank_account_number',
@@ -155,7 +172,9 @@ class PermanentAdmin(EmployeeAdmin):
                                        ResponsibilityInline]
 
     list_filter = EmployeeAdmin.list_filter + (TransferedFilter,
-                                               DateHiredFilter, StudyFilter,
+                                               DateHiredFilter,
+                                               'has_permanent_post',
+                                               StudyFilter,
                                                CurrentlyServesFilter,
                                                NextPromotionInRangeFilter,
                                                OrganizationServingFilter,
@@ -224,8 +243,10 @@ admin.site.register(School, SchoolAdmin)
 admin.site.register(NonPermanent, NonPermanentAdmin)
 admin.site.register(PlacementType, PlacementTypeAdmin)
 admin.site.register(EmployeeLeave, EmployeeLeaveAdmin)
-admin.site.register(Application, ApplicationAdmin)
+admin.site.register(MoveInsideApplication, MoveInsideApplicationAdmin)
+admin.site.register(TemporaryPositionApplication,
+                    TemporaryPositionApplicationAdmin)
 
 admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,
-                     ApplicationSet, ApplicationType, ApplicationChoices))
+                     ApplicationSet, ApplicationType))

@@ -25,10 +25,10 @@ class FinalisedFilter(ModifierSimpleListFilter):
     def filter_param(self, queryset, query_dict):
         val = int(query_dict.get(self.parameter_name, 2))
         if val == 1:
-            return queryset & Application.objects.filter(
+            return queryset & queryset.model.objects.filter(
                 datetime_finalised__isnull=False)
         elif val == 0:
-            return queryset & Application.objects.filter(
+            return queryset & queryset.model.objects.filter(
                 datetime_finalised__isnull=True)
         else:
             return queryset

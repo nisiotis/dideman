@@ -54,7 +54,8 @@ class TemplateAction(object):
             if self.add:
                 self.fields += self.add
             if self.exclude:
-                self.fields -= self.exclude
+                self.fields = [field for field in self.fields
+                               if field not in self.exclude]
 
     def field_string_value(self, obj, field,
                            encode_in_iso=False):
@@ -62,6 +63,8 @@ class TemplateAction(object):
                                       encode_in_iso)
 
     def field_value(self, obj, field):
+        if callable(field):
+            return field(obj)
         if hasattr(obj, field):
             attr = getattr(obj, field)
             if callable(attr):
@@ -88,10 +91,12 @@ class TemplateAction(object):
                 return value.encode('iso8859-7', 'ignore')
             elif hasattr(value, '__unicode__'):
                 return unicode(value).encode('iso8859-7', 'ignore')
+            else:
+                return str(value)
         elif isinstance(value, unicode):
             return value
         else:
-            return str(value)
+            return "%s" % str(value)
 
 
 class DocxReport(TemplateAction):
@@ -202,7 +207,8 @@ class CSVReport(TemplateAction):
     def __call__(self, modeladmin, request, queryset, *args, **kwargs):
         self.merge_fields(modeladmin, self.add, self.exclude)
         self.response.content = ''
-        writer = csv.writer(self.response, delimiter=';', quotechar='"')
+        writer = csv.writer(self.response, delimiter=';', quotechar='"',
+                            quoting=csv.QUOTE_NONNUMERIC)
         writer.writerow(self.fields)
         for obj in queryset:
             writer.writerow([self.field_string_value(obj, f,

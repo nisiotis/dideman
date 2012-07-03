@@ -14,11 +14,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         # database name
-        'NAME': 'dide',
+        'NAME': 'dideman',
         'USER': 'root',
-        'PASSWORD': 'dide-mysql-pass-1220',
+        'PASSWORD': 'qwe123',
         # empty string for localhost
-        'HOST': '10.103.254.69',                
+        'HOST': '',                
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }

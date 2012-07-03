@@ -31,10 +31,16 @@ class Application(models.Model):
     employee = models.ForeignKey('Employee',
                                  verbose_name=u'Υπάλληλος')
     choices = models.ManyToManyField('School',
-                                     through='ApplicationChoices')
+                                     through='ApplicationChoice')
     set = models.ForeignKey('ApplicationSet', verbose_name=u'Ανήκει')
     datetime_finalised = models.DateTimeField(u'Ημερομηνία Οριστικοποίησης',
                                          null=True, blank=True)
+
+    def join_choices(self, sep=','):
+        return sep.join([
+                choice.choice.name for choice in
+                sorted(ApplicationChoice.objects.filter(application=self),
+                       key=lambda x: x.position)])
 
     def finalised(self):
         return bool(self.datetime_finalised)
@@ -136,7 +142,7 @@ class ApplicationType(models.Model):
     name = models.CharField(u'Όνομα', max_length=100)
 
 
-class ApplicationChoices(models.Model):
+class ApplicationChoice(models.Model):
 
     class Meta:
         verbose_name = u'Επιλογή'
@@ -145,6 +151,9 @@ class ApplicationChoices(models.Model):
     application = models.ForeignKey('Application', verbose_name=u'Αίτηση')
     choice = models.ForeignKey('School', verbose_name=u'Επιλογή')
     position = models.IntegerField(u'Θέση')
+
+    def __unicode__(self):
+        return self.choice.name
 
 
 class ApplicationSet(models.Model):
@@ -164,7 +173,7 @@ class ApplicationSet(models.Model):
             ('MoveInsideApplication', u'Απόσπασης εντός Π.Υ.Σ.Δ.Ε.')))
 
     def __unicode__(self):
-        return u'%s %s έως %s' % (self.name, self.start_date, self.end_date)
+        return self.name
 
 
 class TransferAreaManager(models.Manager):
@@ -329,6 +338,9 @@ class EmployeeManager(models.Manager):
         return self.get(firstname=firstname, lastname=lastname,
                         fathername=fathername, profession=profession)
 
+    # def get_query_set(self):
+    #     return self.select_related('permanent', 'nonpermanent')
+
 
 class Employee(models.Model):
 
@@ -410,6 +422,13 @@ class Employee(models.Model):
     notes = models.TextField(u'Σημειώσεις', blank=True, default='')
     date_created = models.DateField(u'Ημερομηνία δημιουργίας',
                                     auto_now_add=True)
+
+    def post(self):
+        qs = Permanent.objects.filter(id=self.id)
+        if qs:
+            return qs[0].permanent_post()
+        else:
+            return None
 
     def last_placement(self):
         p = Placement.objects.filter(employee=self).order_by('-date_from')
