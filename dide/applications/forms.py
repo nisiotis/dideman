@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from dideman.dide.models import Permanent, MoveInsideApplication
+from dideman.dide.models import Permanent, MoveInside
 from django.utils.translation import ugettext as _
-from dideman.dide.models import HEALTH_CHOICES
+from dideman.dide.models import HEALTH_CHOICES, School
 
 HEALTH_CHOICES = ((u'', u''),) + HEALTH_CHOICES
 
@@ -48,15 +48,29 @@ class EmployeeMatchForm(forms.Form):
         return self.employee_cache
 
 
-class TemporaryPositionApplicationForm(forms.Form):
+class TemporaryPositionForm(forms.Form):
     telephone_number = forms.CharField(label=u'Τηλέφωνο Επικοινωνίας')
     colocation_municipality = forms.CharField(label=u'Δήμος Συνυπηρέτησης',
                                               required=False)
     nativity_municipality = forms.CharField(label=u'Δήμος Εντοπιότητας',
                                             required=False)
 
+    def choices(self, employee):
+        return School.objects.filter(transfer_area=employee.transfer_area)
 
-class MoveInsideApplicationForm(forms.Form):
+    def choices_length(self):
+        return 39
+
+
+class TemporaryPositionAllAreas(TemporaryPositionForm):
+    def choices(self, employee):
+        return School.objects.all()
+
+    def choices_length(self):
+        return 40
+
+
+class MoveInsideForm(forms.Form):
     telephone_number = forms.CharField(label=u'Τηλέφωνο Επικοινωνίας')
     colocation_municipality = forms.CharField(label=u'Δήμος Συνυπηρέτησης',
                                               required=False)
@@ -102,3 +116,9 @@ class MoveInsideApplicationForm(forms.Form):
     other_reasons = forms.CharField(label=u'Άλλοι λόγοι',
                                     widget=forms.Textarea,
                                     max_length=500, required=False)
+
+    def choices(self, employee):
+        return School.objects.all()
+
+    def choices_length(self):
+        return 10

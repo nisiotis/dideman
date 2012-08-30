@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from dideman.dide.util.common import current_year_date_from
+from django.db.models import Q
+from dideman.dide.util.common import (current_year_date_from,
+                                      current_year_date_to)
 from django.db.models import Max
 import sql
 from django.db import connection
@@ -46,11 +48,15 @@ class Application(models.Model):
         return bool(self.datetime_finalised)
     finalised.short_description = u'Οριστικοποιήθηκε'
 
+    def profession(self):
+        return self.employee.profession
+    profession.short_description = u'Ειδικότητα'
+
     def __unicode__(self):
         return u'%s-%s' % (self.set, self.employee)
 
 
-class TemporaryPositionApplication(Application):
+class TemporaryPosition(Application):
 
     class Meta:
         verbose_name = u'Αίτηση προσωρινής τοποθέτησης'
@@ -67,12 +73,21 @@ class TemporaryPositionApplication(Application):
                                               blank=True)
 
 
+class TemporaryPositionAllAreas(TemporaryPosition):
+
+    class Meta:
+        verbose_name = u'Αίτηση προσωρινής τοποθέτησης σε όλα τα σχολεία'
+        verbose_name_plural = (u'Αίτηση προσωρινής τοποθέτησης σε όλα'
+                               u' τα σχολεία')
+        proxy = True
+
+
 HEALTH_CHOICES = (('50-66', u'Αναπηρία 50-66%'),
                   ('67-79', u'Αναπηρία 67-79'),
                   ('80-', u'Αναπηρία 80% και άνω'))
 
 
-class MoveInsideApplication(Application):
+class MoveInside(Application):
 
     class Meta:
         verbose_name = u'Αίτηση απόσπασης εντός Π.Υ.Σ.Δ.Ε.'
@@ -169,8 +184,10 @@ class ApplicationSet(models.Model):
     start_date = models.DateField(u'Ημερομηνία Έναρξης')
     end_date = models.DateField(u'Ημερομηνία Λήξης')
     klass = models.CharField(u'Τύπος', max_length=150, choices=(
-            ('TemporaryPositionApplication', u'Προσωρινής Τοποθέτησης'),
-            ('MoveInsideApplication', u'Απόσπασης εντός Π.Υ.Σ.Δ.Ε.')))
+            ('TemporaryPosition', u'Προσωρινής Τοποθέτησης'),
+            ('MoveInside', u'Απόσπασης εντός Π.Υ.Σ.Δ.Ε.'),
+            ('TemporaryPositionAllAreas',
+             u'Προσωρινής Τοποθέτησης (όλες περιοχές)')))
 
     def __unicode__(self):
         return self.name
@@ -516,6 +533,22 @@ class PermanentManager(EmployeeManager):
     def get_by_natural_key(self, registration_number):
         return self.get(registration_number=registration_number)
 
+    def serves_in_dide_school(self):
+        cursor = connection.cursor()
+        cursor.execute(
+            sql.serves_in_dide_school.format(str(current_year_date_from())))
+        ids = [row[0] for row in cursor.fetchall()]
+        return self.filter(parent_id__in=ids)
+
+    def not_serves_in_dide_school(self):
+        cursor = connection.cursor()
+        cursor.execute(
+            sql.serves_in_dide_school.format(
+                str(current_year_date_from()),
+                str(current_year_date_to())))
+        ids = [row[0] for row in cursor.fetchall()]
+        return self.exclude(parent_id__in=ids)
+
     def permanent_post_in_organization(self, org_id):
         cursor = connection.cursor()
         cursor.execute(sql.permanent_post_in_organization.format(org_id))
@@ -524,7 +557,10 @@ class PermanentManager(EmployeeManager):
 
     def serving_in_organization(self, org_id):
         cursor = connection.cursor()
-        cursor.execute(sql.serving_in_organization.format(org_id))
+        cursor.execute(
+            sql.serving_in_organization.format(org_id,
+                                               str(current_year_date_from()),
+                                               str(current_year_date_to())))
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
@@ -866,6 +902,13 @@ class Service(Placement):
         return self.organization.name + self.date_from.strftime('%d-%m-%Y')
 
 
+class EmployeeLeaveManager(models.Manager):
+
+    def date_range_intersect(self, ds, de):
+        return self.filter(Q(date_from__gte=ds, date_from__lte=de) |
+                    Q(date_from__lte=ds, date_to__gte=ds))
+
+
 class EmployeeLeave(models.Model):
 
     class Meta:
@@ -873,6 +916,7 @@ class EmployeeLeave(models.Model):
         verbose_name_plural = u'Άδειες'
         ordering = ['-date_to']
 
+    objects = EmployeeLeaveManager()
     employee = models.ForeignKey(Employee, verbose_name=u'Υπάλληλος')
     leave = models.ForeignKey(Leave, verbose_name=u'Κατηγορία Άδειας')
     date_issued = models.DateField(u'Χορήγηση', null=True, blank=True)
@@ -887,6 +931,11 @@ class EmployeeLeave(models.Model):
                                    max_length=300)
     duration = models.IntegerField(max_length=3, verbose_name=u'Διάρκεια',
                                    null=True, blank=True)
+
+    # a leave intersects with another date range (ds: date start, de: date end
+    def date_range_intersects(ds, de):
+        return (self.date_from <= ds <= self.date_to) or \
+            (ds <= self.date_from <= de)
 
     def profession(self):
         return self.employee.profession

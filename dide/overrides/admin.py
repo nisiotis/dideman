@@ -6,8 +6,10 @@ from django.contrib.admin.filters import (SimpleListFilter, FieldListFilter,
                                           ChoicesFieldListFilter,
                                           AllValuesFieldListFilter)
 from django.http import QueryDict
+from django.utils.datastructures import MultiValueDict
 from django.conf.urls import patterns, url
 from dideman.dide.util.settings import SETTINGS
+from django.utils.http import urlencode
 import django.contrib.admin.views.main as views
 
 
@@ -59,8 +61,28 @@ def monkey_patch_method(cls, name, fn):
     setattr(cls, name, method)
 
 
-def alter_changelist_constructor(fn):
+def alter_get_query_string(fn):
+    def get_query_string(self, new_params=None, remove=None, multi=None):
+        if new_params is None: 
+            new_params = {}
+        if remove is None: 
+            remove = []
+        p = MultiValueDict(self.param_lists)
+        for r in remove:
+            for k in p.keys():
+                if k.startswith(r):
+                    del p[k]
+        for k, v in new_params.items():
+            if v is None:
+                if k in p:
+                    del p[k]
+            else:
+                p[k] = v
+        return '?%s' % urlencode(p, 1)
+    return get_query_string
 
+
+def alter_changelist_constructor(fn):
     def __init__(self, request, model, list_display, list_display_links,
                  list_filter, date_hierarchy, search_fields,
                  list_select_related, list_per_page, list_max_show_all,
@@ -72,11 +94,8 @@ def alter_changelist_constructor(fn):
         self.param_lists = {}
         for l in request.GET.lists():
             key, val = l
-            if not isinstance(val, list) or \
-                    len(val) < 2 or key not in OLD_IGNORED_PARAMS:
+            if key not in OLD_IGNORED_PARAMS:
                 self.param_lists[key] = val
-            else:
-                self.param_lists[key] = [val.pop()]
     return __init__
 
 
@@ -206,6 +225,9 @@ AllValuesFieldListFilter.__bases__ = (ModifierFieldListFilter, )
 
 monkey_patch_method(RelatedFieldListFilter, 'choices', alter_choices)
 monkey_patch_method(BooleanFieldListFilter, 'choices', alter_choices)
+setattr(BooleanFieldListFilter, 'lookup_choices', ((None, u'Όλα'),
+                                                   ('1', u'Ναι'),
+                                                   ('0', u'Όχι')))
 monkey_patch_method(ChoicesFieldListFilter, 'choices', alter_choices)
 monkey_patch_method(AllValuesFieldListFilter, 'choices', alter_choices)
 monkey_patch_method(SimpleListFilter, 'choices', alter_choices)
@@ -220,3 +242,4 @@ monkey_patch_method(ChoicesFieldListFilter, '__init__',
 monkey_patch_method(AllValuesFieldListFilter, '__init__',
                     alter_filter_constructor)
 monkey_patch_method(views.ChangeList, '__init__', alter_changelist_constructor)
+monkey_patch_method(views.ChangeList, 'get_query_string', alter_get_query_string)

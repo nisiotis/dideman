@@ -29,7 +29,7 @@ def current_year_date_to():
     if now.month < 9:
         return datetime.date(now.year, 8, 31)
     else:
-        return datetime.date.year(now.year + 1, 8, 31)
+        return datetime.date(now.year + 1, 8, 31)
 
 
 def current_year():

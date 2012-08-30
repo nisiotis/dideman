@@ -30,7 +30,8 @@ INNER JOIN (
         ON dide_organization.id = dide_placement.organization_id
     WHERE t.id IN (2,3,6)
         AND dide_organization.id = {0}
-        AND dide_placement.date_from >= DATE('2011-09-01')
+        AND dide_placement.date_from >= DATE('{1}')
+        AND dide_placement.date_to >= DATE('{2}')
 ) as foo ON foo.employee_id = dide_permanent.parent_id
 INNER JOIN 
     dide_employee ON
@@ -68,9 +69,20 @@ UNION
             INNER JOIN dide_organization 
                 ON dide_organization.id = dide_placement.organization_id
             WHERE t.id = 2
-                AND dide_placement.date_from >= DATE('2011-09-01')
+                AND dide_placement.date_from >= DATE('{1}')
         ) AS bar ON bar.employee_id = dide_employee.id  
         WHERE dide_employee.currently_serves = 1    
     )
 )
 """
+serves_in_dide_school = """
+SELECT dide_permanent . parent_id 
+FROM dide_permanent
+WHERE dide_permanent.parent_id NOT 
+IN (
+    SELECT dide_placement.employee_id
+    FROM dide_permanent
+    INNER JOIN dide_placement ON dide_permanent.parent_id = dide_placement.employee_id
+    INNER JOIN dide_otherorganization ON dide_otherorganization.parent_organization_id = dide_placement.organization_id
+    WHERE dide_placement.date_from >=  '{0}' and dide_placement.date_to <= '{1}'
+)"""

@@ -39,16 +39,22 @@ def render_template(request, model, model_admin):
     for spec in specs:
         if isinstance(spec, FreeDateFieldListFilter):
             date_filters.append(spec)
-        elif spec.lookup_choices:
-            if isinstance(spec.lookup_choices, (list, tuple)):
-                choices = spec.lookup_choices
+        else:
+            if hasattr(spec, 'lookup_choices'):
+                if isinstance(spec.lookup_choices, (list, tuple)):
+                    choices = spec.lookup_choices
+                else:
+                    choices = [(x, x) for x in spec.lookup_choices]
+            elif hasattr(spec, 'choices'):
+                choices = spec.choices()
             else:
-                choices = [(x, x) for x in spec.lookup_choices]
-            select_multiple = chosenforms.ChosenSelectMultiple(
-                choices=choices, overlay=u'Επιλέξτε',
-                attrs={'style': 'width:600px',
-                       'name': spec.lookup_param, 'title': spec.title})
-            selects.append(select_multiple)
+                choices = None
+            if choices:
+                select_multiple = chosenforms.ChosenSelectMultiple(
+                    choices=choices, overlay=u'Επιλέξτε',
+                    attrs={'style': 'width:600px',
+                           'name': spec.lookup_param, 'title': spec.title})
+                selects.append(select_multiple)
     return render_to_response('admin/full_filters.html',
                               {'selects': selects,
                                'date_filters': date_filters,
@@ -109,15 +115,22 @@ def otherorganization(request):
     return render_template(request, OtherOrganization, OtherOrganizationAdmin)
 
 
-def temporarypositionapplication(request):
-    from dideman.dide.admin import TemporaryPositionApplicationAdmin
-    from dideman.dide.models import TemporaryPositionApplication
-    return render_template(request, TemporaryPositionApplication,
-                           TemporaryPositionApplicationAdmin)
+def temporaryposition(request):
+    from dideman.dide.admin import TemporaryPositionAdmin
+    from dideman.dide.models import TemporaryPosition
+    return render_template(request, TemporaryPosition,
+                           TemporaryPositionAdmin)
 
 
-def moveinsideapplication(request):
-    from dideman.dide.admin import MoveInsideApplicationAdmin
-    from dideman.dide.models import MoveInsideApplication
-    return render_template(request, MoveInsideApplication,
-                           MoveInsideApplicationAdmin)
+def moveinside(request):
+    from dideman.dide.admin import MoveInsideApplication
+    from dideman.dide.models import MoveInside
+    return render_template(request, MoveInside,
+                           MoveInsideAdmin)
+
+
+def temporarypositionallareas(request):
+    from dideman.dide.admin import TemporaryPositionAllAreas
+    from dideman.dide.models import TemporaryPositionAllAreas
+    return render_template(request, TemporaryPositionAllAreas,
+                           TemporaryPositionAllAreas)

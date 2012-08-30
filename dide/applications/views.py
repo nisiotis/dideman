@@ -3,11 +3,13 @@ from django.shortcuts import render_to_response, render
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Employee, Permanent, School, Application,
                                  ApplicationSet, ApplicationType,
-                                 ApplicationChoice, MoveInsideApplication)
+                                 ApplicationChoice, MoveInside)
 from dideman.dide.applications.forms import (EmployeeMatchForm,
-                                             MoveInsideApplicationForm,
-                                             TemporaryPositionApplicationForm)
-from dideman.dide.applications.decorators import match_required
+                                             MoveInsideForm,
+                                             TemporaryPositionForm)
+from dideman.dide.employee.decorators import match_required
+from dideman.dide.applications.actions import ApplicationPrint
+from dideman.dide.util.common import get_class
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from django.db.models.loading import get_model
@@ -20,39 +22,11 @@ import datetime
 import os
 
 
-_template_path = 'applications' + os.path.sep
-
-_views_data = {
-    'TemporaryPositionApplication': {
-        'form': TemporaryPositionApplicationForm,
-        'len': lambda x: len(x),
-        'schools': lambda emp: School.objects.filter(
-            transfer_area=emp.transfer_area)
-        },
-    'MoveInsideApplication': {
-        'form': MoveInsideApplicationForm,
-        'len': lambda x: 10,
-        'schools': lambda emp: School.objects.all()
-        }
-    }
+def get_form(klass):
+    return get_class('dideman.dide.applications.forms.%s' % klass)
 
 
-def match(request, set_id):
-    if request.method == 'POST':
-        form = EmployeeMatchForm(request)
-        if form.is_valid():
-            id = form.get_employee().id
-            request.session['set_id'] = set_id
-            request.session['matched_employee_id'] = id
-            return HttpResponseRedirect('/applications/edit/%s' % set_id)
-    else:
-        form = EmployeeMatchForm()
-    request.session.set_test_cookie()
-    return render_to_response(_template_path + 'match.html',
-                              RequestContext(request, {'form': form}))
-
-
-@match_required('applications/match')
+@match_required
 def print_app(request, set_id):
 
     class Positioner(object):
@@ -78,7 +52,7 @@ def print_app(request, set_id):
     emp = Permanent.objects.get(pk=base_app.employee_id)
     set = base_app.set
     app = get_model('dide', set.klass).objects.get(parent=base_app)
-    form = _views_data[set.klass]['form']
+    form = get_form(set.klass)(request.POST)
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=app_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
@@ -115,13 +89,13 @@ def print_app(request, set_id):
 
 
 @csrf_protect
-@match_required('/applications/match')
+@match_required
 def edit(request, set_id):
     today = datetime.date.today()
     new_form = False
     if 'logout' in request.GET:
         request.session.clear()
-        return HttpResponseRedirect('/applications/match/%s' % set_id)
+        return HttpResponseRedirect('/employee/match/%s' % set_id)
     else:
         emp = Permanent.objects.get(pk=request.session['matched_employee_id'])
         try:
@@ -147,7 +121,7 @@ def edit(request, set_id):
         if 'emp-action' in request.POST:
             action = request.POST['emp-action']
             choices = request.POST['emp-choices'].split(';')
-            form = _views_data[set.klass]['form'](request.POST)
+            form = get_form(set.klass)(request.POST)
 
             if form.is_valid():
                 for key in form.cleaned_data:
@@ -162,6 +136,7 @@ def edit(request, set_id):
                             setattr(app, n, value)
                     except:
                         pass
+
             if request.POST['emp-choices']:
                 app_choices = []
                 for i, choice in enumerate(choices):
@@ -178,14 +153,19 @@ def edit(request, set_id):
                 app.save()
             return HttpResponseRedirect('/applications/edit/%s' % set_id)
         else:
-            schools = _views_data[set.klass]['schools'](emp)
+            if new_form:
+                app_form = get_form(set.klass)()
+            else:
+                app_form = get_form(set.klass)(app.__dict__)
+
+            schools = app_form.choices(emp)
             choices_schools = [(x.choice_id, x.choice.name) for x in
                        ApplicationChoice.objects
                        .filter(application=app).order_by('position')]
             choices = [x.choice_id for x in
                        ApplicationChoice.objects
                        .filter(application=app).order_by('position')]
-            app_len = _views_data[set.klass]['len'](schools)
+            app_len = app_form.choices_length()
             choices += [0] * (app_len - len(choices))
             options = []
             for i in range(0, app_len):
@@ -194,17 +174,11 @@ def edit(request, set_id):
                     acc.append({'id': s.id, 'name': s.name,
                                 'selected': s.id == choices[i]})
                 options.append(acc)
-            if 'form' in _views_data[set.klass]:
-                if new_form:
-                    form = _views_data[set.klass]['form']()
-                else:
-                    form = _views_data[set.klass]['form'](app.__dict__)
-            else:
-                form = None
+
             return render_to_response(
                 _template_path + 'application.html',
                 RequestContext(request, {'emp': emp,
-                                         'form': form,
+                                         'form': app_form,
                                          'schools': schools,
                                          'application': app,
                                          'options': options,

@@ -5,7 +5,9 @@ from filters import (PermanentPostFilter, OrganizationServingFilter,
                      StudyFilter, DateHiredFilter, LeaveDateToFilter,
                      LeaveDateFromFilter, CurrentlyServesFilter,
                      NonPermanentCurrentlyServesFilter,
-                     TransferedFilter, NextPromotionInRangeFilter)
+                     TransferedFilter, NextPromotionInRangeFilter,
+                     EmployeeWithLeaveFilter, EmployeeWithOutLeaveFilter,
+                     ServesInDideSchoolFilter)
 from applications.filters import FinalisedFilter
 from models import (TransferArea, Leave, Responsibility, Profession,
                     Promotion, NonPermanentType,
@@ -14,7 +16,8 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     Placement, EmployeeLeave, EmployeeResponsibility,
                     EmployeeDegree, Child, Loan, SocialSecurity,
                     LoanCategory, Service, Settings, ApplicationSet,
-                    MoveInsideApplication, TemporaryPositionApplication,
+                    MoveInside, TemporaryPosition,
+                    TemporaryPositionAllAreas,
                     ApplicationChoice, ApplicationType)
 from actions import CSVReport, FieldAction
 
@@ -82,7 +85,8 @@ class EmployeeInline(admin.TabularInline):
 
 
 class ApplicationAdmin(DideAdmin):
-    list_display = ['employee', 'set', 'finalised']
+    list_display = ['employee', 'set', 'finalised',
+                    'profession']
     list_filter = ['set__name', FinalisedFilter, 'employee__transfer_area',
                    'employee__profession__unified_profession']
     search_fields = ['employee__lastname']
@@ -96,11 +100,15 @@ class ApplicationAdmin(DideAdmin):
                          exclude=['parent'])]
 
 
-class TemporaryPositionApplicationAdmin(ApplicationAdmin):
+class TemporaryPositionAdmin(ApplicationAdmin):
     pass
 
 
-class MoveInsideApplicationAdmin(ApplicationAdmin):
+class MoveInsideAdmin(ApplicationAdmin):
+    pass
+
+
+class TemporaryPositionAllAreasAdmin(ApplicationAdmin):
     pass
 
 
@@ -172,11 +180,15 @@ class PermanentAdmin(EmployeeAdmin):
                                        ResponsibilityInline]
 
     list_filter = EmployeeAdmin.list_filter + (TransferedFilter,
+                                               'serving_type',
                                                DateHiredFilter,
                                                'has_permanent_post',
                                                StudyFilter,
                                                CurrentlyServesFilter,
+                                               ServesInDideSchoolFilter,
                                                NextPromotionInRangeFilter,
+                                               EmployeeWithLeaveFilter,
+                                               EmployeeWithOutLeaveFilter,
                                                OrganizationServingFilter,
                                                PermanentPostFilter)
     list_per_page = 50
@@ -220,8 +232,8 @@ class EmployeeLeaveAdmin(DideAdmin):
                     'date_to', 'date_from', 'date_issued', 'duration')
     list_filter = ('leave', 'employee__profession__unified_profession',
                    LeaveDateToFilter, LeaveDateFromFilter)
-    actions = [CSVReport()] + sorted(leave_docx_reports,
-                                     key=lambda k: k.short_description)
+    actions = [CSVReport(add=['employee__profession__id'])] + \
+        sorted(leave_docx_reports, key=lambda k: k.short_description)
 
 
 class NonPermanentAdmin(EmployeeAdmin):
@@ -235,17 +247,19 @@ class SchoolTypeAdmin(DideAdmin):
     list_display = ('name', 'shift', 'category', 'rank')
 
 
-admin.site.register(Permanent, PermanentAdmin)
-admin.site.register(Profession, ProfessionAdmin)
-admin.site.register(SchoolType, SchoolTypeAdmin)
-admin.site.register(OtherOrganization, OtherOrganizationAdmin)
-admin.site.register(School, SchoolAdmin)
-admin.site.register(NonPermanent, NonPermanentAdmin)
-admin.site.register(PlacementType, PlacementTypeAdmin)
-admin.site.register(EmployeeLeave, EmployeeLeaveAdmin)
-admin.site.register(MoveInsideApplication, MoveInsideApplicationAdmin)
-admin.site.register(TemporaryPositionApplication,
-                    TemporaryPositionApplicationAdmin)
+map(lambda t: admin.site.register(*t), (
+        (Permanent, PermanentAdmin),
+        (Profession, ProfessionAdmin),
+        (SchoolType, SchoolTypeAdmin),
+        (OtherOrganization, OtherOrganizationAdmin),
+        (School, SchoolAdmin),
+        (NonPermanent, NonPermanentAdmin),
+        (PlacementType, PlacementTypeAdmin),
+        (EmployeeLeave, EmployeeLeaveAdmin),
+        (MoveInside, MoveInsideAdmin),
+        (TemporaryPosition, TemporaryPositionAdmin),
+        (TemporaryPositionAllAreas, TemporaryPositionAllAreasAdmin),
+        ))
 
 admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,

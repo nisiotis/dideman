@@ -2,7 +2,8 @@
 from overrides.admin import ModifierSimpleListFilter
 from overrides.admin import DideAdmin
 from django.contrib.admin.filters import SimpleListFilter
-from models import Organization, Permanent, DegreeCategory, NonPermanent
+from models import (Organization, Permanent, DegreeCategory,
+                    NonPermanent, EmployeeLeave)
 import django.contrib.admin.views.main as views
 import datetime
 import re
@@ -182,10 +183,11 @@ class FreeDateFieldListFilter(SimpleListFilter):
     parameter_name = 'free_date_period'
     sep = '|'
     default_date_from = datetime.date(1950, 1, 1)
+    default_date_to = datetime.date(2050, 12, 31)
     DideAdmin.add_filter_parameter(parameter_name)
 
     def default_date_values(self):
-        return [self.default_date_from, current_year_date_to()]
+        return [self.default_date_from, self.default_date_to]
 
     def __init__(self, request, *args, **kwargs):
         super(FreeDateFieldListFilter, self).__init__(request, *args, **kwargs)
@@ -194,7 +196,8 @@ class FreeDateFieldListFilter(SimpleListFilter):
                     url_value):
             try:
                 self.date_from, self.date_to = \
-                    map(lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'),
+                    map(lambda x:
+                            datetime.datetime.strptime(x, '%d-%m-%Y').date(),
                     url_value.split('|'))
             except:
                 self.date_from, self.date_to = self.default_date_values()
@@ -254,6 +257,86 @@ class LeaveDateToFilter(FreeDateFieldListFilter):
         else:
             return queryset.filter(date_to__gte=self.date_from,
                                    date_to__lte=self.date_to)
+
+
+class EmployeeWithOutLeaveFilter(FreeDateFieldListFilter):
+    title = u'Χωρίς Άδεια'
+    parameter_name = 'ewo_leave_date_to'
+    modifier_name = '_m_' + parameter_name
+    lookup_param = parameter_name
+    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
+    DideAdmin.add_filter_parameter(parameter_name)
+
+    def __init__(self, request, params, model, model_admin, *args, **kwargs):
+        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        super(EmployeeWithOutLeaveFilter, self).__init__(request, params,
+                                                         model, model_admin,
+                                                         *args, **kwargs)
+
+    def queryset(self, request, queryset):
+        if [self.date_from, self.date_to] == self.default_date_values():
+            return queryset
+        else:
+            return queryset.exclude(
+                id__in=[obj.employee_id
+                        for obj in EmployeeLeave.objects.date_range_intersect(
+                        self.date_from, self.date_to)])
+
+
+class EmployeeWithLeaveFilter(FreeDateFieldListFilter):
+    title = u'Με Άδεια'
+    parameter_name = 'ew_leave_date_to'
+    modifier_name = '_m_' + parameter_name
+    lookup_param = parameter_name
+    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
+    DideAdmin.add_filter_parameter(parameter_name)
+
+    def __init__(self, request, params, model, model_admin, *args, **kwargs):
+        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        super(EmployeeWithLeaveFilter, self).__init__(request, params,
+                                                         model, model_admin,
+                                                         *args, **kwargs)
+
+    def queryset(self, request, queryset):
+        if [self.date_from, self.date_to] == self.default_date_values():
+            return queryset
+        else:
+            return queryset.filter(id__in=[obj.employee_id
+                        for obj in EmployeeLeave.objects.date_range_intersect(
+                        self.date_from, self.date_to)])
+
+
+class ServesInDideSchoolFilter(ModifierSimpleListFilter):
+    title = u'Υπηρετεί σε σχολείο της Δ.Δ.Ε.'
+    parameter_name = 'serves_in_dde_sch'
+    modifier_name = '_m_' + parameter_name
+    lookup_param = parameter_name
+    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
+    DideAdmin.add_filter_parameter(parameter_name)
+
+    def __init__(self, request, params, model, model_admin, *args, **kwargs):
+        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        super(ServesInDideSchoolFilter, self).__init__(request, params, model,
+                                                model_admin)
+
+    def lookups(self, request, model_admin):
+        return(('1', _('Yes')), ('2', _('No')))
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            if val == '1':
+                return queryset & Permanent.objects.serves_in_dide_school()
+            elif val == '2':
+                return queryset & Permanent.objects.not_serves_in_dide_school()
+        else:
+            return queryset
+
+    def has_output(self):
+        return True
+
+    def used_params(self):
+        return [self.parameter_name]
 
 
 class LeaveDateFromFilter(FreeDateFieldListFilter):
