@@ -95,7 +95,7 @@ def edit(request, set_id):
     new_form = False
     if 'logout' in request.GET:
         request.session.clear()
-        return HttpResponseRedirect('/employee/match/%s' % set_id)
+        return HttpResponseRedirect('/employee/match/?next=/applications/edit/%s' % set_id)
     else:
         emp = Permanent.objects.get(pk=request.session['matched_employee_id'])
         try:

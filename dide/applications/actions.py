@@ -31,12 +31,6 @@ class ApplicationPrint(object):
             self.schools = schools
 
     def __call__(self, modeladmin, request, queryset, *args, **kwargs):
-        # base_app = Application.objects.get(
-        #     request.GET['set_id'],
-        #     employee_id=request.session['matched_employee_id'])
-        # emp = Permanent.objects.get(pk=base_app.employee_id)
-        # set = base_app.set
-        # app = get_model('dide', set.klass).objects.get(parent=base_app)
         response = HttpResponse(mimetype='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=app_report.pdf'
         registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,

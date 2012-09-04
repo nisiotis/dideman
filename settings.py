@@ -47,7 +47,7 @@ USE_I18N = True
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
-USE_L10N = True
+USE_L10N = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -158,6 +158,7 @@ LOGGING = {
 DEFAULT_CHARSET = 'utf-8'
 FILE_CHARSET = 'utf-8'
 DATE_INPUT_FORMATS = ('%d-%m-%Y', '%d/%m/%Y')
+DATE_FORMAT = 'd-m-Y'
 
 DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.version.VersionDebugPanel',

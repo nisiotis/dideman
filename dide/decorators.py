@@ -3,6 +3,19 @@ import functools
 from django.http import HttpResponseRedirect
 
 
+def shorted(length):
+    def dec(fn):
+        @functools.wraps(fn)
+        def _dec(*args, **kwargs):
+            s = str(fn)
+            if len(s) <= length:
+                return s
+            else:
+                return fn(*args, **kwargs)[:length] + '...'
+        return _dec
+    return dec
+
+
 def match_required(view_func):
     @functools.wraps(view_func)
     def decorated(request, *args, **kwargs):

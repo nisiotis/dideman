@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import functools
 from django.db import models
 from django.db.models import Q
 from dideman.dide.util.common import (current_year_date_from,
                                       current_year_date_to)
+from dideman.dide.decorators import shorted
 from django.db.models import Max
 import sql
 from django.db import connection
@@ -286,8 +288,7 @@ class Leave(models.Model):
     name = models.CharField(max_length=200, verbose_name=u'Κατηγορία')
     type = models.CharField(max_length=15, verbose_name=u'Τύπος',
                             choices=LEAVE_TYPES)
-    not_paying = models.BooleanField(
-        verbose_name=u'Χωρίς αποδοχές', )
+    not_paying = models.BooleanField(verbose_name=u'Χωρίς αποδοχές')
     only_working_days = models.BooleanField(
          verbose_name=u'Μόνο εργάσιμες μέρες')
     orders = models.CharField(u'Διατάξεις', null=True, blank=True,
@@ -354,9 +355,6 @@ class EmployeeManager(models.Manager):
     def get_by_natural_key(self, firstname, lastname, fathername, profession):
         return self.get(firstname=firstname, lastname=lastname,
                         fathername=fathername, profession=profession)
-
-    # def get_query_set(self):
-    #     return self.select_related('permanent', 'nonpermanent')
 
 
 class Employee(models.Model):
@@ -439,13 +437,6 @@ class Employee(models.Model):
     notes = models.TextField(u'Σημειώσεις', blank=True, default='')
     date_created = models.DateField(u'Ημερομηνία δημιουργίας',
                                     auto_now_add=True)
-
-    def post(self):
-        qs = Permanent.objects.filter(id=self.id)
-        if qs:
-            return qs[0].permanent_post()
-        else:
-            return None
 
     def last_placement(self):
         p = Placement.objects.filter(employee=self).order_by('-date_from')
@@ -932,7 +923,26 @@ class EmployeeLeave(models.Model):
     duration = models.IntegerField(max_length=3, verbose_name=u'Διάρκεια',
                                    null=True, blank=True)
 
-    # a leave intersects with another date range (ds: date start, de: date end
+    @shorted(15)
+    def category(self):
+        return self.leave.name
+    category.short_description = u'Κατηγορία'
+
+    def permanent_post(self):
+        if hasattr(self.employee, 'permanent'):
+            return self.employee.permanent.permanent_post()
+        else:
+            return None
+    permanent_post.short_description = u'Οργανική θέση'
+
+    def organization_serving(self):
+        if hasattr(self.employee, 'permanent'):
+            return self.employee.permanent.organization_serving()
+        else:
+            return self.employee.organization_serving()
+    organization_serving.short_description = u'Θέση υπηρεσίας'
+    # a leave intersects with another date range (ds: date start, de: date end)
+
     def date_range_intersects(ds, de):
         return (self.date_from <= ds <= self.date_to) or \
             (ds <= self.date_from <= de)
