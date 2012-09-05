@@ -449,11 +449,28 @@ class Employee(models.Model):
     def unified_profession(self):
         return self.profession.unified_profession
 
+    def temporary_position(self):
+        if self.has_permanent_post:
+            return None
+        else:
+            p = Placement.objects.filter(employee=self,
+                                         date_from__gte=current_year_date_from,
+                                         type__id=3).order_by('-date_from')
+            return p[0] if p else None
+    temporary_position.short_description = u'Προσωρινή Τοποθέτηση'
+
     def organization_serving(self):
-        p = Placement.objects.filter(
-             employee=self,
-             date_from__gte=current_year_date_from()).order_by('-date_from')
-        return p[0] if p else None
+        p = Placement.objects.filter(employee=self).order_by('-date_from')
+        this_years = p.filter(date_from__gte=current_year_date_from()). \
+            order_by('-date_from')
+        if this_years:
+            return this_years[0]
+        else:
+            valid = p.filter(date_to__gte=datetime.date.today()). \
+                order_by('-date_from')
+            if valid:
+                return valid[0]
+            return None
     organization_serving.short_description = u'Θέση υπηρεσίας'
 
     def natural_key(self):

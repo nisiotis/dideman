@@ -173,7 +173,7 @@ class ProfessionAdmin(DideAdmin):
 
 class PermanentAdmin(EmployeeAdmin):
     list_display = ['lastname', 'firstname', 'fathername',
-                    'registration_number', 'profession', 'date_hired',
+                    'registration_number', 'profession', 'serving_type',
                     'permanent_post', 'organization_serving']
     inlines = EmployeeAdmin.inlines + [PromotionInline, PlacementInline,
                                        ServiceInline, LeaveInline,
@@ -199,8 +199,9 @@ class PermanentAdmin(EmployeeAdmin):
                     'lastname', 'firstname', 'fathername', 'notes',
                     'registration_number', 'profession',
                     'profession_description', 'permanent_post',
-                    'organization_serving', 'study_years', 'serving_type',
-                    'date_hired', 'order_hired', 'hours', 'is_permanent',
+                    'temporary_position', 'organization_serving',
+                    'study_years', 'serving_type', 'date_hired',
+                    'order_hired', 'hours', 'is_permanent',
                     'has_permanent_post', 'currently_serves',
                     'recognised_experience', 'formatted_recognised_experience',
                     'payment_start_date_auto', 'payment_start_date_manual',
@@ -211,11 +212,13 @@ class PermanentAdmin(EmployeeAdmin):
             economic_fieldset]
     search_fields = EmployeeAdmin.search_fields + ('registration_number',)
     readonly_fields = EmployeeAdmin.readonly_fields + \
-        ['permanent_post', 'formatted_recognised_experience',
-         'payment_start_date_auto', 'rank', 'profession_description',
+        ['permanent_post', 'temporary_position',
+         'formatted_recognised_experience', 'payment_start_date_auto',
+         'rank', 'profession_description',
          'date_created']
 
     actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
+                                     'temporary_position',
                                      'profession__description'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
 

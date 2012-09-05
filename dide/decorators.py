@@ -7,11 +7,11 @@ def shorted(length):
     def dec(fn):
         @functools.wraps(fn)
         def _dec(*args, **kwargs):
-            s = str(fn)
+            s = str(fn(*args, **kwargs))
             if len(s) <= length:
                 return s
             else:
-                return fn(*args, **kwargs)[:length] + '...'
+                return s[:length] + '...'
         return _dec
     return dec
 
