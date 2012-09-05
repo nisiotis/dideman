@@ -26,6 +26,82 @@ class NullableCharField(models.CharField):
 add_introspection_rules([], ['^dideman\.dide\.models\.NullableCharField'])
 
 
+class RankCode(models.Model):
+    id = models.IntegerField(u'Κωδικός', primary_key=True)
+    rank = models.CharField(u'Βαθμός', max_length=4)
+
+    def __unicode__(self):
+        return self.rank
+
+
+class PaymentName(models.Model):
+    id = models.IntegerField(u'Κωδικός', primary_key=True)
+    name = models.CharField(u'Περιγραφή', max_length=255)
+
+    def __unicode__(self):
+        return self.name
+
+
+class PaymentReportType(models.Model):
+    id = models.IntegerField(u'Κωδικός', primary_key=True)
+    type = models.CharField(u'Περιγραφή', max_length=255)
+
+    def __unicode__(self):
+        return self.type
+
+
+class PaymentCategoryTitle(models.Model):
+    id = models.IntegerField(u'Κωδικός', primary_key=True)
+    title = models.CharField(u'Περιγραφή', max_length=255)
+
+    def __unicode__(self):
+        return self.title
+
+
+class PaymentReport(models.Model):
+    employee = models.ForeignKey('Employee', verbose_name=u'Υπάλληλος')
+    type = models.ForeignKey('PaymentReportType',
+                             verbose_name=u'Τύπος Αναφοράς')
+    year = models.IntegerField(u'Έτος')
+    rank = models.ForeignKey('RankCode', verbose_name=u'Βαθμός')
+    iban = models.CharField('iban', max_length=50, null=True, blank=True)
+    net_amount1 = models.CharField(u"Α' Δεκαπενθήμερο",
+                                   max_length=50, null=True, blank=True)
+    net_amount2 = models.CharField(u"Β' Δεκαπενθήμερο",
+                                   max_length=50, null=True, blank=True)
+
+
+class PaymentCategory(models.Model):
+    title = models.ForeignKey('PaymentCategoryTitle',
+                              verbose_name=u'Τίτλος Κατηγορίας')
+    start_date = models.DateField(u'Ημερομηνία Έναρξης')
+    end_date = models.DateField(u'Ημερομηνία Λήξης')
+    month = models.IntegerField(u'Μήνας')
+    year = models.IntegerField(u'Έτος')
+    payments = models.ManyToManyField('PaymentCode', through='Payment')
+
+
+class Payment(models.Model):
+    category = models.ForeignKey('PaymentCategory')
+    type = models.CharField(u'Τύπος', max_length=2)  # (gr, et, de)
+    code = models.ForeignKey('PaymentCode')
+    amount = models.CharField(u'Ποσό', max_length=10)
+    info = models.CharField('Σχετικές πληοροφορίες', max_length=255)
+
+
+class PaymentCode(models.Model):
+
+    class Meta:
+        verbose_name = u'Κωδικός Πληρωμής'
+        verbose_name_plural = u'Κωδικοί Πληρωμών'
+
+    id = models.IntegerField(u'Κωδικός', primary_key=True)
+    description = models.CharField(u'Περιγραφή', max_length=255)
+
+    def __unicode__(self):
+        return self.description
+
+
 class Application(models.Model):
 
     class Meta:
