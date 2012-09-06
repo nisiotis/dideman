@@ -134,3 +134,9 @@ def temporarypositionallareas(request):
     from dideman.dide.models import TemporaryPositionAllAreas
     return render_template(request, TemporaryPositionAllAreas,
                            TemporaryPositionAllAreas)
+
+
+def applicationset(request):
+    from dideman.dide.admin import ApplicationSetAdmin
+    from dideman.dide.models import ApplicationSet
+    return render_template(request, ApplicationSet, ApplicationSetAdmin)

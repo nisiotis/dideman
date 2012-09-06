@@ -1,0 +1,13 @@
+{% extends "applications/base.html" %}
+{% load i18n admin_static %}
+{% load base_site %}
+{% block title %}
+Δ.Δ.Ε. Σφάλμα!
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <h1>Σφάλμα Αίτησης</h1>
+    <h2>{{ error_message }}</h2>
+</div>
+{% endblock %}

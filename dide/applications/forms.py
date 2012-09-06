@@ -62,7 +62,7 @@ class TemporaryPositionForm(forms.Form):
         return 39
 
 
-class TemporaryPositionAllAreas(TemporaryPositionForm):
+class TemporaryPositionAllAreasForm(TemporaryPositionForm):
     def choices(self, employee):
         return School.objects.all()
 

@@ -84,6 +84,15 @@ class EmployeeInline(admin.TabularInline):
     extra = 0
 
 
+class ApplicationSetAdmin(DideAdmin):
+    model = ApplicationSet
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ('klass',) + self.readonly_fields
+        return self.readonly_fields
+
+
 class ApplicationAdmin(DideAdmin):
     list_display = ['employee', 'set', 'finalised',
                     'profession']
@@ -263,8 +272,9 @@ map(lambda t: admin.site.register(*t), (
         (MoveInside, MoveInsideAdmin),
         (TemporaryPosition, TemporaryPositionAdmin),
         (TemporaryPositionAllAreas, TemporaryPositionAllAreasAdmin),
+        (ApplicationSet, ApplicationSetAdmin)
         ))
 
 admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,
-                     ApplicationSet, ApplicationType))
+                     ApplicationType))
