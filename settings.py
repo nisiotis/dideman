@@ -1,6 +1,7 @@
 # Django settings for dideman project.
 import locale
 import os
+import secret_settings
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -15,10 +16,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         # database name
         'NAME': 'dideman',
-        'USER': 'root',
-        'PASSWORD': 'qwe123',
+        'USER': '',
+        'PASSWORD': '',
         # empty string for localhost
-        'HOST': '',                
+        'HOST': '',
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
@@ -89,7 +90,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'i29$(wgj9186xj4n+gjxrazn*ij-hr)7@vwaoxpiqyh^%i-8f8'
+SECRET_KEY = ''
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -172,3 +173,7 @@ DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.logger.LoggingPanel',
 )
 INTERNAL_IPS = ('127.0.0.1',)
+
+
+DATABASES = secret_settings.DATABASES
+SECRET_KEY = secret_settings.SECRET_KEY
