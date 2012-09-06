@@ -7,7 +7,7 @@ def shorted(length):
     def dec(fn):
         @functools.wraps(fn)
         def _dec(*args, **kwargs):
-            s = str(fn(*args, **kwargs))
+            s = unicode(fn(*args, **kwargs))
             if len(s) <= length:
                 return s
             else:
