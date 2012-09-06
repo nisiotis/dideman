@@ -2,7 +2,7 @@
 from overrides.admin import ModifierSimpleListFilter
 from overrides.admin import DideAdmin
 from django.contrib.admin.filters import SimpleListFilter
-from models import (Organization, Permanent, DegreeCategory,
+from models import (Organization, School, Permanent, DegreeCategory,
                     NonPermanent, EmployeeLeave)
 import django.contrib.admin.views.main as views
 import datetime
@@ -25,8 +25,8 @@ class PermanentPostFilter(ModifierSimpleListFilter):
                                                   model_admin)
 
     def lookups(self, request, model_admin):
-        organizations = Organization.objects.all()
-        return ((o.id, o.name) for o in organizations)
+        schools = School.objects.all()
+        return ((s.id, s.name) for s in schools)
 
     def filter_param(self, queryset, query_dict):
         val = query_dict.get(self.parameter_name, None)
