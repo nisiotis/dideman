@@ -1,28 +1,22 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
-from dideman.dide.models import (Employee, Permanent, School, Application,
-                                 ApplicationSet, ApplicationType,
-                                 ApplicationChoice, MoveInside)
+from dideman.dide.models import Permanent
 from dideman.dide.employee.decorators import match_required
-from dideman.dide.applications.actions import ApplicationPrint
 from dideman.dide.util.common import get_class
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
-from django.db.models.loading import get_model
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
-from reportlab.pdfgen import canvas
 from reportlab.pdfbase.pdfmetrics import registerFont
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.units import inch, cm
-from reportlab.lib import styles, colors
+from reportlab.lib.units import cm
+from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus.doctemplate import SimpleDocTemplate
-from reportlab.platypus import Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.platypus import Paragraph, Image, Table
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER, TA_RIGHT
-import reportlab
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 import datetime
 import os
 
@@ -107,11 +101,11 @@ def print_app(request, set_id):
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ', heading_style['Center']))
     if pay.month > 12:
-        elements.append(Paragraph(u'Αποδοχές %s %s' %
+        elements.append(Paragraph(u'Αποδοχές %s %s' % \
                                   (pay.get_month_display(), pay.year),
                                   heading_style["Center"]))
     else:
-        elements.append(Paragraph(u'Μισθοδοσία %s %s' %
+        elements.append(Paragraph(u'Μισθοδοσία %s %s' % \
                                   (pay.get_month_display(), pay.year),
                                   heading_style['Center']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
@@ -134,32 +128,32 @@ def print_app(request, set_id):
     del data
     data = []
     for i in PaymentIncome.objects.filter(payment=id):
-        elements.append(Paragraph(u" ", heading_style["Spacer"]))
-        s = "%s" % i.get_type_display()
-        data.append([Paragraph("%s" % s, tbl_style["BoldLeft"])])
+        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        s = '%s' % i.get_type_display()
+        data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
         table2 = Table(data, style=tsh, colWidths=[17 * cm])
         elements.append(table2)
         del data
         data = []
-        data.append([Paragraph("Αποδοχές", tbl_style["BoldLeft"]),
-                     Paragraph("Κρατήσεις", tbl_style["BoldLeft"])])
+        data.append([Paragraph('Αποδοχές', tbl_style['BoldLeft']),
+                     Paragraph('Κρατήσεις', tbl_style['BoldLeft'])])
         table3 = Table(data, style=ts, colWidths=[8.5 * cm, 8.5 * cm])
         elements.append(table3)
         del data
         data = []
         for p in PaymentIncomeSection.objects.filter(paymentincome=i.id):
             if p.type == 'gr' or p.type == 'et':
-                s = u"%s" % p.paymentcode
-                data.append([Paragraph(s, tbl_style["Left"]),
-                             Paragraph("%.2f €" % numtoStr(p.amount),
-                                       tbl_style["Right"]), "", ""])
+                s = u'%s' % p.paymentcode
+                data.append([Paragraph(s, tbl_style['Left']),
+                             Paragraph('%.2f €' % numtoStr(p.amount),
+                                       tbl_style['Right']), '', ''])
             else:
-                s = u"%s" % p.paymentcode
-                if p.moreinfo != "":
+                s = u'%s' % p.paymentcode
+                if p.moreinfo != '':
                     s = s + " (%s)" % p.moreinfo
-                data.append(["", "", Paragraph(s, tbl_style["Left"]),
-                             Paragraph("%.2f €" % numtoStr(p.amount),
-                                       tbl_style["Right"])])
+                data.append(['', '', Paragraph(s, tbl_style['Left']),
+                             Paragraph('%.2f €' % numtoStr(p.amount),
+                                       tbl_style['Right'])])
         id = 0
         for index, item in enumerate(data):
             if data[index][3] == '':
@@ -175,47 +169,47 @@ def print_app(request, set_id):
         elements.append(table4)
         del data
         data = []
-        elements.append(Paragraph(u" ", heading_style["Spacer"]))
-    elements.append(Paragraph(u" ", heading_style["Spacer"]))
-    elements.append(Paragraph(u" ", heading_style["Spacer"]))
+        elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
     del data
     data = []
-    data.append([Paragraph("Πληρωτέο", tbl_style["BoldLeft"])])
+    data.append([Paragraph('Πληρωτέο', tbl_style['BoldLeft'])])
     table5 = Table(data, style=ts, colWidths=[17 * cm])
     elements.append(table5)
     del data
     data = []
-    data.append([Paragraph("Α' δεκαπενθήμερο", tbl_style["Left"]),
-                 Paragraph("%.2f €" % numtoStr(pay.netamount1),
-                           tbl_style["Right"]), "", ""])
-    data.append([Paragraph("Β' δεκαπενθήμερο", tbl_style["Left"]),
-                 Paragraph("%.2f €" % numtoStr(pay.netamount2),
-                           tbl_style["Right"]), "", ""])
+    data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
+                 Paragraph('%.2f €' % numtoStr(pay.netamount1),
+                           tbl_style['Right']), '', ''])
+    data.append([Paragraph('Β\' δεκαπενθήμερο', tbl_style['Left']),
+                 Paragraph('%.2f €' % numtoStr(pay.netamount2),
+                           tbl_style['Right']), '', ''])
     table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
                                               6.5 * cm, 2.0 * cm])
     elements.append(table5)
     today = datetime.date.today()
-    elements.append(Paragraph(u" ", heading_style["Spacer"]))
-    elements.append(Paragraph(u" ", heading_style["Spacer"]))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
     del data
     data = []
-    data.append([Paragraph(u" ", signature['Center']),
-                 Paragraph(u"Ρόδος, %s / %s / %s" %
+    data.append([Paragraph(u' ', signature['Center']),
+                 Paragraph(u'Ρόδος, %s / %s / %s' %
                            (today.day, today.month, today.year),
                            signature['Center'])])
-    data.append([Paragraph(u" ", signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
-    data.append([Paragraph(u" ", signature['Center']),
-                 Paragraph(u"Ο Διευθυντής", signature['Center'])])
-    data.append([Paragraph(u" ", signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
-    data.append([Paragraph(u" ", signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
-    data.append([Paragraph(u" ", signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
-    data.append([Paragraph(u" ", signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
-    data.append([Paragraph(u" ", signature['Center']),
+    data.append([Paragraph(u' ', signature['Center']),
+                 Paragraph(u' ', signature['Center'])])
+    data.append([Paragraph(u' ', signature['Center']),
+                 Paragraph(u'Ο Διευθυντής', signature['Center'])])
+    data.append([Paragraph(u' ', signature['Center']),
+                 Paragraph(u' ', signature['Center'])])
+    data.append([Paragraph(u' ', signature['Center']),
+                 Paragraph(u' ', signature['Center'])])
+    data.append([Paragraph(u' ', signature['Center']),
+                 Paragraph(u' ', signature['Center'])])
+    data.append([Paragraph(u' ', signature['Center']),
+                 Paragraph(u' ', signature['Center'])])
+    data.append([Paragraph(u' ', signature['Center']),
                  Paragraph(SETTINGS['manager'], signature['Center'])])
     table6 = Table(data, style=tsf, colWidths=[11.0 * cm, 6.0 * cm])
     elements.append(table6)
@@ -235,7 +229,6 @@ def view(request):
         pay = PaymentReport.objects.filter(
             employee=request.session['matched_employee_id']). \
             order_by('year', 'month')
-        return render_to_response(
-            _template_path + 'salary.html',
-            RequestContext(request, {'emp': set,
-                                     'payments': pay}))
+        return render_to_response('salary/salary.html',
+                                  RequestContext(request, {'emp': set,
+                                                           'payments': pay}))
