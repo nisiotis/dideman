@@ -10,4 +10,8 @@ urlpatterns = patterns(
         'dideman.dide.employee.match.match'),
     url(r'^applications/edit/(?P<set_id>\d+)/$',
         'dideman.dide.applications.views.edit'),
+    url(r'^salary/view/$',
+        'dideman.dide.salary.views.view'),
+    url(r'^$',
+        'dideman.dide.menu.views.menu'),
 )

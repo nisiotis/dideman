@@ -1,0 +1,80 @@
+{% extends "salary/base.html" %}
+{% load i18n admin_static %}
+{% load base_site %}
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+{% endblock %}
+{% block title %}
+Δ.Δ.Ε. {% get_setting 'dide_place'  %}
+{% endblock %}
+
+
+{% block content %}
+<div id="content-main">
+  <h1>Σύστημα Μισθοδοσίας</h1>
+    <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
+      <input type="hidden" id="emp-choices" name="emp-choices" />
+      <input type="hidden" id="emp-action" name="emp-action" />
+      <fieldset class="module aligned">
+        <h2>Στοιχεία εκπαιδευτικού</h2>
+        <div class="form-row field-lastname">
+          <div> 
+            <label style="width:220px;">Επώνυμο : </label>
+            <p>{{ emp.lastname  }}</p>
+          </div>
+        </div>
+        <div class="form-row field-firstname">
+          <div>
+            <label style="width:220px;">Όνομα : </label>
+            <p>{{ emp.firstname  }}</p>
+          </div>
+      </div>
+      <div class="form-row field-fathername">
+        <div>
+          <label style="width:220px;">Πατρώνυμο : </label>
+            <p>{{ emp.fathername  }}</p>
+        </div>
+      </div>
+      <div class="form-row field-profession">
+        <div>
+          <label style="width:220px;">Ειδικότητα : </label>
+          <p>{{ emp.profession  }}</p>
+        </div>
+      </div>
+      <div class="form-row field-registration_number">
+        <div>
+          <label style="width:220px;">Αριθμός Μητρώου : </label>
+          <p>{{ emp.registration_number  }}</p>
+        </div>
+      </div>
+      <div class="form-row field-iban">
+        <div>
+          <label style="width:220px;">Αριθμός Λογαριασμού (IBAN): </label>
+          <p>{{ emp.iban  }}</p>
+        </div>
+      </div>
+            <div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Βαθμός - Κλιμάκιο: </label>
+          <p>{{ emp.rank  }}</p>
+        </div>
+      </div>
+      <h2>Αποδοχές</h2>
+      <div>
+        <div id="wrap">
+        {% for p in payments %}
+        <div class="form-row field-pay">
+          <div><a href="javascript:document.location.href=document.location.href.split('?')[0]+'?print=1&id={{ p.id }}' " id="bprint">{{ p.get_month_display }} {{ p.year }}&nbsp;&nbsp;Λογαριασμός κατάθεσης {{ p.iban }}&nbsp; Βαθμός - Κλιμάκιο {{ p.get_rank_display }}.</a>
+          </div>
+        </div>
+        {% endfor %}
+        </div> <!--wrap-->
+      </div>
+      <br clear="both" />
+      <div class="submit-row" style="text-align: center">
+        <input type="button" id="logout" value="Έξοδος" onclick="javascript:document.location.href=document.location.href+'?logout' "/>
+      </div>
+    </fieldset>  
+  </form>
+</div>
+{% endblock %}

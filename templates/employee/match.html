@@ -1,7 +1,7 @@
 {% extends "employee/base.html" %}
 {% load i18n admin_static %}
 {% block bodyclass %}match{% endblock %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "applications/match.css" %}" />
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "employee/match.css" %}" />
 {% endblock %}
 {% block content %}
 {% if form.errors and not form.non_field_errors and not form.this_is_the_match_form.errors %}
