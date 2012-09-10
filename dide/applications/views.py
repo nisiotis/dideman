@@ -79,13 +79,13 @@ def print_app(request, set_id):
     elements.append(Paragraph(u'Δ.Δ.Ε. %s' % SETTINGS['dide_place'],
                               heading_style['Center']))
     elements.append(Paragraph(u'%s' % set.title, heading_style['Center']))
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
     headdata = [
         [Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
          Paragraph('%s' % emp.registration_number, tbl_style['Left']),
          Paragraph('ΚΛΑΔΟΣ', tbl_style['Left']),
          Paragraph(u'%s' % emp.profession, tbl_style['Left'])],
-        [Paragraph(u"ΕΠΩΝΥΜΟ", tbl_style['Left']),
+        [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
          Paragraph('%s' % emp.lastname, tbl_style['Left']),
          Paragraph('', tbl_style['Left']),
          Paragraph('', tbl_style['Left'])],
@@ -115,11 +115,11 @@ def print_app(request, set_id):
 
     table2 = Table(data, style=ts, colWidths=[10.0 * cm, 7.0 * cm])
     elements.append(table2)
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
     del data
     data = []
-    data.append([Paragraph("Επιλογές", tbl_style['BoldLeft'])])
+    data.append([Paragraph('Επιλογές', tbl_style['BoldLeft'])])
     for x in ApplicationChoice.objects.filter(application=app). \
             order_by('position'):
         data.append(
@@ -128,8 +128,8 @@ def print_app(request, set_id):
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     table3 = Table(data, style=ts, colWidths=[17.0 * cm])
     elements.append(table3)
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
     del data
     data = []
     today = datetime.date.today()
@@ -140,15 +140,15 @@ def print_app(request, set_id):
     data.append([Paragraph(u' ', signature['Center']),
                  Paragraph(u' ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"Υπογραφή", signature['Center'])])
+                 Paragraph(u'Υπογραφή', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
+                 Paragraph(u'  ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
+                 Paragraph(u'  ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
+                 Paragraph(u'  ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
+                 Paragraph(u'  ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
                  Paragraph('%s %s' % (emp.firstname, emp.lastname),
                            signature['Center'])])
