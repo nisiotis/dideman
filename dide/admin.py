@@ -19,10 +19,33 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     MoveInside, TemporaryPosition,
                     TemporaryPositionAllAreas,
                     ApplicationChoice, ApplicationType)
+from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
+                    PaymentReportType, PaymentCode)
+
 from actions import CSVReport, FieldAction
 
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
+
+
+class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
+    list_display = ('id', 'description')
+
+
+class RankCodeAdmin(admin.ModelAdmin):  # Vasilis
+    list_display = ('id', 'rank')
+
+
+class PaymentCodeAdmin(admin.ModelAdmin):  # Vasilis
+    list_display = ('id', 'description')
+
+
+class PaymentReportTypeAdmin(admin.ModelAdmin):  # Vasilis
+    list_display = ('id', 'type')
+
+
+class PaymentCategoryTitleAdmin(admin.ModelAdmin):  # Vasilis
+    list_display = ('id', 'title')
 
 
 class ApplicationChoiceInline(admin.TabularInline):
@@ -272,7 +295,12 @@ map(lambda t: admin.site.register(*t), (
         (MoveInside, MoveInsideAdmin),
         (TemporaryPosition, TemporaryPositionAdmin),
         (TemporaryPositionAllAreas, TemporaryPositionAllAreasAdmin),
-        (ApplicationSet, ApplicationSetAdmin)
+        (ApplicationSet, ApplicationSetAdmin),
+        (PaymentCategoryTitle, PaymentCategoryTitleAdmin),
+        (PaymentReportType, PaymentReportTypeAdmin),
+        (PaymentFileName, PaymentFileNameAdmin),
+        (RankCode, RankCodeAdmin),
+        (PaymentCode, PaymentCodeAdmin)
         ))
 
 admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,

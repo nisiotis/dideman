@@ -27,6 +27,11 @@ add_introspection_rules([], ['^dideman\.dide\.models\.NullableCharField'])
 
 
 class RankCode(models.Model):
+
+    class Meta:
+        verbose_name = u'Βαθμίδα Εξέλιξης / Κλιμάκιο'
+        verbose_name_plural = u'Βαθμίδες Εξέλιξης / Κλιμάκια'
+
     id = models.IntegerField(u'Κωδικός', primary_key=True)
     rank = models.CharField(u'Βαθμός', max_length=4)
 
@@ -34,15 +39,25 @@ class RankCode(models.Model):
         return self.rank
 
 
-class PaymentName(models.Model):
-    id = models.IntegerField(u'Κωδικός', primary_key=True)
-    name = models.CharField(u'Περιγραφή', max_length=255)
+class PaymentFileName(models.Model):
+
+    class Meta:
+        verbose_name = u'Οικονομικά: Αρχείο Πληρωμής'
+        verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών'
+
+    xml_file = models.FileField(upload_to="xmlflies")
+    description = models.CharField(u'Περιγραφή', max_length=255)
 
     def __unicode__(self):
-        return self.name
+        return self.description
 
 
 class PaymentReportType(models.Model):
+
+    class Meta:
+        verbose_name = u'Οικονομικά: Τύπος Μισθολογικής Κατάστασης'
+        verbose_name_plural = u'Οικονομικά: Τύποι Μισθολογικών Καταστάσεων'
+
     id = models.IntegerField(u'Κωδικός', primary_key=True)
     type = models.CharField(u'Περιγραφή', max_length=255)
 
@@ -51,6 +66,11 @@ class PaymentReportType(models.Model):
 
 
 class PaymentCategoryTitle(models.Model):
+
+    class Meta:
+        verbose_name = u'Οικονομικά: Τύπος Πληρωμής'
+        verbose_name_plural = u'Οικονομικά: Τύποι Πληρωμών'
+
     id = models.IntegerField(u'Κωδικός', primary_key=True)
     title = models.CharField(u'Περιγραφή', max_length=255)
 
@@ -92,8 +112,8 @@ class Payment(models.Model):
 class PaymentCode(models.Model):
 
     class Meta:
-        verbose_name = u'Κωδικός Πληρωμής'
-        verbose_name_plural = u'Κωδικοί Πληρωμών'
+        verbose_name = u'Οικονομικά: Κωδικός Πληρωμής'
+        verbose_name_plural = u'Οικονομικά: Κωδικοί Πληρωμών'
 
     id = models.IntegerField(u'Κωδικός', primary_key=True)
     description = models.CharField(u'Περιγραφή', max_length=255)
@@ -114,7 +134,7 @@ class Application(models.Model):
                                      through='ApplicationChoice')
     set = models.ForeignKey('ApplicationSet', verbose_name=u'Ανήκει')
     datetime_finalised = models.DateTimeField(u'Ημερομηνία Οριστικοποίησης',
-                                         null=True, blank=True)
+                                              null=True, blank=True)
 
     def join_choices(self, sep=','):
         return sep.join([

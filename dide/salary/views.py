@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
-from dideman.dide.models import Permanent
+from dideman.dide.models import Permanent, PaymentReport
+
 from dideman.dide.employee.decorators import match_required
 from dideman.dide.util.common import get_class
 from django.template import RequestContext
@@ -35,7 +36,7 @@ def print_app(request, set_id):
             ret = float(s)
         return ret
     logo = os.path.join(settings.MEDIA_ROOT, "logo.png")
-    pay = Payment.objects.get(pk=id)
+    pay = PaymentReport.objects.get(pk=id)
     emp = Permanent.objects.get(pk=pay.employee_id)
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=pay_report.pdf'
@@ -100,13 +101,13 @@ def print_app(request, set_id):
     elements.append(table0)
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ', heading_style['Center']))
-    if pay.month > 12:
+    if pay.type > 12:
         elements.append(Paragraph(u'Αποδοχές %s %s' % \
-                                  (pay.get_month_display(), pay.year),
+                                  (pay.get_type_display(), pay.year),
                                   heading_style["Center"]))
     else:
         elements.append(Paragraph(u'Μισθοδοσία %s %s' % \
-                                  (pay.get_month_display(), pay.year),
+                                  (pay.get_type_display(), pay.year),
                                   heading_style['Center']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
@@ -228,7 +229,7 @@ def view(request):
         set = Permanent.objects.get(pk=request.session['matched_employee_id'])
         pay = PaymentReport.objects.filter(
             employee=request.session['matched_employee_id']). \
-            order_by('year', 'month')
+            order_by('year', 'type')
         return render_to_response('salary/salary.html',
                                   RequestContext(request, {'emp': set,
                                                            'payments': pay}))
