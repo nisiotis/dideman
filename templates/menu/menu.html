@@ -1,0 +1,69 @@
+{% extends "menu/base.html" %}
+{% load i18n admin_static %}
+{% load base_site %}
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />
+{% endblock %}
+{% block title %}
+Δ.Δ.Ε. {% get_setting 'dide_place'  %}
+{% endblock %}
+
+
+{% block content %}
+
+  <h1>Επιλογές</h1>
+<div id="content-main">
+    <div class="module">
+        <table summary="Διαχείριση">
+        <caption><a href="/" class="section">Διαχείριση</a></caption>
+        
+            <tbody><tr>
+            
+                <th scope="row"><a href="admin/">Εκπαιδευτικό και διοικητικό προσωπικό Δ.Δ.Ε. {% get_setting 'dide_place'  %}</a></th>
+                <td></td>
+                <td></td>
+                
+            </tr>
+        
+            <tr>
+            
+                <th scope="row"><a href="salary/view/">Μισθοδοσία Δ.Δ.Ε. {% get_setting 'dide_place'  %}</a></th>
+                <td></td>
+                <td></td>
+           
+            </tr>
+        
+        </tbody></table>
+        </div>
+        <div class="module">
+        <table summary="Αιτήσεις">
+        <caption><a href="/" class="section">Αιτήσεις</a></caption>
+        
+            <tbody>
+        {% for a in app %}
+            <tr>
+            
+                <th scope="row"><a href="applications/edit/{{ a.id }}/">{{ a.title }}</a></th>
+                <td></td>
+                <td></td>
+            
+            </tr>
+        {% empty %}    
+            <tr>
+            
+                <th scope="row">Δεν υπάρχουν αιτήσεις</th>
+                <td></td>
+                <td></td>
+            
+            </tr>
+        {% endfor %}
+
+
+
+           
+        </tbody></table>
+        </div>
+      </div>
+</div>
+
+{% endblock %}

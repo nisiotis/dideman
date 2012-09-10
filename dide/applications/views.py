@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Employee, Permanent, School, Application,
                                  ApplicationSet, ApplicationType,
@@ -12,17 +12,15 @@ from django.views.decorators.csrf import csrf_protect
 from django.db.models.loading import get_model
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
-from reportlab.pdfgen import canvas
 from reportlab.pdfbase.pdfmetrics import registerFont
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.units import inch, cm
-from reportlab.lib import styles, colors
+from reportlab.lib.units import cm
+from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus.doctemplate import SimpleDocTemplate
-from reportlab.platypus import Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.platypus import Paragraph, Table
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER, TA_RIGHT
-import reportlab
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 import datetime
 import os
 
@@ -44,7 +42,7 @@ def print_app(request, set_id):
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                   'DroidSans.ttf')))
     registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
-                                                  'DroidSans-Bold.ttf')))
+                                                       'DroidSans-Bold.ttf')))
 
     width, height = A4
     head_logo = getSampleStyleSheet()
@@ -67,18 +65,12 @@ def print_app(request, set_id):
     tbl_style.add(ParagraphStyle(name='BoldLeft', alignment=TA_LEFT,
                                  fontName='DroidSans-Bold', fontSize=10))
 
-    tsl = [('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONT', (0, 0), (-1, 0), 'DroidSans'),
-        ('FONTSIZE', (0, 0), (-1, 0), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-        ('TOPPADDING', (0, 0), (-1, -1), 0)
-        ]
     tsh = [('ALIGN', (1, 1), (-1, -1), 'LEFT'),
-        ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]
+           ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]
     ts = [('ALIGN', (1, 1), (-1, -1), 'LEFT'),
-        ('FONT', (0, 0), (-1, 0), 'DroidSans'),
-        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black)]
+          ('FONT', (0, 0), (-1, 0), 'DroidSans'),
+          ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+          ('GRID', (0, 0), (-1, -1), 0.5, colors.black)]
     tsf = [('ALIGN', (1, 1), (-1, -1), 'CENTER')]
 
     doc = SimpleDocTemplate(response, pagesize=A4)
@@ -87,13 +79,13 @@ def print_app(request, set_id):
     elements.append(Paragraph(u'Δ.Δ.Ε. %s' % SETTINGS['dide_place'],
                               heading_style['Center']))
     elements.append(Paragraph(u'%s' % set.title, heading_style['Center']))
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
     headdata = [
         [Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
          Paragraph('%s' % emp.registration_number, tbl_style['Left']),
          Paragraph('ΚΛΑΔΟΣ', tbl_style['Left']),
          Paragraph(u'%s' % emp.profession, tbl_style['Left'])],
-        [Paragraph(u"ΕΠΩΝΥΜΟ", tbl_style['Left']),
+        [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
          Paragraph('%s' % emp.lastname, tbl_style['Left']),
          Paragraph('', tbl_style['Left']),
          Paragraph('', tbl_style['Left'])],
@@ -104,8 +96,7 @@ def print_app(request, set_id):
         [Paragraph(u'Α.Α. ΑΙΤΗΣΗΣ', tbl_style['Left']),
          Paragraph('%s' % app.id, tbl_style['Left']),
          Paragraph(u' ', tbl_style['Left']),
-         Paragraph(u' ', tbl_style['Left'])]
-        ]
+         Paragraph(u' ', tbl_style['Left'])]]
     table1 = Table(headdata, style=tsh, colWidths=[3 * cm, 6 * cm,
                                                    4 * cm, 4 * cm])
     elements.append(table1)
@@ -115,7 +106,7 @@ def print_app(request, set_id):
     for field in form.base_fields:
         val = getattr(app, field)
         if val:
-            if val == True:
+            if val is True:
                 val = u'Ναι'
             data.append(
                 [Paragraph('%s' % app._meta.get_field(field).verbose_name,
@@ -124,21 +115,21 @@ def print_app(request, set_id):
 
     table2 = Table(data, style=ts, colWidths=[10.0 * cm, 7.0 * cm])
     elements.append(table2)
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
     del data
     data = []
-    data.append([Paragraph("Επιλογές", tbl_style['BoldLeft'])])
-    for x in ApplicationChoice.objects.filter(
-        application=app).order_by('position'):
+    data.append([Paragraph('Επιλογές', tbl_style['BoldLeft'])])
+    for x in ApplicationChoice.objects.filter(application=app). \
+            order_by('position'):
         data.append(
             [Paragraph('%s. %s' % (x.position + 1, x.choice.name),
                        tbl_style['Left'])])
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     table3 = Table(data, style=ts, colWidths=[17.0 * cm])
     elements.append(table3)
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
-    elements.append(Paragraph(u" ", heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
     del data
     data = []
     today = datetime.date.today()
@@ -149,15 +140,15 @@ def print_app(request, set_id):
     data.append([Paragraph(u' ', signature['Center']),
                  Paragraph(u' ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"Υπογραφή", signature['Center'])])
+                 Paragraph(u'Υπογραφή', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
+                 Paragraph(u'  ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
+                 Paragraph(u'  ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
+                 Paragraph(u'  ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u"  ", signature['Center'])])
+                 Paragraph(u'  ', signature['Center'])])
     data.append([Paragraph(u' ', signature['Center']),
                  Paragraph('%s %s' % (emp.firstname, emp.lastname),
                            signature['Center'])])
@@ -220,8 +211,10 @@ def edit(request, set_id):
             else:
                 for n, f in form.fields.items():
                     try:
-                        value = f.clean(f.widget.value_from_datadict(
-                                form.data, form.files, form.add_prefix(n)))
+                        value = f.clean(
+                            f.widget.value_from_datadict(form.data,
+                                                         form.files,
+                                                         form.add_prefix(n)))
                         if hasattr(app, n) and value:
                             setattr(app, n, value)
                     except:
@@ -232,7 +225,7 @@ def edit(request, set_id):
                 for i, choice in enumerate(choices):
                     app_choices.append(
                         ApplicationChoice(application=app, choice_id=choice,
-                                           position=i))
+                                          position=i))
                     ApplicationChoice.objects.filter(application=app).delete()
                     ApplicationChoice.objects.bulk_create(app_choices)
 
@@ -250,8 +243,8 @@ def edit(request, set_id):
 
             schools = app_form.choices(emp)
             choices_schools = [(x.choice_id, x.choice.name) for x in
-                       ApplicationChoice.objects
-                       .filter(application=app).order_by('position')]
+                               ApplicationChoice.objects
+                               .filter(application=app).order_by('position')]
             choices = [x.choice_id for x in
                        ApplicationChoice.objects
                        .filter(application=app).order_by('position')]
