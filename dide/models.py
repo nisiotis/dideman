@@ -15,7 +15,9 @@ import datetime
 
 
 def write_file(sender, **kwargs):  # Move it later elsewhere
-    print 'writted'
+    print sender, kwargs
+    import pdb
+    pdb.set_trace()
 
 
 class NullableCharField(models.CharField):
