@@ -16,6 +16,7 @@ import datetime
 
 def write_file(sender, **kwargs):  # Move it later elsewhere
     print sender, kwargs
+    y = sender
     import pdb
     pdb.set_trace()
 
@@ -53,7 +54,7 @@ class PaymentFileName(models.Model):
         verbose_name = u'Οικονομικά: Αρχείο Πληρωμής'
         verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών'
 
-    xml_file = models.FileField(upload_to="xmlflies")
+    xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση')
 
