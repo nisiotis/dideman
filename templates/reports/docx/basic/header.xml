@@ -176,7 +176,7 @@
               <w:pStyle w:val="a9"/>
             </w:pPr>
             <w:r>
-              <w:t>Ρόδος,{% if rec.header_date %} {{rec.header_date}} {% else %} {{date}} {% endif %}</w:t>
+              <w:t>Ρόδος, {% if rec.header_date %} {{rec.header_date}} {% else %} {{date}} {% endif %}</w:t>
             </w:r>
           </w:p>
           <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
