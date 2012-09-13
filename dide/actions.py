@@ -121,7 +121,7 @@ class DocxReport(TemplateAction):
                                without_accented(SETTINGS['dide_place']
                                                 .upper()),
                            'telephone_number': SETTINGS['telephone_number'],
-                           'date': datetime.date.today(),
+                           'date': lambda: datetime.date.today(),
                            'body_template_path':
                                os.path.join(self.template_base_path,
                                             self.body_template_path),
