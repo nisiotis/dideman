@@ -25,7 +25,7 @@ SELECT employee_id FROM (
         AND (
             (DATE('{1}') BETWEEN dide_placement.date_FROM AND dide_placement.date_to)
             OR
-            (DATE('2012-08-31') BETWEEN dide_placement.date_FROM AND dide_placement.date_to)
+            (DATE('{2}') BETWEEN dide_placement.date_FROM AND dide_placement.date_to)
         )
 
         UNION
