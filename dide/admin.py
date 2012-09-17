@@ -29,7 +29,8 @@ from reports.leave import leave_docx_reports
 
 
 class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
-    list_display = ('id', 'description')
+    readonly_fields = ['status']
+    list_display = ('description', 'status')
 
 
 class RankCodeAdmin(admin.ModelAdmin):  # Vasilis

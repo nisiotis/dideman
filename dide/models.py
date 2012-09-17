@@ -2,6 +2,8 @@
 import functools
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save  # Move it later elsewhere
+
 from dideman.dide.util.common import (current_year_date_from,
                                       current_year_date_to)
 from dideman.dide.decorators import shorted
@@ -10,6 +12,13 @@ import sql
 from django.db import connection
 from south.modelsinspector import add_introspection_rules
 import datetime
+
+
+def write_file(sender, **kwargs):  # Move it later elsewhere
+    print sender, kwargs
+    y = sender
+    import pdb
+    pdb.set_trace()
 
 
 class NullableCharField(models.CharField):
@@ -45,11 +54,14 @@ class PaymentFileName(models.Model):
         verbose_name = u'Οικονομικά: Αρχείο Πληρωμής'
         verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών'
 
-    xml_file = models.FileField(upload_to="xmlflies")
+    xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
+    status = models.BooleanField(u'Κατάσταση')
 
     def __unicode__(self):
         return self.description
+
+post_save.connect(write_file, sender=PaymentFileName)
 
 
 class PaymentReportType(models.Model):

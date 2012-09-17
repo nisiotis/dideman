@@ -4,6 +4,7 @@
 *.orig
 *dide/migrations/**
 *static/**
+*media/xmlfiles/**
 *.ropeproject/**
 *#
 
