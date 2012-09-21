@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+import subprocess
+import sys
 from django.contrib import admin
+from django.contrib import messages
 from overrides.admin import DideAdmin
 from filters import (PermanentPostFilter, OrganizationServingFilter,
                      StudyFilter, DateHiredFilter, LeaveDateToFilter,
@@ -23,7 +26,6 @@ from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
 
 from actions import CSVReport, FieldAction
-
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 
@@ -31,6 +33,22 @@ from reports.leave import leave_docx_reports
 class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
     readonly_fields = ['status']
     list_display = ('description', 'status')
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['xml_file', ] + self.readonly_fields
+        return self.readonly_fields
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            messages.info(request,
+                          u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
+                          u" Ίσως διαρκέσει μερικά λεπτά.")
+            subprocess.Popen([sys.executable, 'python manage.py importxml %s'
+                              % obj.xml_file], stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+
+        obj.save()
 
 
 class RankCodeAdmin(admin.ModelAdmin):  # Vasilis
