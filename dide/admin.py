@@ -206,7 +206,7 @@ class ProfessionAdmin(DideAdmin):
 
 class PermanentAdmin(EmployeeAdmin):
     list_display = ['lastname', 'firstname', 'fathername',
-                    'registration_number', 'profession', 'serving_type',
+                    'registration_number', 'profession', 'date_hired',
                     'permanent_post', 'organization_serving']
     inlines = EmployeeAdmin.inlines + [PromotionInline, PlacementInline,
                                        ServiceInline, LeaveInline,
