@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 permanent_post_in_organization = """
 SELECT dide_employee.id
@@ -23,9 +24,9 @@ SELECT employee_id FROM (
         WHERE dide_placement.organization_id = {0}
         AND dide_placement.type_id = 6
         AND (
-            (DATE('{1}') BETWEEN dide_placement.date_FROM AND dide_placement.date_to)
+            (DATE('{1}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
             OR
-            (DATE('{2}') BETWEEN dide_placement.date_FROM AND dide_placement.date_to)
+            (DATE('{2}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
         )
 
         UNION
@@ -48,9 +49,9 @@ WHERE fb.employee_id NOT IN (
         WHERE dide_placement.organization_id <> {0}
         AND dide_placement.type_id IN (2, 6)
         AND  (
-                (DATE('{1}') BETWEEN dide_placement.date_FROM AND dide_placement.date_to)
+                (DATE('{1}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
                 OR
-                (DATE('2012-08-31') BETWEEN dide_placement.date_FROM AND dide_placement.date_to)
+                (DATE('{2}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
                 OR
                 (dide_placement.date_to <= DATE('{2}') OR
                 dide_placement.date_to IS NULL)
@@ -68,5 +69,5 @@ IN (
     FROM dide_permanent
     INNER JOIN dide_placement ON dide_permanent.parent_id = dide_placement.employee_id
     INNER JOIN dide_otherorganization ON dide_otherorganization.parent_organization_id = dide_placement.organization_id
-    WHERE dide_placement.date_from >=  '{0}' and dide_placement.date_to <= '{1}'
+    WHERE dide_placement.date_from >= '{0}' and dide_placement.date_to <= '{1}'
 )"""
