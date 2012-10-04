@@ -479,10 +479,6 @@ class Employee(models.Model):
     fathername = models.CharField(u'Όνομα Πατέρα', max_length=100)
     mothername = models.CharField(u'Όνομα μητέρας', max_length=100,
                                   null=True, blank=True)
-    date_start = models.DateField(u'Ημερομηνία έναρξης υπηρεσίας',
-                                  null=True, blank=True)
-    date_end = models.DateField(u'Ημερομηνία λήξης υπηρεσίας',
-                                null=True, blank=True)
     currently_serves = models.BooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου',
                                            default=True)
     address = models.CharField(u'Διεύθυνση', max_length=200, null=True,
@@ -721,6 +717,8 @@ class Permanent(Employee):
                                      verbose_name=u'Είδος Υπηρέτησης')
     date_hired = models.DateField(u'Ημερομηνία διορισμού', null=True,
                                   blank=True)
+    date_end = models.DateField(u'Ημερομηνία λήξης υπηρεσίας',
+                                null=True, blank=True)
     order_hired = models.CharField(u'Φ.Ε.Κ. διορισμού', max_length=200,
                                    null=True, blank=True)
     registration_number = NullableCharField(u'Αρ. Μητρώου', max_length=6,
@@ -848,15 +846,6 @@ class NonPermanent(Employee):
                              verbose_name=u'Σχέση απασχόλησης')
     pedagogical_sufficiency = models.BooleanField(u'Παιδαγωγική κατάρτιση',
                                                   default=False)
-    order_ministry = models.CharField(u'Απόφαση υπουργείου', max_length=300,
-                                      null=True, blank=True)
-    order_council = models.CharField(u'Πράξη Π.Υ.Σ.Δ.Ε.', max_length=300,
-                                     null=True, blank=True)
-    order_start_manager = models.CharField(u'Απόφαση έναρξης διευθυντή',
-                                           max_length=300, null=True,
-                                           blank=True)
-    order_end_manager = models.CharField(u'Απόφαση απόλυσης διευθυντή',
-                                         max_length=300, null=True, blank=True)
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10,
                                               null=True, blank=True)
 
@@ -1016,6 +1005,24 @@ class Service(Placement):
 
     def __unicode__(self):
         return self.organization.name + self.date_from.strftime('%d-%m-%Y')
+
+
+class SubstitutePlacement(Placement):
+
+    class Meta:
+        verbose_name = u'Τοποθέτηση Αναπληρωτή'
+        verbose_name_plural = u'Τοποθετήσεις Αναπληρωτών'
+        
+    parent = models.OneToOneField(Placement, parent_link=True)
+    order_ministry = models.CharField(u'Απόφαση υπουργείου', max_length=300,
+                                      null=True, blank=True)
+    order_council = models.CharField(u'Πράξη Π.Υ.Σ.Δ.Ε.', max_length=300,
+                                     null=True, blank=True)
+    order_start_manager = models.CharField(u'Απόφαση τοποθέτησης Διεθυντή Δ.Ε.',
+                                           max_length=300, null=True,
+                                           blank=True)
+    order_end_manager = models.CharField(u'Απόφαση απόλυσης Διευθυντή Δ.Ε.',
+                                         max_length=300, null=True, blank=True)
 
 
 class EmployeeLeaveManager(models.Manager):
