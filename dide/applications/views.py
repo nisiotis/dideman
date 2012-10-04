@@ -5,7 +5,6 @@ from dideman.dide.models import (Employee, Permanent, School, Application,
                                  ApplicationSet, ApplicationType,
                                  ApplicationChoice, MoveInside)
 from dideman.dide.employee.decorators import match_required
-from dideman.dide.applications.actions import ApplicationPrint
 from dideman.dide.util.common import get_class
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
