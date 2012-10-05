@@ -542,6 +542,10 @@ class Employee(models.Model):
     date_created = models.DateField(u'Ημερομηνία δημιουργίας',
                                     auto_now_add=True)
 
+    def profession_description(self):
+        return self.profession.description
+    profession_description.short_description = u'Λεκτικό ειδικότητας'
+
     def last_placement(self):
         p = Placement.objects.filter(employee=self).order_by('-date_from')
         return p[0] if p else None
@@ -613,9 +617,6 @@ class Employee(models.Model):
             years += 1
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
-    def profession_description(self):
-        return self.profession.description
-    profession_description.short_description = u'Λεκτικό ειδικότητας'
 
     def __unicode__(self):
         return u'%s %s (%s)' % (self.lastname, self.firstname, self.fathername)
@@ -842,16 +843,23 @@ class NonPermanent(Employee):
         verbose_name_plural = u'Αναπληρωτές/Ωρομίσθμιοι'
 
     parent = models.OneToOneField(Employee, parent_link=True)
-    type = models.ForeignKey(NonPermanentType,
-                             verbose_name=u'Σχέση απασχόλησης')
     pedagogical_sufficiency = models.BooleanField(u'Παιδαγωγική κατάρτιση',
                                                   default=False)
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10,
                                               null=True, blank=True)
 
+    def ordered_transfer_area(self):
+        # TODO return area of the current orde
+        return None
+    ordered_transfer_area.short_description = u'Περιοχή τοποθέτησης'
+
+    def type(self):
+        # TODO return the type of the current order
+        return None
+    type.short_description = u'Τύπος απασχόλησης'
+
 
 class EmployeeProfession(models.Model):
-
     class Meta:
         verbose_name = u'Επιπλέον ειδικότητα εκπαιδευτικού'
         verbose_name_plural = u'Επιπλέον ειδικότητες εκπαιδευτικών'
@@ -1007,17 +1015,41 @@ class Service(Placement):
         return self.organization.name + self.date_from.strftime('%d-%m-%Y')
 
 
+class SubstituteMinistryOrder(models.Model):
+
+    class Meta:
+        verbose_name = u'Υπουργική απόφαση αναπληρωτών'
+        verbose_name_plural = u'Υπουργικές αποφάσεις αναπληρωτών'
+
+    order = models.CharField(u'Υπουργική Απόφαση', max_length=300)
+    date = models.DateField(u'Ημερομηνία')
+    web_code = models.CharField(u'Αρ. Διαδικτυακής ανάρτησης', max_length=100)
+    substitutes = models.ManyToManyField(NonPermanent,
+                                         through=u'OrderedSubstitution',
+                                         verbose_name=u'Αναπηρωτές')
+
+
+class OrderedSubstitution(models.Model):
+
+    class Meta:
+        verbose_name = u'Αναπλήρωση από υπουργική απόφαση'
+        verbose_name_plural = u'Αναπληρώσεις από υπουργικές αποφάσεις'
+
+    order = models.ForeignKey(SubstituteMinistryOrder,
+                              verbose_name=u'Υπουργική απόφαση')
+    substitute = models.ForeignKey(NonPermanent, verbose_name=u'Αναπλήρωτής')
+    type = models.ForeignKey(NonPermanentType,
+                             verbose_name=u'Σχέση απασχόλησης')
+    area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης')
+
+
 class SubstitutePlacement(Placement):
 
     class Meta:
         verbose_name = u'Τοποθέτηση Αναπληρωτή'
         verbose_name_plural = u'Τοποθετήσεις Αναπληρωτών'
-        
+
     parent = models.OneToOneField(Placement, parent_link=True)
-    order_ministry = models.CharField(u'Απόφαση υπουργείου', max_length=300,
-                                      null=True, blank=True)
-    order_council = models.CharField(u'Πράξη Π.Υ.Σ.Δ.Ε.', max_length=300,
-                                     null=True, blank=True)
     order_start_manager = models.CharField(u'Απόφαση τοποθέτησης Διεθυντή Δ.Ε.',
                                            max_length=300, null=True,
                                            blank=True)
