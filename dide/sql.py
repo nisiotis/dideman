@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 permanent_post_in_organization = """
 SELECT dide_employee.id
@@ -17,6 +16,19 @@ FROM dide_employee
 WHERE dide_employee.currently_serves = 1 and bar.organization_id={0}
 """
 
+non_permanent_serving_in_organization = """
+SELECT employee_id
+FROM dide_placement
+INNER JOIN dide_nonpermanent ON dide_nonpermanent.parent_id = dide_placement.employee_id
+WHERE (DATE('{1}') BETWEEN dide_placement.date_from AND dide_placement.date_to
+      OR
+      DATE('{2}') BETWEEN dide_placement.date_from AND dide_placement.date_to
+      OR
+      DATE('{1}') <= dide_placement.date_from AND DATE('{2}') >= dide_placement.date_to)
+AND dide_placement.organization_id={0}
+AND dide_placement.type_id=3
+"""
+
 serving_in_organization = """
 SELECT employee_id FROM (
         SELECT dide_placement.employee_id
@@ -27,6 +39,8 @@ SELECT employee_id FROM (
             (DATE('{1}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
             OR
             (DATE('{2}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
+            OR
+            (DATE('{1}') <= dide_placement.date_from AND DATE('{2}') >= dide_placement.date_to)
         )
 
         UNION
@@ -55,7 +69,8 @@ WHERE fb.employee_id NOT IN (
                 OR
                 (dide_placement.date_to <= DATE('{2}') OR
                 dide_placement.date_to IS NULL)
-             )
+                OR
+                (DATE('{1}') <= dide_placement.date_from AND DATE('{2}') >= dide_placement.date_to))
         GROUP BY employee_id
     ) AS foobar
 )

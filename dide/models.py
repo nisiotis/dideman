@@ -617,7 +617,6 @@ class Employee(models.Model):
             years += 1
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
-
     def __unicode__(self):
         return u'%s %s (%s)' % (self.lastname, self.firstname, self.fathername)
 
@@ -836,11 +835,40 @@ class NonPermanentType(models.Model):
         return self.name
 
 
+class NonPermanentManager(models.Manager):
+
+    def substitutes_in_transfer_area(self, area_id):
+        ids = [s.substitute_id \
+                   for s in OrderedSubstitution.objects.filter(area=area_id)]
+        return self.filter(parent_id__in=ids)
+
+    def substitutes_in_order(self, order_id):
+        ids = [s.substitute_id for s in OrderedSubstitution.objects.\
+                   filter(order_id=order_id)]
+        return self.filter(parent_id__in=ids)
+
+    def substitutes_in_date_range(self, date_from, date_to):
+        ids = [s.substitute_id for s in OrderedSubstitution.objects.\
+                   filter(order__date__lte=date_to, order__date__gte=date_from)]
+        return self.filter(parent_id__in=ids)
+
+    def serving_in_organization(self, org_id):
+        cursor = connection.cursor()
+        cursor.execute(
+            sql.non_permanent_serving_in_organization.format(org_id,
+                                               str(current_year_date_from()),
+                                               str(current_year_date_to())))
+        ids = [row[0] for row in cursor.fetchall()]
+        return self.filter(parent_id__in=ids)
+
+
 class NonPermanent(Employee):
 
     class Meta:
         verbose_name = u'Αναπληρωτής/Ωρομίσθιος'
         verbose_name_plural = u'Αναπληρωτές/Ωρομίσθμιοι'
+
+    objects = NonPermanentManager()
 
     parent = models.OneToOneField(Employee, parent_link=True)
     pedagogical_sufficiency = models.BooleanField(u'Παιδαγωγική κατάρτιση',
@@ -857,6 +885,10 @@ class NonPermanent(Employee):
         # TODO return the type of the current order
         return None
     type.short_description = u'Τύπος απασχόλησης'
+
+    def __unicode__(self):
+        return u'%s %s του %s' % (self.lastname, self.lastname,
+                                       self.fathername)
 
 
 class EmployeeProfession(models.Model):
@@ -1028,6 +1060,9 @@ class SubstituteMinistryOrder(models.Model):
                                          through=u'OrderedSubstitution',
                                          verbose_name=u'Αναπηρωτές')
 
+    def __unicode__(self):
+        return self.order
+
 
 class OrderedSubstitution(models.Model):
 
@@ -1042,6 +1077,9 @@ class OrderedSubstitution(models.Model):
                              verbose_name=u'Σχέση απασχόλησης')
     area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης')
 
+    def __unicode__(self):
+        return unicode(self.substitute)
+
 
 class SubstitutePlacement(Placement):
 
@@ -1050,6 +1088,8 @@ class SubstitutePlacement(Placement):
         verbose_name_plural = u'Τοποθετήσεις Αναπληρωτών'
 
     parent = models.OneToOneField(Placement, parent_link=True)
+    ministry_order = models.ForeignKey(SubstituteMinistryOrder, \
+                                           verbose_name=u'Υπουργική Απόφαση')
     order_start_manager = models.CharField(u'Απόφαση τοποθέτησης Διεθυντή Δ.Ε.',
                                            max_length=300, null=True,
                                            blank=True)

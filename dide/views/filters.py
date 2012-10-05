@@ -140,3 +140,10 @@ def applicationset(request):
     from dideman.dide.admin import ApplicationSetAdmin
     from dideman.dide.models import ApplicationSet
     return render_template(request, ApplicationSet, ApplicationSetAdmin)
+
+
+def substituteministryorder(request):
+    from dideman.dide.admin import SubstituteMinistryOrderAdmin
+    from dideman.dide.models import SubstituteMinistryOrder
+    return render_template(request, SubstituteMinistryOrder,
+                           SubstituteMinistryOrderAdmin)

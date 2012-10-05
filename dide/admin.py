@@ -7,7 +7,9 @@ from filters import (PermanentPostFilter, OrganizationServingFilter,
                      NonPermanentCurrentlyServesFilter,
                      TransferedFilter, NextPromotionInRangeFilter,
                      EmployeeWithLeaveFilter, EmployeeWithOutLeaveFilter,
-                     ServesInDideSchoolFilter)
+                     ServesInDideSchoolFilter, SubstituteAreaFilter,
+                     SubstituteOrderFilter, SubstituteDateRangeFilter,
+                     NonPermanentOrganizationServingFilter)
 from applications.filters import FinalisedFilter
 from models import (TransferArea, Leave, Responsibility, Profession,
                     Promotion, NonPermanentType,
@@ -17,8 +19,9 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     EmployeeDegree, Child, Loan, SocialSecurity,
                     LoanCategory, Service, Settings, ApplicationSet,
                     MoveInside, TemporaryPosition,
-                    TemporaryPositionAllAreas,
-                    ApplicationChoice, ApplicationType)
+                    TemporaryPositionAllAreas, SubstitutePlacement,
+                    SubstituteMinistryOrder, OrderedSubstitution,
+                    ApplicationChoice, ApplicationType, )
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
 
@@ -70,6 +73,16 @@ class PlacementTypeAdmin(DideAdmin):
 
 class ServiceInline(admin.TabularInline):
     model = Service
+    extra = 0
+
+
+class SubstitutePlacementInline(admin.TabularInline):
+    model = SubstitutePlacement
+    extra = 0
+
+
+class OrderedSubstitutionInline(admin.TabularInline):
+    model = OrderedSubstitution
     extra = 0
 
 
@@ -170,18 +183,24 @@ class EmployeeAdmin(DideAdmin):
                 'fields': ['currently_serves', 'transfer_area',
                            'firstname', 'lastname', 'fathername',
                            'mothername', 'profession',
-                           'date_start', 'date_end', 'address',
+                           'date_end', 'address',
+                           'profession_description',
                            'identity_number', 'telephone_number1',
                            'telephone_number2', 'email',
                            'birth_date', 'hours_current',
                            'organization_serving', 'date_created']}),
         economic_fieldset]
     readonly_fields = ['last_placement', 'organization_serving',
-                       'date_created']
+                       'date_created', 'profession_description']
     list_max_show_all = 10000
     list_per_page = 50
     actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves',
                            lambda: False)]
+
+
+class SubstituteMinistryOrderAdmin(DideAdmin):
+    inlines = [OrderedSubstitutionInline]
+    extra = 0
 
 
 class OtherOrganizationAdmin(DideAdmin):
@@ -238,7 +257,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'has_permanent_post', 'currently_serves',
                     'recognised_experience', 'formatted_recognised_experience',
                     'payment_start_date_auto', 'payment_start_date_manual',
-                    'rank', 'date_start', 'date_end', 'address',
+                    'rank', 'date_end', 'address',
                     'identity_number', 'inaccessible_school',
                     'telephone_number1', 'telephone_number2', 'email',
                     'birth_date', 'hours_current', 'date_created']}),
@@ -274,10 +293,29 @@ class EmployeeLeaveAdmin(DideAdmin):
 
 
 class NonPermanentAdmin(EmployeeAdmin):
-    inlines = EmployeeAdmin.inlines + [PlacementInline,
-               ServiceInline, LeaveInline, ResponsibilityInline]
-    list_filter = EmployeeAdmin.list_filter + \
-        (NonPermanentCurrentlyServesFilter, )
+    list_display = ['lastname', 'firstname', 'fathername',
+                    'profession', 'organization_serving']
+    list_per_page = 50
+    fieldsets = [
+        ('Στοιχεία μη-μόνιμου', {
+            'fields': [
+                    'lastname', 'firstname', 'fathername', 'mothername',
+                    'ordered_transfer_area',
+                    'notes', 'type', 'profession', 'profession_description',
+                    'organization_serving', 'study_years',
+                    'identity_number', 'telephone_number1',
+                    'telephone_number2', 'email', 'birth_date',
+                    'date_created', 'pedagogical_sufficiency',
+                    'social_security_number']}),
+            economic_fieldset]
+    readonly_fields = ['type', 'profession_description',
+                       'organization_serving', 'date_created',
+                       'ordered_transfer_area']
+    inlines = EmployeeAdmin.inlines + [SubstitutePlacementInline,
+                                       ServiceInline, LeaveInline,
+                                       ResponsibilityInline]
+    list_filter = [SubstituteDateRangeFilter, SubstituteAreaFilter,
+                   SubstituteOrderFilter, NonPermanentOrganizationServingFilter]
 
 
 class SchoolTypeAdmin(DideAdmin):
@@ -288,6 +326,7 @@ map(lambda t: admin.site.register(*t), (
         (Permanent, PermanentAdmin),
         (Profession, ProfessionAdmin),
         (SchoolType, SchoolTypeAdmin),
+        (SubstituteMinistryOrder, SubstituteMinistryOrderAdmin),
         (OtherOrganization, OtherOrganizationAdmin),
         (School, SchoolAdmin),
         (NonPermanent, NonPermanentAdmin),
