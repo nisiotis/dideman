@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.forms.models import inlineformset_factory
+from forms import SubstitutePlacementForm
 from overrides.admin import DideAdmin
 from filters import (PermanentPostFilter, OrganizationServingFilter,
                      StudyFilter, DateHiredFilter, LeaveDateToFilter,
@@ -79,6 +81,12 @@ class ServiceInline(admin.TabularInline):
 class SubstitutePlacementInline(admin.TabularInline):
     model = SubstitutePlacement
     extra = 0
+
+    def get_formset(self, request, obj=None, **kwargs):
+        return inlineformset_factory(NonPermanent, SubstitutePlacement,
+                                     form=SubstitutePlacementForm,
+                                     fields=['organization', 'ministry_order'],
+                                     extra=SubstitutePlacementInline.extra)
 
 
 class OrderedSubstitutionInline(admin.TabularInline):

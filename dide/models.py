@@ -877,13 +877,15 @@ class NonPermanent(Employee):
                                               null=True, blank=True)
 
     def ordered_transfer_area(self):
-        # TODO return area of the current orde
-        return None
+        qs = self.orderedsubstitution_set.filter(
+            order__date__gte=current_year_date_from())
+        return qs[0].area if qs else None
     ordered_transfer_area.short_description = u'Περιοχή τοποθέτησης'
 
     def type(self):
-        # TODO return the type of the current order
-        return None
+        qs = self.orderedsubstitution_set.filter(
+            order__date__gte=current_year_date_from())
+        return qs[0].type if qs else None
     type.short_description = u'Τύπος απασχόλησης'
 
     def __unicode__(self):
@@ -1052,16 +1054,24 @@ class SubstituteMinistryOrder(models.Model):
     class Meta:
         verbose_name = u'Υπουργική απόφαση αναπληρωτών'
         verbose_name_plural = u'Υπουργικές αποφάσεις αναπληρωτών'
+        ordering = ['-date']
 
     order = models.CharField(u'Υπουργική Απόφαση', max_length=300)
     date = models.DateField(u'Ημερομηνία')
     web_code = models.CharField(u'Αρ. Διαδικτυακής ανάρτησης', max_length=100)
+    order_start_manager = models.CharField(u'Απόφαση τοποθέτησης Διεθυντή Δ.Ε.',
+                                           max_length=300, null=True,
+                                           blank=True)
+    order_end_manager = models.CharField(u'Απόφαση απόλυσης Διευθυντή Δ.Ε.',
+                                         max_length=300, null=True, blank=True)
+    order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300,
+                                   null=True, blank=True)
     substitutes = models.ManyToManyField(NonPermanent,
                                          through=u'OrderedSubstitution',
                                          verbose_name=u'Αναπηρωτές')
 
     def __unicode__(self):
-        return self.order
+        return '%s - %s' % (self.order, str(self.date))
 
 
 class OrderedSubstitution(models.Model):
@@ -1090,11 +1100,6 @@ class SubstitutePlacement(Placement):
     parent = models.OneToOneField(Placement, parent_link=True)
     ministry_order = models.ForeignKey(SubstituteMinistryOrder, \
                                            verbose_name=u'Υπουργική Απόφαση')
-    order_start_manager = models.CharField(u'Απόφαση τοποθέτησης Διεθυντή Δ.Ε.',
-                                           max_length=300, null=True,
-                                           blank=True)
-    order_end_manager = models.CharField(u'Απόφαση απόλυσης Διευθυντή Δ.Ε.',
-                                         max_length=300, null=True, blank=True)
 
 
 class EmployeeLeaveManager(models.Manager):
