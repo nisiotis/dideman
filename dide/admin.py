@@ -31,6 +31,7 @@ from actions import CSVReport, FieldAction
 
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
+from reports.nonpermanent import nonpermanent_docx_reports
 
 
 class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
@@ -324,6 +325,9 @@ class NonPermanentAdmin(EmployeeAdmin):
                                        ResponsibilityInline]
     list_filter = [SubstituteDateRangeFilter, SubstituteAreaFilter,
                    SubstituteOrderFilter, NonPermanentOrganizationServingFilter]
+    actions = sorted([CSVReport(add=['organization_serving',
+                                     'profession__description'])] + \
+    nonpermanent_docx_reports, key=lambda k: k.short_description)
 
 
 class SchoolTypeAdmin(DideAdmin):

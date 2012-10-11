@@ -1,0 +1,58 @@
+﻿    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t xml:space="preserve"> </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr/>
+        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.organization_serving}} ως {{rec.type}} και υπηρέτησε από {{rec.current_order__date}} έως {{end_date}}.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>Απόφαση διορισμού {{ministry_title}}: {{rec.current_order__order}} </w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>Απόφαση τοποθέτησης Διευθυντή Δ.Ε. Δωδεκανήσου: {{rec.current_order__order_start_manager}} </w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: {{rec.current_order__order_end_manager}} </w:t>
+      </w:r>
+    </w:p>    
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>Χρόνος υπηρεσίας έως {{end_date}}: {{rec.experience}}</w:t>
+      </w:r>
+    </w:p>    
+        <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>Η βεβαίωση αυτή χορηγείται ύστερα από αίτηση του/της ενδιαφερόμενου/ης προκειμένου να τη χρησιμοποιήσει ως δικαιολογητικό για την αναγνώριση της προϋπηρεσίας του/της.</w:t>
+      </w:r>
+    </w:p>    

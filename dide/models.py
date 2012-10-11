@@ -4,8 +4,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save  # Move it later elsewhere
 
-from dideman.dide.util.common import (current_year_date_from,
-                                      current_year_date_to)
+from dideman.dide.util.common import *
 from dideman.dide.decorators import shorted
 from django.db.models import Max
 import sql
@@ -547,8 +546,8 @@ class Employee(models.Model):
     profession_description.short_description = u'Λεκτικό ειδικότητας'
 
     def last_placement(self):
-        p = Placement.objects.filter(employee=self).order_by('-date_from')
-        return p[0] if p else None
+        return first_or_none(Placement.objects.filter(
+                employee=self).order_by('-date_from'))
 
     def current_year_placements(self):
         return Placement.objects.filter(
@@ -561,10 +560,9 @@ class Employee(models.Model):
         if self.has_permanent_post:
             return None
         else:
-            p = Placement.objects.filter(employee=self,
+            return first_or_none(Placement.objects.filter(employee=self,
                                          date_from__gte=current_year_date_from,
-                                         type__id=3).order_by('-date_from')
-            return p[0] if p else None
+                                         type__id=3).order_by('-date_from'))
     temporary_position.short_description = u'Προσωρινή Τοποθέτηση'
 
     def organization_serving(self):
@@ -775,8 +773,7 @@ class Permanent(Employee):
     organization_serving.short_description = u'Θέση υπηρεσίας'
 
     def rank(self):
-        r = Promotion.objects.filter(employee=self).order_by('-date')
-        return r[0] if r else None
+        first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
     rank.short_description = u'Βαθμός'
 
     def __unicode__(self):
@@ -876,10 +873,15 @@ class NonPermanent(Employee):
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10,
                                               null=True, blank=True)
 
+    def current_order(self):
+        return first_or_none(self.substituteministryorder_set.filter(
+                date__gte=current_year_date_from()))
+    current_order.short_description = u'Υπουργική απόφαση τρέχουσας τοποθέτησης'
+
     def ordered_transfer_area(self):
         qs = self.orderedsubstitution_set.filter(
             order__date__gte=current_year_date_from())
-        return qs[0].area if qs else None
+        return qs[0].transfer_area if qs else None
     ordered_transfer_area.short_description = u'Περιοχή τοποθέτησης'
 
     def type(self):
@@ -1085,7 +1087,8 @@ class OrderedSubstitution(models.Model):
     substitute = models.ForeignKey(NonPermanent, verbose_name=u'Αναπλήρωτής')
     type = models.ForeignKey(NonPermanentType,
                              verbose_name=u'Σχέση απασχόλησης')
-    area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης')
+    transfer_area = models.ForeignKey(TransferArea,
+                                      verbose_name=u'Περιοχή Μετάθεσης')
 
     def __unicode__(self):
         return unicode(self.substitute)

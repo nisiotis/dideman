@@ -18,7 +18,8 @@ from django.contrib.admin.util import get_deleted_objects
 from django.utils.translation import ugettext as _
 from django.contrib.admin import helpers
 from django.db import router
-from dideman.dide.util.common import without_accented
+from dideman.dide.util.common import (without_accented, current_year_date_from,
+                                      current_year_date_to)
 
 
 def timestamp():
@@ -121,7 +122,10 @@ class DocxReport(TemplateAction):
                                without_accented(SETTINGS['dide_place']
                                                 .upper()),
                            'telephone_number': SETTINGS['telephone_number'],
-                           'date': lambda: datetime.date.today(),
+                           'ministry_title': SETTINGS['ministry_title'],
+                           'date': datetime.date.today,
+                           'current_year_date_from': current_year_date_from(),
+                           'current_year_date_to': current_year_date_to(),
                            'body_template_path':
                                os.path.join(self.template_base_path,
                                             self.body_template_path),
@@ -163,6 +167,7 @@ class DocxReport(TemplateAction):
             return field
 
     def map_field_or_list(self, field, dictionary):
+        print field
         if isinstance(field, list):
             return [self.map_field(f, dictionary) for f in field]
         else:
