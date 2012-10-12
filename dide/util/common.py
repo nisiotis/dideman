@@ -51,32 +51,34 @@ def current_year():
                       str(current_year_date_to().year))
 
 
-def parse_date_period(d):
-    return d[:2], d[2:4], d[4:6]
+def parse_date(d):
+    """parses a date string yyyymmdd or yymmdd and returns a (y, m, d) tuple"""
+    yl = 4 if len(d) == 8 else 2
+    return (int(d) for d in (d[:yl], d[yl:yl + 2], d[yl + 2:yl + 4]))
 
 
 def date_add(d1, d2):
-    """ adds two periods of time (in the string form 'yymmdd')
-    , the greek way, yey..."""
-    d1y, d1m, d1d = parse_date_period(d1)
-    d2y, d2m, d2d = parse_date_period(d2)
+    """ adds two periods of time (in the string form (y, m, d))
+    , the greek way..."""
+    d1y, d1m, d1d = d1
+    d2y, d2m, d2d = d2
     days = d1d + d2d
     months = d1m + d2m
     years = d1y + d2y
-    if days > 30:
+    if days >= 30:
         days -= 30
         months += 1
-    if months > 12:
+    if months >= 12:
         months -= 12
         years += 1
     return years, months, days
 
 
 def date_subtract(d1, d2):
-    """ adds two periods of time (in the string form 'yymmdd')
-    , the greek way, yey..."""
-    d1y, d1m, d1d = parse_date_period(d1)
-    d2y, d2m, d2d = parse_date_period(d2)
+    """ adds two periods of time (in the string form (y, m, d))
+    , the greek way..."""
+    d1y, d1m, d1d = d1
+    d2y, d2m, d2d = d2
     days = d1d - d2d
     months = d1m - d2m
     years = d1y - d2y

@@ -591,28 +591,14 @@ class Employee(models.Model):
         u'Μορφοποιημένη προϋπηρεσία'
 
     def total_experience(self):
-        ryears = int(self.recognised_experience[:2])
-        rmonths = int(self.recognised_experience[2:4])
-        rdays = int(self.recognised_experience[4:6])
         now = datetime.datetime.now()
-        dyears = now.year - self.date_hired.year
-        dmonths = now.month - self.date_hired.month
-        ddays = now.day - self.date_hired.day + 1
-        if ddays < 0:
-            ddays += 30
-            dmonths -= 1
-        if dmonths < 0:
-            dmonths += 12
-            dyears -= 1
-        days = ddays + rdays
-        months = rmonths + dmonths
-        years = ryears + dyears
-        if days > 30:
-            days -= 30
-            months += 1
-        if months > 12:
-            months -= 12
-            years += 1
+        years, months, days = date_subtract(
+            (now.year, now.date, now.day),
+            (self.date_hired.year, self.date_hired.month,
+             self.date_hired.day + 1))
+
+        years, months, days = date_add((year, months, days),
+                                       parse_date(self.recognised_experience))
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
     def __unicode__(self):
@@ -754,15 +740,10 @@ class Permanent(Employee):
                                         ).order_by('-date_from')
 
     def payment_start_date_auto(self):
-        days = self.date_hired.day - int(self.recognised_experience[4:])
-        months = self.date_hired.month - int(self.recognised_experience[2:4])
-        years = self.date_hired.year - int(self.recognised_experience[:2])
-        if days <= 0:
-            days = 30 + days
-            months -= 1
-        if months <= 0:
-            months = 12 + months
-            years -= 1
+        dh = self.date_hired
+        days, months, years = date_subtract(
+            (dh.year, dh.month, dh.day),
+            parse_date(self.recognised_experience))
         return '%s-%s-%s' % (days, months, years)
     payment_start_date_auto.short_description = \
         u'Μισθολογική αφετηρία (αυτόματη)'
@@ -873,22 +854,30 @@ class NonPermanent(Employee):
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10,
                                               null=True, blank=True)
 
-    def current_order(self):
+    def order(self, d=current_year_date_from()):
         return first_or_none(self.substituteministryorder_set.filter(
-                date__gte=current_year_date_from()))
-    current_order.short_description = u'Υπουργική απόφαση τρέχουσας τοποθέτησης'
+                date__gte=d))
+    order.short_description = u'Υπουργική απόφαση τρέχουσας τοποθέτησης'
 
-    def ordered_transfer_area(self):
-        qs = self.orderedsubstitution_set.filter(
-            order__date__gte=current_year_date_from())
-        return qs[0].transfer_area if qs else None
-    ordered_transfer_area.short_description = u'Περιοχή τοποθέτησης'
+    def substitution(self, d=current_year_date_from()):
+        return first_or_none(self.orderedsubstitution_set.filter(
+                order__date__gte=d))
 
-    def type(self):
-        qs = self.orderedsubstitution_set.filter(
-            order__date__gte=current_year_date_from())
-        return qs[0].type if qs else None
+    def current_transfer_area(self, d=current_year_date_from()):
+        s = self.substitution(d)
+        return s.transfer_area if s else None
+    current_transfer_area.short_description = u'Περιοχή τοποθέτησης'
+
+    def type(self, d=current_year_date_from()):
+        s = self.substitution(d)
+        return s.type if s else None
     type.short_description = u'Τύπος απασχόλησης'
+
+    def experience(self, d=current_year_date_to()):
+        o = self.order()
+        d1 = o.date.year, o.date.month, o.date.day
+        d2 = d.year, d.month, d.day
+        return date_subtract(d2, d1)
 
     def __unicode__(self):
         return u'%s %s του %s' % (self.lastname, self.lastname,

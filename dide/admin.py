@@ -309,7 +309,7 @@ class NonPermanentAdmin(EmployeeAdmin):
         ('Στοιχεία μη-μόνιμου', {
             'fields': [
                     'lastname', 'firstname', 'fathername', 'mothername',
-                    'ordered_transfer_area',
+                    'current_transfer_area',
                     'notes', 'type', 'profession', 'profession_description',
                     'organization_serving', 'study_years',
                     'identity_number', 'telephone_number1',
@@ -319,7 +319,7 @@ class NonPermanentAdmin(EmployeeAdmin):
             economic_fieldset]
     readonly_fields = ['type', 'profession_description',
                        'organization_serving', 'date_created',
-                       'ordered_transfer_area']
+                       'current_transfer_area']
     inlines = EmployeeAdmin.inlines + [SubstitutePlacementInline,
                                        ServiceInline, LeaveInline,
                                        ResponsibilityInline]
