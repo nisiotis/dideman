@@ -593,11 +593,11 @@ class Employee(models.Model):
     def total_experience(self):
         now = datetime.datetime.now()
         years, months, days = date_subtract(
-            (now.year, now.date, now.day),
+            (now.year, now.month, now.day),
             (self.date_hired.year, self.date_hired.month,
              self.date_hired.day + 1))
 
-        years, months, days = date_add((year, months, days),
+        years, months, days = date_add((years, months, days),
                                        parse_date(self.recognised_experience))
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
@@ -741,7 +741,7 @@ class Permanent(Employee):
 
     def payment_start_date_auto(self):
         dh = self.date_hired
-        days, months, years = date_subtract(
+        years, months, days = date_subtract(
             (dh.year, dh.month, dh.day),
             parse_date(self.recognised_experience))
         return '%s-%s-%s' % (days, months, years)
@@ -816,8 +816,9 @@ class NonPermanentType(models.Model):
 class NonPermanentManager(models.Manager):
 
     def substitutes_in_transfer_area(self, area_id):
-        ids = [s.substitute_id \
-                   for s in OrderedSubstitution.objects.filter(area=area_id)]
+        ids = [s.substitute_id
+               for s in OrderedSubstitution.objects.filter(
+                transfer_area=area_id)]
         return self.filter(parent_id__in=ids)
 
     def substitutes_in_order(self, order_id):
