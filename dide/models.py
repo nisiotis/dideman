@@ -83,6 +83,7 @@ class PaymentReport(models.Model):
     type = models.ForeignKey('PaymentReportType',
                              verbose_name=u'Τύπος Αναφοράς')
     year = models.IntegerField(u'Έτος')
+    pay_type = models.IntegerField(u'Τύπος πληρωμής')
     rank = models.ForeignKey('RankCode', verbose_name=u'Βαθμός')
     iban = models.CharField('iban', max_length=50, null=True, blank=True)
     net_amount1 = models.CharField(u"Α' Δεκαπενθήμερο",
@@ -92,12 +93,15 @@ class PaymentReport(models.Model):
 
 
 class PaymentCategory(models.Model):
+    paymentreport = models.ForeignKey('PaymentReport')
     title = models.ForeignKey('PaymentCategoryTitle',
                               verbose_name=u'Τίτλος Κατηγορίας')
-    start_date = models.DateField(u'Ημερομηνία Έναρξης')
-    end_date = models.DateField(u'Ημερομηνία Λήξης')
-    month = models.IntegerField(u'Μήνας')
-    year = models.IntegerField(u'Έτος')
+    start_date = models.CharField(u'Ημερομηνία Έναρξης',
+                                  max_length=50, null=True, blank=True)
+    end_date = models.CharField(u'Ημερομηνία Λήξης',
+                                max_length=50, null=True, blank=True)
+    month = models.IntegerField(u'Μήνας', null=True, blank=True)
+    year = models.IntegerField(u'Έτος', null=True, blank=True)
     payments = models.ManyToManyField('PaymentCode', through='Payment')
 
 
@@ -106,7 +110,8 @@ class Payment(models.Model):
     type = models.CharField(u'Τύπος', max_length=2)  # (gr, et, de)
     code = models.ForeignKey('PaymentCode')
     amount = models.CharField(u'Ποσό', max_length=10)
-    info = models.CharField('Σχετικές πληοροφορίες', max_length=255)
+    info = models.CharField('Σχετικές πληοροφορίες', max_length=255,
+                            null=True, blank=True)
 
 
 class PaymentCode(models.Model):

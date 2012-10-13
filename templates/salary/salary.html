@@ -64,7 +64,7 @@
         <div id="wrap">
         {% for p in payments %}
         <div class="form-row field-pay">
-          <div><a href="javascript:document.location.href=document.location.href.split('?')[0]+'?print=1&id={{ p.id }}' " id="bprint">{{ p.get_month_display }} {{ p.year }}&nbsp;&nbsp;Λογαριασμός κατάθεσης {{ p.iban }}&nbsp; Βαθμός - Κλιμάκιο {{ p.get_rank_display }}.</a>
+          <div><a href="javascript:document.location.href=document.location.href.split('?')[0]+'?print=1&id={{ p.id }}' " id="bprint">{{ p.type }} {{ p.year }}&nbsp;&nbsp;Λογαριασμός κατάθεσης {{ p.iban }}&nbsp; Βαθμός - Κλιμάκιο {{ p.rank }}.</a>
           </div>
         </div>
         {% endfor %}
