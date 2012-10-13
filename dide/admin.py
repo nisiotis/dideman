@@ -28,6 +28,23 @@ from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
 from actions import CSVReport, FieldAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
+#import threading
+
+
+#class SubprocessThread(threading.Thread):
+
+#    def __init__(self, c):
+#        self.command = c
+#        self.stdout = None
+#        self.stderr = None
+#        threading.Thread.__init__(self)
+
+#    def run(self):
+#        p = subprocess.Popen(self.command,
+#                             shell=True,
+#                             stdout=subprocess.PIPE,
+#                             stderr=subprocess.PIPE)
+#        self.stdout, self.stderr = p.communicate()
 
 
 class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
@@ -40,15 +57,22 @@ class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
         return self.readonly_fields
 
     def save_model(self, request, obj, form, change):
+        obj.save()
         if not change:
             messages.info(request,
                           u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
                           u" Ίσως διαρκέσει μερικά λεπτά.")
-            subprocess.Popen([sys.executable, 'python manage.py importxml %s'
-                              % obj.xml_file], stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
 
-        obj.save()
+#            t = SubprocessThread('c:\python27\python.exe E:\GitHub\dideman\manage.py importxml %s' % obj.id)
+#            t.setDaemon(True)
+#            t.start()
+#            t.join()
+#            print 'c:\python27\python.exe E:\GitHub\dideman\manage.py importxml %s' % obj.id
+
+#            subprocess.Popen([sys.executable,
+#                              'c:\python27\python.exe E:\GitHub\dideman\manage.py importxml %s' % obj.id
+#                             ], stdout=subprocess.PIPE,
+#                             stderr=subprocess.STDOUT)
 
 
 class RankCodeAdmin(admin.ModelAdmin):  # Vasilis

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
-from models import Permanent, PaymentReport
+from dide.models import Permanent, PaymentReport, PaymentFileName
 from django.db import connection, transaction
 from lxml import etree
 from time import time
 
 
-def read(file, namespace):
+def read(file, namespace, filerecord):
 
     def gretde(node, sql):  # function to create the gr / et / de section
 
@@ -37,7 +37,8 @@ def read(file, namespace):
         sql = sql + ");\n"
         return sql
 
-    print 'Ανάγνωση αρχείου...'
+    #  print u'Ανάγνωση αρχείου...'
+    print 'XML Reading started...'
     start = time()
     ns = namespace  # 'http://www.gsis.gr/psp/2.3'
     element = etree.parse(file)
@@ -62,7 +63,8 @@ def read(file, namespace):
 
     reports = PaymentReport.objects.filter(pay_type=paytype,
                                            type=month, year=year).count()
-    print u'Βρέθηκαν %s εγγραφες από προηγούμενο αρχείο.' % reports
+    #  print u'Βρέθηκαν %s εγγραφες από προηγούμενο αρχείο.' % reports
+    print 'Found %s records from a previous XML file.' % reports
     if reports > 0:
         cursor = connection.cursor()
         cursor.execute('delete from dide_paymentreport where pay_type = %s and type_id = %s and year = %s;' % (paytype,
@@ -159,10 +161,20 @@ def read(file, namespace):
             sql = ''
 
         except ObjectDoesNotExist:
-            print el[0].text + " δεν βρέθηκε στη βάση."
+            #  print el[0].text + " δεν βρέθηκε στη βάση."
+            print el[0].text + " not found in database."
 
-    print u"Στο αρχείο XML βρέθηκαν %s. Στη βάση βρέθηκαν %s. (Διαφορά %d) " % (cntr1,
+    #  print u"Στο αρχείο XML βρέθηκαν %s. Στη βάση βρέθηκαν %s. (Διαφορά %d) " % (cntr1,
+    #                                                                            cntr2,
+    #                                                                         	(cntr1 - cntr2))
+    print "The XML file contained %s records. %s records found in database. (Difference %d) " % (cntr1,
                                                                                 cntr2,
-                                                                                (cntr1 - cntr2))
+                                                                             	(cntr1 - cntr2))
+
+    f = PaymentFileName.objects.get(pk=filerecord)
+    f.status = 1
+    f.save()
+
     elapsed = (time() - start)
-    print u"Διάρκεια ανάγνωσης %.2f δευτερόλεπτα" % (elapsed)
+    #  print u"Διάρκεια ανάγνωσης %.2f δευτερόλεπτα" % (elapsed)
+    print "Time reading file %.2f seconds." % (elapsed)
