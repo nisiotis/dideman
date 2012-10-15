@@ -48,6 +48,7 @@ class PaymentFileName(models.Model):
     xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση')
+    imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν')
 
     def __unicode__(self):
         return self.description

@@ -7,7 +7,7 @@ from lxml import etree
 from time import time
 
 
-def read(file, namespace, filerecord):
+def read(file, namespace):
 
     def gretde(node, sql):  # function to create the gr / et / de section
 
@@ -65,6 +65,8 @@ def read(file, namespace, filerecord):
                                            type=month, year=year).count()
     #  print u'Βρέθηκαν %s εγγραφες από προηγούμενο αρχείο.' % reports
     print 'Found %s records from a previous XML file.' % reports
+    cursor = connection.cursor()
+
     if reports > 0:
         cursor = connection.cursor()
         cursor.execute('delete from dide_paymentreport where pay_type = %s and type_id = %s and year = %s;' % (paytype,
@@ -73,6 +75,8 @@ def read(file, namespace, filerecord):
         transaction.commit_unless_managed()
         cursor.close()
         reports = ''
+    objects = Permanent.objects.all()
+    dic = {o.registration_number: o for o in objects}
 
     for i in e:
         iban = ''
@@ -81,8 +85,10 @@ def read(file, namespace, filerecord):
         rank = 0
         cntr1 = cntr1 + 1
         el = i.xpath('./xs:identification/xs:amm', namespaces={'xs': ns})
-        try:
-            payemp = Permanent.objects.get(registration_number=el[0].text)
+        payemp = dic.get(el[0].text)
+        if payemp:
+            #payemp = Permanent.objects.get(registration_number=el[0].text)
+
             cntr2 = cntr2 + 1
             el = i.xpath('./xs:identification/xs:bankAccount',
                          namespaces={'xs': ns})
@@ -136,7 +142,7 @@ def read(file, namespace, filerecord):
                 sql = sql + '\n'
 
                 sql = sql + 'set @lastcat = last_insert_id();' + '\n'
-
+                #import pdb;pdb.set_trace()
                 for it in p.xpath('./xs:gr', namespaces={'xs': ns}):
 
                     sql = gretde(it, sql)
@@ -150,19 +156,18 @@ def read(file, namespace, filerecord):
                     sql = gretde(it, sql)
 
             sql_strings = sql.split('\n')
-            for s_s in sql_strings:
 
-                if s_s != '':
-                    cursor = connection.cursor()
+            for s_s in sql_strings:
+                if s_s:
                     cursor.execute(s_s)
-                    transaction.commit_unless_managed()
-                    cursor.close()
-#            print sql
             sql = ''
 
-        except ObjectDoesNotExist:
+        #except ObjectDoesNotExist:
+        else:
             #  print el[0].text + " δεν βρέθηκε στη βάση."
             print el[0].text + " not found in database."
+    transaction.commit_unless_managed()
+    cursor.close()
 
     #  print u"Στο αρχείο XML βρέθηκαν %s. Στη βάση βρέθηκαν %s. (Διαφορά %d) " % (cntr1,
     #                                                                            cntr2,
@@ -171,10 +176,7 @@ def read(file, namespace, filerecord):
                                                                                 cntr2,
                                                                              	(cntr1 - cntr2))
 
-    f = PaymentFileName.objects.get(pk=filerecord)
-    f.status = 1
-    f.save()
-
     elapsed = (time() - start)
     #  print u"Διάρκεια ανάγνωσης %.2f δευτερόλεπτα" % (elapsed)
     print "Time reading file %.2f seconds." % (elapsed)
+    return 1, cntr2

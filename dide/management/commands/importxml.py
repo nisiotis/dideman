@@ -15,8 +15,14 @@ class Command(BaseCommand):
         for rec in args:
             try:
                 pf = PaymentFileName.objects.get(pk=rec)
-                xml.read(os.path.join(settings.MEDIA_ROOT, '%s' % pf.xml_file)
-                         .replace('/', '\\'), 'http://www.gsis.gr/psp/2.3',
-                         pf.id)
+                pth = '%s' % pf.xml_file
+                fldr, fl = pth.split('/', 1)
+                status, rec_num = xml.read(os.path.join(settings.MEDIA_ROOT,
+                                                        fldr, fl),
+                                           'http://www.gsis.gr/psp/2.3')
+                pf.status = status
+                pf.imported_records = rec_num
+                pf.save()
+
             except PaymentFileName.DoesNotExist:
                 raise CommandError('Record %s not found.' % rec)

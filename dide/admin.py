@@ -31,8 +31,8 @@ from reports.leave import leave_docx_reports
 
 
 class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
-    readonly_fields = ['status']
-    list_display = ('description', 'status')
+    readonly_fields = ['status', 'imported_records']
+    list_display = ('description', 'status', 'imported_records')
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -40,14 +40,15 @@ class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
         return self.readonly_fields
 
     def save_model(self, request, obj, form, change):
+        obj.imported_records = 0
         obj.save()
         print obj.id
         if not change:
             messages.info(request,
                           u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
                           u" Ίσως διαρκέσει μερικά λεπτά.")
-            pargs = ['c:\python27\python.exe',
-                     'e:\GitHub\dideman\manage.py',
+            pargs = ['python',
+                     '/home/vasilis/dideman/manage.py',
                      'importxml',
                      '%s' % obj.id]
             p = subprocess.Popen(pargs, 0)
