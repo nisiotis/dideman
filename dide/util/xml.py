@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
-from dide.models import Permanent, PaymentReport, PaymentFileName
+from dide.models import Permanent, PaymentReport
 from django.db import connection, transaction
 from lxml import etree
 from time import time

@@ -29,9 +29,10 @@ from actions import CSVReport, FieldAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from dideman.dide.util.settings import SETTINGS
+import os
 
 
-class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
+class PaymentFileNameAdmin(admin.ModelAdmin):
     readonly_fields = ['status', 'imported_records']
     list_display = ('description', 'status', 'imported_records')
 
@@ -47,26 +48,26 @@ class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
             messages.info(request,
                           u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
                           u" Ίσως διαρκέσει μερικά λεπτά.")
-            pargs = [SETTINGS['python_path'],
-                     SETTINGS['application_path'] + 'manage.py',
+            pargs = ['python',
+                     os.path.join(os.path.realpath('.'), 'manage.py'),
                      'importxml',
                      '%s' % obj.id]
             p = subprocess.Popen(pargs, 0)
 
 
-class RankCodeAdmin(admin.ModelAdmin):  # Vasilis
+class RankCodeAdmin(admin.ModelAdmin):
     list_display = ('id', 'rank')
 
 
-class PaymentCodeAdmin(admin.ModelAdmin):  # Vasilis
+class PaymentCodeAdmin(admin.ModelAdmin):
     list_display = ('id', 'description')
 
 
-class PaymentReportTypeAdmin(admin.ModelAdmin):  # Vasilis
+class PaymentReportTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'type')
 
 
-class PaymentCategoryTitleAdmin(admin.ModelAdmin):  # Vasilis
+class PaymentCategoryTitleAdmin(admin.ModelAdmin):
     list_display = ('id', 'title')
 
 
