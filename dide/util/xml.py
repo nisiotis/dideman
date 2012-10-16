@@ -5,11 +5,11 @@ from lxml import etree
 from time import time
 
 
+def rmv_nsp(node):  # function to remove the namespace from node
+    return node.tag.rsplit('}', 1)[-1]
+
+
 def read(file, namespace):
-
-    def rmv_nsp(node):  # function to remove the namespace from node
-        return node.tag.rsplit('}', 1)[-1]
-
     try:
         print 'XML Reading started...'
         start = time()
@@ -156,7 +156,7 @@ def read(file, namespace):
         elapsed = (time() - start)
         print 'Time reading file %.2f seconds.' % elapsed
         success = 1
-    except e:
+    except Exception, e:
         print e
         success = 0
 
