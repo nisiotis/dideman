@@ -156,8 +156,8 @@ def read(file, namespace):
         elapsed = (time() - start)
         print 'Time reading file %.2f seconds.' % elapsed
         success = 1
-    except:
-        print 'XML File Error.'
+    except e:
+        print e
         success = 0
 
     return success, cntr2

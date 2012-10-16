@@ -56,7 +56,8 @@ class PaymentFileNameAdmin(admin.ModelAdmin):
                           u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
                           u" Ίσως διαρκέσει μερικά λεπτά.")
             pargs = ['python',
-                     os.path.join(os.path.realpath('.'), 'manage.py'),
+                     os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                   '..', 'manage.py')),
                      'importxml',
                      '%s' % obj.id]
             p = subprocess.Popen(pargs, 0)
