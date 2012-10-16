@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+import subprocess
+import sys
 from django.contrib import admin
+from django.contrib import messages
 from django.forms.models import inlineformset_factory
 from forms import SubstitutePlacementForm
 from overrides.admin import DideAdmin
@@ -32,26 +35,46 @@ from actions import CSVReport, FieldAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
+from dideman.dide.util.settings import SETTINGS
+import os
 
 
-class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
-    readonly_fields = ['status']
-    list_display = ('description', 'status')
+class PaymentFileNameAdmin(admin.ModelAdmin):
+    readonly_fields = ['status', 'imported_records']
+    list_display = ('description', 'status', 'imported_records')
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['xml_file', ] + self.readonly_fields
+        return self.readonly_fields
+
+    def save_model(self, request, obj, form, change):
+        obj.imported_records = 0
+        obj.save()
+        if not change:
+            messages.info(request,
+                          u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
+                          u" Ίσως διαρκέσει μερικά λεπτά.")
+            pargs = ['python',
+                     os.path.join(os.path.realpath('.'), 'manage.py'),
+                     'importxml',
+                     '%s' % obj.id]
+            p = subprocess.Popen(pargs, 0)
 
 
-class RankCodeAdmin(admin.ModelAdmin):  # Vasilis
+class RankCodeAdmin(admin.ModelAdmin):
     list_display = ('id', 'rank')
 
 
-class PaymentCodeAdmin(admin.ModelAdmin):  # Vasilis
+class PaymentCodeAdmin(admin.ModelAdmin):
     list_display = ('id', 'description')
 
 
-class PaymentReportTypeAdmin(admin.ModelAdmin):  # Vasilis
+class PaymentReportTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'type')
 
 
-class PaymentCategoryTitleAdmin(admin.ModelAdmin):  # Vasilis
+class PaymentCategoryTitleAdmin(admin.ModelAdmin):
     list_display = ('id', 'title')
 
 

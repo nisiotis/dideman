@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
-from dideman.dide.models import Permanent, PaymentReport
-
+from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
+                                 Payment)
 from dideman.dide.employee.decorators import match_required
 from dideman.dide.util.common import get_class
 from django.template import RequestContext
@@ -27,7 +27,7 @@ def get_form(klass):
 
 
 @match_required
-def print_app(request, set_id):
+def print_pay(request, id):
     def numtoStr(s):
         """Convert string to either int or float."""
         try:
@@ -102,12 +102,12 @@ def print_app(request, set_id):
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ', heading_style['Center']))
     if pay.type > 12:
-        elements.append(Paragraph(u'Αποδοχές %s %s' % \
-                                  (pay.get_type_display(), pay.year),
+        elements.append(Paragraph(u'Αποδοχές %s %s' %
+                                  (pay.type, pay.year),
                                   heading_style["Center"]))
     else:
-        elements.append(Paragraph(u'Μισθοδοσία %s %s' % \
-                                  (pay.get_type_display(), pay.year),
+        elements.append(Paragraph(u'Μισθοδοσία %s %s' %
+                                  (pay.type, pay.year),
                                   heading_style['Center']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
@@ -121,16 +121,16 @@ def print_app(request, set_id):
                 [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
                  Paragraph('%s' % emp.firstname, tbl_style['Left']),
                  Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
-                 Paragraph(u'%s' % pay.get_rank_display(), tbl_style['Left'])]]
+                 Paragraph(u'%s' % pay.rank, tbl_style['Left'])]]
     table1 = Table(headdata, style=tsh,
                    colWidths=[3 * cm, 6 * cm, 5 * cm, 3 * cm])
     elements.append(table1)
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     del data
     data = []
-    for i in PaymentIncome.objects.filter(payment=id):
+    for i in PaymentCategory.objects.filter(paymentreport=id):
         elements.append(Paragraph(u' ', heading_style['Spacer']))
-        s = '%s' % i.get_type_display()
+        s = '%s' % i.title
         data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
         table2 = Table(data, style=tsh, colWidths=[17 * cm])
         elements.append(table2)
@@ -142,16 +142,16 @@ def print_app(request, set_id):
         elements.append(table3)
         del data
         data = []
-        for p in PaymentIncomeSection.objects.filter(paymentincome=i.id):
+        for p in Payment.objects.filter(category=i.id):
             if p.type == 'gr' or p.type == 'et':
-                s = u'%s' % p.paymentcode
+                s = u'%s' % p.code
                 data.append([Paragraph(s, tbl_style['Left']),
                              Paragraph('%.2f €' % numtoStr(p.amount),
                                        tbl_style['Right']), '', ''])
             else:
-                s = u'%s' % p.paymentcode
-                if p.moreinfo != '':
-                    s = s + " (%s)" % p.moreinfo
+                s = u'%s' % p.code
+                if p.info is not None:
+                    s = s + " (%s)" % p.info
                 data.append(['', '', Paragraph(s, tbl_style['Left']),
                              Paragraph('%.2f €' % numtoStr(p.amount),
                                        tbl_style['Right'])])
@@ -181,10 +181,10 @@ def print_app(request, set_id):
     del data
     data = []
     data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
-                 Paragraph('%.2f €' % numtoStr(pay.netamount1),
+                 Paragraph('%.2f €' % numtoStr(pay.net_amount1),
                            tbl_style['Right']), '', ''])
     data.append([Paragraph('Β\' δεκαπενθήμερο', tbl_style['Left']),
-                 Paragraph('%.2f €' % numtoStr(pay.netamount2),
+                 Paragraph('%.2f €' % numtoStr(pay.net_amount2),
                            tbl_style['Right']), '', ''])
     table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
                                               6.5 * cm, 2.0 * cm])
@@ -225,6 +225,9 @@ def view(request):
         request.session.clear()
         return HttpResponseRedirect(
             '/employee/match/?next=/salary/view/')
+    if 'print' in request.GET:
+            return print_pay(request, request.GET['id'])
+
     else:
         set = Permanent.objects.get(pk=request.session['matched_employee_id'])
         pay = PaymentReport.objects.filter(

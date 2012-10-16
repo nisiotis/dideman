@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-import functools
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_save  # Move it later elsewhere
-
 from dideman.dide.util.common import *
 from dideman.dide.decorators import shorted
 from django.db.models import Max
@@ -11,13 +8,6 @@ import sql
 from django.db import connection
 from south.modelsinspector import add_introspection_rules
 import datetime
-
-
-def write_file(sender, **kwargs):  # Move it later elsewhere
-    print sender, kwargs
-    y = sender
-    import pdb
-    pdb.set_trace()
 
 
 class NullableCharField(models.CharField):
@@ -53,14 +43,14 @@ class PaymentFileName(models.Model):
         verbose_name = u'Οικονομικά: Αρχείο Πληρωμής'
         verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών'
 
+    id = models.AutoField(primary_key=True)
     xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση')
+    imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν')
 
     def __unicode__(self):
         return self.description
-
-post_save.connect(write_file, sender=PaymentFileName)
 
 
 class PaymentReportType(models.Model):
@@ -94,6 +84,7 @@ class PaymentReport(models.Model):
     type = models.ForeignKey('PaymentReportType',
                              verbose_name=u'Τύπος Αναφοράς')
     year = models.IntegerField(u'Έτος')
+    pay_type = models.IntegerField(u'Τύπος πληρωμής')
     rank = models.ForeignKey('RankCode', verbose_name=u'Βαθμός')
     iban = models.CharField('iban', max_length=50, null=True, blank=True)
     net_amount1 = models.CharField(u"Α' Δεκαπενθήμερο",
@@ -103,12 +94,15 @@ class PaymentReport(models.Model):
 
 
 class PaymentCategory(models.Model):
+    paymentreport = models.ForeignKey('PaymentReport')
     title = models.ForeignKey('PaymentCategoryTitle',
                               verbose_name=u'Τίτλος Κατηγορίας')
-    start_date = models.DateField(u'Ημερομηνία Έναρξης')
-    end_date = models.DateField(u'Ημερομηνία Λήξης')
-    month = models.IntegerField(u'Μήνας')
-    year = models.IntegerField(u'Έτος')
+    start_date = models.CharField(u'Ημερομηνία Έναρξης',
+                                  max_length=50, null=True, blank=True)
+    end_date = models.CharField(u'Ημερομηνία Λήξης',
+                                max_length=50, null=True, blank=True)
+    month = models.IntegerField(u'Μήνας', null=True, blank=True)
+    year = models.IntegerField(u'Έτος', null=True, blank=True)
     payments = models.ManyToManyField('PaymentCode', through='Payment')
 
 
@@ -117,7 +111,8 @@ class Payment(models.Model):
     type = models.CharField(u'Τύπος', max_length=2)  # (gr, et, de)
     code = models.ForeignKey('PaymentCode')
     amount = models.CharField(u'Ποσό', max_length=10)
-    info = models.CharField('Σχετικές πληοροφορίες', max_length=255)
+    info = models.CharField('Σχετικές πληοροφορίες', max_length=255,
+                            null=True, blank=True)
 
 
 class PaymentCode(models.Model):
