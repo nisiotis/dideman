@@ -754,7 +754,7 @@ class Permanent(Employee):
     organization_serving.short_description = u'Θέση υπηρεσίας'
 
     def rank(self):
-        first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
+        return first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
     rank.short_description = u'Βαθμός'
 
     def __unicode__(self):
