@@ -85,7 +85,7 @@ def date_subtract(d1, d2):
     if days < 0:
         days += 30
         months -= 1
-    if months < 0:
+    if months <= 0:
         months += 12
         years -= 1
     return years, months, days
