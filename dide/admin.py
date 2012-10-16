@@ -28,6 +28,7 @@ from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
 from actions import CSVReport, FieldAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
+from dideman.dide.util.settings import SETTINGS
 
 
 class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
@@ -42,17 +43,15 @@ class PaymentFileNameAdmin(admin.ModelAdmin):  # Vasilis
     def save_model(self, request, obj, form, change):
         obj.imported_records = 0
         obj.save()
-        print obj.id
         if not change:
             messages.info(request,
                           u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
                           u" Ίσως διαρκέσει μερικά λεπτά.")
-            pargs = ['python',
-                     '/home/vasilis/dideman/manage.py',
+            pargs = [SETTINGS['python_path'],
+                     SETTINGS['application_path'] + 'manage.py',
                      'importxml',
                      '%s' % obj.id]
             p = subprocess.Popen(pargs, 0)
-            print p
 
 
 class RankCodeAdmin(admin.ModelAdmin):  # Vasilis

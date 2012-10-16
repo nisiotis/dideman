@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from dide.models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                          PaymentReportType, PaymentCode)
 from dideman import settings
+from dideman.dide.util.settings import SETTINGS
 from dide.util import xml
 import os
 
@@ -19,7 +20,7 @@ class Command(BaseCommand):
                 fldr, fl = pth.split('/', 1)
                 status, rec_num = xml.read(os.path.join(settings.MEDIA_ROOT,
                                                         fldr, fl),
-                                           'http://www.gsis.gr/psp/2.3')
+                                           SETTINGS['xml_xsd'])
                 pf.status = status
                 pf.imported_records = rec_num
                 pf.save()
