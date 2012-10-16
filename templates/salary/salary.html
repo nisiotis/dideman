@@ -47,12 +47,6 @@
           <p>{{ emp.registration_number  }}</p>
         </div>
       </div>
-      <div class="form-row field-iban">
-        <div>
-          <label style="width:220px;">Αριθμός Λογαριασμού (IBAN): </label>
-          <p>{{ emp.iban  }}</p>
-        </div>
-      </div>
             <div class="form-row field-rank">
         <div>
           <label style = "width:220px;">Βαθμός - Κλιμάκιο: </label>
@@ -62,13 +56,31 @@
       <h2>Αποδοχές</h2>
       <div>
         <div id="wrap">
+        <table summary="Απδοχές">
+            <tbody>
+            <tr>
+                <th style="width:30%;" scope="row"></th>
+                <td style="width:15%;" >Βαθμός - Κλιμάκιο</td>
+                <td style="width:15%;" >Μηνιαίες Αποδοχές</td>
+				<th style="width:40%;" scope="row"></th>
+				</tr>
         {% for p in payments %}
-        <div class="form-row field-pay">
-          <div><a href="javascript:document.location.href=document.location.href.split('?')[0]+'?print=1&id={{ p.id }}' " id="bprint">{{ p.type }} {{ p.year }}&nbsp;&nbsp;Λογαριασμός κατάθεσης {{ p.iban }}&nbsp; Βαθμός - Κλιμάκιο {{ p.rank }}.</a>
-          </div>
-        </div>
+            <tr>
+                <th scope="row">{{ p.type }} {{ p.year }}</th>
+                <td style="text-align:right;">{{ p.rank }}</td>
+                <td style="text-align:right;">{{ p.amount_total }} €</td>
+                <th scope="row"><a href="javascript:document.location.href=document.location.href.split('?')[0]+'?print=1&id={{ p.id }}' " id="bprint">Προβολή</a></th>
+			</tr>
+        {% empty %}    
+            <tr>
+                <th scope="row">Δεν υπάρχουν καταστάσεις μισθοδοσίας</th>
+                <td></td>
+                <td></td>
+				<th scope="row"></th>
+            </tr>
         {% endfor %}
-        </div> <!--wrap-->
+        </tbody></table>
+		</div> <!--wrap-->
       </div>
       <br clear="both" />
       <div class="submit-row" style="text-align: center">

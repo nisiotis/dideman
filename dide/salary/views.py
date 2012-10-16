@@ -229,6 +229,7 @@ def view(request):
             return print_pay(request, request.GET['id'])
 
     else:
+        dic = {}
         set = Permanent.objects.get(pk=request.session['matched_employee_id'])
         pay = PaymentReport.objects.filter(
             employee=request.session['matched_employee_id']). \

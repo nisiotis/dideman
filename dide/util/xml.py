@@ -9,14 +9,14 @@ def rmv_nsp(node):  # function to remove the namespace from node
     return node.tag.rsplit('}', 1)[-1]
 
 
-def read(file, namespace):
+def read(file):
     try:
         print 'XML Reading started...'
         start = time()
-        ns = namespace
         element = etree.parse(file)
         sql = ''
-
+        el = element.getroot()
+        ns = el.tag.rsplit('}')[0].replace('{', '')
         cntr1 = 0
         cntr2 = 0
         month = 0

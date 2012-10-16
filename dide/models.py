@@ -92,6 +92,9 @@ class PaymentReport(models.Model):
     net_amount2 = models.CharField(u"Β' Δεκαπενθήμερο",
                                    max_length=50, null=True, blank=True)
 
+    def amount_total(self):
+        return float(self.net_amount1) + float(self.net_amount2)
+
 
 class PaymentCategory(models.Model):
     paymentreport = models.ForeignKey('PaymentReport')

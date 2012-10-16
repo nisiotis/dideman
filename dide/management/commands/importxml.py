@@ -19,8 +19,7 @@ class Command(BaseCommand):
                 pth = '%s' % pf.xml_file
                 fldr, fl = pth.split('/', 1)
                 status, rec_num = xml.read(os.path.join(settings.MEDIA_ROOT,
-                                                        fldr, fl),
-                                           SETTINGS['xml_xsd'])
+                                                        fldr, fl))
                 pf.status = status
                 pf.imported_records = rec_num
                 pf.save()
