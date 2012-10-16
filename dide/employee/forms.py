@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from dideman.dide.models import Permanent
+from dideman.dide.util.common import without_accented
 from django.utils.translation import ugettext as _
+
 
 
 class EmployeeMatchForm(forms.Form):
@@ -28,7 +30,8 @@ class EmployeeMatchForm(forms.Form):
         lastname = self.cleaned_data.get('lastname')
         if registration_number and lastname:
             self.employee_cache = Permanent.objects.match(
-                registration_number=registration_number, lastname=lastname)
+                registration_number=registration_number,
+                lastname=without_accented(lastname).upper())
             if self.employee_cache is None:
                 raise forms.ValidationError(
                     self.error_messages['invalid_match'])
