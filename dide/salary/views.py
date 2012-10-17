@@ -225,11 +225,10 @@ def view(request):
             return print_pay(request, request.GET['id'])
 
     else:
-        dic = {}
-        set = Employee.objects.get(pk=request.session['matched_employee_id'])
+        set = Permanent.objects.get(parent_id=request.session['matched_employee_id'])
         pay = PaymentReport.objects.filter(
             employee=request.session['matched_employee_id']). \
-            order_by('year', 'type')
+            order_by('-year', '-type')
         return render_to_response('salary/salary.html',
                                   RequestContext(request, {'emp': set,
                                                            'payments': pay}))

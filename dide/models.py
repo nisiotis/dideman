@@ -760,6 +760,11 @@ class Permanent(Employee):
         return first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
     rank.short_description = u'Βαθμός'
 
+    def rank_date(self):
+        rankdate = first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
+        return rankdate.date
+    rank.short_description = u'Βαθμός'
+
     def __unicode__(self):
         return '%s %s  (%s)' % (self.lastname, self.firstname,
                                  self.registration_number)

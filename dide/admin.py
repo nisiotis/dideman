@@ -49,7 +49,9 @@ class PaymentFileNameAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def save_model(self, request, obj, form, change):
-        obj.imported_records = 0
+        if (obj.imported_records == 0) or (obj.imported_records is None):
+            obj.imported_records = 0
+
         obj.save()
         if not change:
             messages.info(request,
