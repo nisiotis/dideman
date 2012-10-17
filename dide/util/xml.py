@@ -42,20 +42,14 @@ def read(file):
         print 'Found %s records from a previous XML file.' % reports
 
         if reports > 0:
-            # cursor = connection.cursor()
-            pr = PaymentReport.objects.filter(pay_type=paytype, type_id=month, year=year)
+            pr = PaymentReport.objects.filter(pay_type=paytype,
+                                              type_id=month, year=year)
             pr.delete()
-            # cursor.execute('delete from dide_paymentreport where ' +
-            #                'pay_type = %s and ' % paytype +
-            #                'type_id = %s and year = %s;' % (month, year))
-            # transaction.commit_unless_managed()
-            # cursor.close()
             reports = ''
 
         cursor = connection.cursor()
         objects = Permanent.objects.all()
         dic = {o.registration_number: o for o in objects}
-
         for i in e:
             iban = ''
             netAmount1 = ''
@@ -78,48 +72,50 @@ def read(file):
                 el = i.xpath('./xs:payment/xs:netAmount2',
                              namespaces={'xs': ns})
                 netAmount2 = el[0].get('value')
-                sql = sql + "insert into dide_paymentreport (id, employee_id, "
-                sql = sql + "type_id, year, pay_type, rank_id, iban, "
-                sql = sql + "net_amount1, net_amount2) values (NULL, "
-                sql = sql + "%s, %s, %s, %s, %s, " % (payemp.parent.id,
-                                                      month,
-                                                      year,
-                                                      paytype,
-                                                      rank)
-                sql = sql + "'%s', '%s', '%s');" % (iban,
-                                                    netAmount1,
-                                                    netAmount2)
-                sql = sql + '\n'
-                sql = sql + 'set @lastrep = last_insert_id();' + '\n'
+                sql += "insert into dide_paymentreport (id, employee_id, "
+                sql += "type_id, year, pay_type, rank_id, iban, "
+                sql += "net_amount1, net_amount2) values (NULL, "
+                sql += "%s, %s, %s, %s, %s, " % (payemp.parent.id,
+                                                 month,
+                                                 year,
+                                                 paytype,
+                                                 rank)
+                sql += "'%s', '%s', '%s');" % (iban,
+                                               netAmount1,
+                                               netAmount2)
+                sql += '\n'
+                sql += 'set @lastrep = last_insert_id();' + '\n'
                 el = i.xpath('./xs:payment/xs:income', namespaces={'xs': ns})
                 for p in el:
-                    sql = sql + "insert into dide_paymentcategory "
-                    sql = sql + "(id, paymentreport_id, title_id, start_date, end_date, month, year)"
+                    sql += "insert into dide_paymentcategory "
+                    sql += "(id, paymentreport_id, title_id, start_date, "
+                    sql += "end_date, month, year) "
                     values = dict(p.items())
-                    string_values = ",".join([values.get(f, 'NULL') for f in payment_category_fields])
+                    str_values = ",".join([values.get(f, 'NULL')
+                                           for f in payment_category_fields])
                     sql += " values (NULL, @lastrep"
-                    sql += "," + string_values + ");\n"
-                    sql = sql + 'set @lastcat = last_insert_id();' + '\n'
+                    sql += "," + str_values + ");\n"
+                    sql += 'set @lastcat = last_insert_id();' + '\n'
                     chld = p.getchildren()
                     if chld:
-                        sql = sql + "insert into dide_payment "
-                        sql = sql + "(id, category_id, type, "
-                        sql = sql + "code_id, amount, info) "
-                        sql = sql + "values "
+                        sql += "insert into dide_payment "
+                        sql += "(id, category_id, type, "
+                        sql += "code_id, amount, info) "
+                        sql += "values "
                         c = 0
                         for elm in chld:
                             if c > 0:
-                                sql = sql + ', '
-                            sql = sql + "(NULL,"
-                            sql = sql + " @lastcat, '" + rmv_nsp(elm) + "',"
-                            sql = sql + elm.get('code') + ","
-                            sql = sql + "'" + elm.get('amount') + "',"
+                                sql += ', '
+                            sql += "(NULL,"
+                            sql += " @lastcat, '" + rmv_nsp(elm) + "',"
+                            sql += elm.get('code') + ","
+                            sql += "'" + elm.get('amount') + "',"
                             if elm.get('loanNumber'):
-                                sql = sql + "'" + elm.get('loanNumber') + "')"
+                                sql += "'" + elm.get('loanNumber') + "')"
                             else:
-                                sql = sql + "NULL)"
+                                sql += "NULL)"
                             c = c + 1
-                        sql = sql + ';\n'
+                        sql += ';\n'
 
                 sql_strings = sql.split('\n')
                 for s_s in sql_strings:
