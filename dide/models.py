@@ -456,6 +456,11 @@ class DegreeCategory(models.Model):
 
 
 class EmployeeManager(models.Manager):
+    def match(self, vat_number, lastname):
+        try:
+            return self.get(vat_number=vat_number, lastname=lastname)
+        except:
+            return None
 
     def get_by_natural_key(self, firstname, lastname, fathername, profession):
         return self.get(firstname=firstname, lastname=lastname,
@@ -616,10 +621,11 @@ class SocialSecurity(models.Model):
 
 class PermanentManager(EmployeeManager):
 
-    def match(self, registration_number, lastname):
+    def match(self, registration_number, vat_number, lastname):
         try:
-            return self.get(registration_number=registration_number,
-                            lastname=lastname)
+            return self.get(Q(lastname=lastname),
+                            Q(registration_number=registration_number) |
+                            Q(vat_number=vat_number))
         except:
             return None
 

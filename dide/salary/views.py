@@ -2,7 +2,7 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
-                                 Payment)
+                                 Payment, Employee)
 from dideman.dide.employee.decorators import match_required
 from dideman.dide.util.common import get_class
 from django.template import RequestContext
@@ -20,10 +20,6 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 import datetime
 import os
-
-
-def get_form(klass):
-    return get_class('dideman.dide.applications.forms.%sForm' % klass)
 
 
 @match_required
@@ -230,7 +226,7 @@ def view(request):
 
     else:
         dic = {}
-        set = Permanent.objects.get(pk=request.session['matched_employee_id'])
+        set = Employee.objects.get(pk=request.session['matched_employee_id'])
         pay = PaymentReport.objects.filter(
             employee=request.session['matched_employee_id']). \
             order_by('year', 'type')

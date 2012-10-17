@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from dideman.dide.models import Permanent
+from dideman.dide.models import Permanent, Employee
 from dideman.dide.util.common import without_accented
 from django.utils.translation import ugettext as _
-
+from django.db.models import Q
 
 
 class EmployeeMatchForm(forms.Form):
-    registration_number = forms.CharField(label=u'Αρ. Μητρώου', max_length=6)
+    identification_number = forms.CharField(label=u'Αναγνωριστικό',
+                                               max_length=9)
     lastname = forms.CharField(label=u'Επώνυμο', max_length=100)
 
     error_messages = {
@@ -26,12 +27,13 @@ class EmployeeMatchForm(forms.Form):
             super(EmployeeMatchForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        registration_number = self.cleaned_data.get('registration_number')
+        identification_number = self.cleaned_data.get('identification_number')
         lastname = self.cleaned_data.get('lastname')
-        if registration_number and lastname:
+        if identification_number and lastname:
+            lastname = without_accented(lastname.upper())
             self.employee_cache = Permanent.objects.match(
-                registration_number=registration_number,
-                lastname=without_accented(lastname).upper())
+                identification_number, identification_number, lastname) or \
+                Employee.objects.match(identification_number, lastname=lastname)
             if self.employee_cache is None:
                 raise forms.ValidationError(
                     self.error_messages['invalid_match'])

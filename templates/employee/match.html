@@ -21,12 +21,12 @@
 <div id="content-main">
 <form action="{{ app_path }}" method="post" id="match-form">{% csrf_token %}
   <div class="form-row">
-      {% if not form.this_is_the_match_form.errors %}{{ form.registration_number.errors }}{% endif %}
-    <label for="id_registration_number" class="required">Αρ. Μητρώου : </label> {{ form.registration_number }}
+      {% if not form.this_is_the_match_form.errors %}{{ form.identification_number.errors }}{% endif %}
+    <label for="id_identification_number" style="width:150px;white-space:nowrap" class="required">Αρ.Μητρώου (ή ΑΦΜ): </label> {{ form.identification_number }}
   </div>
   <div class="form-row">
     {% if not form.this_is_the_match_form.errors %}{{ form.lastname.errors }}{% endif %}
-    <label for="id_lastname" class="required">Επώνυμο : </label> {{ form.lastname }}
+    <label for="id_lastname" style="width:150px;white-space:nowrap">Επώνυμο : </label> {{ form.lastname }}
     <input type="hidden" name="this_is_the_match_form" value="1" />
     <input type="hidden" name="next" value="{{ next }}" />
   </div>
@@ -36,7 +36,7 @@
 </form>
 
 <script type="text/javascript">
-document.getElementById('id_registration_number').focus()
+document.getElementById('id_identification_number').focus()
 </script>
 </div>
 {% endblock %}
