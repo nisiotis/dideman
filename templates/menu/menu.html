@@ -12,55 +12,61 @@
 {% block content %}
 
   <h1>Επιλογές</h1>
-<div id="content-main">
-    <div class="module">
+<div id="content-main" style="padding:10px">
+    <div class="module" style="padding-bottom:20px">
         <table summary="Διαχείριση">
         <caption><a href="/" class="section">Διαχείριση</a></caption>
-        
+
             <tbody><tr>
-            
+
                 <th scope="row"><a href="admin/">Εκπαιδευτικό και διοικητικό προσωπικό Δ.Δ.Ε. {% get_setting 'dide_place'  %}</a></th>
                 <td></td>
                 <td></td>
-                
+
             </tr>
-        
+        </tbody></table>
+        </div>
+ <div class="module" style="padding-bottom:20px">
+        <table summary="Μισθοδοσία">
+        <caption><a href="/" class="section">Μισθοδοσία</a></caption>
+
+            <tbody>
             <tr>
-            
+
                 <th scope="row"><a href="salary/view/">Μισθοδοσία Δ.Δ.Ε. {% get_setting 'dide_place'  %}</a></th>
                 <td></td>
                 <td></td>
-           
+
             </tr>
-        
+
         </tbody></table>
         </div>
-        <div class="module">
+        <div class="module" style="padding-bottom:20px">
         <table summary="Αιτήσεις">
         <caption><a href="/" class="section">Αιτήσεις</a></caption>
-        
+
             <tbody>
         {% for a in app %}
             <tr>
-            
+
                 <th scope="row"><a title="{{ a.title }}" href="applications/edit/{{ a.id }}/">{{ a.name }}</a></th>
                 <td></td>
                 <td></td>
-            
+
             </tr>
-        {% empty %}    
+        {% empty %}
             <tr>
-            
+
                 <th scope="row">Δεν υπάρχουν αιτήσεις</th>
                 <td></td>
                 <td></td>
-            
+
             </tr>
         {% endfor %}
 
 
 
-           
+
         </tbody></table>
         </div>
       </div>
