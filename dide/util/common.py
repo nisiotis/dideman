@@ -58,25 +58,29 @@ def parse_date(d):
 
 
 def date_add(d1, d2):
-    """ adds two periods of time (in the string form (y, m, d))
-    , the greek way..."""
+    """ takes two dates (dates or periods), both
+    in the form of a tuple (y, m, d), sums them and returns
+    the new date
+    """
     d1y, d1m, d1d = d1
     d2y, d2m, d2d = d2
     days = d1d + d2d
     months = d1m + d2m
     years = d1y + d2y
-    if days >= 30:
+    if days > 30:
         days -= 30
         months += 1
-    if months >= 12:
+    if months > 12:
         months -= 12
         years += 1
     return years, months, days
 
 
 def date_subtract(d1, d2):
-    """ adds two periods of time (in the string form (y, m, d))
-    , the greek way..."""
+    """ takes two dates (dates or periods), both
+    in the form of a tuple (y, m, d), subtracts them and returns
+    the new date
+    """
     d1y, d1m, d1d = d1
     d2y, d2m, d2d = d2
     days = d1d - d2d
@@ -89,6 +93,21 @@ def date_subtract(d1, d2):
         months += 12
         years -= 1
     return years, months, days
+
+
+def date_to_period(date):
+    """ takes a date in the form of a tuple (y, m, d)
+    and returns a period of time in the same form
+    (30 days becomes a month, 12 months becomes a year)
+    """
+    y, m, d = date
+    if d == 30:
+        m += 1
+        d = 0
+    if m >= 12:
+        y += 1
+        m -= 12
+    return y, m, d
 
 
 def get_class(name):

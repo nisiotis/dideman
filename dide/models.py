@@ -582,9 +582,8 @@ class Employee(models.Model):
                 self.profession)
 
     def formatted_recognised_experience(self):
-        return u'%s έτη %s μήνες %s μέρες' % (self.recognised_experience[:2],
-                                              self.recognised_experience[2:4],
-                                             self.recognised_experience[4:6])
+        return u'%s έτη %s μήνες %s μέρες' \
+            % (parse_date(self.recognised_experience))
     formatted_recognised_experience.short_description = \
         u'Μορφοποιημένη προϋπηρεσία'
 
@@ -595,8 +594,8 @@ class Employee(models.Model):
             (self.date_hired.year, self.date_hired.month,
              self.date_hired.day + 1))
 
-        years, months, days = date_add((years, months, days),
-                                       parse_date(self.recognised_experience))
+        years, months, days = date_to_pediod(date_add((years, months, days),
+                                       parse_date(self.recognised_experience)))
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
     def __unicode__(self):
@@ -876,7 +875,7 @@ class NonPermanent(Employee):
         o = self.order()
         d1 = o.date.year, o.date.month, o.date.day
         d2 = d.year, d.month, d.day
-        return date_subtract(d2, d1)
+        return date_to_pediod(date_subtract(d2, d1))
 
     def __unicode__(self):
         return u'%s %s του %s' % (self.lastname, self.lastname,
