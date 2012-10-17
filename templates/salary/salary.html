@@ -18,7 +18,7 @@
       <fieldset class="module aligned">
         <h2>Στοιχεία εκπαιδευτικού</h2>
         <div class="form-row field-lastname">
-          <div> 
+          <div>
             <label style="width:220px;">Επώνυμο : </label>
             <p>{{ emp.lastname  }}</p>
           </div>
@@ -47,46 +47,41 @@
           <p>{{ emp.registration_number  }}</p>
         </div>
       </div>
-            <div class="form-row field-rank">
+        <div class="form-row field-rank">
         <div>
           <label style = "width:220px;">Βαθμός - Κλιμάκιο: </label>
           <p>{{ emp.rank  }}</p>
         </div>
       </div>
       <h2>Αποδοχές</h2>
-      <div>
-        <div id="wrap">
-        <table summary="Απδοχές">
-            <tbody>
-            <tr>
-                <th style="width:30%;" scope="row"></th>
-                <td style="width:15%;" >Βαθμός - Κλιμάκιο</td>
-                <td style="width:15%;" >Μηνιαίες Αποδοχές</td>
-				<th style="width:40%;" scope="row"></th>
+      {% if payments %}
+        <div>
+            <table summary="Αποδοχές" style="width:100%">
+              <tbody>
+                <tr>
+                  <td>Περιγραφή </td>
+                  <td>Βαθμός - Κλιμάκιο</td>
+                  <td>Μηνιαίες Αποδοχές</td>
 				</tr>
-        {% for p in payments %}
-            <tr>
-                <th scope="row">{{ p.type }} {{ p.year }}</th>
-                <td style="text-align:right;">{{ p.rank }}</td>
-                <td style="text-align:right;">{{ p.amount_total }} €</td>
-                <th scope="row"><a href="javascript:document.location.href=document.location.href.split('?')[0]+'?print=1&id={{ p.id }}' " id="bprint">Προβολή</a></th>
-			</tr>
-        {% empty %}    
-            <tr>
-                <th scope="row">Δεν υπάρχουν καταστάσεις μισθοδοσίας</th>
-                <td></td>
-                <td></td>
-				<th scope="row"></th>
-            </tr>
-        {% endfor %}
-        </tbody></table>
-		</div> <!--wrap-->
+                {% for p in payments %}
+                  <tr>
+                    <td scope="row"><a href="?print=1&id={{ p.id }} "> {{ p.type }} {{ p.year }}</a></td>
+                    <td>{{ p.rank }}</td>
+                    <td>{{ p.amount_total }} €</td>
+			      </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
       </div>
+      {% else %}
+        <div class="form-row"><p>Δεν έχουν καταχωρηθεί καταστάσεις πληρωμών.</p></div>
+      {% endif %}
       <br clear="both" />
       <div class="submit-row" style="text-align: center">
         <input type="button" id="logout" value="Έξοδος" onclick="javascript:document.location.href=document.location.href+'?logout' "/>
       </div>
-    </fieldset>  
+    </fieldset>
   </form>
 </div>
 {% endblock %}

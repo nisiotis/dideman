@@ -10,6 +10,7 @@ def rmv_nsp(node):  # function to remove the namespace from node
 
 
 def read(file):
+    payment_category_fields = ['type', 'startDate', 'endDate', 'month', 'year']
     try:
         print 'XML Reading started...'
         start = time()
@@ -41,12 +42,14 @@ def read(file):
         print 'Found %s records from a previous XML file.' % reports
 
         if reports > 0:
-            cursor = connection.cursor()
-            cursor.execute('delete from dide_paymentreport where ' +
-                           'pay_type = %s and ' % paytype +
-                           'type_id = %s and year = %s;' % (month, year))
-            transaction.commit_unless_managed()
-            cursor.close()
+            # cursor = connection.cursor()
+            pr = PaymentReport.objects.filter(pay_type=paytype, type_id=month, year=year)
+            pr.delete()
+            # cursor.execute('delete from dide_paymentreport where ' +
+            #                'pay_type = %s and ' % paytype +
+            #                'type_id = %s and year = %s;' % (month, year))
+            # transaction.commit_unless_managed()
+            # cursor.close()
             reports = ''
 
         cursor = connection.cursor()
@@ -75,7 +78,9 @@ def read(file):
                 el = i.xpath('./xs:payment/xs:netAmount2',
                              namespaces={'xs': ns})
                 netAmount2 = el[0].get('value')
-                sql = sql + "insert into dide_paymentreport values (NULL, "
+                sql = sql + "insert into dide_paymentreport (id, employee_id, "
+                sql = sql + "type_id, year, pay_type, rank_id, iban, "
+                sql = sql + "net_amount1, net_amount2) values (NULL, "
                 sql = sql + "%s, %s, %s, %s, %s, " % (payemp.parent.id,
                                                       month,
                                                       year,
@@ -89,33 +94,11 @@ def read(file):
                 el = i.xpath('./xs:payment/xs:income', namespaces={'xs': ns})
                 for p in el:
                     sql = sql + "insert into dide_paymentcategory "
-                    sql = sql + "(id, paymentreport_id, title_id "
-                    for attr_name, attr_value in p.items():
-                        if attr_name == 'startDate':
-                            sql = sql + ", start_date"
-                        if attr_name == 'endDate':
-                            sql = sql + ", end_date"
-                        if attr_name == 'month':
-                            sql = sql + ", month"
-                        if attr_name == 'year':
-                            sql = sql + ", year"
-
-                    sql = sql + ") values (NULL, "
-                    sql = sql + "@lastrep"
-                    for attr_name, attr_value in p.items():
-                        if attr_name == 'type':
-                            sql = sql + ", " + attr_value
-                        if attr_name == 'startDate':
-                            sql = sql + ", '" + attr_value + "'"
-                        if attr_name == 'endDate':
-                            sql = sql + ", '" + attr_value + "'"
-                        if attr_name == 'month':
-                            sql = sql + ", " + attr_value + ""
-                        if attr_name == 'year':
-                            sql = sql + ", " + attr_value + ""
-                    sql = sql + ");"
-                    sql = sql + '\n'
-
+                    sql = sql + "(id, paymentreport_id, title_id, start_date, end_date, month, year)"
+                    values = dict(p.items())
+                    string_values = ",".join([values.get(f, 'NULL') for f in payment_category_fields])
+                    sql += " values (NULL, @lastrep"
+                    sql += "," + string_values + ");\n"
                     sql = sql + 'set @lastcat = last_insert_id();' + '\n'
                     chld = p.getchildren()
                     if chld:
