@@ -54,7 +54,7 @@ def current_year():
 def parse_date(d):
     """parses a date string yyyymmdd or yymmdd and returns a (y, m, d) tuple"""
     yl = 4 if len(d) == 8 else 2
-    return (int(d) for d in (d[:yl], d[yl:yl + 2], d[yl + 2:yl + 4]))
+    return tuple([int(d) for d in [d[:yl], d[yl:yl + 2], d[yl + 2:yl + 4]]])
 
 
 def date_add(d1, d2):
@@ -77,7 +77,7 @@ def date_add(d1, d2):
 
 
 def date_subtract(d1, d2):
-    """ takes two dates (dates or periods), both
+    """ takes two dates (dates or priods), both
     in the form of a tuple (y, m, d), subtracts them and returns
     the new date
     """

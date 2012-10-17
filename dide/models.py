@@ -583,7 +583,7 @@ class Employee(models.Model):
 
     def formatted_recognised_experience(self):
         return u'%s έτη %s μήνες %s μέρες' \
-            % (parse_date(self.recognised_experience))
+            % parse_date(self.recognised_experience)
     formatted_recognised_experience.short_description = \
         u'Μορφοποιημένη προϋπηρεσία'
 
@@ -594,7 +594,7 @@ class Employee(models.Model):
             (self.date_hired.year, self.date_hired.month,
              self.date_hired.day + 1))
 
-        years, months, days = date_to_pediod(date_add((years, months, days),
+        years, months, days = date_to_period(date_add((years, months, days),
                                        parse_date(self.recognised_experience)))
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
