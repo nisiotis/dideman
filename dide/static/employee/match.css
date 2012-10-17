@@ -7,7 +7,7 @@ body.match {
 .match #container {
     background: white;
     border: 1px solid #ccc;
-    width: 28em;
+    width: 32em;
     min-width: 300px;
     margin-left: auto;
     margin-right: auto;
@@ -30,7 +30,7 @@ body.match {
 
 .match .form-row label {
     float: left;
-    width: 9em;
+    width: 12em;
     padding-right: 0.5em;
     line-height: 2em;
     text-align: right;
@@ -38,8 +38,8 @@ body.match {
     color: #333;
 }
 
-.match .form-row #id_registration_number, .match .form-row #id_lastname {
-    width: 14em;
+.match .form-row #id_identification_number, .match .form-row #id_lastname {
+    width: 16em;
 }
 
 .match span.help {
