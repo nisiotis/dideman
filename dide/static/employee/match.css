@@ -30,7 +30,7 @@ body.match {
 
 .match .form-row label {
     float: left;
-    width: 12em;
+    width: 16em;
     padding-right: 0.5em;
     line-height: 2em;
     text-align: right;
@@ -38,8 +38,8 @@ body.match {
     color: #333;
 }
 
-.match .form-row #id_identification_number, .match .form-row #id_lastname {
-    width: 16em;
+.match .form-row #id_identification_number #id_lastname #id_iban_4 {
+    width: 18em;
 }
 
 .match span.help {

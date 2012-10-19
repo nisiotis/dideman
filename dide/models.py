@@ -456,9 +456,10 @@ class DegreeCategory(models.Model):
 
 
 class EmployeeManager(models.Manager):
-    def match(self, vat_number, lastname):
+    def match(self, vat_number, lastname, iban_4):
         try:
-            return self.get(vat_number=vat_number, lastname=lastname)
+            return self.get(vat_number=vat_number,
+                            lastname=lastname, iban__endswith=iban_4)
         except:
             return None
 
@@ -621,9 +622,9 @@ class SocialSecurity(models.Model):
 
 class PermanentManager(EmployeeManager):
 
-    def match(self, registration_number, vat_number, lastname):
+    def match(self, registration_number, vat_number, lastname, iban_4):
         try:
-            return self.get(Q(lastname=lastname),
+            return self.get(Q(lastname=lastname), Q(iban__endswith=iban_4),
                             Q(registration_number=registration_number) |
                             Q(vat_number=vat_number))
         except:

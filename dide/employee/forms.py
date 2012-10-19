@@ -10,6 +10,9 @@ class EmployeeMatchForm(forms.Form):
     identification_number = forms.CharField(label=u'Αναγνωριστικό',
                                                max_length=9)
     lastname = forms.CharField(label=u'Επώνυμο', max_length=100)
+    iban_4 = forms.CharField(label=u'IBAN (4 τελευταία ψηφία',
+                             widget=forms.PasswordInput,
+                             min_length=4, max_length=4)
 
     error_messages = {
         'invalid_match': ' Δεν βρέθηκε εκπαιδευτικός με αυτά τα στοιχεία',
@@ -29,11 +32,13 @@ class EmployeeMatchForm(forms.Form):
     def clean(self):
         identification_number = self.cleaned_data.get('identification_number')
         lastname = self.cleaned_data.get('lastname')
+        iban_4 = self.cleaned_data.get('iban_4')
         if identification_number and lastname:
             lastname = without_accented(lastname.upper())
             self.employee_cache = Permanent.objects.match(
-                identification_number, identification_number, lastname) or \
-                Employee.objects.match(identification_number, lastname=lastname)
+                identification_number, identification_number,
+                lastname, iban_4) or \
+                Employee.objects.match(identification_number, lastname, iban_4)
             if self.employee_cache is None:
                 raise forms.ValidationError(
                     self.error_messages['invalid_match'])
