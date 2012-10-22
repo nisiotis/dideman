@@ -245,7 +245,7 @@ class OtherOrganizationAdmin(DideAdmin):
 
 class SchoolAdmin(OtherOrganizationAdmin):
     search_fields = ('name', 'code')
-    list_display = ['name', 'transfer_area', 'type',
+    list_display = ['name', 'code', 'transfer_area', 'type',
                     'telephone_number', 'email']
     list_filter = ['transfer_area', 'type', 'type__shift',
                    'type__category', 'inaccessible']
