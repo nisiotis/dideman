@@ -33,7 +33,13 @@ def print_pay(request, id):
         return ret
     logo = os.path.join(settings.MEDIA_ROOT, "logo.png")
     pay = PaymentReport.objects.get(pk=id)
-    emp = Permanent.objects.get(pk=pay.employee_id)
+    if request.session['matched_employee_id'] == pay.employee_id:
+        emp = Permanent.objects.get(pk=pay.employee_id)
+    else:
+        request.session.clear()
+        return HttpResponseRedirect(
+            '/employee/match/?next=/salary/view/')
+        
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=pay_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
@@ -152,15 +158,15 @@ def print_pay(request, id):
                              Paragraph('%.2f €' % numtoStr(p.amount),
                                        tbl_style['Right'])])
         id = 0
-        for index, item in enumerate(data):
-            if data[index][3] == '':
-                id = id + 1
-        for index, item in enumerate(data):
-            if index + id < len(data):
-                data[index][2] = data[index + id][2]
-                data[index][3] = data[index + id][3]
-        for index in range(id):
-            data.pop()
+        #for index, item in enumerate(data):
+        #    if data[index][3] == '':
+        #        id = id + 1
+        #for index, item in enumerate(data):
+        #    if index + id < len(data):
+        #        data[index][2] = data[index + id][2]
+        #        data[index][3] = data[index + id][3]
+        #for index in range(id):
+        #    data.pop()
         table4 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
                                                   6.5 * cm, 2.0 * cm])
         elements.append(table4)
@@ -222,8 +228,11 @@ def view(request):
         return HttpResponseRedirect(
             '/employee/match/?next=/salary/view/')
     if 'print' in request.GET:
+        if 'id' in request.GET:
             return print_pay(request, request.GET['id'])
-
+        else:
+            return HttpResponseRedirect('/salary/view/')
+            
     else:
         set = Permanent.objects.get(parent_id=request.session['matched_employee_id'])
         pay = PaymentReport.objects.filter(

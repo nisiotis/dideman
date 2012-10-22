@@ -10,8 +10,8 @@ def rmv_nsp(node):  # function to remove the namespace from node
 
 
 def read(file):
-    payment_category_fields = ['type', 'startDate', 'endDate', 'month', 'year']
-    try:
+        payment_category_fields = ['type', 'startDate', 'endDate', 'month', 'year']
+    #try:
         print 'XML Reading started...'
         start = time()
         element = etree.parse(file)
@@ -28,7 +28,7 @@ def read(file):
         for i in e:
             el = i.xpath('./xs:period', namespaces={'xs': ns})
             month = el[0].get('month')
-            year = el[0].get('year')
+            year = el[0].get('year').rsplit('+',1)[0]
             el = i.xpath('./xs:periodType', namespaces={'xs': ns})
             paytype = el[0].get('value')
 
@@ -65,7 +65,10 @@ def read(file):
                 iban = el[0].get('iban')
                 el = i.xpath('./xs:identification/xs:scale/xs:rank',
                              namespaces={'xs': ns})
-                rank = el[0].text
+                if el:
+                    rank = el[0].text
+                if not rank:
+                    rank = '0'
                 el = i.xpath('./xs:payment/xs:netAmount1',
                              namespaces={'xs': ns})
                 netAmount1 = el[0].get('value')
@@ -91,7 +94,7 @@ def read(file):
                     sql += "(id, paymentreport_id, title_id, start_date, "
                     sql += "end_date, month, year) "
                     values = dict(p.items())
-                    str_values = ",".join([values.get(f, 'NULL')
+                    str_values = ",".join([values.get(f, 'NULL').rsplit('+',1)[0]
                                            for f in payment_category_fields])
                     sql += " values (NULL, @lastrep"
                     sql += "," + str_values + ");\n"
@@ -121,6 +124,7 @@ def read(file):
                 for s_s in sql_strings:
                     if s_s:
                         cursor.execute(s_s)
+                        #print s_s
                 sql = ''
             else:
                 print el[0].text + " not found in database."
@@ -135,8 +139,8 @@ def read(file):
         elapsed = (time() - start)
         print 'Time reading file %.2f seconds.' % elapsed
         success = 1
-    except Exception, e:
-        print e
-        success = 0
+#    except Exception, e:
+#        print e
+#        success = 0
 
-    return success, cntr2
+        return success, cntr2
