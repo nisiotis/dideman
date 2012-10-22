@@ -31,6 +31,16 @@ def print_pay(request, id):
         except ValueError:
             ret = float(s)
         return ret
+
+#    months = [[1, u'Ιανουάριος'], [2, u'Φεβρουάριος'], [3, u'Μάρτιος'],
+#              [4, u'Απρίλιος'], [5, u'Μάιος'], [6, u'Ιούνιος'],
+#              [7, u'Ιούλιος'], [8, u'Αύγουστος'], [9, u'Σεπτέμβριος'],
+#              [10, u'Οκτώβριος'], [11, u'Νοέμβριος'], [12, u'Δεκέμβριος']]
+    months = [u'Ιανουάριος', u'Φεβρουάριος', u'Μάρτιος',
+              u'Απρίλιος', u'Μάιος', u'Ιούνιος',
+              u'Ιούλιος', u'Αύγουστος', u'Σεπτέμβριος',
+              u'Οκτώβριος', u'Νοέμβριος', u'Δεκέμβριος']
+
     logo = os.path.join(settings.MEDIA_ROOT, "logo.png")
     pay = PaymentReport.objects.get(pk=id)
     if request.session['matched_employee_id'] == pay.employee_id:
@@ -132,7 +142,12 @@ def print_pay(request, id):
     data = []
     for i in PaymentCategory.objects.filter(paymentreport=id):
         elements.append(Paragraph(u' ', heading_style['Spacer']))
-        s = '%s' % i.title
+        s = u'%s' % i.title
+        if i.start_date and i.end_date:
+#            d_f = i.start_date.rsplit('-')
+#            d_t = i.end_date.rsplit('-')
+#            import pdb;pdb.set_trace()
+            s += ' (%s %s)' % (months[i.month], i.year)
         data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
         table2 = Table(data, style=tsh, colWidths=[17 * cm])
         elements.append(table2)
