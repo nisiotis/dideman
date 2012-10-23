@@ -24,8 +24,8 @@ class NonPermanentDocxReport(DocxReport):
 nonpermanent_docx_reports = [
     NonPermanentDocxReport(u'Ανακοίνωση Τοποθέτησης', 'temporary_post.xml',
                ['firstname', 'lastname', 'profession', 'order',
-                'fathername', 'organization_serving'],
-               {'subject': u'Ανακοίνωση Αυτοδίκαιης Απόλυσης'},
+                'fathername', 'organization_serving', 'current_transfer_area'],
+               {'subject': u'Ανακοίνωση Τοποθέτησης'},
                {'recipient': '{{lastname}} {{firstname}}',
                 'protocol_number': lambda d: d['order'].order_start_manager,
                 'cc': ['{{organization_serving}}']}),
