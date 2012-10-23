@@ -3,14 +3,20 @@ from dide.models import Permanent, PaymentReport
 from django.db import connection, transaction
 from lxml import etree
 from time import time
+import datetime
 
 
 def rmv_nsp(node):  # function to remove the namespace from node
     return node.tag.rsplit('}', 1)[-1]
 
-
 def read(file):
         payment_category_fields = ['type', 'startDate', 'endDate', 'month', 'year']
+
+        def query_value(field, value):
+            if field in ['startDate', 'endDate']:
+                return "'%s'" % str(value)[:10]
+            else:
+                return value
     #try:
         print 'XML Reading started...'
         start = time()
@@ -94,13 +100,13 @@ def read(file):
                     sql += "(id, paymentreport_id, title_id, start_date, "
                     sql += "end_date, month, year) "
                     values = dict(p.items())
-                    str_values = ",".join([values.get(f, 'NULL').rsplit('+',1)[0]
-                                             for f in payment_category_fields])
-                    str_values = str_values.replace('-', '')
+                    str_values = ",".join(
+                        [query_value(f, values.get(f, 'NULL'))
+                         for f in payment_category_fields])
                     sql += " values (NULL, @lastrep"
                     sql += "," + str_values + ");\n"
                     sql += 'set @lastcat = last_insert_id();' + '\n'
-                    #print str_values
+
                     chld = p.getchildren()
                     if chld:
                         sql += "insert into dide_payment "

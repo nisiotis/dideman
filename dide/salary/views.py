@@ -144,10 +144,11 @@ def print_pay(request, id):
         elements.append(Paragraph(u' ', heading_style['Spacer']))
         s = u'%s' % i.title
         if i.start_date and i.end_date:
-#            d_f = i.start_date.rsplit('-')
-#            d_t = i.end_date.rsplit('-')
-#            import pdb;pdb.set_trace()
-            s += ' (%s %s)' % (months[i.month], i.year)
+            s1 = "/".join(list(reversed(i.start_date.split('-'))))
+            s2 = "/".join(list(reversed(i.end_date.split('-'))))
+            s += ' (%s - %s) ' % (s1, s2)
+        if i.month and i.year:
+            s += ' %s %s' % (months[int(i.month)], i.year)
         data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
         table2 = Table(data, style=tsh, colWidths=[17 * cm])
         elements.append(table2)
