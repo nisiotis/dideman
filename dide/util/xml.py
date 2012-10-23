@@ -28,7 +28,7 @@ def read(file):
         for i in e:
             el = i.xpath('./xs:period', namespaces={'xs': ns})
             month = el[0].get('month')
-            year = el[0].get('year').rsplit('+',1)[0]
+            year = el[0].get('year').rsplit('+', 1)[0]
             el = i.xpath('./xs:periodType', namespaces={'xs': ns})
             paytype = el[0].get('value')
 
@@ -95,10 +95,12 @@ def read(file):
                     sql += "end_date, month, year) "
                     values = dict(p.items())
                     str_values = ",".join([values.get(f, 'NULL').rsplit('+',1)[0]
-                                           for f in payment_category_fields])
+                                             for f in payment_category_fields])
+                    str_values = str_values.replace('-', '')
                     sql += " values (NULL, @lastrep"
                     sql += "," + str_values + ");\n"
                     sql += 'set @lastcat = last_insert_id();' + '\n'
+                    #print str_values
                     chld = p.getchildren()
                     if chld:
                         sql += "insert into dide_payment "
@@ -124,7 +126,6 @@ def read(file):
                 for s_s in sql_strings:
                     if s_s:
                         cursor.execute(s_s)
-                        #print s_s
                 sql = ''
             else:
                 print el[0].text + " not found in database."
