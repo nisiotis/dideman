@@ -32,10 +32,6 @@ def print_pay(request, id):
             ret = float(s)
         return ret
 
-#    months = [[1, u'Ιανουάριος'], [2, u'Φεβρουάριος'], [3, u'Μάρτιος'],
-#              [4, u'Απρίλιος'], [5, u'Μάιος'], [6, u'Ιούνιος'],
-#              [7, u'Ιούλιος'], [8, u'Αύγουστος'], [9, u'Σεπτέμβριος'],
-#              [10, u'Οκτώβριος'], [11, u'Νοέμβριος'], [12, u'Δεκέμβριος']]
     months = [u'Ιανουάριος', u'Φεβρουάριος', u'Μάρτιος',
               u'Απρίλιος', u'Μάιος', u'Ιούνιος',
               u'Ιούλιος', u'Αύγουστος', u'Σεπτέμβριος',
@@ -143,7 +139,8 @@ def print_pay(request, id):
     for i in PaymentCategory.objects.filter(paymentreport=id):
         elements.append(Paragraph(u' ', heading_style['Spacer']))
         s = u'%s' % i.title
-        if i.start_date and i.end_date:
+        print i.start_date
+        if (i.start_date and i.start_date !='NULL') and (i.end_date and i.start_date !='NULL'):
             s1 = "/".join(list(reversed(i.start_date.split('-'))))
             s2 = "/".join(list(reversed(i.end_date.split('-'))))
             s += ' (%s - %s) ' % (s1, s2)
