@@ -61,11 +61,11 @@ def read(file):
             netAmount1 = ''
             netAmount2 = ''
             rank = 0
-            cntr1 = cntr1 + 1
+            cntr1 += 1
             el = i.xpath('./xs:identification/xs:amm', namespaces={'xs': ns})
             payemp = dic.get(el[0].text)
             if payemp:
-                cntr2 = cntr2 + 1
+                cntr2 += 1
                 el = i.xpath('./xs:identification/xs:bankAccount',
                              namespaces={'xs': ns})
                 iban = el[0].get('iban')
@@ -74,7 +74,8 @@ def read(file):
                 if el:
                     rank = el[0].text
                 if not rank:
-                    rank = '0'
+
+                    rank = payemp.rank_id()
                 el = i.xpath('./xs:payment/xs:netAmount1',
                              namespaces={'xs': ns})
                 netAmount1 = el[0].get('value')

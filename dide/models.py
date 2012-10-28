@@ -95,6 +95,20 @@ class PaymentReport(models.Model):
     def amount_total(self):
         return float(self.net_amount1) + float(self.net_amount2)
 
+    def find_amount(self):
+        if self.net_amount1 == '0' and self.net_amount2 == '0':
+            totala = 0
+            for c in PaymentCategory.objects.filter(paymentreport=self.id):
+                grnum = 0
+                denum = 0
+                for p in Payment.objects.filter(category=c.id):
+                    if p.type == 'gr':
+                        grnum += float(str(p.amount))
+                    if p.type == 'de':
+                        denum += float(str(p.amount))
+            totala += (grnum - denum)
+        return totala
+
 
 class PaymentCategory(models.Model):
     paymentreport = models.ForeignKey('PaymentReport')
@@ -764,14 +778,20 @@ class Permanent(Employee):
     def rank_date(self):
         rankdate = first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
         return rankdate.date
-    rank.short_description = u'Βαθμός'
+    rank_date.short_description = u'Ημερμηνία τελευταίου βαθμού'
+
+    def rank_id(self):
+        rankid = first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
+        rnk = RankCode.objects.get(rank=rankid.value)
+        return rnk.id
+    rank_id.short_description = u'ID Βαθμού'
 
     def __unicode__(self):
         return '%s %s  (%s)' % (self.lastname, self.firstname,
-                                 self.registration_number)
+                                self.registration_number)
 
 
-PROMOTION_CHOICES = [(x, x) for x in [u'ΣΤ', u'Ε4', u'Ε3', u'Ε2', u'Ε1',
+PROMOTION_CHOICES = [(x, x) for x in [u'ΣΤ0', u'Ε4', u'Ε3', u'Ε2', u'Ε1',
                                       u'Ε0', u'Δ4', u'Δ3', u'Δ2', u'Δ1',
                                       u'Δ0', u'Γ4', u'Γ3', u'Γ2', u'Γ1',
                                       u'Γ0', u'Β7', u'Β6', u'Β5', u'Β4',

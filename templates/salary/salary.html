@@ -67,7 +67,13 @@
                   <tr>
                     <td scope="row"><a href="?print=1&id={{ p.id }} "> {{ p.type }} {{ p.year }}</a></td>
                     <td>{{ p.rank }}</td>
-                    <td>{{ p.amount_total }} €</td>
+                    <td>
+					{% if p.amount_total == 0 %}
+						{{ p.find_amount }} €
+					{% else %}
+						{{ p.amount_total }} €
+					{% endif %}
+					</td>
 			      </tr>
                 {% endfor %}
               </tbody>

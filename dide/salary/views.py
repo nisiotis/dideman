@@ -139,7 +139,6 @@ def print_pay(request, id):
     for i in PaymentCategory.objects.filter(paymentreport=id):
         elements.append(Paragraph(u' ', heading_style['Spacer']))
         s = u'%s' % i.title
-        print i.start_date
         if (i.start_date and i.start_date !='NULL') and (i.end_date and i.start_date !='NULL'):
             s1 = "/".join(list(reversed(i.start_date.split('-'))))
             s2 = "/".join(list(reversed(i.end_date.split('-'))))
@@ -159,12 +158,16 @@ def print_pay(request, id):
         gret = []
         de = []
         data = []
+        grnum = 0
+        denum = 0
         for p in Payment.objects.filter(category=i.id):
             if p.type == 'gr' or p.type == 'et':
                 s = u'%s' % p.code
                 gret.append([Paragraph(s, tbl_style['Left']),
                              Paragraph('%.2f €' % numtoStr(p.amount),
                                        tbl_style['Right'])])
+                if p.type == 'gr':
+                    grnum += float(str(p.amount))
             else:
                 s = u'%s' % p.code
                 if p.info is not None:
@@ -172,6 +175,7 @@ def print_pay(request, id):
                 de.append([Paragraph(s, tbl_style['Left']),
                            Paragraph('%.2f €' % numtoStr(p.amount),
                                      tbl_style['Right'])])
+                denum += float(str(p.amount))
         _get = lambda l, i: l[i] if i < len(l) else ['', '']
         data = [_get(gret, i) + _get(de, i) for i in range(0, max(len(gret),
                                                                   len(de)))]
@@ -190,12 +194,18 @@ def print_pay(request, id):
     elements.append(table5)
     del data
     data = []
-    data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
-                 Paragraph('%.2f €' % numtoStr(pay.net_amount1),
-                           tbl_style['Right']), '', ''])
-    data.append([Paragraph('Β\' δεκαπενθήμερο', tbl_style['Left']),
-                 Paragraph('%.2f €' % numtoStr(pay.net_amount2),
-                           tbl_style['Right']), '', ''])
+    if pay.net_amount1 != '0' and pay.net_amount2 != '0':
+        data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
+                     Paragraph('%.2f €' % numtoStr(pay.net_amount1),
+                               tbl_style['Right']), '', ''])
+        data.append([Paragraph('Β\' δεκαπενθήμερο', tbl_style['Left']),
+                     Paragraph('%.2f €' % numtoStr(pay.net_amount2),
+                               tbl_style['Right']), '', ''])
+    else:
+        totala = float(grnum) - float(denum)
+        data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
+                     Paragraph('%.2f €' % totala,
+                               tbl_style['Right']), '', ''])
     table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
                                               6.5 * cm, 2.0 * cm])
     elements.append(table5)
