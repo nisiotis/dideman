@@ -306,7 +306,11 @@ class PermanentAdmin(EmployeeAdmin):
 
     actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
                                      'temporary_position',
-                                     'profession__description'])] + \
+                                     'profession__description',
+                                     'payment_start_date_auto',
+                                     'payment_start_date_manual',
+                                     'formatted_recognised_experience',
+                                     'rank__value', 'rank__date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
 
 
