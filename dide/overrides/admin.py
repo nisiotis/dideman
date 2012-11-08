@@ -63,9 +63,9 @@ def monkey_patch_method(cls, name, fn):
 
 def alter_get_query_string(fn):
     def get_query_string(self, new_params=None, remove=None, multi=None):
-        if new_params is None: 
+        if new_params is None:
             new_params = {}
-        if remove is None: 
+        if remove is None:
             remove = []
         p = MultiValueDict(self.param_lists)
         for r in remove:

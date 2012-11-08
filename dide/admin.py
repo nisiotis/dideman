@@ -112,7 +112,8 @@ class SubstitutePlacementInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         return inlineformset_factory(NonPermanent, SubstitutePlacement,
                                      form=SubstitutePlacementForm,
-                                     fields=['organization', 'ministry_order'],
+                                     fields=['organization', 'ministry_order',
+                                             'date_from'],
                                      extra=SubstitutePlacementInline.extra)
 
 

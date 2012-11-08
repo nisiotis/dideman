@@ -8,7 +8,7 @@
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.organization_serving}} ως {{rec.type}} και υπηρέτησε από {{rec.order__date}} έως {{end_date}}.</w:t>
+        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.organization_serving}} ως {{rec.type}} και υπηρέτησε από {{rec.current_placement__date_from}} έως {{end_date}}.</w:t>
       </w:r>
     </w:p>
     <w:p>
@@ -37,7 +37,7 @@
         <w:rPr/>
         <w:t>Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: {{rec.order__order_end_manager}} </w:t>
       </w:r>
-    </w:p>    
+    </w:p>
     <w:p>
       <w:pPr>
         <w:pStyle w:val="style18"/>
@@ -46,7 +46,7 @@
         <w:rPr/>
         <w:t>Χρόνος υπηρεσίας έως {{end_date}}: {{rec.experience.1}} μήνες {{rec.experience.2}} ημέρες.</w:t>
       </w:r>
-    </w:p>    
+    </w:p>
         <w:p>
       <w:pPr>
         <w:pStyle w:val="style18"/>
@@ -55,4 +55,4 @@
         <w:rPr/>
         <w:t>Η βεβαίωση αυτή χορηγείται ύστερα από αίτηση του/της ενδιαφερόμενου/ης προκειμένου να τη χρησιμοποιήσει ως δικαιολογητικό για την αναγνώριση της προϋπηρεσίας του/της.</w:t>
       </w:r>
-    </w:p>    
+    </w:p>

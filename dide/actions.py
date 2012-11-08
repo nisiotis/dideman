@@ -167,7 +167,6 @@ class DocxReport(TemplateAction):
             return field
 
     def map_field_or_list(self, field, dictionary):
-        print field
         if isinstance(field, list):
             return [self.map_field(f, dictionary) for f in field]
         else:

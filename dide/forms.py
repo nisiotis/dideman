@@ -13,6 +13,5 @@ class SubstitutePlacementForm(ModelForm):
 
     def _post_clean(self):
         super(SubstitutePlacementForm, self)._post_clean()
-        self.instance.date_from = self.instance.ministry_order.date
         self.instance.date_to = current_year_date_to()
         self.instance.type = SubstitutePlacementForm.pltype

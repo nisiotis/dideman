@@ -39,7 +39,8 @@ nonpermanent_docx_reports = [
    NonPermanentDocxReport(u'Βεβαίωση Προϋπηρεσίας', 'proypiresia.xml',
                ['firstname', 'lastname', 'profession', 'type',
                 'profession__description', 'fathername',
-                'organization_serving', 'order', 'experience'],
+                'current_placement__date_from', 'organization_serving',
+                'order', 'experience'],
                {'subject': u'Βεβαίωση Προϋπηρεσίας',
                 'end_date': current_year_date_to_half().strftime('%d-%m-%Y')},
                {'recipient': '{{lastname}} {{firstname}}'})

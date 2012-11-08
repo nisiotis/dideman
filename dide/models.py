@@ -893,6 +893,9 @@ class NonPermanent(Employee):
         return first_or_none(self.orderedsubstitution_set.filter(
                 order__date__gte=d))
 
+    def current_placement(self, d=current_year_date_from()):
+        return first_or_none(self.placement_set.filter(date_from__gte=d))
+
     def current_transfer_area(self, d=current_year_date_from()):
         s = self.substitution(d)
         return s.transfer_area if s else None
@@ -903,14 +906,17 @@ class NonPermanent(Employee):
         return s.type if s else None
     type.short_description = u'Τύπος απασχόλησης'
 
-    def experience(self, d=current_year_date_to()):
-        o = self.order()
-        d1 = o.date.year, o.date.month, o.date.day
-        d2 = d.year, d.month, d.day
-        return date_to_pediod(date_subtract(d2, d1))
+    def experience(self, d=current_year_date_to_half()):
+        p = self.current_placement()
+        if p:
+            d1 = p.date_from.year, p.date_from.month, p.date_from.day
+            d2 = d.year, d.month, d.day
+            return date_to_period(date_subtract(d2, d1))
+        else:
+            return (0, 0, 0)
 
     def __unicode__(self):
-        return u'%s %s του %s' % (self.lastname, self.lastname,
+        return u'%s %s του %s' % (self.lastname, self.firstname,
                                        self.fathername)
 
 
