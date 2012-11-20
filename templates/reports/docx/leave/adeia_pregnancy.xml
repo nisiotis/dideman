@@ -15,12 +15,12 @@
         </w:p>
         <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
             <w:r>
-                <w:t>  β)του δεύτερου άρθρου του Ν.1302/82 (ΦΕΚ 133 τ.Α΄)με τον οποίο κυρώθηκε η διεθνής σύμβαση προστασίας της μητρότητας</w:t>
+                <w:t>  β) του δεύτερου άρθρου του Ν.1302/82 (ΦΕΚ 133 τ.Α΄)με τον οποίο κυρώθηκε η διεθνής σύμβαση προστασίας της μητρότητας</w:t>
             </w:r>
         </w:p>
         <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
             <w:r>
-                <w:t>  γ)του άρθρου15 παρ.6 του Ν.1199/81 (ΦΕΚ 133 τ.Α΄) για την     ρύθμιση θεμάτων υπαλλήλων του δημοσίου κ.λ.π.</w:t>
+                <w:t>  γ)του άρθρου15 παρ.6 του Ν.1199/81 (ΦΕΚ 133 τ.Α΄) για την ρύθμιση θεμάτων υπαλλήλων του δημοσίου κ.λ.π.</w:t>
             </w:r>
         </w:p>
         <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
@@ -30,7 +30,7 @@
         </w:p>
         <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
             <w:r>
-                <w:t>3. Τη συνημμένη ληξιαρχική πράξη γέννησης του παιδιού</w:t>
+                <w:t>3. Τη βεβαίωση του θεράποντος ιατρού.</w:t>
             </w:r>
         </w:p>        
         <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
@@ -49,6 +49,6 @@
         </w:p>
         <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
             <w:r w:rsidRPr="004079CD">
-                <w:t xml:space="preserve">τη χορήγηση άδειας κύησης με πλήρεις αποδοχές στην {{ rec.recipient }} του {{ rec.employee__fathername }}, αναπληρώτρια εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.employee__organization_serving }}, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }}.</w:t>
+                <w:t xml:space="preserve">τη χορήγηση άδειας κύησης με πλήρεις αποδοχές στην {{ rec.recipient }} του {{ rec.employee__fathername }}, εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.organization_serving }}, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }}.</w:t>
             </w:r>
         </w:p>

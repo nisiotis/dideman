@@ -1,4 +1,5 @@
-﻿    <w:tbl>
+
+    <w:tbl>
       <w:tblPr>
         <w:tblW w:w="5000" w:type="pct"/>
         <w:tblInd w:w="-20" w:type="dxa"/>
@@ -85,20 +86,18 @@
                 </wp:inline>
               </w:drawing>
             </w:r>
-          </w:p>
-          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
-            <w:pPr>
-              <w:pStyle w:val="a9"/>
-              <w:jc w:val="center"/>
-            </w:pPr>
             <w:r>
+              <w:rPr/>
+              <w:br/>
+            </w:r>
+            <w:r> 
               <w:rPr>
                 <w:b/>
                 <w:bCs/>
               </w:rPr>
               <w:t>ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ</w:t>
             </w:r>
-	    <w:r>
+            <w:r>
               <w:rPr>
                 <w:b/>
                 <w:bCs/>
@@ -106,40 +105,25 @@
               <w:br/>
               <w:t>ΥΠΟΥΡΓΕΙΟ ΠΑΙΔΕΙΑΣ ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ, ΠΟΛΙΤΙΣΜΟΥ ΚΑΙ ΑΘΛΗΤΙΣΜΟΥ</w:t>
             </w:r>
-          </w:p>
-          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
-            <w:pPr>
-              <w:pStyle w:val="a9"/>
-              <w:jc w:val="center"/>
-            </w:pPr>
-            <w:r>
-              <w:rPr>
-                <w:b/>
-                <w:bCs/>
-              </w:rPr>
-              <w:t>ΠΕΡΙΦΕΡΙΑΚΗ ΔΙΕΥΘΥΝΣΗ</w:t>
-            </w:r>
             <w:r>
               <w:rPr>
                 <w:b/>
                 <w:bCs/>
               </w:rPr>
               <w:br/>
-              <w:t>Α’ ΒΑΘΜΙΑΣ ΚΑΙ Β’ ΒΑΘΜΙΑΣ  ΕΚΠΑΙΔΕΥΣΗΣ {{ dide_district }}</w:t>
+              <w:t>ΠΕΡΙΦΕΡΙΑΚΗ ΔΙΕΥΘΥΝΣΗ Α’ ΒΑΘΜΙΑΣ ΚΑΙ Β’ ΒΑΘΜΙΑΣ  ΕΚΠΑΙΔΕΥΣΗΣ {{ dide_district }}</w:t>
             </w:r>
-          </w:p>
-          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
-            <w:pPr>
-              <w:pStyle w:val="a9"/>
-              <w:jc w:val="center"/>
-            </w:pPr>
+            
+            
             <w:r>
               <w:rPr>
                 <w:b/>
                 <w:bCs/>
               </w:rPr>
+              <w:br/>
               <w:t>ΔΙΕΥΘΥΝΣΗ Β’ ΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ {{ dide_place }}</w:t>
             </w:r>
+            
           </w:p>
         </w:tc>
         <w:tc>
@@ -200,7 +184,7 @@
       </w:tr>
       <w:tr w:rsidR="001420B7" w:rsidTr="00F43BD4">
         <w:trPr>
-          <w:trHeight w:val="2876"/>
+          <w:trHeight w:val="1700"/>
         </w:trPr>
         <w:tc>
           <w:tcPr>
@@ -283,21 +267,33 @@
             <w:r>
               <w:t>Ταχ. Διεύθυνση: {{address}}</w:t>
             </w:r>
-          </w:p>
-          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
-            <w:pPr>
-              <w:pStyle w:val="a9"/>
-            </w:pPr>
+            <w:r>
+              <w:rPr/>
+              <w:br/>
+            </w:r>
             <w:r>
               <w:t>Πληροφορίες: {{contact_person}} {{contact_email}}</w:t>
             </w:r>
-          </w:p>
-          <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
-            <w:pPr>
-              <w:pStyle w:val="a9"/>
-            </w:pPr>
+            <w:r>
+              <w:rPr/>
+              <w:br/>
+            </w:r>
             <w:r>
               <w:t>Τηλέφωνο: {{telephone_number}}</w:t>
+            </w:r>
+            <w:r>
+              <w:rPr/>
+              <w:br/>
+            </w:r>
+            <w:r>
+              <w:t>email: {{email}}</w:t>
+            </w:r>
+            <w:r>
+              <w:rPr/>
+              <w:br/>
+            </w:r>
+            <w:r>
+              <w:t>Fax: {{fax_number}}</w:t>
             </w:r>
           </w:p>
         </w:tc>
@@ -351,3 +347,4 @@
         <w:t>ΘΕΜΑ: {{subject}}</w:t>
       </w:r>
     </w:p>
+

@@ -1,0 +1,49 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις  διατάξεις των άρθρων 17, 18 και 30 του Ν.1264/82 (ΦΕΚ 79/Α/1982).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Τις διατάξεις του άρθρου 22 παρ. 5 του Ν.1400/83 (ΦΕΚ 156/Α΄/1983).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Τις διατάξεις του άρθρου 6 παρ. 3 του Ν 2224/94 (ΦΕΚ 112/Α΄/1994), όπως συμπληρώθηκε με τις διατάξεις του άρθρου 11 του Ν.2336/95 (ΦΕΚ 189/Α΄/95).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>4. Το άρθρο 14 παρ. 1β του Ν.2085/92 (ΦΕΚ 170/Α΄/92).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>5. Την αίτηση του ενδιαφερόμενου.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε στον/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.organization_serving }} ειδική άδεια αιρετών μελών Ο.Τ.Α., {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }} για τους λόγους που αναφέρει στην αίτησή του/της.</w:t>
+            </w:r>
+        </w:p>

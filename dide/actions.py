@@ -117,6 +117,8 @@ class DocxReport(TemplateAction):
         self.model_fields = model_fields
         self.dictionary = {'data': [], 'manager': SETTINGS['manager'],
                            'address': SETTINGS['address'],
+                           'email': SETTINGS['email_dide'],
+                           'fax_number': SETTINGS['fax_number'],
                            'dide_district': SETTINGS['dide_district'],
                            'dide_place':
                                without_accented(SETTINGS['dide_place']

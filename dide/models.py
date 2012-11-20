@@ -401,6 +401,7 @@ class Leave(models.Model):
     class Meta:
         verbose_name = u'Κατηγορία άδειας'
         verbose_name_plural = u'Κατηγορίες αδειών'
+        ordering = ['name']
 
     objects = LeaveManager()
 

@@ -6,232 +6,133 @@ import datetime
 import os
 
 
+def cc(obj):
+    ret = [obj['organization_serving']]
+    p = obj['employee__permanent__permanent_post']
+    s = obj['organization_serving']
+    if obj['employee__permanent__permanent_post'] != \
+            obj['organization_serving']:
+        ret.append(obj['employee__permanent__permanent_post'])
+    ret.append(u'Α.Φ.')
+    return ret
+
+
 class LeaveDocxReport(DocxReport):
     def __init__(self, short_description, body_template_path,
-                 fields, custom_context=None, model_fields=None,
+                 fields=None, custom_context=None, model_fields=None,
                  include_header=True, include_footer=True):
+
+        fields = fields or ['employee__firstname', 'employee__lastname',
+                            'profession', 'organization_serving',
+                            'employee__permanent__permanent_post',
+                            'employee__fathername', 'order',
+                            'date_from', 'date_to',
+                            'protocol_number', 'duration', 'date_issued']
+
         context = {'telephone_number':
                        SETTINGS['leaves_contact_telephone_number'],
-                   'contact_person': SETTINGS['leaves_contact_person']}
-        context.update(custom_context)
-        model_fields = model_fields or {}
-        model_fields['header_date'] = '{{ date_issued }}'
+                   'contact_person': SETTINGS['leaves_contact_person'],
+                   'email': SETTINGS['email_leaves']}
+        if custom_context:
+            context.update(custom_context)
+
+        if not model_fields:
+            model_fields = {'header_date': '{{date_issued}}',
+                            'recipient':
+                                '{{employee__firstname}}'
+                            ' {{employee__lastname}}'}
+
+            model_fields['cc'] = cc
         super(LeaveDocxReport, self).__init__(
             short_description, os.path.join('leave', body_template_path),
             fields, context, model_fields, include_header, include_footer)
 
+
 leave_docx_reports = [
-    LeaveDocxReport(u'Αναρρωτική Άδεια', 'adeia_aimodosias.xml', ['employee__firstname', 'employee__lastname',
-'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration' ],
-               {'subject': u'Αναρρωτική Άδεια'},
-               {'recipient': '{{ employee__firstname }} {{ employee__lastname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η','2. Σχολείο {{ employee__organization_serving  }}',u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Αιμοδοσίας', 'adeia_aimodosias.xml',
+                    custom_context={'subject': u'Χορήγηση άδειας αιμοδοσίας'}),
 
-    LeaveDocxReport(u'Ειδική Άδεια αιρετών μελών Ο.Τ.Α.', 'adeia_eidiki_airetoi.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση ειδικής άδειας αιρετών μελών Ο.Τ.Α.'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η','2. Σχολείο {{ employee__organization_serving  }}',u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Συνδικαλιστική',
+                    'adeia_syndikalistiki.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση Συνδικαλιστικής Άδειας '}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια Αναπληρωτών', 'adeia_anarrotiki_anapliroti.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση αναρρωτικής άδειας αναπληρωτών'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η','2. Σχολείο {{ employee__organization_serving  }}',u'3. Α.Φ.', u'4. Εκκαθαριστή αποδοχών']}),
+    LeaveDocxReport(u'Τοκετού (πατέρα)', 'adeia_goniki_patera_toketou.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση ειδικής άδειας'
+                                    u' λόγω τοκετού'}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια Αναπληρωτών άνευ αποδοχών', 'adeia_anarrotiki_anapliroti_no_pay.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση αναρρωτικής άδειας αναπληρωτή/ωρομισθίου  καθηγητή χωρίς αποδοχές'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η','2. Σχολείο {{ employee__organization_serving  }}',u'3. Α.Φ.', u'4. Εκκαθαριστή αποδοχών']}),                            
+    LeaveDocxReport(u'Ειδική Άδεια 22 ημερών', 'adeia_22.xml',
+                    custom_context={'subject': u'Χορήγηση ειδικής άδειας'}),
 
-    LeaveDocxReport(u'Ειδική Άδεια Τοκετού', 'adeia_anarrotiki_anapliroti.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση ειδικής άδειας λόγω τοκετού'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η','2. Σχολείο {{ employee__organization_serving  }}',u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Διευκόλυνσης', 'adeia_diefkolinsis.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας διευκόλυνσης'}),
 
-    LeaveDocxReport(u'Άδεια Διευκόλυνσης', 'adeia_diefkolinsis.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας διευκόλυνσης'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η','2. Σχολείο {{ employee__organization_serving  }}',u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Κανονική', 'adeia_kanoniki.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση κανονικής άδειας '
+                                    u'απουσίας'}),
 
-    LeaveDocxReport(u'Κανονική Άδεια Απουσίας', 'adeia_kanoniki.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση κανονικής άδειας απουσίας σε εκπαιδευτικό λειτουργό'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Ειδική Άδειας Εκλογών', 'adeia_eklogon.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση ειδικής άδειας λόγω'
+                                    u' εκλογών'}),
 
-    LeaveDocxReport(u'Ειδική Άδειας Εκλογών', 'adeia_eklogon.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση ειδικής άδειας λόγω εκλογών'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η','2. Σχολείο {{ employee__organization_serving  }}',u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Ανατροφής (άνευ αποδοχών)', 'adeia_anatrofis_no_pay.xml',
+                    custom_context={'subject':
+                                    u'Χορήγηση άδειας χωρίς αποδοχές'
+                                    u' για ανατροφή'
+                     u' παιδιού'}),
 
-    LeaveDocxReport(u'Άδεια Κύησης - Λοχείας Αναπληρωτών', 'adeia_maternity_anapliroti.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας Κύησης - Λοχείας αναπληρωτών'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.', u'4. Εκκαθαριστή αποδοχών']}),  
+    LeaveDocxReport(u'Ειδική Άδεια αιρετών μελών Ο.Τ.Α. άνευ αποδοχών',
+                    'adeia_eidiki_airetoi_no_pay.xml',
+                    custom_context={'subject':
+                         u'Χορήγηση άδειας άνευ αποδοχών σε αιρετό εκπρόσωπο'
+                     u' Ο.Τ.Α'}),
 
-    LeaveDocxReport(u'Ειδική Άδεια Μετεκπαιδεύσεως Εφεδρείας', 'adeia_stratou.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση ειδικής άδειας λόγω μετεκπαιδεύσεως εφεδρείας'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),  
+    LeaveDocxReport(u'Άδεια άνευ αποδοχών', 'adeia_eidiki_no_pay.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας άνευ αποδοχών'}),
 
-    LeaveDocxReport(u'Άδεια Ανατροφής Παιδιού άνευ αποδοχών', 'adeia_anatrofis_no_pay.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας χωρίς αποδοχές για ανατροφή παιδιού'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.', u'4. Εκκαθαριστή αποδοχών']}),
+    LeaveDocxReport(u'Αναρρωτική Άδεια (από Α\'Βάθμια Υγειονομική Επιτροπή',
+                    'adeia_anarrotiki_yg_ep.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση αναρρωτικής άδειας'}),
 
-    LeaveDocxReport(u'Ειδική Άδεια αιρετών μελών Ο.Τ.Α. άνευ αποδοχών', 'adeia_eidiki_airetoi_no_pay.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας άνευ αποδοχών σε αιρετό εκπρόσωπο Ο.Τ.Α'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.', u'4. Εκκαθαριστή αποδοχών']}),
+    LeaveDocxReport(u'Αναρρωτική Άδεια (Βραχυχρόνια)',
+                    'adeia_anarrotiki_short.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση αναρρωτικής άδειας'}),
 
-    LeaveDocxReport(u'Άδεια άνευ αποδοχών', 'adeia_eidiki_no_pay.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας άνευ αποδοχών'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.', u'4. Εκκαθαριστή αποδοχών']}),
+    LeaveDocxReport(u'Ανατροφής (3 μήνες - τρίτου τέκνου)',
+                    'adeia_anatrofis_3months.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας τριών μηνών για '
+                                    u'ανατροφή τρίτου τέκνου και άνω.'}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια από Πρωτοβάθμια Υγειονομική Επιτροπή', 'adeia_anarrotiki_yg_ep.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση αναρρωτικής άδειας'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),                
+    LeaveDocxReport(u'Ανατροφής (9 μήνες)', 'adeia_anatrofis_9months.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας ανατροφής τέκνου'}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια με Ιατρική Βεβαίωση', 'adeia_anarrotiki_itr_vev.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση αναρρωτικής άδειας '},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Γονική', 'adeia_goniki.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση γονικής άδειας απουσίας'}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια με Υπεύθυνη Δήλωση', 'adeia_anarrotiki_yp_dil.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση αναρρωτικής άδειας '},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Εξετάσεων', 'adeia_eidiki_eksetaseon.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση ειδικής άδειας εξετάσεων'}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια με γνωμάτευση του νοσοκομείου', 'adeia_anarrotiki_gn_nos.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση αναρρωτικής άδειας '},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Κύησης', 'adeia_pregnancy.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας κύησης'}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια με γνωμάτευση του νοσοκομείου', 'adeia_anarrotiki_gn_nos.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση αναρρωτικής άδειας '},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
+    LeaveDocxReport(u'Άδεια Λοχείας', 'adeia_maternity.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας λοχείας'}),
 
-    LeaveDocxReport(u'Άδεια ανατροφής τέκνου', 'adeia_anatrofis.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας ανατροφής τέκνου'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
-
-    LeaveDocxReport(u'Άδεια ανατροφής τέκνου (Δίδυμα)', 'adeia_anatrofis_didima.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας ανατροφής τέκνου'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
-
-    LeaveDocxReport(u'Άδεια ανατροφής τέκνου 3μηνη', 'adeia_anatrofis_3month.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας ανατροφής τέκνου'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),                
-
-    LeaveDocxReport(u'Άδεια ανατροφής τέκνου 10μηνη', 'adeia_anatrofis_10month.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας ανατροφής τέκνου'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}), 
-
-    LeaveDocxReport(u'Άδεια ανατροφής τέκνου στον Σύζυγο', 'adeia_anatrofis_suzugou.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας ανατροφής τέκνου'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}), 
-
-    LeaveDocxReport(u'Άδεια ανατροφής τέκνου μισή - μισή', 'adeia_anatrofis_half.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας ανατροφής τέκνου'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}), 
-
-    LeaveDocxReport(u'Άδεια Γονική', 'adeia_goniki.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση γονικής άδειας απουσίας'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}), 
-
-    LeaveDocxReport(u'Ειδική Άδεια Εξετάσεων - Ορκωμοσίας', 'adeia_eidiki_eksetaseon.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση ειδικής άδειας εξετάσεων - ορκωμοσίας'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),                 
-
-    LeaveDocxReport(u'Ειδική Άδεια Εξετάσεων Αναπληρωτών', 'adeia_eidiki_eksetaseon_anapliroti.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση ειδικής άδειας εξετάσεων σε αναπληρωτή καθηγητή'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'protocol_number': '{{protocol_number}}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),  
-
-    LeaveDocxReport(u'Άδεια Κύησης', 'adeia_pregnancy.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας κύησης'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'protocol_number': '{{protocol_number}}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
-
-    LeaveDocxReport(u'Άδεια Λοχείας', 'adeia_maternity.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση άδειας λοχείας'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'protocol_number': '{{protocol_number}}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
-
-    LeaveDocxReport(u'Άδεια Κανονική Κυοφορίας με Αποδοχές', 'adeia_pregnancy_normal.xml', 
-               ['employee__firstname', 'employee__lastname', 'profession', 'employee__organization_serving', 
-                'employee__fathername', 'order', 'date_from', 'date_to', 'protocol_number', 'duration', 'date_issued'],
-               {'subject': u'Χορήγηση κανονικής άδειας κυοφορίας με αποδοχές'},
-               {'recipient': '{{ employee__lastname }} {{ employee__firstname }}',
-                'protocol_number': '{{protocol_number}}',
-                'cc': [u'1. Ενδιαφερόμενο/η', '2. Σχολείο {{ employee__organization_serving  }}', u'3. Α.Φ.']}),
-                ]
+    LeaveDocxReport(u'Κυοφορίας',
+                    'adeia_pregnancy_normal.xml',
+                    custom_context={'subject':
+                         u'Χορήγηση κανονικής άδειας κυοφορίας με αποδοχές'})
+    ]

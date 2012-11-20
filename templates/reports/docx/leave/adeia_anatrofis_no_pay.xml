@@ -18,6 +18,11 @@
                 <w:t>3. Την αίτηση του/της ενδιαφερόμενου/ης</w:t>
             </w:r>
         </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>4. Το πιστοποιητικό οικογενειακής κατάστασης.</w:t>
+            </w:r>
+        </w:p>
         <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
             <w:pPr>
                 <w:jc w:val="center"/>
@@ -34,7 +39,7 @@
         </w:p>
         <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
             <w:r w:rsidRPr="004079CD">
-                <w:t xml:space="preserve">Χορηγούμε στον/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.employee__organization_serving }} άδεια χωρίς αποδοχές, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }} λόγω ανατροφής παιδιού.</w:t>
+                <w:t xml:space="preserve">Χορηγούμε στον/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.organization_serving }} άδεια χωρίς αποδοχές, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }} λόγω ανατροφής παιδιού.</w:t>
             </w:r>
         </w:p>
         <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">            

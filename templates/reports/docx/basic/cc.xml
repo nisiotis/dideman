@@ -1,9 +1,4 @@
 ﻿    <w:p w:rsidR="00E80EF6" w:rsidRDefault="009F67E9" w:rsidP="009F67E9">
-      <w:pPr>
-        <w:rPr>
-          <w:szCs w:val="24"/>
-        </w:rPr>
-      </w:pPr>
       <w:r w:rsidRPr="009F67E9">
         <w:rPr>
           <w:b/>
@@ -13,8 +8,8 @@
       <w:r>
         {% for r in rec.cc %}
         <w:br/>
-        <w:t>{{ r }} </w:t>
+        <w:t>{{ forloop.counter }}. {{ r }} </w:t>
         {% endfor %}
       </w:r>
-      
+
     </w:p>
