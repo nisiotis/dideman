@@ -10,8 +10,8 @@ def cc(obj):
     ret = [obj['organization_serving']]
     p = obj['employee__permanent__permanent_post']
     s = obj['organization_serving']
-    if obj['employee__permanent__permanent_post'] != \
-            obj['organization_serving']:
+    if obj['employee__permanent__permanent_post'] \
+            not in [obj['organization_serving'], '-']:
         ret.append(obj['employee__permanent__permanent_post'])
     ret.append(u'Α.Φ.')
     return ret
