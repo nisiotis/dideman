@@ -1189,6 +1189,21 @@ class EmployeeLeave(models.Model):
         return self.employee.profession
     profession.short_description = u'Ειδικότητα'
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        from django.db.models import Sum
+        if self.leave.name == u'Κανονική':
+            y = datetime.date.today().year
+            dur = EmployeeLeave.objects.filter(
+                employee=self.employee, leave=self.leave,
+                date_from__gte=datetime.date(y, 1, 1),
+                date_to__lte=datetime.date(y, 12, 31)
+                ).aggregate(Sum('duration'))['duration__sum']
+            msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις 10. ' \
+                u' Μέρες χωρίς την τρέχουσα άδεια: {0}'
+            if dur and dur + self.duration > 10:
+                raise ValidationError(msg.format(dur))
+
     def __unicode__(self):
         return unicode(self.employee) + '-' + unicode(self.date_from)
 
