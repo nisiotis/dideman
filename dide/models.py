@@ -1179,8 +1179,8 @@ class EmployeeLeave(models.Model):
         else:
             return self.employee.organization_serving()
     organization_serving.short_description = u'Θέση υπηρεσίας'
-    # a leave intersects with another date range (ds: date start, de: date end)
 
+    # a leave intersects with another date range (ds: date start, de: date end)
     def date_range_intersects(ds, de):
         return (self.date_from <= ds <= self.date_to) or \
             (ds <= self.date_from <= de)
@@ -1198,10 +1198,10 @@ class EmployeeLeave(models.Model):
                 employee=self.employee, leave=self.leave,
                 date_from__gte=datetime.date(y, 1, 1),
                 date_to__lte=datetime.date(y, 12, 31)
-                ).aggregate(Sum('duration'))['duration__sum']
+                ).aggregate(Sum('duration'))['duration__sum'] or 0
             msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις 10. ' \
                 u' Μέρες χωρίς την τρέχουσα άδεια: {0}'
-            if dur and dur + self.duration > 10:
+            if dur + self.duration > 10:
                 raise ValidationError(msg.format(dur))
 
     def __unicode__(self):
