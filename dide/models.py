@@ -1192,17 +1192,30 @@ class EmployeeLeave(models.Model):
     def clean(self):
         from django.core.exceptions import ValidationError
         from django.db.models import Sum
+
         if self.leave.name == u'Κανονική':
             y = datetime.date.today().year
             dur = EmployeeLeave.objects.filter(
                 employee=self.employee, leave=self.leave,
                 date_from__gte=datetime.date(y, 1, 1),
-                date_to__lte=datetime.date(y, 12, 31)
-                ).aggregate(Sum('duration'))['duration__sum'] or 0
+                date_to__lte=datetime.date(y, 12, 31)).\
+                exclude(id=self.id).\
+                aggregate(Sum('duration'))['duration__sum'] or 0
             msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις 10. ' \
                 u' Μέρες χωρίς την τρέχουσα άδεια: {0}'
+
             if dur + self.duration > 10:
                 raise ValidationError(msg.format(dur))
+
+        df, dt = [d.strftime('%Y-%m-%d') \
+                      for d in self.date_from, self.date_to]
+        if len(EmployeeLeave.objects.filter(
+                Q(employee=self.employee),
+                Q(date_from__range=[df, dt]) |
+                Q(date_to__range=[df, dt]) |
+                Q(date_to__gte=df, date_from__lte=dt)).\
+                   exclude(id=self.id)) > 0:
+                raise ValidationError('Υπάρχει και άλλη άδεια αυτό διάστημα')
 
     def __unicode__(self):
         return unicode(self.employee) + '-' + unicode(self.date_from)
