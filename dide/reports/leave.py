@@ -13,6 +13,8 @@ def cc(obj):
     if obj['employee__permanent__permanent_post'] \
             not in [obj['organization_serving'], '-']:
         ret.append(obj['employee__permanent__permanent_post'])
+    if obj['leave__not_paying']:
+        ret.append(u'Εκκαθαριστής')
     ret.append(u'Α.Φ.')
     return ret
 
@@ -26,8 +28,8 @@ class LeaveDocxReport(DocxReport):
                             'profession', 'organization_serving',
                             'employee__permanent__permanent_post',
                             'employee__fathername', 'order',
-                            'date_from', 'date_to',
-                            'protocol_number', 'duration', 'date_issued']
+                            'date_from', 'date_to', 'protocol_number',
+                            'duration', 'date_issued', 'leave__not_paying']
 
         context = {'telephone_number':
                        SETTINGS['leaves_contact_telephone_number'],
