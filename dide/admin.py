@@ -339,11 +339,9 @@ class EmployeeLeaveAdmin(DideAdmin):
         leave = leave_qs[0]
 
         for r in leave_docx_reports:
-            print r.short_description
-            print leave.leave.name
             if r.short_description == leave.leave.name:
                 return r(self, request, leave_qs)
-        return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
+        return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
 
     def get_urls(self):
         from django.conf.urls import patterns, url
