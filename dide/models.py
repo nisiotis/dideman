@@ -1162,8 +1162,7 @@ class EmployeeLeave(models.Model):
                                        blank=True)
     description = models.CharField(u'Σημειώσεις', null=True, blank=True,
                                    max_length=300)
-    duration = models.IntegerField(max_length=3, verbose_name=u'Διάρκεια',
-                                   null=True, blank=True)
+    duration = models.IntegerField(max_length=3, verbose_name=u'Διάρκεια')
 
     @shorted(15)
     def category(self):
