@@ -613,7 +613,7 @@ class Employee(models.Model):
         years, months, days = date_subtract(
             (now.year, now.month, now.day),
             (self.date_hired.year, self.date_hired.month,
-             self.date_hired.day + 1))
+             self.date_hired.day))
 
         years, months, days = date_to_period(date_add((years, months, days),
                                        parse_date(self.recognised_experience)))
