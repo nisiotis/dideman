@@ -45,7 +45,7 @@ def submit_row(context):
         'is_popup': is_popup,
         'show_save': True,
         'show_print': not context['add'],
-        'object_id': context['object_id'],
+        'object_id': context['object_id'] if hasattr(context, 'object_id') else None,
         'form_id': opts.module_name + '_form',
     }
 
