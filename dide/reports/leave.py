@@ -51,7 +51,7 @@ class LeaveDocxReport(DocxReport):
 
 
 leave_docx_reports = [
-    LeaveDocxReport(u'Αιμοδοσίας', 'adeia_aimodosias.xml',
+    LeaveDocxReport(u'Αιμοδοτική', 'adeia_aimodosias.xml',
                     custom_context={'subject': u'Χορήγηση άδειας αιμοδοσίας'}),
 
     LeaveDocxReport(u'Συνδικαλιστική',
@@ -64,7 +64,7 @@ leave_docx_reports = [
                                         u'Χορήγηση ειδικής άδειας'
                                     u' λόγω τοκετού'}),
 
-    LeaveDocxReport(u'Ειδική Άδεια 22 ημερών', 'adeia_22.xml',
+    LeaveDocxReport(u'Ειδική 22 ημερών', 'adeia_22.xml',
                     custom_context={'subject': u'Χορήγηση ειδικής άδειας'}),
 
     LeaveDocxReport(u'Διευκόλυνσης', 'adeia_diefkolinsis.xml',
@@ -76,12 +76,12 @@ leave_docx_reports = [
                                         u'Χορήγηση κανονικής άδειας '
                                     u'απουσίας'}),
 
-    LeaveDocxReport(u'Ειδική Άδειας Εκλογών', 'adeia_eklogon.xml',
+    LeaveDocxReport(u'Εκλογική', 'adeia_eklogon.xml',
                     custom_context={'subject':
                                         u'Χορήγηση ειδικής άδειας λόγω'
                                     u' εκλογών'}),
 
-    LeaveDocxReport(u'Ανατροφής (άνευ αποδοχών)', 'adeia_anatrofis_no_pay.xml',
+    LeaveDocxReport(u'Ανατροφής (Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay.xml',
                     custom_context={'subject':
                                     u'Χορήγηση άδειας χωρίς αποδοχές'
                                     u' για ανατροφή'
@@ -93,16 +93,16 @@ leave_docx_reports = [
                          u'Χορήγηση άδειας άνευ αποδοχών σε αιρετό εκπρόσωπο'
                      u' Ο.Τ.Α'}),
 
-    LeaveDocxReport(u'Άδεια άνευ αποδοχών', 'adeia_eidiki_no_pay.xml',
+    LeaveDocxReport(u'Άνευ Αποδοχών', 'adeia_eidiki_no_pay.xml',
                     custom_context={'subject':
                                         u'Χορήγηση άδειας άνευ αποδοχών'}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια (από Α\'Βάθμια Υγειονομική Επιτροπή',
+    LeaveDocxReport(u'Αναρρωτική (από Α\'Βάθμια Υγειονομική Επιτροπή',
                     'adeia_anarrotiki_yg_ep.xml',
                     custom_context={'subject':
                                         u'Χορήγηση αναρρωτικής άδειας'}),
 
-    LeaveDocxReport(u'Αναρρωτική Άδεια (Βραχυχρόνια)',
+    LeaveDocxReport(u'Αναρρωτική (Βραχυχρόνια)',
                     'adeia_anarrotiki_short.xml',
                     custom_context={'subject':
                                         u'Χορήγηση αναρρωτικής άδειας'}),
@@ -129,7 +129,7 @@ leave_docx_reports = [
                     custom_context={'subject':
                                         u'Χορήγηση άδειας κύησης'}),
 
-    LeaveDocxReport(u'Άδεια Λοχείας', 'adeia_maternity.xml',
+    LeaveDocxReport(u'Λοχείας', 'adeia_maternity.xml',
                     custom_context={'subject':
                                         u'Χορήγηση άδειας λοχείας'}),
 

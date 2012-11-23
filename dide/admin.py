@@ -331,6 +331,27 @@ class EmployeeLeaveAdmin(DideAdmin):
                               'organization_serving', 'permanent_post'])] + \
         sorted(leave_docx_reports, key=lambda k: k.short_description)
 
+    def print_leave(self, request, employeeleave_id):
+        from django.http import HttpResponse
+        leave_qs = EmployeeLeave.objects.filter(pk=employeeleave_id)
+        if (len(leave_qs) != 1):
+            return HttpResponse(u'Η άδεια δεν βρέθηκε')
+        leave = leave_qs[0]
+
+        for r in leave_docx_reports:
+            print r.short_description
+            print leave.leave.name
+            if r.short_description == leave.leave.name:
+                return r(self, request, leave_qs)
+        return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
+
+    def get_urls(self):
+        from django.conf.urls import patterns, url
+        return super(EmployeeLeaveAdmin, self).get_urls() + \
+            patterns('', url(r'^print/(\d+)$',
+                          self.admin_site.admin_view(self.print_leave),
+                          name='dide_employeeleave_print'))
+
 
 class NonPermanentAdmin(EmployeeAdmin):
     list_display = ['lastname', 'firstname', 'fathername',

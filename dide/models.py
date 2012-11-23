@@ -773,16 +773,19 @@ class Permanent(Employee):
     organization_serving.short_description = u'Θέση υπηρεσίας'
 
     def rank(self):
-        return first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
+        return first_or_none(
+            Promotion.objects.filter(employee=self).order_by('-date'))
     rank.short_description = u'Βαθμός'
 
     def rank_date(self):
-        rankdate = first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
+        rankdate = first_or_none(
+            Promotion.objects.filter(employee=self).order_by('-date'))
         return rankdate.date
     rank_date.short_description = u'Ημερμηνία τελευταίου βαθμού'
 
     def rank_id(self):
-        rankid = first_or_none(Promotion.objects.filter(employee=self).order_by('-date'))
+        rankid = first_or_none(
+            Promotion.objects.filter(employee=self).order_by('-date'))
         rnk = RankCode.objects.get(rank=rankid.value)
         return rnk.id
     rank_id.short_description = u'ID Βαθμού'
@@ -858,7 +861,8 @@ class NonPermanentManager(models.Manager):
 
     def substitutes_in_date_range(self, date_from, date_to):
         ids = [s.substitute_id for s in OrderedSubstitution.objects.\
-                   filter(order__date__lte=date_to, order__date__gte=date_from)]
+                   filter(order__date__lte=date_to,
+                          order__date__gte=date_from)]
         return self.filter(parent_id__in=ids)
 
     def serving_in_organization(self, org_id):
@@ -1193,28 +1197,29 @@ class EmployeeLeave(models.Model):
         from django.core.exceptions import ValidationError
         from django.db.models import Sum
 
-        if self.leave.name == u'Κανονική':
-            y = datetime.date.today().year
-            dur = EmployeeLeave.objects.filter(
-                employee=self.employee, leave=self.leave,
-                date_from__gte=datetime.date(y, 1, 1),
-                date_to__lte=datetime.date(y, 12, 31)).\
-                exclude(id=self.id).\
-                aggregate(Sum('duration'))['duration__sum'] or 0
-            msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις 10. ' \
-                u' Μέρες χωρίς την τρέχουσα άδεια: {0}'
+        if hasattr(self, 'leave') and hasattr(self, 'employee'):
+            if self.leave.name == u'Κανονική':
+                y = datetime.date.today().year
+                dur = EmployeeLeave.objects.filter(
+                    employee=self.employee, leave=self.leave,
+                    date_from__gte=datetime.date(y, 1, 1),
+                    date_to__lte=datetime.date(y, 12, 31)).\
+                    exclude(id=self.id).\
+                    aggregate(Sum('duration'))['duration__sum'] or 0
+                msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις 10. ' \
+                    u' Μέρες χωρίς την τρέχουσα άδεια: {0}'
 
-            if dur + self.duration > 10:
-                raise ValidationError(msg.format(dur))
+                if dur + self.duration > 10:
+                        raise ValidationError(msg.format(dur))
 
-        df, dt = [d.strftime('%Y-%m-%d') \
-                      for d in self.date_from, self.date_to]
-        if len(EmployeeLeave.objects.filter(
-                Q(employee=self.employee),
-                Q(date_from__range=[df, dt]) |
-                Q(date_to__range=[df, dt]) |
-                Q(date_to__gte=df, date_from__lte=dt)).\
-                   exclude(id=self.id)) > 0:
+            df, dt = [d.strftime('%Y-%m-%d') \
+                              for d in self.date_from, self.date_to]
+            if len(EmployeeLeave.objects.filter(
+                    Q(employee=self.employee),
+                    Q(date_from__range=[df, dt]) |
+                    Q(date_to__range=[df, dt]) |
+                    Q(date_to__gte=df, date_from__lte=dt)).\
+                       exclude(id=self.id)) > 0:
                 raise ValidationError('Υπάρχει και άλλη άδεια αυτό διάστημα')
 
     def __unicode__(self):
