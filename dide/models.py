@@ -788,7 +788,7 @@ class Permanent(Employee):
     def rank_id(self):
         rankid = first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date'))
-        if not rnkid:
+        if not rankid:
             return None
         else:
             rnk = RankCode.objects.get(rank=rankid.value)
