@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dide.models import Permanent, PaymentReport
+from dide.models import Permanent, PaymentReport, RankCode
 from django.db import connection, transaction
 from lxml import etree
 from time import time
@@ -55,7 +55,9 @@ def read(file):
 
         cursor = connection.cursor()
         objects = Permanent.objects.all()
+        ranks = RankCode.objects.all()
         dic = {o.registration_number: o for o in objects}
+        rankdic = {o.id: o.rank for o in ranks}
         for i in e:
             iban = ''
             netAmount1 = ''
@@ -72,7 +74,7 @@ def read(file):
                 el = i.xpath('./xs:identification/xs:scale/xs:rank',
                              namespaces={'xs': ns})
                 if el:
-                    rank = el[0].text
+                    rank = 'NULL' if el[0].text not in rankdic else el[0].text
                 if not rank:
                     rank = payemp.rank_id() or 'NULL'
 
@@ -132,7 +134,11 @@ def read(file):
                 sql_strings = sql.split('\n')
                 for s_s in sql_strings:
                     if s_s:
-                        cursor.execute(s_s)
+                        try:
+                            cursor.execute(s_s)
+                        except:
+                            print s_s
+                            
                 sql = ''
             else:
                 print el[0].text + " not found in database."
