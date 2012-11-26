@@ -74,8 +74,8 @@ def read(file):
                 if el:
                     rank = el[0].text
                 if not rank:
-
                     rank = payemp.rank_id()
+
                 el = i.xpath('./xs:payment/xs:netAmount1',
                              namespaces={'xs': ns})
                 netAmount1 = el[0].get('value')

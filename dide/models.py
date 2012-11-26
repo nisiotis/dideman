@@ -786,13 +786,13 @@ class Permanent(Employee):
     rank_date.short_description = u'Ημερμηνία τελευταίου βαθμού'
 
     def rank_id(self):
-        rankid = first_or_none(
+        promotion = first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date'))
-        if not rankid:
+        if not promotion:
             return None
         else:
-            rnk = RankCode.objects.get(rank=rankid.value)
-            return rnk.id
+            rank = RankCode.objects.get(rank=promotion.value)
+            return rank.id if rank else None
 
     rank_id.short_description = u'ID Βαθμού'
 
