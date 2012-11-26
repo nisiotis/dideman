@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.db.models import Q
@@ -85,7 +86,8 @@ class PaymentReport(models.Model):
                              verbose_name=u'Τύπος Αναφοράς')
     year = models.IntegerField(u'Έτος')
     pay_type = models.IntegerField(u'Τύπος πληρωμής')
-    rank = models.ForeignKey('RankCode', verbose_name=u'Βαθμός')
+    rank = models.ForeignKey('RankCode', verbose_name=u'Βαθμός', null=True,
+                             blank=True)
     iban = models.CharField('iban', max_length=50, null=True, blank=True)
     net_amount1 = models.CharField(u"Α' Δεκαπενθήμερο",
                                    max_length=50, null=True, blank=True)
@@ -786,8 +788,12 @@ class Permanent(Employee):
     def rank_id(self):
         rankid = first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date'))
-        rnk = RankCode.objects.get(rank=rankid.value)
-        return rnk.id
+        if not rnkid:
+            return None
+        else:
+            rnk = RankCode.objects.get(rank=rankid.value)
+            return rnk.id
+
     rank_id.short_description = u'ID Βαθμού'
 
     def __unicode__(self):

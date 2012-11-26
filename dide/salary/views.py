@@ -129,7 +129,7 @@ def print_pay(request, id):
                 [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
                  Paragraph('%s' % emp.firstname, tbl_style['Left']),
                  Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
-                 Paragraph(u'%s' % pay.rank, tbl_style['Left'])]]
+                 Paragraph(u'%s' % pay.rank or u'Άγνωστος', tbl_style['Left'])]]
     table1 = Table(headdata, style=tsh,
                    colWidths=[3 * cm, 6 * cm, 5 * cm, 3 * cm])
     elements.append(table1)
