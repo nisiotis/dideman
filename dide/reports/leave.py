@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 from dideman.dide.actions import DocxReport
-from dideman.dide.util.common import current_year
 from dideman.dide.util.settings import SETTINGS
-import datetime
 import os
 
 
 def cc(obj):
     ret = [obj['organization_serving']]
-    p = obj['employee__permanent__permanent_post']
-    s = obj['organization_serving']
     if obj['employee__permanent__permanent_post'] \
             not in [obj['organization_serving'], '-']:
         ret.append(obj['employee__permanent__permanent_post'])
@@ -60,8 +56,7 @@ leave_docx_reports = [
                                         u'Χορήγηση Συνδικαλιστικής Άδειας '}),
 
     LeaveDocxReport(u'Τοκετού (πατέρα)', 'adeia_goniki_patera_toketou.xml',
-                    custom_context={'subject':
-                                        u'Χορήγηση ειδικής άδειας'
+                    custom_context={'subject': u'Χορήγηση ειδικής άδειας'
                                     u' λόγω τοκετού'}),
 
     LeaveDocxReport(u'Ειδική 22 ημερών', 'adeia_22.xml',
@@ -72,26 +67,24 @@ leave_docx_reports = [
                                         u'Χορήγηση άδειας διευκόλυνσης'}),
 
     LeaveDocxReport(u'Κανονική', 'adeia_kanoniki.xml',
-                    custom_context={'subject':
-                                        u'Χορήγηση κανονικής άδειας '
+                    custom_context={'subject': u'Χορήγηση κανονικής άδειας '
                                     u'απουσίας'}),
 
     LeaveDocxReport(u'Εκλογική', 'adeia_eklogon.xml',
-                    custom_context={'subject':
-                                        u'Χορήγηση ειδικής άδειας λόγω'
+                    custom_context={'subject': u'Χορήγηση ειδικής άδειας λόγω'
                                     u' εκλογών'}),
 
     LeaveDocxReport(u'Ανατροφής (Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay.xml',
                     custom_context={'subject':
                                     u'Χορήγηση άδειας χωρίς αποδοχές'
-                                    u' για ανατροφή'
-                     u' παιδιού'}),
+                                    u' για ανατροφή παιδιού'}),
 
     LeaveDocxReport(u'Ειδική Άδεια αιρετών μελών Ο.Τ.Α. άνευ αποδοχών',
                     'adeia_eidiki_airetoi_no_pay.xml',
                     custom_context={'subject':
-                         u'Χορήγηση άδειας άνευ αποδοχών σε αιρετό εκπρόσωπο'
-                     u' Ο.Τ.Α'}),
+                                        u'Χορήγηση άδειας άνευ αποδοχών σε '
+                                    u'αιρετό εκπρόσωπο'
+                                    u' Ο.Τ.Α'}),
 
     LeaveDocxReport(u'Άνευ Αποδοχών', 'adeia_eidiki_no_pay.xml',
                     custom_context={'subject':
