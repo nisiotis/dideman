@@ -133,5 +133,9 @@ leave_docx_reports = [
     LeaveDocxReport(u'Κυοφορίας',
                     'adeia_pregnancy_normal.xml',
                     custom_context={'subject':
-                         u'Χορήγηση κανονικής άδειας κυοφορίας με αποδοχές'})
+                                        u'Χορήγηση κανονικής άδειας κυοφορίας με αποδοχές'}),
+
+    LeaveDocxReport(u'Επαπειλούμενης κύησης', 'adeia_epapiloumenis.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση αναρρωτικής άδειας'})
     ]
