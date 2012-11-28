@@ -1217,15 +1217,18 @@ class EmployeeLeave(models.Model):
                 if dur + self.duration > 10:
                         raise ValidationError(msg.format(dur))
 
-            df, dt = [d.strftime('%Y-%m-%d') \
-                              for d in self.date_from, self.date_to]
-            if len(EmployeeLeave.objects.filter(
-                    Q(employee=self.employee),
-                    Q(date_from__range=[df, dt]) |
-                    Q(date_to__range=[df, dt]) |
-                    Q(date_to__gte=df, date_from__lte=dt)).\
-                       exclude(id=self.id)) > 0:
+            if len(self.intersects_with()) > 0:
                 raise ValidationError('Υπάρχει και άλλη άδεια αυτό διάστημα')
+
+    def intersects_with(self):
+        df, dt = [d.strftime('%Y-%m-%d') \
+                      for d in self.date_from, self.date_to]
+        return EmployeeLeave.objects.filter(
+            Q(employee=self.employee),
+            Q(date_from__range=[df, dt]) |
+            Q(date_to__range=[df, dt]) |
+            Q(date_to__gte=df, date_from__lte=dt)).\
+            exclude(id=self.id)
 
     def __unicode__(self):
         return unicode(self.employee) + '-' + unicode(self.date_from)
