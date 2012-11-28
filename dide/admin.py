@@ -323,8 +323,8 @@ class EmployeeLeaveAdmin(DideAdmin):
               '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
 
     search_fields = ('employee__lastname',)
-    list_display = ('employee', 'profession', 'permanent_post',
-                    'organization_serving', 'category', 'date_to', 'duration')
+    list_display = ('employee', 'profession', 'category', 'date_from',
+                    'date_to', 'duration')
     list_filter = ('leave', 'employee__profession__unified_profession',
                    LeaveDateToFilter, LeaveDateFromFilter)
     actions = [CSVReport(add=['employee__profession__id',

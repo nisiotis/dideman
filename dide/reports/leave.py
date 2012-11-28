@@ -5,10 +5,11 @@ import os
 
 
 def cc(obj):
-    ret = [obj['organization_serving']]
-    if obj['employee__permanent__permanent_post'] \
-            not in [obj['organization_serving'], '-']:
-        ret.append(obj['employee__permanent__permanent_post'])
+    ret = [obj['organization_serving'].organization.name]
+    if obj['employee__permanent__permanent_post'].organization.name \
+            not in [obj['organization_serving'].organization.name, '-']:
+        ret.append(obj['employee__permanent__permanent_post'].\
+                       organization.name)
     if obj['leave__not_paying']:
         ret.append(u'Εκκαθαριστής')
     ret.append(u'Α.Φ.')
@@ -90,7 +91,7 @@ leave_docx_reports = [
                     custom_context={'subject':
                                         u'Χορήγηση άδειας άνευ αποδοχών'}),
 
-    LeaveDocxReport(u'Αναρρωτική (από Α\'Βάθμια Υγειονομική Επιτροπή',
+    LeaveDocxReport(u'Αναρρωτική (από Α\'Βάθμια Υγειονομική Επιτροπή)',
                     'adeia_anarrotiki_yg_ep.xml',
                     custom_context={'subject':
                                         u'Χορήγηση αναρρωτικής άδειας'}),
@@ -107,6 +108,10 @@ leave_docx_reports = [
                                     u'ανατροφή τρίτου τέκνου και άνω.'}),
 
     LeaveDocxReport(u'Ανατροφής (9 μήνες)', 'adeia_anatrofis_9months.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας ανατροφής τέκνου'}),
+
+    LeaveDocxReport(u'Ανατροφής (10 μήνες)', 'adeia_anatrofis_10months.xml',
                     custom_context={'subject':
                                         u'Χορήγηση άδειας ανατροφής τέκνου'}),
 
@@ -129,5 +134,9 @@ leave_docx_reports = [
     LeaveDocxReport(u'Κυοφορίας',
                     'adeia_pregnancy_normal.xml',
                     custom_context={'subject':
-                         u'Χορήγηση κανονικής άδειας κυοφορίας με αποδοχές'})
+                                        u'Χορήγηση κανονικής άδειας κυοφορίας με αποδοχές'}),
+
+    LeaveDocxReport(u'Επαπειλούμενης κύησης', 'adeia_epapiloumenis.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση αναρρωτικής άδειας'})
     ]
