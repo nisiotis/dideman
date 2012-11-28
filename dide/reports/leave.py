@@ -90,7 +90,7 @@ leave_docx_reports = [
                     custom_context={'subject':
                                         u'Χορήγηση άδειας άνευ αποδοχών'}),
 
-    LeaveDocxReport(u'Αναρρωτική (από Α\'Βάθμια Υγειονομική Επιτροπή',
+    LeaveDocxReport(u'Αναρρωτική (από Α\'Βάθμια Υγειονομική Επιτροπή)',
                     'adeia_anarrotiki_yg_ep.xml',
                     custom_context={'subject':
                                         u'Χορήγηση αναρρωτικής άδειας'}),
