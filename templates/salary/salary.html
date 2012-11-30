@@ -41,19 +41,31 @@
           <p>{{ emp.profession  }}</p>
         </div>
       </div>
-      <div class="form-row field-registration_number">
+	{% if emp.registration_number %}
+	<div class="form-row field-registration_number">
         <div>
           <label style="width:220px;">Αριθμός Μητρώου : </label>
           <p>{{ emp.registration_number  }}</p>
         </div>
       </div>
-        <div class="form-row field-rank">
+	{% endif %}
+	{% if emp.vat_number and not emp.registration_number %}
+	<div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Α.Φ.Μ.: </label>
+          <p>{{ emp.vat_number  }}</p>
+        </div>
+      </div>
+	{% endif %}
+	{% if emp.rank %}
+	<div class="form-row field-rank">
         <div>
           <label style = "width:220px;">Βαθμός - Κλιμάκιο: </label>
           <p>{{ emp.rank  }} (από {{ emp.rank_date  }}) </p>
         </div>
       </div>
-      <h2>Αποδοχές</h2>
+	{% endif %}
+ 	<h2>Αποδοχές</h2>
       {% if payments %}
         <div>
             <table summary="Αποδοχές" style="width:100%">
@@ -61,12 +73,12 @@
                 <tr>
                   <th>Περιγραφή </th>
                   <th>Βαθμός - Κλιμάκιο</th>
-                  <th>Μηνιαίες Αποδοχές</th>
+                  <th>Αποδοχές</th>
 				</tr>
                 {% for p in payments %}
                   <tr>
                     <td scope="row"><a href="?print=1&id={{ p.id }} "> {{ p.type }} {{ p.year }}</a></td>
-                    <td>{{ p.rank }}</td>
+                    <td>{% if p.rank %} {{ p.rank }} {% else %} Δ/Υ {% endif %}</td>
                     <td>
 					{% if p.amount_total == 0 %}
 						{{ p.find_amount }} €

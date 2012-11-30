@@ -2,11 +2,12 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
-                                 Payment, Employee)
+                                 Employee, Payment, Employee)
 from dideman.dide.employee.decorators import match_required
 from dideman.dide.util.common import get_class
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
+from django.http import Http404
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
 from reportlab.pdfbase.pdfmetrics import registerFont
@@ -39,8 +40,15 @@ def print_pay(request, id):
 
     logo = os.path.join(settings.MEDIA_ROOT, "logo.png")
     pay = PaymentReport.objects.get(pk=id)
+    emptype = 0
     if request.session['matched_employee_id'] == pay.employee_id:
-        emp = Permanent.objects.get(pk=pay.employee_id)
+        try:
+            emp = Permanent.objects.get(pk=pay.employee_id)
+        except Permanent.DoesNotExist:
+            emp = Employee.objects.get(pk=pay.employee_id)
+            emptype = 1
+        except:
+            raise
     else:
         request.session.clear()
         return HttpResponseRedirect(
@@ -118,18 +126,35 @@ def print_pay(request, id):
                                   (pay.type, pay.year),
                                   heading_style['Center']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
-                 Paragraph('%s' % emp.registration_number, tbl_style['Left']),
-                 Paragraph('ΑΦΜ', tbl_style['Left']),
-                 Paragraph(u'%s' % emp.vat_number, tbl_style['Left'])],
-                [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
-                 Paragraph('%s' % emp.lastname, tbl_style['Left']),
-                 Paragraph('', tbl_style['Left']),
-                 Paragraph('', tbl_style['Left'])],
-                [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
-                 Paragraph('%s' % emp.firstname, tbl_style['Left']),
-                 Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
-                 Paragraph(u'%s' % pay.rank or u'Άγνωστος', tbl_style['Left'])]]
+    if emptype == 0:
+        headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
+                     Paragraph('%s' % emp.registration_number or u'Δ/Υ',
+                               tbl_style['Left']),
+                     Paragraph('ΑΦΜ', tbl_style['Left']),
+                     Paragraph(u'%s' % emp.vat_number, tbl_style['Left'])],
+                    [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
+                     Paragraph('%s' % emp.lastname, tbl_style['Left']),
+                     Paragraph('', tbl_style['Left']),
+                     Paragraph('', tbl_style['Left'])],
+                    [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
+                     Paragraph('%s' % emp.firstname, tbl_style['Left']),
+                     Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
+                     Paragraph(u'%s' % pay.rank or u'Δ/Υ', tbl_style['Left'])]]
+    else:
+        headdata = [[Paragraph(u'ΑΦΜ', tbl_style['Left']),
+                     Paragraph('%s' % emp.vat_number,
+                               tbl_style['Left']),
+                     Paragraph('', tbl_style['Left']),
+                     Paragraph('', tbl_style['Left'])],
+                    [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
+                     Paragraph('%s' % emp.lastname, tbl_style['Left']),
+                     Paragraph('', tbl_style['Left']),
+                     Paragraph('', tbl_style['Left'])],
+                    [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
+                     Paragraph('%s' % emp.firstname, tbl_style['Left']),
+                     Paragraph('', tbl_style['Left']),
+                     Paragraph('', tbl_style['Left'])]]
+
     table1 = Table(headdata, style=tsh,
                    colWidths=[3 * cm, 6 * cm, 5 * cm, 3 * cm])
     elements.append(table1)
@@ -139,7 +164,7 @@ def print_pay(request, id):
     for i in PaymentCategory.objects.filter(paymentreport=id):
         elements.append(Paragraph(u' ', heading_style['Spacer']))
         s = u'%s' % i.title
-        if (i.start_date and i.start_date !='NULL') and (i.end_date and i.start_date !='NULL'):
+        if (i.start_date and i.start_date != 'NULL') and (i.end_date and i.start_date != 'NULL'):
             s1 = "/".join(list(reversed(i.start_date.split('-'))))
             s2 = "/".join(list(reversed(i.end_date.split('-'))))
             s += ' (%s - %s) ' % (s1, s2)
@@ -203,7 +228,7 @@ def print_pay(request, id):
                                tbl_style['Right']), '', ''])
     else:
         totala = float(grnum) - float(denum)
-        data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
+        data.append([Paragraph('Σύνολο', tbl_style['Left']),
                      Paragraph('%.2f €' % totala,
                                tbl_style['Right']), '', ''])
     table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
@@ -252,7 +277,13 @@ def view(request):
             return HttpResponseRedirect('/salary/view/')
 
     else:
-        set = Permanent.objects.get(parent_id=request.session['matched_employee_id'])
+        print request.session['matched_employee_id']
+        try:
+            set = Permanent.objects.get(parent_id=request.session['matched_employee_id'])
+        except Permanent.DoesNotExist:
+            set = Employee.objects.get(id=request.session['matched_employee_id'])
+        except:
+            raise
         pay = PaymentReport.objects.filter(
             employee=request.session['matched_employee_id']). \
             order_by('-year', '-type')

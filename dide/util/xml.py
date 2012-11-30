@@ -11,16 +11,62 @@ def rmv_nsp(node):  # function to remove the namespace from node
     return node.tag.rsplit('}', 1)[-1]
 
 
-def read(file):
-        payment_category_fields = ['type', 'startDate', 'endDate',
-                                   'month', 'year']
+def query_value(field, value):
+    if field in ['startDate', 'endDate']:
+        return "'%s'" % str(value)[:10]
+    else:
+        return value
 
-        def query_value(field, value):
-            if field in ['startDate', 'endDate']:
-                return "'%s'" % str(value)[:10]
-            else:
-                return value
-    #try:
+
+def reset(file):
+    try:
+        print 'Reseting: XML Reading started...'
+        start = time()
+        element = etree.parse(file)
+        el = element.getroot()
+        ns = el.tag.rsplit('}')[0].replace('{', '')
+        month = 0
+        year = 0
+        paytype = 0
+        e = element.xpath('//xs:psp/xs:header/xs:transaction',
+                          namespaces={'xs': ns})
+        for i in e:
+            el = i.xpath('./xs:period', namespaces={'xs': ns})
+            month = el[0].get('month')
+            year = el[0].get('year').rsplit('+', 1)[0]
+            el = i.xpath('./xs:periodType', namespaces={'xs': ns})
+            paytype = el[0].get('value')
+            if int(paytype) not in [1, 11, 12, 13]:
+                month = 16
+        reports = PaymentReport.objects.filter(pay_type=paytype,
+                                               type=month,
+                                               year=year).count()
+        print 'Reseting %s records from previous XML file.' % reports
+        doreset = raw_input('Continue? Yes / No: ')
+        if reports > 0 and (doreset in ['Yes', 'yes', 'YES']):
+            pr = PaymentReport.objects.filter(pay_type=paytype,
+                                              type_id=month, year=year)
+            pr.delete()
+            success = 0
+            print 'Done!'
+        else:
+            success = 1
+    except:
+        success = 1
+        raise
+    return success
+
+
+def read(file):
+    payment_category_fields = ['type', 'startDate', 'endDate',
+                               'month', 'year']
+    objects = Employee.objects.all()
+    e_dic = {o.vat_number: o for o in objects}
+    objects = Permanent.objects.all()
+    p_dic = {o.registration_number: o for o in objects}
+    ranks = RankCode.objects.all()
+    rankdic = {o.id for o in ranks}
+    try:
         print 'XML Reading started...'
         start = time()
         element = etree.parse(file)
@@ -45,13 +91,11 @@ def read(file):
         e = element.xpath('//xs:psp/xs:body/xs:organizations' +
                           '/xs:organization/xs:employees/xs:employee',
                           namespaces={'xs': ns})
-
         if int(paytype) in [1, 11]:
             reports = PaymentReport.objects.filter(pay_type=paytype,
                                                    type=month,
                                                    year=year).count()
             print 'Salary: Found %s records from previous XML file.' % reports
-
             if reports > 0:
                 pr = PaymentReport.objects.filter(pay_type=paytype,
                                                   type_id=month, year=year)
@@ -59,16 +103,7 @@ def read(file):
                 reports = ''
         else:
             print 'Importing new XML file or XML file other than salary.'
-
         cursor = connection.cursor()
-        objects = Employee.objects.all()
-        e_dic = {o.vat_number: o for o in objects}
-        objects = Permanent.objects.all()
-        p_dic = {o.registration_number: o for o in objects}
-        objects = NonPermanent.objects.all()
-        s_dic = {o.parent_id: o for o in objects}
-        ranks = RankCode.objects.all()
-        rankdic = {o.id for o in ranks}
         for i in e:
             employeeID = 0
             initrank = 0
@@ -89,26 +124,23 @@ def read(file):
             else:
                 employeeID = payemp.parent.id
                 initrank = payemp.rank_id()
-                print initrank
             if employeeID != 0:
                 cntr2 += 1
                 el = i.xpath('./xs:identification/xs:bankAccount',
                              namespaces={'xs': ns})
                 iban = el[0].get('iban')
                 el = i.xpath('./xs:identification/xs:scale/xs:rank',
-                                namespaces={'xs': ns})
+                             namespaces={'xs': ns})
                 if el:
                     if el[0].text not in rankdic:
                         rank = 'NULL'
                     else:
                         rank = el[0].text
-                    if rank == 'NULL':
-                        if initrank != 0 and initrank is not None:
-                            rank = initrank
-                        else:
-                            rank = 'NULL'
-                print rank
-                import pdb;pdb.set_trace()
+                if rank == 'NULL' or rank == 0:
+                    if initrank == 0 or initrank is None:
+                        rank = 'NULL'
+                    else:
+                        rank = initrank
                 el = i.xpath('./xs:payment/xs:netAmount1',
                              namespaces={'xs': ns})
                 netAmount1 = el[0].get('value')
@@ -140,7 +172,6 @@ def read(file):
                     sql += " values (NULL, @lastrep"
                     sql += "," + str_values + ");\n"
                     sql += 'set @lastcat = last_insert_id();' + '\n'
-
                     chld = p.getchildren()
                     if chld:
                         sql += "insert into dide_payment "
@@ -161,32 +192,25 @@ def read(file):
                                 sql += "NULL)"
                             c = c + 1
                         sql += ';\n'
-
                 sql_strings = sql.split('\n')
                 for s_s in sql_strings:
                     if s_s:
                         try:
                             cursor.execute(s_s)
                         except:
-                            print s_s
                             raise
-
                 sql = ''
             else:
                 print el[0].text + " not found in database."
-
         transaction.commit_unless_managed()
         cursor.close()
-
         print 'The XML file contained %s records.' % cntr1
         print '%s records found in database. Difference %d' % (cntr2,
                                                                (cntr1 - cntr2))
-
         elapsed = (time() - start)
         print 'Time reading file %.2f seconds.' % elapsed
         success = 1
-#    except Exception, e:
-#        print e
-#        success = 0
-
-        return success, cntr2
+    except:
+        success = 0
+        raise
+    return success, cntr2
