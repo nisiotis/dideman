@@ -139,7 +139,8 @@ def print_pay(request, id):
                     [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
                      Paragraph('%s' % emp.firstname, tbl_style['Left']),
                      Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
-                     Paragraph(u'%s' % pay.rank or u'Δ/Υ', tbl_style['Left'])]]
+                     Paragraph(u'%s' % pay.rank if pay.rank is not None else u'Δ/Υ',
+                               tbl_style['Left'])]]
     else:
         headdata = [[Paragraph(u'ΑΦΜ', tbl_style['Left']),
                      Paragraph('%s' % emp.vat_number,

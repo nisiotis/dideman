@@ -45,7 +45,7 @@ class PaymentFileName(models.Model):
         verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών'
 
     id = models.AutoField(primary_key=True)
-    xml_file = models.FileField(upload_to="xmlfiles")
+    xml_file = models.FileField(upload_to="reports/pdf/salary")
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση')
     imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν')
@@ -81,6 +81,8 @@ class PaymentCategoryTitle(models.Model):
 
 
 class PaymentReport(models.Model):
+    paymentfilename = models.ForeignKey('PaymentFileName',
+                                        verbose_name=u'Αρχείο')
     employee = models.ForeignKey('Employee', verbose_name=u'Υπάλληλος')
     type = models.ForeignKey('PaymentReportType',
                              verbose_name=u'Τύπος Αναφοράς')
@@ -110,6 +112,9 @@ class PaymentReport(models.Model):
                         denum += float(str(p.amount))
             totala += (grnum - denum)
         return totala
+
+    def __unicode__(self):
+        return u"%s" % self.employee
 
 
 class PaymentCategory(models.Model):
@@ -418,6 +423,7 @@ class Leave(models.Model):
     description = models.CharField(null=True, blank=True,
                                    verbose_name=u'Περιγραφή',
                                    max_length=300)
+   # xml_file = models.FileField(upload_to="reports/docx/leave")
 
     def __unicode__(self):
         return self.name
@@ -497,7 +503,7 @@ class Employee(models.Model):
     firstname = models.CharField(u'Όνομα', max_length=100)
     lastname = models.CharField(u'Επώνυμο', max_length=100)
     fathername = models.CharField(u'Όνομα Πατέρα', max_length=100)
-    mothername = models.CharField(u'Όνομα μητέρας', max_length=100,
+    mothername = models.CharField(u'Όνομα Μητέρας', max_length=100,
                                   null=True, blank=True)
     currently_serves = models.BooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου',
                                            default=True)

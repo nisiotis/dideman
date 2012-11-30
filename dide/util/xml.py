@@ -4,7 +4,6 @@ from dide.models import Employee, NonPermanent
 from django.db import connection, transaction
 from lxml import etree
 from time import time
-import datetime
 
 
 def rmv_nsp(node):  # function to remove the namespace from node
@@ -21,7 +20,6 @@ def query_value(field, value):
 def reset(file):
     try:
         print 'Reseting: XML Reading started...'
-        start = time()
         element = etree.parse(file)
         el = element.getroot()
         ns = el.tag.rsplit('}')[0].replace('{', '')
@@ -57,7 +55,7 @@ def reset(file):
     return success
 
 
-def read(file):
+def read(file, filerec):
     payment_category_fields = ['type', 'startDate', 'endDate',
                                'month', 'year']
     objects = Employee.objects.all()
@@ -91,18 +89,18 @@ def read(file):
         e = element.xpath('//xs:psp/xs:body/xs:organizations' +
                           '/xs:organization/xs:employees/xs:employee',
                           namespaces={'xs': ns})
-        if int(paytype) in [1, 11]:
-            reports = PaymentReport.objects.filter(pay_type=paytype,
-                                                   type=month,
-                                                   year=year).count()
-            print 'Salary: Found %s records from previous XML file.' % reports
-            if reports > 0:
-                pr = PaymentReport.objects.filter(pay_type=paytype,
-                                                  type_id=month, year=year)
-                pr.delete()
-                reports = ''
-        else:
-            print 'Importing new XML file or XML file other than salary.'
+#        if int(paytype) in [1, 11]:
+#            reports = PaymentReport.objects.filter(pay_type=paytype,
+#                                                   type=month,
+#                                                   year=year).count()
+#            print 'Salary: Found %s records from previous XML file.' % reports
+#            if reports > 0:
+#                pr = PaymentReport.objects.filter(pay_type=paytype,
+#                                                  type_id=month, year=year)
+#                pr.delete()
+#                reports = ''
+#        else:
+#            print 'Importing new XML file or XML file other than salary.'
         cursor = connection.cursor()
         for i in e:
             employeeID = 0
@@ -147,14 +145,16 @@ def read(file):
                 el = i.xpath('./xs:payment/xs:netAmount2',
                              namespaces={'xs': ns})
                 netAmount2 = el[0].get('value')
-                sql += "insert into dide_paymentreport (id, employee_id, "
+                sql += "insert into dide_paymentreport ("
+                sql += "id, paymentfilename_id, employee_id, "
                 sql += "type_id, year, pay_type, rank_id, iban, "
                 sql += "net_amount1, net_amount2) values (NULL, "
-                sql += "%s, %s, %s, %s, %s, " % (employeeID,
-                                                 month,
-                                                 year,
-                                                 paytype,
-                                                 rank)
+                sql += "%s, %s, %s, %s, %s, %s, " % (filerec,
+                                                     employeeID,
+                                                     month,
+                                                     year,
+                                                     paytype,
+                                                     rank)
                 sql += "'%s', '%s', '%s');" % (iban,
                                                netAmount1,
                                                netAmount2)
