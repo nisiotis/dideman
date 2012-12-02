@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.db.models import Q
@@ -45,7 +44,7 @@ class PaymentFileName(models.Model):
         verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών'
 
     id = models.AutoField(primary_key=True)
-    xml_file = models.FileField(upload_to="reports/pdf/salary")
+    xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση')
     imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν')
