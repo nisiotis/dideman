@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from dide.models import Permanent, PaymentReport, RankCode
-from dide.models import Employee, NonPermanent
+from dide.models import Permanent, Employee, RankCode
 from django.db import connection, transaction
 from lxml import etree
 from time import time
@@ -17,44 +16,6 @@ def query_value(field, value):
         return value
 
 
-def reset(file):
-    try:
-        print 'Reseting: XML Reading started...'
-        element = etree.parse(file)
-        el = element.getroot()
-        ns = el.tag.rsplit('}')[0].replace('{', '')
-        month = 0
-        year = 0
-        paytype = 0
-        e = element.xpath('//xs:psp/xs:header/xs:transaction',
-                          namespaces={'xs': ns})
-        for i in e:
-            el = i.xpath('./xs:period', namespaces={'xs': ns})
-            month = el[0].get('month')
-            year = el[0].get('year').rsplit('+', 1)[0]
-            el = i.xpath('./xs:periodType', namespaces={'xs': ns})
-            paytype = el[0].get('value')
-            if int(paytype) not in [1, 11, 12, 13]:
-                month = 16
-        reports = PaymentReport.objects.filter(pay_type=paytype,
-                                               type=month,
-                                               year=year).count()
-        print 'Reseting %s records from previous XML file.' % reports
-        doreset = raw_input('Continue? Yes / No: ')
-        if reports > 0 and (doreset in ['Yes', 'yes', 'YES']):
-            pr = PaymentReport.objects.filter(pay_type=paytype,
-                                              type_id=month, year=year)
-            pr.delete()
-            success = 0
-            print 'Done!'
-        else:
-            success = 1
-    except:
-        success = 1
-        raise
-    return success
-
-
 def read(file, filerec):
     payment_category_fields = ['type', 'startDate', 'endDate',
                                'month', 'year']
@@ -62,8 +23,8 @@ def read(file, filerec):
     e_dic = {o.vat_number: o for o in objects}
     objects = Permanent.objects.all()
     p_dic = {o.registration_number: o for o in objects}
-    ranks = RankCode.objects.all()
-    rankdic = {o.id for o in ranks}
+    objects = RankCode.objects.all()
+    rankdic = {o.id for o in objects}
     try:
         print 'XML Reading started...'
         start = time()
@@ -89,22 +50,9 @@ def read(file, filerec):
         e = element.xpath('//xs:psp/xs:body/xs:organizations' +
                           '/xs:organization/xs:employees/xs:employee',
                           namespaces={'xs': ns})
-#        if int(paytype) in [1, 11]:
-#            reports = PaymentReport.objects.filter(pay_type=paytype,
-#                                                   type=month,
-#                                                   year=year).count()
-#            print 'Salary: Found %s records from previous XML file.' % reports
-#            if reports > 0:
-#                pr = PaymentReport.objects.filter(pay_type=paytype,
-#                                                  type_id=month, year=year)
-#                pr.delete()
-#                reports = ''
-#        else:
-#            print 'Importing new XML file or XML file other than salary.'
         cursor = connection.cursor()
         for i in e:
             employeeID = 0
-            initrank = 0
             iban = ''
             netAmount1 = ''
             netAmount2 = ''
@@ -121,7 +69,6 @@ def read(file, filerec):
                     employeeID = payemp.id
             else:
                 employeeID = payemp.parent.id
-                initrank = payemp.rank_id()
             if employeeID != 0:
                 cntr2 += 1
                 el = i.xpath('./xs:identification/xs:bankAccount',
@@ -130,15 +77,10 @@ def read(file, filerec):
                 el = i.xpath('./xs:identification/xs:scale/xs:rank',
                              namespaces={'xs': ns})
                 if el:
-                    if el[0].text not in rankdic:
-                        rank = 'NULL'
-                    else:
-                        rank = el[0].text
-                if rank == 'NULL' or rank == 0:
-                    if initrank == 0 or initrank is None:
-                        rank = 'NULL'
-                    else:
-                        rank = initrank
+                    rank = 'NULL' if int(el[0].text) not in rankdic else el[0].text
+                    print el[0].text, rank
+                else:
+                    rank = 'NULL'
                 el = i.xpath('./xs:payment/xs:netAmount1',
                              namespaces={'xs': ns})
                 netAmount1 = el[0].get('value')
