@@ -617,6 +617,9 @@ class Employee(models.Model):
 
     def total_experience(self):
         now = datetime.datetime.now()
+        if not self.date_hired:
+            return (0, 0, 0)
+
         years, months, days = date_subtract(
             (now.year, now.month, now.day),
             (self.date_hired.year, self.date_hired.month,
@@ -766,6 +769,9 @@ class Permanent(Employee):
                                         ).order_by('-date_from')
 
     def payment_start_date_auto(self):
+        if not self.date_hired:
+            return datetime.date.today()
+
         dh = self.date_hired
         years, months, days = date_subtract(
             (dh.year, dh.month, dh.day),
@@ -781,7 +787,8 @@ class Permanent(Employee):
 
     def rank(self):
         return first_or_none(
-            Promotion.objects.filter(employee=self).order_by('-date'))
+            Promotion.objects.filter(employee=self).order_by('-date')) or \
+            Promotion(value=u'Χωρίς', date=datetime.date.today())
     rank.short_description = u'Βαθμός'
 
     def rank_date(self):
