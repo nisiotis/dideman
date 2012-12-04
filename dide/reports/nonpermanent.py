@@ -12,8 +12,8 @@ class NonPermanentDocxReport(DocxReport):
                  include_footer=True):
         context = {'telephone_number':
                        SETTINGS['substitutes_contact_telephone_number'],
-                   'contact_person': SETTINGS['substitutes_contact_person']
-                   }
+                   'contact_person': SETTINGS['substitutes_contact_person'],
+                   'email': SETTINGS['email_substitutes']}
         context.update(custom_context)
         model_fields = model_fields or {}
         super(NonPermanentDocxReport, self).__init__(

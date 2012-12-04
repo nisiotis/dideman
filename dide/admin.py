@@ -374,7 +374,7 @@ class NonPermanentAdmin(EmployeeAdmin):
                                        ServiceInline, LeaveInline,
                                        ResponsibilityInline]
     list_filter = [SubstituteDateRangeFilter, SubstituteAreaFilter,
-                   SubstituteOrderFilter, NonPermanentOrganizationServingFilter]
+                   SubstituteOrderFilter, 'profession', NonPermanentOrganizationServingFilter]
     actions = sorted([CSVReport(add=['organization_serving',
                                      'profession__description'])] + \
     nonpermanent_docx_reports, key=lambda k: k.short_description)
