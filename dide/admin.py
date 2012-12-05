@@ -353,7 +353,7 @@ class EmployeeLeaveAdmin(DideAdmin):
 
 class NonPermanentAdmin(EmployeeAdmin):
     list_display = ['lastname', 'firstname', 'fathername',
-                    'profession', 'organization_serving']
+                    'profession', 'current_placement']
     list_per_page = 50
     fieldsets = [
         ('Στοιχεία μη-μόνιμου', {
@@ -361,21 +361,21 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'lastname', 'firstname', 'fathername', 'mothername',
                     'current_transfer_area',
                     'notes', 'type', 'profession', 'profession_description',
-                    'organization_serving', 'study_years',
+                    'current_placement', 'study_years',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'birth_date',
                     'date_created', 'pedagogical_sufficiency',
                     'social_security_number']}),
             economic_fieldset]
     readonly_fields = ['type', 'profession_description',
-                       'organization_serving', 'date_created',
+                       'current_placement', 'date_created',
                        'current_transfer_area']
     inlines = EmployeeAdmin.inlines + [SubstitutePlacementInline,
                                        ServiceInline, LeaveInline,
                                        ResponsibilityInline]
     list_filter = [SubstituteDateRangeFilter, SubstituteAreaFilter,
                    SubstituteOrderFilter, 'profession__unified_profession', NonPermanentOrganizationServingFilter]
-    actions = sorted([CSVReport(add=['organization_serving',
+    actions = sorted([CSVReport(add=['current_placement',
                                      'profession__description'])] + \
     nonpermanent_docx_reports, key=lambda k: k.short_description)
 

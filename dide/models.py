@@ -917,7 +917,9 @@ class NonPermanent(Employee):
                 order__date__gte=d))
 
     def current_placement(self, d=current_year_date_from()):
-        return first_or_none(self.placement_set.filter(date_from__gte=d))
+        return first_or_none(self.placement_set.filter(date_from__gte=d,
+                                                       type__id=3))
+    current_placement.short_description = u'Προσωρινή τοποθέτηση'
 
     def current_transfer_area(self, d=current_year_date_from()):
         s = self.substitution(d)
