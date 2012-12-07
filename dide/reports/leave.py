@@ -5,11 +5,14 @@ import os
 
 
 def cc(obj):
-    ret = [obj['organization_serving'].organization.name]
-    if obj['employee__permanent__permanent_post'].organization.name \
-            not in [obj['organization_serving'].organization.name, '-']:
-        ret.append(obj['employee__permanent__permanent_post'].\
-                       organization.name)
+    ret = []
+    if hasattr(obj['organization_serving'], 'organization'):
+        ret.append(obj['organization_serving'].organization.name)
+    if hasattr(obj['employee__permanent__permanent_post'], 'organization'):
+        if obj['employee__permanent__permanent_post'].organization.name \
+                not in [obj['organization_serving'].organization.name, '-']:
+            ret.append(obj['employee__permanent__permanent_post'].\
+                           organization.name)
     if obj['leave__not_paying']:
         ret.append(u'Εκκαθαριστής')
     ret.append(u'Α.Φ.')
