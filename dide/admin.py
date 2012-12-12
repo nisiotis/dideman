@@ -62,7 +62,12 @@ class PaymentFileNameAdmin(admin.ModelAdmin):
                                                    '..', 'manage.py')),
                      'importxml',
                      '%s' % obj.id]
-            p = subprocess.Popen(pargs, 0)
+            try:
+                p = subprocess.Popen(pargs, 0)
+            except:
+                print pargs
+                print p
+                raise
 
 
 class RankCodeAdmin(admin.ModelAdmin):

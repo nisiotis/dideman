@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+\# -*- coding: utf-8 -*-
 from dide.models import Permanent, Employee, RankCode
 from django.db import connection, transaction
 from lxml import etree
@@ -78,7 +78,6 @@ def read(file, filerec):
                              namespaces={'xs': ns})
                 if el:
                     rank = 'NULL' if int(el[0].text) not in rankdic else el[0].text
-                    print el[0].text, rank
                 else:
                     rank = 'NULL'
                 el = i.xpath('./xs:payment/xs:netAmount1',
