@@ -2,12 +2,10 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
-                                 Employee, Payment, Employee)
+                                 Employee, Payment)
 from dideman.dide.employee.decorators import match_required
-from dideman.dide.util.common import get_class
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
-from django.http import Http404
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
 from reportlab.pdfbase.pdfmetrics import registerFont
@@ -162,6 +160,7 @@ def print_pay(request, id):
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     del data
     data = []
+    totala = 0
     for i in PaymentCategory.objects.filter(paymentreport=id):
         elements.append(Paragraph(u' ', heading_style['Spacer']))
         s = u'%s' % i.title
@@ -208,6 +207,7 @@ def print_pay(request, id):
         table4 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
                                                   6.5 * cm, 2.0 * cm])
         elements.append(table4)
+        totala += float(grnum) - float(denum)
         del data
         data = []
         elements.append(Paragraph(u' ', heading_style['Spacer']))
@@ -228,10 +228,10 @@ def print_pay(request, id):
                      Paragraph('%.2f €' % numtoStr(pay.net_amount2),
                                tbl_style['Right']), '', ''])
     else:
-        totala = float(grnum) - float(denum)
         data.append([Paragraph('Σύνολο', tbl_style['Left']),
                      Paragraph('%.2f €' % totala,
                                tbl_style['Right']), '', ''])
+        totala = 0
     table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
                                               6.5 * cm, 2.0 * cm])
     elements.append(table5)

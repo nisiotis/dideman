@@ -1,4 +1,4 @@
-\# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from dide.models import Permanent, Employee, RankCode
 from django.db import connection, transaction
 from lxml import etree
@@ -139,6 +139,7 @@ def read(file, filerec):
                         try:
                             cursor.execute(s_s)
                         except:
+                            print s_s
                             raise
                 sql = ''
             else:

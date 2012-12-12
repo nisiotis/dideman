@@ -109,7 +109,7 @@ class PaymentReport(models.Model):
                         grnum += float(str(p.amount))
                     if p.type == 'de':
                         denum += float(str(p.amount))
-            totala += (grnum - denum)
+                totala += (grnum - denum)
         return totala
 
     def __unicode__(self):
