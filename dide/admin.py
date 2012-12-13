@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
-import subprocess
-import sys
 from django.contrib import admin
-from django.contrib import messages
 from django.forms.models import inlineformset_factory
 from forms import SubstitutePlacementForm
 from overrides.admin import DideAdmin
 from filters import (PermanentPostFilter, OrganizationServingFilter,
                      StudyFilter, DateHiredFilter, LeaveDateToFilter,
                      LeaveDateFromFilter, CurrentlyServesFilter,
-                     NonPermanentCurrentlyServesFilter,
                      TransferedFilter, NextPromotionInRangeFilter,
                      EmployeeWithLeaveFilter, EmployeeWithOutLeaveFilter,
                      ServesInDideSchoolFilter, SubstituteAreaFilter,
@@ -35,8 +31,7 @@ from actions import CSVReport, FieldAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
-from dideman.dide.util.settings import SETTINGS
-import os
+from django.core import management
 
 
 class PaymentFileNameAdmin(admin.ModelAdmin):
@@ -51,22 +46,11 @@ class PaymentFileNameAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if (obj.imported_records == 0) or (obj.imported_records is None):
             obj.imported_records = 0
-
         obj.save()
         if not change:
-            messages.info(request,
-                          u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
-                          u" Ίσως διαρκέσει μερικά λεπτά.")
-            pargs = ['python',
-                     os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                   '..', 'manage.py')),
-                     'importxml',
-                     '%s' % obj.id]
             try:
-                p = subprocess.Popen(pargs, 0)
+                management.call_command('importxml', str(obj.id), verbosity=0)
             except:
-                print pargs
-                print p
                 raise
 
 
