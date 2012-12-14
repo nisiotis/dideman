@@ -78,7 +78,6 @@ def read(file, filerec):
                              namespaces={'xs': ns})
                 if el:
                     rank = 'NULL' if int(el[0].text) not in rankdic else el[0].text
-                    print el[0].text, rank
                 else:
                     rank = 'NULL'
                 el = i.xpath('./xs:payment/xs:netAmount1',
@@ -140,6 +139,7 @@ def read(file, filerec):
                         try:
                             cursor.execute(s_s)
                         except:
+                            print s_s
                             raise
                 sql = ''
             else:
