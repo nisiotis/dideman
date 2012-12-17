@@ -25,67 +25,22 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     ApplicationChoice, ApplicationType, )
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
-
-from actions import CSVReport, FieldAction
-from dide.util import xml
+from actions import CSVReport, FieldAction, ReedXMLAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
-from django.core import management
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext
-from django.utils.encoding import force_unicode
-from django.core.urlresolvers import reverse
-from dideman import settings
-from dideman.dide.util.settings import SETTINGS
-import os
 
 
 class PaymentFileNameAdmin(admin.ModelAdmin):
     readonly_fields = ['status', 'imported_records']
     list_display = ('description', 'status', 'imported_records')
+    actions = [ReedXMLAction(u'Αναστολή υπηρέτησης', 'currently_serves',
+                         lambda: False)]
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return ['xml_file', ] + self.readonly_fields
         return self.readonly_fields
-
-    def response_add(self, request, obj, post_url_continue=''):
-        try:
-            pf = PaymentFileName.objects.get(pk=obj.id)
-            pth = '%s' % pf.xml_file
-            fldr, fl = pth.split('/', 1)
-            success, recs_affected, elapsed, recs_missed = xml.read(os.path.join(settings.MEDIA_ROOT,
-                                                                                 fldr, fl), obj.id)
-            pf.status = success
-            pf.imported_records = recs_affected
-            pf.save()
-        except:
-            raise
-
-    def save_model(self, request, obj, form, change):
-        if (obj.imported_records == 0) or (obj.imported_records is None):
-            obj.imported_records = 0
-            if not change:
-                try:
-                    pth = '%s' % obj.xml_file
-                    fldr, fl = pth.split('/', 1)
-                    success, recs_affected, elapsed, recs_missed = xml.read(os.path.join(settings.MEDIA_ROOT,
-                                                                                         fldr, fl), obj.id)
-                    obj.status = success
-                    obj.imported_records = recs_affected
-
-                except:
-                    raise
-
-                messages.info(request,
-                          u"Η διαδικασία ανάγνωσης του αρχείου έχει αρχίσει." +
-                          u" Ίσως διαρκέσει μερικά λεπτά. %s, %s" % (elapsed, recs_missed))
-
-        obj.save()
 
 
 class RankCodeAdmin(admin.ModelAdmin):
