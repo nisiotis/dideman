@@ -17,6 +17,7 @@ def query_value(field, value):
 
 
 def read(file, filerec):
+    recs_missed = {}
     payment_category_fields = ['type', 'startDate', 'endDate',
                                'month', 'year']
     objects = Employee.objects.all()
@@ -26,7 +27,7 @@ def read(file, filerec):
     objects = RankCode.objects.all()
     rankdic = {o.id for o in objects}
     try:
-        print 'XML Reading started...'
+        #print 'XML Reading started...'
         start = time()
         element = etree.parse(file)
         sql = ''
@@ -61,7 +62,7 @@ def read(file, filerec):
             el = i.xpath('./xs:identification/xs:amm', namespaces={'xs': ns})
             payemp = p_dic.get(el[0].text)
             if not payemp:
-                print "Registration not found. Trying vat number. "
+                #print "Registration not found. Trying vat number. "
                 el = i.xpath('./xs:identification/xs:tin',
                              namespaces={'xs': ns})
                 payemp = e_dic.get(el[0].text)
@@ -143,16 +144,28 @@ def read(file, filerec):
                             raise
                 sql = ''
             else:
-                print el[0].text + " not found in database."
+                rNum = el[0].text
+                el = i.xpath('./xs:identification/xs:firstName',
+                             namespaces={'xs': ns})
+                fName = el[0].text
+                el = i.xpath('./xs:identification/xs:lastName',
+                             namespaces={'xs': ns})
+                lName = el[0].text
+                recs_missed[rNum] = '%s %s' % (lName, fName)
+
         transaction.commit_unless_managed()
         cursor.close()
-        print 'The XML file contained %s records.' % cntr1
-        print '%s records found in database. Difference %d' % (cntr2,
-                                                               (cntr1 - cntr2))
+        #print 'The XML file contained %s records.' % cntr1
+        #print '%s records found in database. Difference %d' % (cntr2,
+        #                                                       (cntr1 - cntr2))
+        recs_affected = cntr2
         elapsed = (time() - start)
-        print 'Time reading file %.2f seconds.' % elapsed
+        #print 'Time reading file %.2f seconds.' % elapsed
         success = 1
     except:
+        recs_missed = {}
+        elapsed = 0
+        recs_affected = 0
         success = 0
         raise
-    return success, cntr2
+    return success, recs_affected, elapsed, recs_missed

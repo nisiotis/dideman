@@ -18,11 +18,11 @@ class Command(BaseCommand):
                 pf = PaymentFileName.objects.get(pk=rec)
                 pth = '%s' % pf.xml_file
                 fldr, fl = pth.split('/', 1)
-                status, rec_num = xml.read(os.path.join(settings.MEDIA_ROOT,
-                                                        fldr, fl), rec)
-                pf.status = status
-                pf.imported_records = rec_num
+                success, recs_affected, elapsed, recs_missed = xml.read(os.path.join(settings.MEDIA_ROOT,
+                                                                                     fldr, fl), rec)
+                pf.status = success
+                pf.imported_records = recs_affected
                 pf.save()
-
+                #print elapsed, len(recs_missed.keys())
             except PaymentFileName.DoesNotExist:
                 raise CommandError('Record %s not found.' % rec)
