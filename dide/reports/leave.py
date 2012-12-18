@@ -59,7 +59,7 @@ leave_docx_reports = [
                     custom_context={'subject':
                                         u'Χορήγηση Συνδικαλιστικής Άδειας '}),
 
-    LeaveDocxReport(u'Τοκετού (πατέρα)', 'adeia_goniki_patera_toketou.xml',
+    LeaveDocxReport(u'Τοκετού Πατέρα', 'adeia_goniki_patera_toketou.xml',
                     custom_context={'subject': u'Χορήγηση ειδικής άδειας'
                                     u' λόγω τοκετού'}),
 
