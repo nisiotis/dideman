@@ -25,7 +25,7 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     ApplicationChoice, ApplicationType, )
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
-from actions import CSVReport, FieldAction, ReedXMLAction
+from actions import CSVReport, FieldAction, XMLReedAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
@@ -34,8 +34,7 @@ from reports.nonpermanent import nonpermanent_docx_reports
 class PaymentFileNameAdmin(admin.ModelAdmin):
     readonly_fields = ['status', 'imported_records']
     list_display = ('description', 'status', 'imported_records')
-    actions = [ReedXMLAction(u'Αναστολή υπηρέτησης', 'currently_serves',
-                         lambda: False)]
+    actions = [XMLReedAction(u'Ανάγνωση XML')]
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

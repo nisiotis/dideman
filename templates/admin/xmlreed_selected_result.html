@@ -1,0 +1,39 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n %}
+{% load url from future %}
+{% load admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_label|capfirst|escape }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {{ action_title }}
+</div>
+{% endblock %}
+
+{% block content %}
+{% if reed_files == 1 %}
+<p>Παρακάτω εμφανίζονται {{ reed_results|length }} εγγραφές στo xml αρχείo πληρωμών προσωπικού που δεν βρέθηκαν στη βάση δεδομένων κατά τη διάρκεια της ενέργειας <b>{{ action_title }}</b>.</p>
+{% elif reed_files == 0 %}
+<p>Τα αρχεία που έχετε επιλέξει έχουν ήδη διαβαστεί.</p>
+{% else %}
+<p>Παρακάτω εμφανίζονται {{ reed_results|length }} εγγραφές στα xml αρχεία πληρωμών προσωπικού που δεν βρέθηκαν στη βάση δεδομένων κατά τη διάρκεια της ενέργειας <b>{{ action_title }}</b>.</p>
+{% endif %}
+
+{% for reed_result in reed_results %}
+    <ul>{{ reed_result.0 }}: {{ reed_result.1 }} {{ reed_result.2 }}</ul>
+{% endfor %}
+<p>Συνολικός χρόνος εκτέλεσης ενέργειας <b>{{ action_time_elapsed }}</b> δευτερόλεπτα.</p>
+<form action="" method="post">{% csrf_token %}
+<div>
+{% for obj in queryset %}
+<input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+{% endfor %}
+<input type="hidden" name="action" value="{{ action_name }}" />
+<input type="hidden" name="post" value="yes" />
+<!--<input type="submit" value="{% trans "Yes, I'm sure" %}" />-->
+<a href="{% url opts|admin_urlname:'changelist' %}">Επιστροφή στη λίστα.</a>
+</div>
+</form>
+{% endblock %}
