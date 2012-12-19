@@ -147,3 +147,36 @@ def substituteministryorder(request):
     from dideman.dide.models import SubstituteMinistryOrder
     return render_template(request, SubstituteMinistryOrder,
                            SubstituteMinistryOrderAdmin)
+
+
+def paymentfilename(request):
+    from dideman.dide.admin import PaymentFileNameAdmin
+    from dideman.dide.models import PaymentFileName
+    return render_template(request, PaymentFileName,
+                           PaymentFileNameAdmin)
+
+
+def rankcode(request):
+    from dideman.dide.admin import RankCodeAdmin
+    from dideman.dide.models import RankCode
+    return render_template(request, RankCode, RankCodeAdmin)
+
+
+def paymentcode(request):
+    from dideman.dide.admin import PaymentCodeAdmin
+    from dideman.dide.models import PaymentCode
+    return render_template(request, PaymentCode, PaymentCodeAdmin)
+
+
+def paymentreporttype(request):
+    from dideman.dide.admin import PaymentReportTypeAdmin
+    from dideman.dide.models import PaymentReportType
+    return render_template(request, PaymentReportType,
+                           PaymentReportTypeAdmin)
+
+
+def paymentcategorytitle(request):
+    from dideman.dide.admin import PaymentCategoryTitleAdmin
+    from dideman.dide.models import PaymentCategoryTitle
+    return render_template(request, PaymentCategoryTitle,
+                           PaymentCategoryTitleAdmin)

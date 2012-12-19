@@ -29,10 +29,10 @@ from actions import CSVReport, FieldAction, XMLReedAction, DeleteAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
-from django.utils.translation import ugettext_lazy, ugettext as _
+from django.utils.translation import ugettext_lazy
 
 
-class PaymentFileNameAdmin(admin.ModelAdmin):
+class PaymentFileNameAdmin(DideAdmin):
     readonly_fields = ['status', 'imported_records']
     list_display = ('description', 'status', 'imported_records')
     actions = [XMLReedAction(u'Ανάγνωση XML')]
@@ -43,19 +43,19 @@ class PaymentFileNameAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
 
-class RankCodeAdmin(admin.ModelAdmin):
+class RankCodeAdmin(DideAdmin):
     list_display = ('id', 'rank')
 
 
-class PaymentCodeAdmin(admin.ModelAdmin):
+class PaymentCodeAdmin(DideAdmin):
     list_display = ('id', 'description')
 
 
-class PaymentReportTypeAdmin(admin.ModelAdmin):
+class PaymentReportTypeAdmin(DideAdmin):
     list_display = ('id', 'type')
 
 
-class PaymentCategoryTitleAdmin(admin.ModelAdmin):
+class PaymentCategoryTitleAdmin(DideAdmin):
     list_display = ('id', 'title')
 
 

@@ -11,6 +11,14 @@ from django.conf.urls import patterns, url
 from dideman.dide.util.settings import SETTINGS
 from django.utils.http import urlencode
 import django.contrib.admin.views.main as views
+from django.contrib.admin.util import unquote, get_deleted_objects
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
+from django.utils.translation import ugettext as _
+from django.db import router
+from dideman.dide.util.common import parse_deletable_list
+from django.utils.encoding import force_unicode
+from django.utils.html import escape
 
 
 class DideAdmin(admin.ModelAdmin):
@@ -19,6 +27,27 @@ class DideAdmin(admin.ModelAdmin):
         css = {'all': ('css/dide-admin.css', )}
 
     filter_parameters = []
+
+    def delete_view(self, request, object_id, extra_context=None):
+        # overrided delete_view method
+        opts = self.model._meta
+        obj = self.get_object(request, unquote(object_id))
+        if not self.has_delete_permission(request, obj):
+            raise PermissionDenied
+        if obj is None:
+            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': force_unicode(opts.verbose_name), 'key': escape(object_id)})
+        using = router.db_for_write(self.model)
+
+        # Populate deleted_objects, a data structure of all related objects that
+        # will also be deleted.
+        (deleted_objects, perms_needed, protected) = get_deleted_objects(
+            [obj], opts, request.user, self.admin_site, using)
+        new_deletable_objects = parse_deletable_list(deleted_objects)
+        extra_context = {'deleted_objects': [new_deletable_objects]}
+
+        return super(DideAdmin, self).delete_view(request,
+                                                  object_id,
+                                                  extra_context)
 
     def get_extra_context(self, extra_context=None):
         extra_context = extra_context or {}

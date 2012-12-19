@@ -15,15 +15,15 @@ from django.core.exceptions import PermissionDenied
 from django.utils.encoding import force_unicode
 from django.template.response import TemplateResponse
 from django.contrib.admin.util import get_deleted_objects, model_ngettext
-from django.utils.translation import ugettext_lazy, ugettext as _
+from django.utils.translation import ugettext as _
 from django.contrib.admin import helpers
 from django.db import router
-from dideman.dide.util.common import (without_accented, current_year_date_from,
-                                      current_year_date_to, parse_deletable_list)
+from dideman.dide.util.common import (without_accented,
+                                      current_year_date_from,
+                                      current_year_date_to,
+                                      parse_deletable_list)
 from dideman import settings
-from dideman.dide.util.settings import SETTINGS
 from dide.util import xml
-import os
 
 
 def timestamp():
