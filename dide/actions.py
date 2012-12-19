@@ -23,7 +23,7 @@ from dideman.dide.util.common import (without_accented,
                                       current_year_date_to,
                                       parse_deletable_list)
 from dideman import settings
-from dide.util import xml
+from dideman.util import xml
 
 
 def timestamp():
