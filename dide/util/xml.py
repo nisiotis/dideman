@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dide.models import Permanent, Employee, RankCode
+from dideman.dide.models import Permanent, Employee, RankCode
 from django.db import connection, transaction
 from lxml import etree
 from time import time
