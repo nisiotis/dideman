@@ -35,6 +35,8 @@ from django.utils.translation import ugettext_lazy
 class PaymentFileNameAdmin(DideAdmin):
     readonly_fields = ['status', 'imported_records']
     list_display = ('description', 'status', 'imported_records')
+    search_fields = ('description',)
+
     actions = [XMLReedAction(u'Ανάγνωση XML')]
 
     def get_readonly_fields(self, request, obj=None):
@@ -49,6 +51,7 @@ class RankCodeAdmin(DideAdmin):
 
 class PaymentCodeAdmin(DideAdmin):
     list_display = ('id', 'description')
+    # add search field
     search_fields = ('id',)
 
 class PaymentReportTypeAdmin(DideAdmin):
