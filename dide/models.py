@@ -81,6 +81,10 @@ class PaymentCategoryTitle(models.Model):
 
 
 class PaymentReport(models.Model):
+    class Meta:
+        verbose_name = u'Οικονομικά: Μισθολογική Κατάσταση'
+        verbose_name_plural = u'Οικονομικά: Μισθολογικές Καταστάσεις'
+
     paymentfilename = models.ForeignKey('PaymentFileName',
                                         verbose_name=u'Αρχείο')
     employee = models.ForeignKey('Employee', verbose_name=u'Υπάλληλος')
@@ -114,7 +118,7 @@ class PaymentReport(models.Model):
         return totala
 
     def __unicode__(self):
-        return u"%s" % self.employee
+        return u"%s: %s" % (self.paymentfilename, self.employee)
 
 
 class PaymentCategory(models.Model):

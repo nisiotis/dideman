@@ -25,10 +25,11 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     ApplicationChoice, ApplicationType, )
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
-from actions import CSVReport, FieldAction, XMLReedAction
+from actions import CSVReport, FieldAction, XMLReedAction, DeleteAction
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
+from django.utils.translation import ugettext_lazy, ugettext as _
 
 
 class PaymentFileNameAdmin(admin.ModelAdmin):
@@ -385,3 +386,5 @@ map(lambda t: admin.site.register(*t), (
 admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,
                      ApplicationType))
+admin.site.disable_action('delete_selected')
+admin.site.add_action(DeleteAction(ugettext_lazy("Delete selected %(verbose_name_plural)s")))
