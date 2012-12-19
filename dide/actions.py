@@ -286,8 +286,7 @@ class FieldAction(object):
             'changeable_objects': [changeable_objects],
             'action_name': self.__name__,
             }
-        new_changeable_objects = []
-        parse_deletable_list(changeable_objects, new_changeable_objects)
+        new_changeable_objects = parse_deletable_list(changeable_objects)
         extra_context = {'changeable_objects': [new_changeable_objects]}
         context.update(extra_context or {})
 
@@ -369,8 +368,7 @@ class DeleteAction(object):
             "app_label": app_label,
             'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
         }
-        new_deletable_objects = []
-        parse_deletable_list(deletable_objects, new_deletable_objects)
+        new_deletable_objects = parse_deletable_list(deletable_objects)
         extra_context = {'deletable_objects': [new_deletable_objects]}
         context.update(extra_context or {})
 

@@ -8,13 +8,17 @@ _accent_map = {u'Ά': u'Α', u'Έ': u'Ε', u'Ή': u'Η', u'Ό': u'Ο',
                u'Ί': u'Ι', u'Ύ': u'Υ', u'Ώ': u'Ω'}
 
 
-def parse_deletable_list(obj, lst):
+def parse_deletable_list(obj):
+    r_lst = []
     if type(obj) is list:
-        for item in obj:
-            parse_deletable_list(item, lst)
+        for o in obj:
+            r = parse_deletable_list(o)
+            if r is not None:
+                r_lst.append(r)
+        return r_lst if len(r_lst) > 0 else None
     else:
-        if obj != 'Payment: Payment object' and obj != 'Payment category: PaymentCategory object':
-            lst.append(obj)
+        return obj if obj not in ['Payment: Payment object',
+                                  'Payment category: PaymentCategory object'] else None
 
 
 def without_accented(string):
