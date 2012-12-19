@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dideman.dide.models import Permanent, Employee, RankCode
+from dideman.dide.models import Permanent, Employee, RankCode, PaymentCode
 from django.db import connection, transaction
 from lxml import etree
 from time import time
@@ -26,6 +26,8 @@ def read(file, filerec):
     p_dic = {o.registration_number: o for o in objects}
     objects = RankCode.objects.all()
     rankdic = {o.id for o in objects}
+    objects = PaymentCode.objects.all()
+    paycodesdic = {o.id for o in objects}
     try:
         #print 'XML Reading started...'
         start = time()
@@ -89,7 +91,7 @@ def read(file, filerec):
                 netAmount2 = el[0].get('value')
                 sql += "insert into dide_paymentreport ("
                 sql += "id, paymentfilename_id, employee_id, "
-                sql += "type_id, year, pay_type, rank_id, iban, "
+                sql += "type_id, year, pay_type, rank_id, iban,"
                 sql += "net_amount1, net_amount2) values (NULL, "
                 sql += "%s, %s, %s, %s, %s, %s, " % (filerec,
                                                      employeeID,
@@ -126,6 +128,11 @@ def read(file, filerec):
                                 sql += ', '
                             sql += "(NULL,"
                             sql += " @lastcat, '" + rmv_nsp(elm) + "',"
+                            if int(elm.get('code')) not in paycodesdic:
+                                pc = PaymentCode(id=int(elm.get('code')),
+                                                 description='')
+                                pc.save()
+                                paycodesdic.add(pc.id)
                             sql += elm.get('code') + ","
                             sql += "'" + elm.get('amount') + "',"
                             if elm.get('loanNumber'):
