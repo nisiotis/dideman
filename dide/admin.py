@@ -50,7 +50,10 @@ class RankCodeAdmin(DideAdmin):
 class PaymentCodeAdmin(DideAdmin):
     list_display = ('id', 'description')
     search_fields = ('id',)
+<<<<<<< HEAD
 
+=======
+>>>>>>> f92d5ae594fbfdc4fe07e634c6e1492370620f64
 
 class PaymentReportTypeAdmin(DideAdmin):
     list_display = ('id', 'type')
