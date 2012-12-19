@@ -14,12 +14,16 @@ from dideman.dide.util.settings import SETTINGS
 from django.core.exceptions import PermissionDenied
 from django.utils.encoding import force_unicode
 from django.template.response import TemplateResponse
-from django.contrib.admin.util import get_deleted_objects
-from django.utils.translation import ugettext as _
+from django.contrib.admin.util import get_deleted_objects, model_ngettext
+from django.utils.translation import ugettext_lazy, ugettext as _
 from django.contrib.admin import helpers
 from django.db import router
 from dideman.dide.util.common import (without_accented, current_year_date_from,
-                                      current_year_date_to)
+                                      current_year_date_to, parse_deletable_list)
+from dideman import settings
+from dideman.dide.util.settings import SETTINGS
+from dide.util import xml
+import os
 
 
 def timestamp():
@@ -282,9 +286,164 @@ class FieldAction(object):
             'changeable_objects': [changeable_objects],
             'action_name': self.__name__,
             }
+        new_changeable_objects = []
+        parse_deletable_list(changeable_objects, new_changeable_objects)
+        extra_context = {'changeable_objects': [new_changeable_objects]}
+        context.update(extra_context or {})
 
         # Display the confirmation page
         return TemplateResponse(request,
                                 'admin/change_selected_confirmation.html',
+                                context,
+                                current_app=modeladmin.admin_site.name)
+
+
+class DeleteAction(object):
+
+    def __init__(self, short_description):
+        self.short_description = short_description
+        self.__name__ = 'delete_selected'
+
+    def __call__(self, modeladmin, request, queryset):
+        """
+        Our action which deletes the selected objects.
+
+        This action first displays a confirmation page whichs shows all the
+        deleteable objects without the payment ones, or,
+        if the user has no permission one of the related
+        childs (foreignkeys), a "permission denied" message.
+
+        Next, it deletes all selected objects and redirects back
+        to the change list.
+        """
+
+        opts = modeladmin.model._meta
+        app_label = opts.app_label
+
+        # Check that the user has delete permission for the actual model
+        if not modeladmin.has_delete_permission(request):
+            raise PermissionDenied
+
+        using = router.db_for_write(modeladmin.model)
+
+        # Populate deletable_objects, a data structure of all related objects that
+        # will also be deleted.
+        deletable_objects, perms_needed, protected = get_deleted_objects(
+            queryset, opts, request.user, modeladmin.admin_site, using)
+
+        # The user has already confirmed the deletion.
+        # Do the deletion and return a None to display the change list view again.
+        if request.POST.get('post'):
+            if perms_needed:
+                raise PermissionDenied
+            n = queryset.count()
+            if n:
+                for obj in queryset:
+                    obj_display = force_unicode(obj)
+                    modeladmin.log_deletion(request, obj, obj_display)
+                queryset.delete()
+                modeladmin.message_user(request, _("Successfully deleted %(count)d %(items)s.") % {
+                    "count": n, "items": model_ngettext(modeladmin.opts, n)
+                })
+            # Return None to display the change list page again.
+            return None
+
+        if len(queryset) == 1:
+            objects_name = force_unicode(opts.verbose_name)
+        else:
+            objects_name = force_unicode(opts.verbose_name_plural)
+
+        if perms_needed or protected:
+            title = _("Cannot delete %(name)s") % {"name": objects_name}
+        else:
+            title = _("Are you sure?")
+
+        context = {
+            "title": title,
+            "objects_name": objects_name,
+            "deletable_objects": [deletable_objects],
+            'queryset': queryset,
+            "perms_lacking": perms_needed,
+            "protected": protected,
+            "opts": opts,
+            "app_label": app_label,
+            'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+        }
+        new_deletable_objects = []
+        parse_deletable_list(deletable_objects, new_deletable_objects)
+        extra_context = {'deletable_objects': [new_deletable_objects]}
+        context.update(extra_context or {})
+
+        # Display the confirmation page
+        return TemplateResponse(request, modeladmin.delete_selected_confirmation_template or [
+            "admin/%s/%s/delete_selected_confirmation.html" % (app_label, opts.object_name.lower()),
+            "admin/%s/delete_selected_confirmation.html" % app_label,
+            "admin/delete_selected_confirmation.html"
+        ], context, current_app=modeladmin.admin_site.name)
+
+
+class XMLReedAction(object):
+
+    def __init__(self, short_description):
+        self.short_description = short_description
+        self.__name__ = 'reed_xml_file'
+
+    def __call__(self, modeladmin, request, queryset):
+        opts = modeladmin.model._meta
+        app_label = opts.app_label
+
+        if not modeladmin.has_change_permission(request):
+            raise PermissionDenied
+
+        using = router.db_for_write(modeladmin.model)
+        changeable_objects, perms_needed, protected = get_deleted_objects(
+            queryset, opts, request.user, modeladmin.admin_site, using)
+
+        elapsed = 0
+        rows_updated = 0
+        reed_results = []
+        for o in queryset:
+            if o.status == 0:
+                success, recs_affected, elapsed, recs_missed = xml.read(os.path.join(settings.MEDIA_ROOT,
+                                                str(o.xml_file).split('/', 1)[0],
+                                                str(o.xml_file).split('/', 1)[1]),
+                                                o.id)
+                o.status = success
+                o.imported_records = recs_affected
+                o.save()
+                elapsed += elapsed
+                rows_updated += 1
+                for (key), val in recs_missed.items():
+                    reed_results.append([o.description, key, val])
+        if rows_updated == 1:
+            msg = u'%s αρχείο αναγνώστηκε'
+        else:
+            msg = u'%s αρχεία αναγνώστηκαν'
+        modeladmin.message_user(request, msg % rows_updated)
+        if len(queryset) == 1:
+            objects_name = force_unicode(opts.verbose_name)
+            title = u"Αποτελέσματα ανάγνωσης αρχείου XML"
+
+        else:
+            objects_name = force_unicode(opts.verbose_name_plural)
+            title = u"Αποτελέσματα ανάγνωσης αρχείων XML"
+
+        context = {
+            "title": title,
+            "objects_name": objects_name,
+        #    'queryset': queryset,
+            "opts": opts,
+            "app_label": app_label,
+            'action_title': self.short_description,
+            'reed_results': reed_results,
+            'action_time_elapsed': elapsed,
+            'reed_files': rows_updated,
+        #    'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+        #    'action_name': self.__name__,
+        }
+
+        # Display the results page
+        return TemplateResponse(request,
+                                'admin/xmlreed_selected_result.html',
                                 context,
                                 current_app=modeladmin.admin_site.name)

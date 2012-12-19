@@ -46,8 +46,9 @@ class PaymentFileName(models.Model):
     id = models.AutoField(primary_key=True)
     xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
-    status = models.BooleanField(u'Κατάσταση')
-    imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν')
+    status = models.BooleanField(u'Κατάσταση', blank=True)
+    imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν',
+                                           null=True, blank=True)
 
     def __unicode__(self):
         return self.description
@@ -80,6 +81,10 @@ class PaymentCategoryTitle(models.Model):
 
 
 class PaymentReport(models.Model):
+    class Meta:
+        verbose_name = u'Οικονομικά: Μισθολογική Κατάσταση'
+        verbose_name_plural = u'Οικονομικά: Μισθολογικές Καταστάσεις'
+
     paymentfilename = models.ForeignKey('PaymentFileName',
                                         verbose_name=u'Αρχείο')
     employee = models.ForeignKey('Employee', verbose_name=u'Υπάλληλος')
@@ -113,7 +118,7 @@ class PaymentReport(models.Model):
         return totala
 
     def __unicode__(self):
-        return u"%s" % self.employee
+        return u"%s: %s" % (self.paymentfilename, self.employee)
 
 
 class PaymentCategory(models.Model):
