@@ -12,12 +12,12 @@ def filter_nested(l, pred):
     if isinstance(l, list):
         return [r for r in [parse_deletable_list(i) for i in l] if r]
     else:
-        return l if not pred(l) else None
+        return l if pred(l) else None
 
 
 def parse_deletable_list(l):
     return filter_nested(l,
-                         lambda x: x in ['Payment: Payment object',
+                         lambda x: x not in ['Payment: Payment object',
                                          'Payment category: PaymentCategory object'])
 
 
