@@ -53,10 +53,6 @@ class PaymentCodeAdmin(DideAdmin):
     list_display = ('id', 'description')
     # add search field
     search_fields = ('id',)
-<<<<<<< HEAD
-
-=======
->>>>>>> f92d5ae594fbfdc4fe07e634c6e1492370620f64
 
 class PaymentReportTypeAdmin(DideAdmin):
     list_display = ('id', 'type')
@@ -64,7 +60,7 @@ class PaymentReportTypeAdmin(DideAdmin):
 
 class PaymentCategoryTitleAdmin(DideAdmin):
     list_display = ('id', 'title')
-
+    search_fields = ('title',)
 
 class ApplicationChoiceInline(admin.TabularInline):
     model = ApplicationChoice
