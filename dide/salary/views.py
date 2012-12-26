@@ -19,7 +19,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 import datetime
 import os
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 @match_required
 def print_pay(request, id):
@@ -286,8 +286,18 @@ def view(request):
         except:
             raise
         pay = PaymentReport.objects.filter(
-            employee=request.session['matched_employee_id']). \
-            order_by('-year', '-type')
+            employee=request.session['matched_employee_id']).order_by('-year', '-type')
+
+        paginator = Paginator(pay, 10)
+
+        page = request.GET.get('page')
+        try:
+            pay_page = paginator.page(page)
+        except PageNotAnInteger:
+            pay_page = paginator.page(1)
+        except EmptyPage:
+            pay_page = paginator.page(paginator.num_pages)
+
         return render_to_response('salary/salary.html',
                                   RequestContext(request, {'emp': set,
-                                                           'payments': pay}))
+                                                           'payments': pay_page}))
