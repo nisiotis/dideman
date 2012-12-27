@@ -94,6 +94,7 @@ def print_pay(request, id):
           ('GRID', (0, 0), (-1, -1), 0.5, colors.black)]
     tsf = [('ALIGN', (1, 1), (-1, -1), 'CENTER')]
     doc = SimpleDocTemplate(response, pagesize=A4)
+    doc.topMargin = 1.0 * cm
     elements = []
     im = Image(logo)
     im.drawHeight = 1.25 * cm
