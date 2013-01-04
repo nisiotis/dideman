@@ -1,5 +1,7 @@
 from django.template import Library
-
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
+from django.contrib.admin.views.main import PAGE_VAR
 register = Library()
 
 
@@ -49,3 +51,16 @@ def submit_row(context):
         'form_id': opts.module_name + '_form',
     }
 
+@register.simple_tag
+def paginator_number_with_qs_params(cl, i):
+    """
+    Generates an individual page index link in a paginated list.
+    """
+    if i == '.':
+        return u'... '
+    elif i == cl.page_num:
+        return mark_safe(u'<span class="this-page">%d</span> ' % (i+1))
+    else:
+        qd = cl.request.GET.copy()
+        qd[PAGE_VAR] = i;
+        return u'<a href="?%s"%s>%d</a> ' % (qd.urlencode(), (i == cl.paginator.num_pages-1 and ' class="end"' or ''), i+1)
