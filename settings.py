@@ -6,7 +6,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+     ('Your Name', 'ictdep@dide.dod.sch.gr'),
 )
 
 MANAGERS = ADMINS
@@ -176,4 +176,9 @@ INTERNAL_IPS = ('127.0.0.1',)
 
 
 DATABASES = secret_settings.DATABASES
+EMAIL_SUBJECT_PREFIX = ''
+EMAIL_HOST = secret_settings.EMAIL_HOST
+EMAIL_HOST_USER = secret_settings.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = secret_settings.EMAIL_HOST_PASSWORD
+SERVER_EMAIL = secret_settings.SERVER_EMAIL
 SECRET_KEY = secret_settings.SECRET_KEY

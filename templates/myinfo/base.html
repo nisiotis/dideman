@@ -1,0 +1,100 @@
+{% load admin_static %}{% load url from future %}
+{% load base_site %}<!DOCTYPE html>
+<html lang="" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
+{% block extrastyle %}{% endblock %}
+
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
+<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+<script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
+{% block extrahead %}{% endblock %}
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+<style>
+/*
+    MyInfo App styles
+*/
+#content-main {
+    float: left;
+    width: 60%;
+    max-width: 65em;
+    min-width: 45em;
+    margin-right: 1em;
+}
+
+#content-related {
+    float: left;
+    width: 35em;
+    position: relative;
+
+}
+#img-container {
+    text-align: center;
+    width: 100%;
+    padding: 3px;
+}
+</style>
+<script>
+ $(function() {
+  $("#save")
+      .click(function() {
+        $("#edit-form").submit();
+    });
+   });
+</script>
+</head>
+{% load i18n %}
+
+<body class="{% block bodyclass %}{% endblock %}">
+
+<!-- Container -->
+<div id="container">
+
+
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+            <h1 id="site-name">Δ.Δ.Ε. {% get_setting 'dide_place'  %} </h1>
+        </div>
+    </div>
+    <!-- END Header -->
+    {% block breadcrumbs %}
+    <div class="breadcrumbs">
+        Τα στοιχεία μου στην Δ.Δ.Ε. {% get_setting 'dide_place'  %}
+    </div>
+    
+    {% endblock %}
+    {% block messages %} {% endblock  %}
+    
+    <!-- Content -->
+    <div id="content" class="{% block coltype %}colMS{% endblock %}">
+        {% block pretitle %}{% endblock %}
+        {% block content_title %}<h1>{{ emp.lastname  }} {{ emp.firstname  }}</h1>{% endblock %}
+        {% block content %}
+        {% block object-tools %}{% endblock %}
+        {{ content }}
+        {% endblock %}
+        {% block sidebar %}{% endblock %}
+        <br class="clear" />
+    </div>
+    <!-- END Content -->
+
+    {% block footer %}<div id="footer">
+        <div class="submit-row">
+    <div style="text-align: left; float: left; width: 350px;">
+      <!--<input type="button" id="bsave" value="Αποθήκευση" />-->
+      <a id="save" href="#">Αποθήκευση Αλλαγών</a>
+    </div>
+    <div style="text-align: right; float: right; margin-left: 200px;">
+      <!--<input type="button" id="logout" value="Έξοδος" onclick="javascript:document.location.href='?logout' "/>-->
+      <a id="salary" href="javascript:document.location.href='/salary/view'">Μισθοδοσία</a> | <a id="logout" href="javascript:document.location.href='?logout'">Έξοδος</a> 
+      </div>
+      </div>
+    </div>{% endblock %}
+</div>
+<!-- END Container -->
+
+</body>
+</html>

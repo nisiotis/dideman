@@ -1,0 +1,132 @@
+{% extends "myinfo/base.html" %}
+{% load i18n admin_static %}
+{% load base_site %}
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+{% endblock %}
+{% block title %}
+Δ.Δ.Ε. {% get_setting 'dide_place'  %}
+{% endblock %}
+    {% block messages %}
+{% if messages %}
+        <ul class="messagelist">{% for message in messages %}<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message}}</li>{% endfor %}</ul>
+    {% endif %}
+    {% endblock  %}
+{% block content %}
+<div id="content-main">
+    <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
+      <fieldset class="module aligned">
+        <h2>Στοιχεία Καρτέλας</h2>
+        <!--<div class="form-row field-lastname">
+          <div>
+            <label style="width:220px;">Επώνυμο : </label>
+            <p>{{ emp.lastname  }}</p>
+          </div>
+        </div>
+        <div class="form-row field-firstname">
+          <div>
+            <label style="width:220px;">Όνομα : </label>
+            <p>{{ emp.firstname  }}</p>
+          </div>
+      </div>-->
+      <div class="form-row field-fathername">
+        <div>
+          <label style="width:220px;">Πατρώνυμο : </label>
+            <p>{{ emp.fathername  }}</p>
+        </div>
+      </div>
+      <div class="form-row field-profession">
+        <div>
+          <label style="width:220px;">Ειδικότητα : </label>
+          <p>{{ emp.profession  }}</p>
+        </div>
+      </div>
+	{% if emp.registration_number %}
+	<div class="form-row field-registration_number">
+        <div>
+          <label style="width:220px;">Αριθμός Μητρώου : </label>
+          <p>{{ emp.registration_number  }}</p>
+        </div>
+      </div>
+	{% endif %}
+	{% if emp.vat_number %}
+	<div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Α.Φ.Μ. & Αρ. Δελτίου Ταυτότητας : </label>
+          <p>{{ emp.vat_number  }}, {{ emp.identity_number }}</p>
+        </div>
+      </div>
+	{% endif %}
+	{% if emp.rank %}
+	<div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Βαθμός - Κλιμάκιο : </label>
+          <p>{{ emp.rank  }} (από {{ emp.rank_date  }}) </p>
+        </div>
+      </div>
+	{% endif %}
+	{% if emp.date_hired %}
+	<div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Ημερομηνία διορισμού : </label>
+          <p>{{ emp.date_hired }}</p>
+        </div>
+      </div>
+	{% endif %}
+ 	<h2>Περισσότερα στοιχεία</h2>
+              {% for field in form %}
+            <div class="form-row field-{{ field.html_name }}">
+              <div>
+                {{ field.errors }}
+                <label  style="width:220px;" for="id_{{ field.html_name }}" {% if field.field.required %}class="required"{% endif %}>{{field.label}} : </label>
+                {{ field  }}{% if field.label == "Email" %}<div>Ο λογαριασμός Email από το Πανελλήνιο Σχολικό Δίκτυο - <a target="_blank" href="http://register.sch.gr/teachers/">Εγγραφή</a></div>{% endif %}
+              </div>
+           </div>
+         {% endfor %}
+
+
+          
+      <br clear="both" />
+
+    </fieldset>
+  </form>
+</div>
+
+{% endblock %}
+{% block sidebar %}
+<div id="content-related">
+    <!--<div class="module" id="recent-actions-module">
+        <h2>Ποσοστό ολοκλήρωσης καρτέλας</h2>
+            <div id="img-container"><img src="{{ graphimage }}"></div>
+    </div>-->
+    <div class="module" id="recent-actions-module">
+        <h2>Το ιστορικό μου</h2>
+        <h3>Άδειες</h3>
+            <ul class="actionlist">
+            {% for entry in leaves %}
+            <li>{{entry.date_from}} - {% if entry.date_to %}{{entry.date_to}}{% endif %}: {{entry.leave}}</li>
+            <!--<li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">            </li>-->
+            {% empty %}
+            <li>Δεν βρέθηκαν άδειες</li>  
+            {% endfor %}
+            </ul>
+        <h3>Θέσεις υπηρεσίας</h3>
+            <ul class="actionlist">
+            {% for entry in positions %}
+            <li>{{entry.date_from}} - {% if entry.date_to %}{{entry.date_to}}{% endif %}: {{entry.organization}} ({{entry.type}})</li>
+            {% empty %}
+            <li>Δεν βρέθηκαν θέσεις υπηρεσίας</li>  
+            {% endfor %}
+            </ul>
+        <h3>Αιτήσεις</h3>
+            <ul class="actionlist">
+            {% for entry in applications %}
+            <li>{{entry.datetime_finalised}}: <a id="applicationprint" href="javascript:document.location.href=document.location.href.split('?')[0]+'?print=1&app={{entry.set_id}}'">{{entry.set}}</a></li>
+            {% empty %}
+            <li>Δεν βρέθηκαν ηλεκτρονικές αιτήσεις</li>  
+            {% endfor %}
+            </ul>
+            
+            </div>
+</div>
+{% endblock %}

@@ -2,7 +2,7 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
-                                 Employee, Payment)
+                                 NonPermanent, Employee, Payment)
 from dideman.dide.employee.decorators import match_required
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
@@ -20,6 +20,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 import datetime
 import os
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 @match_required
 def print_pay(request, id):
@@ -279,15 +280,18 @@ def view(request):
             return HttpResponseRedirect('/salary/view/')
 
     else:
-        print request.session['matched_employee_id']
+        emp = Employee.objects.get(id=request.session['matched_employee_id'])
         try:
-            set = Permanent.objects.get(parent_id=request.session['matched_employee_id'])
+            emptype = Permanent.objects.get(parent_id=emp.id)
         except Permanent.DoesNotExist:
-            set = Employee.objects.get(id=request.session['matched_employee_id'])
+            emptype = NonPermanent.objects.get(parent_id=emp.id)
+        except NonPermanent.DoesNotExist:
+            emptype = 0
+            raise
         except:
             raise
-        pay = PaymentReport.objects.filter(
-            employee=request.session['matched_employee_id']).order_by('-year', '-type')
+
+        pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year', '-type')
 
         paginator = Paginator(pay, 10)
 
@@ -300,5 +304,5 @@ def view(request):
             pay_page = paginator.page(paginator.num_pages)
 
         return render_to_response('salary/salary.html',
-                                  RequestContext(request, {'emp': set,
+                                  RequestContext(request, {'emp': emptype,
                                                            'payments': pay_page}))

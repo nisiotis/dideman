@@ -12,6 +12,8 @@ urlpatterns = patterns(
         'dideman.dide.applications.views.edit'),
     url(r'^salary/view/$',
         'dideman.dide.salary.views.view'),
+    url(r'^myinfo/edit/$',
+        'dideman.dide.myinfo.views.edit'),
     url(r'^$',
         'dideman.dide.menu.views.menu'),
 )
