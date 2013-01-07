@@ -54,6 +54,7 @@ class PaymentCodeAdmin(DideAdmin):
     # add search field
     search_fields = ('id',)
 
+
 class PaymentReportTypeAdmin(DideAdmin):
     list_display = ('id', 'type')
 
@@ -61,6 +62,7 @@ class PaymentReportTypeAdmin(DideAdmin):
 class PaymentCategoryTitleAdmin(DideAdmin):
     list_display = ('id', 'title')
     search_fields = ('title',)
+
 
 class ApplicationChoiceInline(admin.TabularInline):
     model = ApplicationChoice
@@ -303,7 +305,8 @@ class EmployeeLeaveAdmin(DideAdmin):
         js = ('/static/admin/js/calendar.js',
               '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
 
-    search_fields = ('employee__lastname',)
+    search_fields = ('employee__lastname',
+                     'employee__permanent__registration_number')
     list_display = ('employee', 'profession', 'category', 'date_from',
                     'date_to', 'duration')
     list_filter = ('leave', 'employee__profession__unified_profession',

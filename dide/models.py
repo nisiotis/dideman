@@ -494,6 +494,10 @@ class EmployeeManager(models.Manager):
         return self.get(firstname=firstname, lastname=lastname,
                         fathername=fathername, profession=profession)
 
+    def get_query_set(self):
+        # select permanent if exists
+        return super(EmployeeManager, self).get_query_set().select_related('permanent')
+
 
 class Employee(models.Model):
 
@@ -635,7 +639,10 @@ class Employee(models.Model):
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
     def __unicode__(self):
-        return u'%s %s (%s)' % (self.lastname, self.firstname, self.fathername)
+        try:
+            return u'%s %s (%s)' % (self.lastname, self.firstname, self.permanent.registration_number)
+        except AttributeError:
+            return u'%s %s (%s)' % (self.lastname, self.firstname, self.vat_number)
 
 
 class SocialSecurity(models.Model):
@@ -650,7 +657,7 @@ class SocialSecurity(models.Model):
         return self.name
 
 
-class PermanentManager(EmployeeManager):
+class PermanentManager(models.Manager):
 
     def match(self, registration_number, vat_number, lastname, iban_4):
         try:
