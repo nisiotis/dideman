@@ -639,10 +639,12 @@ class Employee(models.Model):
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
     def __unicode__(self):
-        try:
-            return u'%s %s (%s)' % (self.lastname, self.firstname, self.permanent.registration_number)
-        except AttributeError:
-            return u'%s %s (%s)' % (self.lastname, self.firstname, self.vat_number)
+        if hasattr(self, 'permanent') and self.permanent is not None:
+            return u'%s %s (%s)' % (self.lastname, self.firstname,
+                                    self.permanent.registration_number)
+        else:
+            return u'%s %s (%s)' % (self.lastname, self.firstname,
+                                    self.vat_number)
 
 
 class SocialSecurity(models.Model):
