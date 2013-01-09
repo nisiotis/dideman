@@ -13,7 +13,8 @@ FROM dide_employee
             GROUP BY employee_id
      ) AS bar
          ON dide_employee.id = bar.employee_id
-WHERE dide_employee.currently_serves = 1 and bar.organization_id={0}
+    INNER JOIN dide_permanent ON dide_employee.id = dide_permanent.parent_id
+WHERE dide_employee.currently_serves = 1 AND bar.organization_id={0} AND dide_permanent.has_permanent_post = 1
 """
 
 non_permanent_serving_in_organization = """
@@ -76,7 +77,7 @@ WHERE fb.employee_id NOT IN (
 )
 """
 serves_in_dide_school = """
-SELECT dide_permanent . parent_id
+SELECT dide_permanent.parent_id
 FROM dide_permanent
 WHERE dide_permanent.parent_id NOT
 IN (
@@ -85,4 +86,16 @@ IN (
     INNER JOIN dide_placement ON dide_permanent.parent_id = dide_placement.employee_id
     INNER JOIN dide_otherorganization ON dide_otherorganization.parent_organization_id = dide_placement.organization_id
     WHERE dide_placement.date_from >= '{0}' and dide_placement.date_to <= '{1}'
+)"""
+
+serves_in_dide_org = """
+SELECT dide_permanent.parent_id
+FROM dide_permanent
+WHERE dide_permanent.parent_id NOT
+IN (
+    SELECT dide_permanent.parent_id
+    FROM dide_permanent
+    INNER JOIN dide_placement ON dide_permanent.parent_id = dide_placement.employee_id
+    INNER JOIN dide_organization ON dide_organization.id = dide_placement.organization_id
+    WHERE dide_placement.date_from >= '{0}' AND dide_placement.date_to <= '{1}' AND dide_organization.belongs = 0
 )"""

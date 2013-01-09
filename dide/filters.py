@@ -341,6 +341,39 @@ class ServesInDideSchoolFilter(ModifierSimpleListFilter):
         return [self.parameter_name]
 
 
+class ServesInDideOrgFilter(ModifierSimpleListFilter):
+    title = u'Υπηρετεί σε σχολείο/φορέα της Δ.Δ.Ε.'
+    parameter_name = 'serves_in_dde_org'
+    modifier_name = '_m_' + parameter_name
+    lookup_param = parameter_name
+    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
+    DideAdmin.add_filter_parameter(parameter_name)
+
+    def __init__(self, request, params, model, model_admin, *args, **kwargs):
+        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        super(ServesInDideOrgFilter, self).__init__(request, params, model,
+                                                model_admin)
+
+    def lookups(self, request, model_admin):
+        return(('1', _('Yes')), ('2', _('No')))
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            if val == '1':
+                return queryset & Permanent.objects.serves_in_dide_org()
+            elif val == '2':
+                return queryset & Permanent.objects.not_serves_in_dide_org()
+        else:
+            return queryset
+
+    def has_output(self):
+        return True
+
+    def used_params(self):
+        return [self.parameter_name]
+
+
 class LeaveDateFromFilter(FreeDateFieldListFilter):
     title = u'Ημερομηνία Έναρξης'
     parameter_name = 'leave_date_from'
