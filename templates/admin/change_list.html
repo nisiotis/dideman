@@ -12,10 +12,12 @@
         <li><a href="{{ cl.request.path  }}">Καθαρισμός Όλων</a></li>
         <li><a href="{{ cl.request.path  }}filters/" onclick="return showAddAnotherPopup(this)">Αναλυτικά</a></li>
       {% for spec in cl.filter_specs %}
-        {% if spec|is_free_date_filter %}
-          {% free_date_filter cl spec %}
-        {% else %}
-          {% admin_list_filter cl spec %}
+        {% if spec.list_view %}
+          {% if spec|is_free_date_filter %}
+            {% free_date_filter cl spec %}
+          {% else %}
+            {% admin_list_filter cl spec %}
+          {% endif %}
         {% endif %}
       {% endfor %}
       </div>

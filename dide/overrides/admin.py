@@ -27,6 +27,7 @@ class DideAdmin(admin.ModelAdmin):
         css = {'all': ('css/dide-admin.css', )}
 
     filter_parameters = []
+    all_filters = tuple()
 
     def delete_view(self, request, object_id, extra_context=None):
         # overrided delete_view method
@@ -173,6 +174,7 @@ def alter_filter_constructor(fn):
 class BaseModifierFilter(object):
     template_name = 'filter'
     registered_filters = []
+    list_view = True
 
     def __init__(self, *args, **kwargs):
         super(BaseModifierFilter, self).__init__(*args, **kwargs)

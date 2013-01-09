@@ -24,7 +24,8 @@ def free_date_filter(cl, spec):
     return {'title': spec.title, 'url_from_value': spec.url_from_value,
             'url_to_value': spec.url_to_value,
             'parameter_name': spec.parameter_name, 'cl': cl}
-            
+
+
 @register.inclusion_tag('admin/dide/employeeleave/submit_line.html', takes_context=True)
 def submit_row(context):
     """
@@ -50,6 +51,7 @@ def submit_row(context):
         'object_id': context['object_id'] if 'object_id' in context else None,
         'form_id': opts.module_name + '_form',
     }
+
 
 @register.simple_tag
 def paginator_number_with_qs_params(cl, i):

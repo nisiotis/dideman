@@ -19,6 +19,7 @@ class PermanentPostFilter(ModifierSimpleListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'] += [modifier_name]
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -51,6 +52,7 @@ class TransferedFilter(ModifierSimpleListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'] += [modifier_name]
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -85,6 +87,7 @@ class CurrentlyServesFilter(ModifierSimpleListFilter):
     field = 'currently_serves'
     views.__dict__['IGNORED_PARAMS'] += [modifier_name]
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -124,6 +127,7 @@ class StudyFilter(ModifierSimpleListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'] += [modifier_name]
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -154,6 +158,7 @@ class OrganizationServingFilter(ModifierSimpleListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'] += [modifier_name]
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -187,6 +192,7 @@ class FreeDateFieldListFilter(SimpleListFilter):
     default_date_from = datetime.date(1950, 1, 1)
     default_date_to = datetime.date(2050, 12, 31)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def default_date_values(self):
         return [self.default_date_from, self.default_date_to]
@@ -226,6 +232,7 @@ class DateHiredFilter(FreeDateFieldListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -247,6 +254,7 @@ class LeaveDateToFilter(FreeDateFieldListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -268,6 +276,7 @@ class EmployeeWithOutLeaveFilter(FreeDateFieldListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -292,6 +301,7 @@ class EmployeeWithLeaveFilter(FreeDateFieldListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -315,6 +325,7 @@ class ServesInDideSchoolFilter(ModifierSimpleListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'] += [modifier_name]
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -348,6 +359,7 @@ class ServesInDideOrgFilter(ModifierSimpleListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'] += [modifier_name]
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -381,6 +393,7 @@ class LeaveDateFromFilter(FreeDateFieldListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -402,6 +415,7 @@ class NextPromotionInRangeFilter(FreeDateFieldListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -424,6 +438,7 @@ class SubstituteAreaFilter(ModifierSimpleListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -456,6 +471,7 @@ class SubstituteOrderFilter(ModifierSimpleListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
@@ -487,6 +503,7 @@ class SubstituteDateRangeFilter(FreeDateFieldListFilter):
     lookup_param = parameter_name
     views.__dict__['IGNORED_PARAMS'].append(modifier_name)
     DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
 
     def __init__(self, request, params, model, model_admin, *args, **kwargs):
         self.modifier_value = request.GET.get(self.modifier_name, u'AND')
