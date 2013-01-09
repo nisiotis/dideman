@@ -674,37 +674,25 @@ class PermanentManager(models.Manager):
 
     def serves_in_dide_school(self):
         cursor = connection.cursor()
-        cursor.execute(
-            sql.serves_in_dide_school.format(
-                str(current_year_date_from()),
-                str(current_year_date_to())))
+        cursor.execute(sql.serves_in_dide_school.format(datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
     def not_serves_in_dide_school(self):
         cursor = connection.cursor()
-        cursor.execute(
-            sql.serves_in_dide_school.format(
-                str(current_year_date_from()),
-                str(current_year_date_to())))
+        cursor.execute(sql.serves_in_dide_school.format(datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
         return self.exclude(parent_id__in=ids)
 
     def serves_in_dide_org(self):
         cursor = connection.cursor()
-        cursor.execute(
-            sql.serves_in_dide_org.format(
-                str(current_year_date_from()),
-                str(current_year_date_to())))
+        cursor.execute(sql.serves_in_dide_org.format(datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
     def not_serves_in_dide_org(self):
         cursor = connection.cursor()
-        cursor.execute(
-            sql.serves_in_dide_org.format(
-                str(current_year_date_from()),
-                str(current_year_date_to())))
+        cursor.execute(sql.serves_in_dide_org.format(datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
         return self.exclude(parent_id__in=ids)
 

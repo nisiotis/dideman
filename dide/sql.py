@@ -76,6 +76,7 @@ WHERE fb.employee_id NOT IN (
     ) AS foobar
 )
 """
+
 serves_in_dide_school = """
 SELECT dide_permanent.parent_id
 FROM dide_permanent
@@ -85,7 +86,11 @@ IN (
     FROM dide_permanent
     INNER JOIN dide_placement ON dide_permanent.parent_id = dide_placement.employee_id
     INNER JOIN dide_otherorganization ON dide_otherorganization.parent_organization_id = dide_placement.organization_id
-    WHERE dide_placement.date_from >= '{0}' and dide_placement.date_to <= '{1}'
+    WHERE
+    (
+        (DATE('{0}') BETWEEN dide_placement.date_from AND dide_placement.date_to) OR
+        (DATE('{0}') >= dide_placement.date_from AND dide_placement.date_to IS NULL)
+    )
 )"""
 
 serves_in_dide_org = """
@@ -97,5 +102,10 @@ IN (
     FROM dide_permanent
     INNER JOIN dide_placement ON dide_permanent.parent_id = dide_placement.employee_id
     INNER JOIN dide_organization ON dide_organization.id = dide_placement.organization_id
-    WHERE dide_placement.date_from >= '{0}' AND dide_placement.date_to <= '{1}' AND dide_organization.belongs = 0
+    WHERE
+    (
+        (DATE('{0}') BETWEEN dide_placement.date_from AND dide_placement.date_to) OR
+        (DATE('{0}') >= dide_placement.date_from AND dide_placement.date_to IS NULL)
+    )
+    AND dide_organization.belongs = 0
 )"""
