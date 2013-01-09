@@ -3,14 +3,13 @@
 {% load url from future %}
 {% load admin_urls %}
 {% load custom_admin %}
-
 {% block filters %}
   {% if cl.has_filters %}
    <div id="changelist-filter">
      <h2>Φίλτρα</h2>
       <div>
         <li><a href="{{ cl.request.path  }}">Καθαρισμός Όλων</a></li>
-        <li><a href="{{ cl.request.path  }}filters/" onclick="return showAddAnotherPopup(this)">Αναλυτικά</a></li>
+        <li><a href="{{ cl.request.path  }}filters/" onclick="return focusOrOpen(this, 'Φίλτρα');">Αναλυτικά</a></li>
       {% for spec in cl.filter_specs %}
         {% if spec.list_view %}
           {% if spec|is_free_date_filter %}

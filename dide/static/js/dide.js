@@ -11,6 +11,14 @@
             }
             calBox.style.zIndex = 1001;
         }
-    });    
-    
+    });
 })(django.jQuery)
+
+function focusOrOpen(link, name) {
+    var popup = window.open('', name, 'height=500,width=800,resizable=yes,scrollbars=yes');
+    if(popup.location != link.href) {
+        popup.location.href = link.href;
+        popup.focus();
+    }
+    return false;
+}
