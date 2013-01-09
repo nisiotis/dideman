@@ -10,7 +10,8 @@ from filters import (PermanentPostFilter, OrganizationServingFilter,
                      EmployeeWithLeaveFilter, EmployeeWithOutLeaveFilter,
                      ServesInDideSchoolFilter, SubstituteAreaFilter,
                      SubstituteOrderFilter, SubstituteDateRangeFilter,
-                     NonPermanentOrganizationServingFilter)
+                     NonPermanentOrganizationServingFilter,
+                     ServesInDideOrgFilter)
 from applications.filters import FinalisedFilter
 from models import (TransferArea, Leave, Responsibility, Profession,
                     Promotion, NonPermanentType,
@@ -257,6 +258,7 @@ class PermanentAdmin(EmployeeAdmin):
                                                StudyFilter,
                                                CurrentlyServesFilter,
                                                ServesInDideSchoolFilter,
+                                               ServesInDideOrgFilter,
                                                NextPromotionInRangeFilter,
                                                EmployeeWithLeaveFilter,
                                                EmployeeWithOutLeaveFilter,
