@@ -170,8 +170,8 @@ def print_pay(request, id):
             s1 = "/".join(list(reversed(i.start_date.split('-'))))
             s2 = "/".join(list(reversed(i.end_date.split('-'))))
             s += ' (%s - %s) ' % (s1, s2)
-        if i.month and i.year:
-            s += ' %s %s' % (months[int(i.month)], i.year)
+        if (i.month and i.month != 'NULL') and (i.year and i.year !='NULL'):
+            s += ' %s %s' % (months[int(i.month-1)], i.year)
         data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
         table2 = Table(data, style=tsh, colWidths=[17 * cm])
         elements.append(table2)
