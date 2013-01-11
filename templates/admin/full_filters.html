@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
-    {% load i18n %} 
+    {% load i18n %}
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
@@ -26,10 +26,10 @@
             var $ = django.jQuery, acc = [], str = '';
             $('.chzn-select').map(function(idx, j) {
                 return {
-                    'name': j.name, 
+                    'name': j.name,
                     'values': $(j).val() || []}
                 }).each(function(idx, obj) {
-                    if(obj.values.length > 0) { 
+                    if(obj.values.length > 0) {
                         for(var i = 0; i < obj.values.length; i += 1) {
                             acc.push({'name': obj.name, 'value': obj.values[i]});
                         }
@@ -60,13 +60,18 @@
                 slice(0, -1).
                 join('/') + '/?' + buildQS();
         }
+        function reset() {
+            django.jQuery(".chzn-select").val("").trigger("liszt:updated");
+            django.jQuery("#chosen-form")[0].reset();
+            window.opener.location.href = window.opener.location.href.split("?")[0];
+        }
     </script>
     {% block extrahead %}{% endblock %}
     {% block blockbots %}
     <meta name="robots" content="NONE,NOARCHIVE" />
     {% endblock %}
     <style>
-      table.valign td { vertical-align: middle } 
+      table.valign td { vertical-align: middle }
     </style>
 </head>
 {% load full_filters %}
@@ -74,6 +79,7 @@
     <div id="container">
         <div id="content">
             <h1>Επιλέξτε φίλτρα</h1>
+            <form id="chosen-form">
             <div>
                 {% for select in selects %}
                 <h2>{{ select.attrs.title }}</h2>
@@ -87,14 +93,16 @@
                 <div>
                     <h2>{{ date_filter.title }}</h2>
                     <span class="free_date_filter" id="{{ date_filter.parameter_name }}">
-                        <input id="{{ date_filter.parameter_name }}_free_date_from" type="text" class="{{ date_filter.parameter_name }}_free_date_field vDateField" name="date_from" size="10" value="{{ date_filter.url_from_value }}" /> - 
+                        <input id="{{ date_filter.parameter_name }}_free_date_from" type="text" class="{{ date_filter.parameter_name }}_free_date_field vDateField" name="date_from" size="10" value="{{ date_filter.url_from_value }}" /> -
                         <input id="{{ date_filter.parameter_name }}_free_date_to" type="text" class="{{ date_filter.parameter_name }}_free_date_field vDateField" name="date_to" size="10" value="{{ date_filter.url_to_value }}" />
                    </span>
                 </div>
             </div>
             {% endfor %}
+            </form>
             <div style="padding-top:40px;margin-left:auto;margin-right:auto;width:500px">
                 <input type="button" value="{% trans 'Search' %}" onclick="submitParent();"/>
+                <input type="button" value="Καθαρισμός" onclick="reset();"/>
             </div>
         </div>
         {% block footer %}
