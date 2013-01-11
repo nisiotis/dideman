@@ -676,7 +676,7 @@ class PermanentManager(models.Manager):
         cursor = connection.cursor()
         cursor.execute(sql.serves_in_dide_school.format(datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
-        return self.filter(parent_id__in=ids)
+        return self.filter(parentid__in=ids)
 
     def not_serves_in_dide_school(self):
         cursor = connection.cursor()
@@ -686,15 +686,15 @@ class PermanentManager(models.Manager):
 
     def serves_in_dide_org(self):
         cursor = connection.cursor()
-        cursor.execute(sql.serves_in_dide_org.format(datetime.date.today()))
+        cursor.execute(sql.serves_in_other_org.format(datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
-        return self.filter(parent_id__in=ids)
+        return self.exclude(parent_id__in=ids)
 
     def not_serves_in_dide_org(self):
         cursor = connection.cursor()
-        cursor.execute(sql.serves_in_dide_org.format(datetime.date.today()))
+        cursor.execute(sql.serves_in_other_org.format(datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
-        return self.exclude(parent_id__in=ids)
+        return self.filter(parent_id__in=ids)
 
     def permanent_post_in_organization(self, org_id):
         cursor = connection.cursor()
@@ -705,9 +705,7 @@ class PermanentManager(models.Manager):
     def serving_in_organization(self, org_id):
         cursor = connection.cursor()
         cursor.execute(
-            sql.serving_in_organization.format(org_id,
-                                               str(current_year_date_from()),
-                                               str(current_year_date_to())))
+            sql.serving_in_organization.format(org_id, datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
@@ -910,10 +908,8 @@ class NonPermanentManager(models.Manager):
 
     def serving_in_organization(self, org_id):
         cursor = connection.cursor()
-        cursor.execute(
-            sql.non_permanent_serving_in_organization.format(org_id,
-                                               str(current_year_date_from()),
-                                               str(current_year_date_to())))
+        cursor.execute(sql.non_permanent_serving_in_organization.format(
+                org_id, datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
