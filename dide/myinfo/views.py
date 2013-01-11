@@ -81,7 +81,7 @@ def edit(request):
                 for key in emp_form.cleaned_data:
                     if hasattr(emp, key):
                         setattr(emp, key, emp_form.cleaned_data[key])
-                emp.save()
+                        emp.save()
                 messages.info(request, "Τα στοιχεία σας ενημερώθηκαν.")
                 if emp.email:
                     MailSender(u' '.join([emp.firstname, emp.lastname]),
