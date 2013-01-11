@@ -202,7 +202,7 @@ class EmployeeAdmin(DideAdmin):
         (u'Βασικά στοιχεία', {
                 'fields': ['currently_serves', 'transfer_area',
                            'firstname', 'lastname', 'fathername',
-                           'mothername', 'profession',
+                           'mothername',  'profession',
                            'date_end', 'address',
                            'profession_description',
                            'identity_number', 'telephone_number1',
@@ -270,7 +270,7 @@ class PermanentAdmin(EmployeeAdmin):
             'fields': [
                     'transfer_area',
                     'lastname', 'firstname', 'fathername', 'notes',
-                    'registration_number', 'profession',
+                    'sex', 'registration_number', 'profession',
                     'profession_description', 'permanent_post',
                     'temporary_position', 'organization_serving',
                     'study_years', 'serving_type', 'date_hired',
@@ -345,7 +345,7 @@ class NonPermanentAdmin(EmployeeAdmin):
         ('Στοιχεία μη-μόνιμου', {
             'fields': [
                     'lastname', 'firstname', 'fathername', 'mothername',
-                    'current_transfer_area',
+                    'sex', 'current_transfer_area',
                     'notes', 'type', 'profession', 'profession_description',
                     'current_placement', 'study_years',
                     'identity_number', 'telephone_number1',

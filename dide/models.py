@@ -498,6 +498,8 @@ class EmployeeManager(models.Manager):
         # select permanent if exists
         return super(EmployeeManager, self).get_query_set().select_related('permanent')
 
+SEX_TYPES = ((u'Άνδρας', u'Άνδρας'),
+               (u'Γυναίκα', u'Γυναίκα'))
 
 class Employee(models.Model):
 
@@ -513,6 +515,8 @@ class Employee(models.Model):
     fathername = models.CharField(u'Όνομα Πατέρα', max_length=100)
     mothername = models.CharField(u'Όνομα Μητέρας', max_length=100,
                                   null=True, blank=True)
+    sex = models.CharField(u'Φύλο', max_length=10, null=True, blank=True,
+                           choices=SEX_TYPES)
     currently_serves = models.BooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου',
                                            default=True)
     address = models.CharField(u'Διεύθυνση', max_length=200, null=True,

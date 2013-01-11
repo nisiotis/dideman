@@ -26,8 +26,8 @@ def MailSender(name, email):
     mFrom = [u'ΔΔΕ %s' % SETTINGS['dide_place'], SETTINGS['email_dide']]
     mRecipient = [name, email]
 
-    mSubject = u'ΔΔΕ %s' % SETTINGS['dide_place']
-    mHtml = u"""<p>Πραγματοποιήθηκε αλλάγη στοιχείων του φακέλου σας, στο """
+    mSubject = u'Ενημέρωση στοιχείων του φακέλου σας.'
+    mHtml = u"""<p>Πραγματοποιήθηκε ενημέρωση στοιχείων του φακέλου σας, στο """
     mHtml += u"""σύστημα προσωπικού της ΔΔΕ.</p>"""
     mHtml += u"""<p><a href="http://its.dide.dod.sch.gr">Συνδεθείτε στο """
     mHtml += u"""σύστημα για να δείτε τις αλλαγές</a></p>"""

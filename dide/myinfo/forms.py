@@ -4,8 +4,12 @@ from dideman.dide.models import Permanent
 from django.utils.translation import ugettext as _
 from django.contrib.admin.widgets import AdminDateWidget
 
+SEX_TYPES = ((u'', u'---------'),
+             (u'Άνδρας', u'Άνδρας'),
+             (u'Γυναίκα', u'Γυναίκα'))
 
 class MyInfoForm(forms.Form):
+    sex = forms.ChoiceField(label=u'Φύλο', required=False, choices=SEX_TYPES)
     email = forms.EmailField(label=u'Email',
                              required=False)
     telephone_number1 = forms.CharField(label=u'Σταθερό Τηλέφωνο',
