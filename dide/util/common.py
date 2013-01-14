@@ -90,7 +90,7 @@ def date_add(d1, d2):
 
 
 def date_subtract(d1, d2):
-    """ takes two dates (dates or priods), both
+    """ takes two dates (dates or periods), both
     in the form of a tuple (y, m, d), subtracts them and returns
     the new date
     """

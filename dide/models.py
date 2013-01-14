@@ -7,6 +7,7 @@ from django.db.models import Max
 import sql
 from django.db import connection
 from south.modelsinspector import add_introspection_rules
+from django.db.models import Sum
 import datetime
 
 
@@ -497,8 +498,10 @@ class EmployeeManager(models.Manager):
         # select permanent if exists
         return super(EmployeeManager, self).get_query_set().select_related('permanent')
 
+
 SEX_TYPES = ((u'Άνδρας', u'Άνδρας'),
-               (u'Γυναίκα', u'Γυναίκα'))
+             (u'Γυναίκα', u'Γυναίκα'))
+
 
 class Employee(models.Model):
 
@@ -641,6 +644,12 @@ class Employee(models.Model):
                                        parse_date(self.recognised_experience)))
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
+    def no_pay_days_current(self):
+        return self.employeeleave_set.filter(
+            leave__not_paying=True).aggregate(
+            Sum('duration'))['duration__sum'] or 0
+    no_pay_days_current.short_description = u'Ημέρες άδειας άνευ αποδοχών'
+
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
             return u'%s %s (%s)' % (self.lastname, self.firstname,
@@ -771,6 +780,9 @@ class Permanent(Employee):
     has_permanent_post = models.BooleanField(u'Έχει οργανική θέση',
                                              null=False, blank=False,
                                              default=False)
+    no_pay_existing = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών από άλλα'
+                                          u' Π.Υ.Σ.Δ.Ε.', default=0, blank=True,
+                                          null=True)
 
     def natural_key(self):
         return (self.registration_number, )
@@ -1238,7 +1250,6 @@ class EmployeeLeave(models.Model):
 
     def clean(self):
         from django.core.exceptions import ValidationError
-        from django.db.models import Sum
 
         if hasattr(self, 'leave') and hasattr(self, 'employee'):
             if self.leave.name == u'Κανονική':
