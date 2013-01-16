@@ -650,7 +650,7 @@ class Employee(models.Model):
         """Returns a dict of {year: sum_of_no_pay_days } form"""
         seq = reduce(concat, [l.split()
                               for l in self.employeeleave_set.filter(
-                    leave__not_paying=True)])
+                    leave__not_paying=True)], tuple())
         return [(k, sum(map(itemgetter(1), g)))
                  for k, g in groupby(sorted(seq), key=itemgetter(0))]
 
@@ -1303,8 +1303,8 @@ class EmployeeLeave(models.Model):
                         date_from_python, [self.date_to, start])))
             return d1, d2
         else:
-            return (self.date_from.year,
-                    self.duration if self.duration < 360 else 360,)
+            return ((self.date_from.year,
+                    self.duration if self.duration < 360 else 360,), )
 
     def __unicode__(self):
         return unicode(self.employee) + '-' + unicode(self.date_from)
