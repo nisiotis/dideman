@@ -119,16 +119,11 @@ class DocxReport(TemplateAction):
         self.__name__ = short_description
         self.fields = fields
         self.model_fields = model_fields
-        self.dictionary = {'data': [], 'manager': SETTINGS['manager'],
-                           'address': SETTINGS['address'],
-                           'email': SETTINGS['email_dide'],
-                           'fax_number': SETTINGS['fax_number'],
-                           'dide_district': SETTINGS['dide_district'],
+        self.dictionary = {'data': [], 
+                           'settings': SETTINGS,
                            'dide_place':
                                without_accented(SETTINGS['dide_place']
                                                 .upper()),
-                           'telephone_number': SETTINGS['telephone_number'],
-                           'ministry_title': SETTINGS['ministry_title'],
                            'date': datetime.date.today,
                            'current_year_date_from': current_year_date_from(),
                            'current_year_date_to': current_year_date_to(),

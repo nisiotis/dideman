@@ -132,7 +132,7 @@
               <w:rPr>
                 <w:b/>
               </w:rPr>
-              <w:t>{{ manager }}</w:t>
+              <w:t>{{ settings.manager }}</w:t>
             </w:r>
           </w:p>
         </w:tc>

@@ -17,7 +17,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Απόφαση διορισμού {{ministry_title}}: {{rec.order__order}} </w:t>
+        <w:t>Απόφαση διορισμού {{settings.ministry_title}}: {{rec.order__order}} </w:t>
       </w:r>_
     </w:p>
     <w:p>
