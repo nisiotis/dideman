@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
-
+import math
 
 now = datetime.datetime.now()
 
@@ -18,7 +18,7 @@ def filter_nested(l, pred):
 def parse_deletable_list(l):
     return filter_nested(l,
                          lambda x: x not in ['Payment: Payment object',
-                                         'Payment category: PaymentCategory object'])
+                                             'Payment category: PaymentCategory object'])
 
 
 def without_accented(string):
@@ -60,6 +60,7 @@ def current_year_date_to_half():
 
 
 def current_year():
+    """ returns current school year e.g. 2011-2012"""
     return '%s-%s' % (str(current_year_date_from().year),
                       str(current_year_date_to().year))
 
@@ -68,6 +69,25 @@ def parse_date(d):
     """parses a date string yyyymmdd or yymmdd and returns a (y, m, d) tuple"""
     yl = 4 if len(d) == 8 else 2
     return tuple([int(d) for d in [d[:yl], d[yl:yl + 2], d[yl + 2:yl + 4]]])
+
+
+def date_from_python(d):
+    """takes a python datetime.date object and returns a  (y, m, d) tuple"""
+    return d.year, d.month, d.day
+
+
+def to_days(d):
+    """takes a (y, m, d) date and return the number of days of it"""
+    return d[0] * 360 + d[1] * 30 + d[2]
+
+
+def from_days(days):
+    """takes a number which represents days and returns a (y, m, d) date"""
+    y = int(days / 360)
+    m = int((days % 360) / 30)
+    d = days - (y * 360 + m * 30)
+    print y, m, d
+    return y, m, d
 
 
 def date_add(d1, d2):

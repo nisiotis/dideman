@@ -9,6 +9,8 @@ from django.db import connection
 from south.modelsinspector import add_introspection_rules
 from django.db.models import Sum
 import datetime
+from operator import itemgetter, concat
+from itertools import groupby
 
 
 class NullableCharField(models.CharField):
@@ -644,11 +646,19 @@ class Employee(models.Model):
                                        parse_date(self.recognised_experience)))
         return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
-    def no_pay_days_current(self):
-        return self.employeeleave_set.filter(
-            leave__not_paying=True).aggregate(
-            Sum('duration'))['duration__sum'] or 0
-    no_pay_days_current.short_description = u'Ημέρες άδειας άνευ αποδοχών'
+    def no_pay_in_years(self):
+        """Returns a dict of {year: sum_of_no_pay_days } form"""
+        seq = reduce(concat, [l.split()
+                              for l in self.employeeleave_set.filter(
+                    leave__not_paying=True)])
+        return [(k, sum(map(itemgetter(1), g)))
+                 for k, g in groupby(sorted(seq), key=itemgetter(0))]
+
+    def calculable_no_pay(self):
+        return sum([max(days - 30, 0)
+                    for year, days in self.no_pay_in_years()])
+    calculable_no_pay.short_description = u'Υπολογισμένες ημέρες άδειας'\
+        u' άνευ αποδοχών'
 
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
@@ -781,8 +791,7 @@ class Permanent(Employee):
                                              null=False, blank=False,
                                              default=False)
     no_pay_existing = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών από άλλα'
-                                          u' Π.Υ.Σ.Δ.Ε.', default=0, blank=True,
-                                          null=True)
+                                          u' Π.Υ.Σ.Δ.Ε.', default=0)
 
     def natural_key(self):
         return (self.registration_number, )
@@ -809,11 +818,13 @@ class Permanent(Employee):
     def payment_start_date_auto(self):
         if not self.date_hired:
             return datetime.date.today()
-
         dh = self.date_hired
-        years, months, days = date_subtract(
-            (dh.year, dh.month, dh.day),
-            parse_date(self.recognised_experience))
+        years, months, days = date_add(
+            date_subtract(
+                date_from_python(dh),
+                parse_date(self.recognised_experience)
+             ),
+            from_days(self.calculable_no_pay() + self.no_pay_existing))
         return '%s-%s-%s' % (days, months, years)
     payment_start_date_auto.short_description = \
         u'Μισθολογική αφετηρία (αυτόματη)'
@@ -833,7 +844,7 @@ class Permanent(Employee):
         rankdate = first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date'))
         return rankdate.date
-    rank_date.short_description = u'Ημερμηνία τελευταίου βαθμού'
+    rank_date.short_description = u'Ημερομηνία τελευταίου βαθμού'
 
     def rank_id(self):
         promotion = first_or_none(
@@ -1278,6 +1289,22 @@ class EmployeeLeave(models.Model):
             Q(date_to__range=[df, dt]) |
             Q(date_to__gte=df, date_from__lte=dt)).\
             exclude(id=self.id)
+
+    def split(self):
+        """Returns a tuple containing two dicts if the leave spans between two
+        years or one in not. The dict is of the form {year: days}.
+        Date conversions are made using 360 day year"""
+        if self.date_from.year != self.date_to.year:
+            end = datetime.date(self.date_from.year, 12, 31)
+            start = datetime.date(self.date_to.year, 1, 1)
+            d1 = end.year, to_days(date_subtract(*map(
+                        date_from_python, [end, self.date_from])))
+            d2 = start.year, to_days(date_subtract(*map(
+                        date_from_python, [self.date_to, start])))
+            return d1, d2
+        else:
+            return (self.date_from.year,
+                    self.duration if self.duration < 360 else 360,)
 
     def __unicode__(self):
         return unicode(self.employee) + '-' + unicode(self.date_from)
