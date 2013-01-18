@@ -907,7 +907,6 @@ class NonPermanentType(models.Model):
 
 
 class NonPermanentManager(models.Manager):
-
     def substitutes_in_transfer_area(self, area_id):
         ids = [s.substitute_id
                for s in OrderedSubstitution.objects.filter(
@@ -925,12 +924,23 @@ class NonPermanentManager(models.Manager):
                           order__date__gte=date_from)]
         return self.filter(parent_id__in=ids)
 
-    def serving_in_organization(self, org_id):
-        cursor = connection.cursor()
-        cursor.execute(sql.non_permanent_serving_in_organization.format(
-                org_id, datetime.date.today()))
-        ids = [row[0] for row in cursor.fetchall()]
-        return self.filter(parent_id__in=ids)
+    def temporary_post_in_organization(self, org_id):
+        td = datetime.date.today()
+        ids = [o.employee_id
+               for o in Placement.objects.only('employee').filter(
+                date_from__lte=td, date_to__gte=td, type__id=3,
+                organization_id=org_id)]
+        return self.filter(id__in=ids)
+
+    def with_total_extra_position(self, exclude=False):
+        td = datetime.date.today()
+        ids = [o.employee_id
+               for o in Placement.objects.only('employee').filter(
+                date_from__lte=td, date_to__gte=td, type__id=4)]
+        if exclude:
+            return self.exclude(id__in=ids)
+        else:
+            return self.filter(id__in=ids)
 
 
 class NonPermanent(Employee):

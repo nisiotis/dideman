@@ -12,15 +12,6 @@ INNER JOIN dide_employee ON dide_employee.id=dide_placement.employee_id
 WHERE dide_employee.currently_serves=1 AND dide_placement.organization_id={0}
 """
 
-non_permanent_serving_in_organization = """
-SELECT employee_id
-FROM dide_placement
-INNER JOIN dide_nonpermanent ON dide_nonpermanent.parent_id = dide_placement.employee_id
-WHERE (DATE('{1}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
-AND dide_placement.organization_id={0}
-AND dide_placement.type_id=3
-"""
-
 serving_in_organization = """
 SELECT employee_id FROM (
         SELECT dide_placement.employee_id

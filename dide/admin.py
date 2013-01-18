@@ -11,7 +11,7 @@ from filters import (PermanentPostFilter, OrganizationServingFilter,
                      ServesInDideSchoolFilter, SubstituteAreaFilter,
                      SubstituteOrderFilter, SubstituteDateRangeFilter,
                      NonPermanentOrganizationServingFilter,
-                     ServesInDideOrgFilter)
+                     ServesInDideOrgFilter, NonPermanentWithTotalExtraPosition)
 from applications.filters import FinalisedFilter
 from models import (TransferArea, Leave, Responsibility, Profession,
                     Promotion, NonPermanentType,
@@ -363,7 +363,9 @@ class NonPermanentAdmin(EmployeeAdmin):
                                        ServiceInline, LeaveInline,
                                        ResponsibilityInline]
     list_filter = [SubstituteDateRangeFilter, SubstituteAreaFilter,
-                   SubstituteOrderFilter, 'profession__unified_profession', NonPermanentOrganizationServingFilter]
+                   SubstituteOrderFilter, 'profession__unified_profession',
+                   NonPermanentOrganizationServingFilter,
+                   NonPermanentWithTotalExtraPosition]
     actions = sorted([CSVReport(add=['current_placement',
                                      'profession__description'])] + \
     nonpermanent_docx_reports, key=lambda k: k.short_description)
