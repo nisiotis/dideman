@@ -65,82 +65,102 @@ def current_year():
                       str(current_year_date_to().year))
 
 
-def parse_date(d):
-    """parses a date string yyyymmdd or yymmdd and returns a (y, m, d) tuple"""
-    yl = 4 if len(d) == 8 else 2
-    return tuple([int(d) for d in [d[:yl], d[yl:yl + 2], d[yl + 2:yl + 4]]])
-
-
-def date_from_python(d):
-    """takes a python datetime.date object and returns a  (y, m, d) tuple"""
-    return d.year, d.month, d.day
-
-
-def to_days(d):
-    """takes a (y, m, d) date and return the number of days of it"""
-    return d[0] * 360 + d[1] * 30 + d[2]
-
-
-def from_days(days):
-    """takes a number which represents days and returns a (y, m, d) date"""
-    y = int(days / 360)
-    m = int((days % 360) / 30)
-    d = days - (y * 360 + m * 30)
-    print y, m, d
-    return y, m, d
-
-
-def date_add(d1, d2):
-    """ takes two dates (dates or periods), both
-    in the form of a tuple (y, m, d), sums them and returns
-    the new date
+class Date360(object):
     """
-    d1y, d1m, d1d = d1
-    d2y, d2m, d2d = d2
-    days = d1d + d2d
-    months = d1m + d2m
-    years = d1y + d2y
-    if days > 30:
-        days -= 30
-        months += 1
-    if months > 12:
-        months -= 12
-        years += 1
-    return years, months, days
-
-
-def date_subtract(d1, d2):
-    """ takes two dates (dates or periods), both
-    in the form of a tuple (y, m, d), subtracts them and returns
-    the new date
+    a class for handling 360 dates and periods
     """
-    d1y, d1m, d1d = d1
-    d2y, d2m, d2d = d2
-    days = d1d - d2d
-    months = d1m - d2m
-    years = d1y - d2y
-    if days <= 0:
-        days += 30
-        months -= 1
-    if months <= 0:
-        months += 12
-        years -= 1
-    return years, months, days
 
+    @classmethod
+    def from_string(cls, d):
+        """
+        parses a date string yyyymmdd or yymmdd and returns a Date360 object
+        """
+        yl = 4 if len(d) == 8 else 2
+        return cls(*[int(d) for d in [d[:yl], d[yl:yl + 2], d[yl + 2:yl + 4]]])
 
-def date_to_period(date):
-    """ takes a date in the form of a tuple (y, m, d)
-    and returns a period of time in the same form
-    (30 days becomes a month, 12 months becomes a year)
-    """
-    y, m, d = date
-    if d == 30:
-        m += 1
-        d = 0
-    if m >= 12:
-        y += 1
-        m -= 12
-    return y, m, d
+    @classmethod
+    def from_python(cls, d):
+        """
+        takes a python datetime.date object and returns a Date360 object
+        """
+        return cls(d.year, d.month, d.day)
+
+    @classmethod
+    def from_day_count(cls, daycount):
+        """
+        takes a number which represents a daycount
+        and returns a Date360 object
+        """
+        y = int(daycount / 360)
+        m = int((daycount % 360) / 30)
+        d = daycount - (y * 360 + m * 30)
+        return cls(y, m, d)
+
+    def __init__(self, y, m, d):
+        self.y = y
+        self.m = m
+        self.d = d
+
+    def to_period(self):
+        """
+        takes a date in the form of a tuple (y, m, d)
+        and returns a period of time in the same form
+        (30 days becomes a month, 12 months becomes a year)
+        """
+        y, m, d = self.to_tuple()
+        if d == 30:
+            m += 1
+            d = 0
+        if m >= 12:
+            y += 1
+            m -= 12
+        return self.__class__(y, m, d)
+
+    def to_tuple(self):
+        return self.y, self.m, self.d
+
+    def format(self):
+        return "%s-%s-%s" % (self.d, self.m, self.y)
+
+    def format_period(self):
+        return u"%s χρόνια, %s μήνες, %s ημέρες" % self.to_period().to_tuple()
+
+    def __add__(self, other):
+        """
+        adds two Date360's returning a new one
+        """
+        d1y, d1m, d1d = self.to_tuple()
+        d2y, d2m, d2d = other.to_tuple()
+        days = d1d + d2d
+        months = d1m + d2m
+        years = d1y + d2y
+        if days > 30:
+            days -= 30
+            months += 1
+        if months > 12:
+            months -= 12
+            years += 1
+        return self.__class__(years, months, days)
+
+    def __sub__(self, other):
+        """
+        subtracts two Date360's returning a new one
+        """
+        d1y, d1m, d1d = self.to_tuple()
+        d2y, d2m, d2d = other.to_tuple()
+        days = d1d - d2d
+        months = d1m - d2m
+        years = d1y - d2y
+        if days <= 0:
+            days += 30
+            months -= 1
+        if months <= 0:
+            months += 12
+            years -= 1
+        return self.__class__(years, months, days)
+
+    def __unicode__(self):
+        return self.format()
 
 
 def get_class(name):

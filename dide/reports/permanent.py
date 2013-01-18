@@ -217,7 +217,7 @@ permanent_docx_reports = [
                ['firstname', 'lastname', 'profession', 'date_hired',
                 'fathername',
                 'permanent_post', 'order_hired', 'profession__description',
-                'formatted_recognised_experience', 'total_experience'],
+                'formatted_recognised_experience', 'total_experience', 'total_no_pay'],
                {'subject': u'Βεβαίωση προϋπηρεσίας'},
                {'recipient': '{{lastname}} {{firstname}}',
                 'date_hired': lambda d: d['date_hired'].strftime('%d-%m-%Y')}),

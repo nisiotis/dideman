@@ -8,13 +8,13 @@
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Βεβαιώνεται ότι ο/η {{rec.lastname}} {{rec.firstname}} του {{rec.fathername}}, καθηγητής/τρια του κλάδου {{rec.profession}}-{{rec.profession__description}} με οργανική θέση στο {{rec.permanent_post}}, διορίστηκε στις {{rec.date_hired}} σύμφωνα με το Φ.Ε.Κ. {{rec.order_hired}}. Η αναγνωρισμένη προϋπηρεσία του/της είναι  {{rec.formatted_recognised_experience}}, ενώ η συνολική του υπηρεσία ανέρχεται σε </w:t>
+        <w:t>Βεβαιώνεται ότι ο/η {{rec.lastname}} {{rec.firstname}} του {{rec.fathername}}, καθηγητής/τρια του κλάδου {{rec.profession}}-{{rec.profession__description}} με οργανική θέση στο {{rec.permanent_post}}, διορίστηκε στις {{rec.date_hired}} σύμφωνα με το Φ.Ε.Κ. {{rec.order_hired}}. Η αναγνωρισμένη προϋπηρεσία του/της είναι  {{rec.formatted_recognised_experience}}, οι αφαιρέσιμες ημέρες άδειας άνευ αποδοχών ανέρχονται σε {{ rec.total_no_pay }}, ενώ η συνολική του υπηρεσία είναι: </w:t>
       </w:r>
       <w:r w:rsidRPr="00EC6E76">
         <w:rPr>
           <w:b/>
         </w:rPr>
-        <w:t>{{ rec.total_experience }}.</w:t>
+        <w:t>{{ rec.total_experience.format_period }}.</w:t>
       </w:r>
     </w:p>
     <w:p>

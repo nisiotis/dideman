@@ -282,7 +282,7 @@ class PermanentAdmin(EmployeeAdmin):
         ('Στοιχεία Προϋπηρεσίας', {
                 'fields': ['currently_serves', 'recognised_experience',
                            'formatted_recognised_experience',
-                           'payment_start_date_auto',
+                           'formatted_payment_start_date_auto',
                            'payment_start_date_manual',
                            'calculable_no_pay', 'no_pay_existing',
                            'date_end']}),
@@ -290,14 +290,14 @@ class PermanentAdmin(EmployeeAdmin):
     search_fields = EmployeeAdmin.search_fields + ('registration_number',)
     readonly_fields = EmployeeAdmin.readonly_fields + \
         ['permanent_post', 'temporary_position',
-         'formatted_recognised_experience', 'payment_start_date_auto',
+         'formatted_recognised_experience', 'formatted_payment_start_date_auto',
          'rank', 'profession_description', 'calculable_no_pay',
          'date_created']
 
     actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
                                      'temporary_position',
                                      'profession__description',
-                                     'payment_start_date_auto',
+                                     'formatted_payment_start_date_auto',
                                      'formatted_recognised_experience',
                                      'rank__value', 'rank__date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)

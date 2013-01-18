@@ -628,23 +628,9 @@ class Employee(models.Model):
 
     def formatted_recognised_experience(self):
         return u'%s έτη %s μήνες %s μέρες' \
-            % parse_date(self.recognised_experience)
+            % Date360.from_string(self.recognised_experience).to_tuple()
     formatted_recognised_experience.short_description = \
         u'Μορφοποιημένη προϋπηρεσία'
-
-    def total_experience(self):
-        now = datetime.datetime.now()
-        if not self.date_hired:
-            return (0, 0, 0)
-
-        years, months, days = date_subtract(
-            (now.year, now.month, now.day),
-            (self.date_hired.year, self.date_hired.month,
-             self.date_hired.day))
-
-        years, months, days = date_to_period(date_add((years, months, days),
-                                       parse_date(self.recognised_experience)))
-        return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
 
     def no_pay_in_years(self):
         """Returns a dict of {year: sum_of_no_pay_days } form"""
@@ -815,19 +801,26 @@ class Permanent(Employee):
                                         date_from__gte=current_year_date_from()
                                         ).order_by('-date_from')
 
+    def total_no_pay(self):
+        return self.calculable_no_pay() + self.no_pay_existing
+
     def payment_start_date_auto(self):
         if not self.date_hired:
             return datetime.date.today()
-        dh = self.date_hired
-        years, months, days = date_add(
-            date_subtract(
-                date_from_python(dh),
-                parse_date(self.recognised_experience)
-             ),
-            from_days(self.calculable_no_pay() + self.no_pay_existing))
-        return '%s-%s-%s' % (days, months, years)
+        return (Date360.from_python(self.date_hired) -
+                Date360.from_string(self.recognised_experience) +
+                Date360.from_day_count(self.total_no_pay()))
     payment_start_date_auto.short_description = \
         u'Μισθολογική αφετηρία (αυτόματη)'
+
+    def formatted_payment_start_date_auto(self):
+        return self.payment_start_date_auto().format()
+
+    def total_experience(self):
+        now = datetime.datetime.now()
+        if not self.date_hired:
+            return (0, 0, 0)
+        return Date360.from_python(now) - self.payment_start_date_auto()
 
     def organization_serving(self):
         return super(Permanent, self).organization_serving() or \
@@ -981,9 +974,7 @@ class NonPermanent(Employee):
     def experience(self, d=current_year_date_to_half()):
         p = self.current_placement()
         if p:
-            d1 = p.date_from.year, p.date_from.month, p.date_from.day
-            d2 = d.year, d.month, d.day
-            return date_to_period(date_subtract(d2, d1))
+            return (Date360.from_python(d) - Date360.from_python(p.date_from))
         else:
             return (0, 0, 0)
 
@@ -1292,7 +1283,7 @@ class EmployeeLeave(models.Model):
 
     def split(self):
         """Returns a tuple containing two dicts if the leave spans between two
-        years or one in not. The dict is of the form {year: days}.
+        years or one if not. The dict is of the form {year: days}.
         Date conversions are made using 360 day year"""
         if self.date_from.year != self.date_to.year:
             end = datetime.date(self.date_from.year, 12, 31)
