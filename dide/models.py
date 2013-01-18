@@ -1282,16 +1282,19 @@ class EmployeeLeave(models.Model):
             exclude(id=self.id)
 
     def split(self):
-        """Returns a tuple containing two dicts if the leave spans between two
-        years or one if not. The dict is of the form {year: days}.
+        """Returns a tuple containing two tuples if the leave spans between two
+        years or one if not. The tuple is of the form (year, days).
         Date conversions are made using 360 day year"""
         if self.date_from.year != self.date_to.year:
             end = datetime.date(self.date_from.year, 12, 31)
             start = datetime.date(self.date_to.year, 1, 1)
-            d1 = end.year, to_days(date_subtract(*map(
-                        date_from_python, [end, self.date_from])))
-            d2 = start.year, to_days(date_subtract(*map(
-                        date_from_python, [self.date_to, start])))
+            s360 = Date360.from_python(start)
+            e360 = Date360.from_python(end)
+            df360 = Date360.from_python(self.date_from)
+            dt360 = Date360.from_python(self.date_to)
+
+            d1 = end.year, (e360 - df360).to_day_count()
+            d2 = start.year, (dt360 - s360).to_day_count()
             return d1, d2
         else:
             return ((self.date_from.year,

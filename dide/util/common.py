@@ -116,6 +116,12 @@ class Date360(object):
             m -= 12
         return self.__class__(y, m, d)
 
+    def to_day_count(self):
+        """
+        returns the daycount of the current object
+        """
+        return self.y * 360 + self.m * 30 + self.d
+
     def to_tuple(self):
         return self.y, self.m, self.d
 
