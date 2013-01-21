@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.contrib.admin import helpers
+from django.conf.urls.defaults import *
+from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
-from forms import SubstitutePlacementForm
+from django.template.response import TemplateResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+
+from forms import SubstitutePlacementForm, PaymentFileNameMassForm
 from overrides.admin import DideAdmin
 from filters import (PermanentPostFilter, OrganizationServingFilter,
                      StudyFilter, DateHiredFilter, LeaveDateToFilter,
@@ -26,11 +32,15 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     ApplicationChoice, ApplicationType, )
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
-from actions import CSVReport, FieldAction, XMLReedAction, DeleteAction
+from actions import (CSVReport, FieldAction, XMLReadAction,
+                     CreatePDF, DeleteAction, timestamp) 
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
 from django.utils.translation import ugettext_lazy
+from dideman import settings
+from django.utils.encoding import force_unicode
+import zipfile, os
 
 
 class PaymentFileNameAdmin(DideAdmin):
@@ -38,12 +48,91 @@ class PaymentFileNameAdmin(DideAdmin):
     list_display = ('description', 'status', 'imported_records')
     search_fields = ('description',)
 
-    actions = [XMLReedAction(u'Ανάγνωση XML')]
+    actions = [XMLReadAction(u'Ανάγνωση XML'), CreatePDF(u'Εξαγωγή συγκεντρωτικών καταστάσεων')]
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return ['xml_file', ] + self.readonly_fields
         return self.readonly_fields
+
+    def admin_add_zip(self, request):
+        opts = self.model._meta
+        form = PaymentFileNameMassForm
+        title = u"Προσθήκη αρχείου ZIP"
+        
+        if request.POST:
+            form = PaymentFileNameMassForm(request.POST, request.FILES)
+            if form.is_valid():
+
+#                if zipfile.is_zipfile(request.FILES['xml_file']):    
+#                    zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
+#                    xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
+#                    for file in xml_li:
+#                        if os.path.isfile(os.path.join(settings.MEDIA_ROOT,'xml_files',file.decode('iso8859-7').encode('utf-8'))):
+#                            os.unlink(os.path.join(settings.MEDIA_ROOT,'xml_files',file.decode('iso8859-7').encode('utf-8')))
+#                        f = open(os.path.join(settings.MEDIA_ROOT,'xml_files',file.decode('iso8859-7').encode('utf-8')),"w")
+#                        f.write(zf.read(file))
+#                        f.close()
+#                        pf = PaymentFileName(xml_file='xml_files/%s' % force_unicode(file, 'cp737', 'ignore'), 
+#                                             description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]), 
+#                                             status=0, 
+#                                             imported_records=0)
+#                        pf.save()
+
+                if zipfile.is_zipfile(request.FILES['xml_file']):    
+                    zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
+                    xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
+                    for file in xml_li:
+                        t = timestamp()
+#                        if os.path.isfile(os.path.join(settings.MEDIA_ROOT,'xml_files',force_unicode(file, 'cp737', 'ignore'))):
+#                            os.unlink(os.path.join(settings.MEDIA_ROOT,'xml_files',force_unicode(file, 'cp737', 'ignore')))
+                        f = open(os.path.join(settings.MEDIA_ROOT,'xmlfiles','fromzipfile%s.xml' % t),"wb")
+                        f.write(zf.read(file))
+                        f.close()
+                        pf = PaymentFileName(xml_file='xmlfiles/fromzipfile%s.xml' % t, 
+                                             description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]), 
+                                             status=0)
+                        pf.save()
+
+                    msg = u'Το αρχείο %s περιείχε %s xml αρχεία.' % (request.FILES['xml_file'], len(xml_li))
+
+                    self.message_user(request, msg)
+                    post_url = reverse('admin:%s_%s_changelist' %
+                                       (opts.app_label, opts.module_name),
+                                       current_app=self.admin_site.name)
+                    return HttpResponseRedirect(post_url)
+                else:
+                    msg = u"Το αρχείο δεν είναι μορφής ZIP."
+                    messages.error(request, msg)
+                    
+        media = self.media        
+        context = {
+            "title": title,
+            "opts": opts,
+            "form": form,
+            'media': media,
+            "app_label": opts.app_label,
+            'errors': helpers.AdminErrorList(form, []),
+            'action_name': u'Προσθήκη αρχείου ZIP',
+            }
+        
+        # Display the confirmation page
+        return TemplateResponse(request,
+                                'admin/add_zip_file.html',
+                                context,
+                                )
+
+
+    def get_urls(self):
+        urls = super(PaymentFileNameAdmin, self).get_urls()
+        my_urls = patterns('',
+            url(
+                r'add_zip',
+                self.admin_site.admin_view(self.admin_add_zip),
+                name='admin_add_zip',
+            ),
+        )
+        return my_urls + urls
 
 
 class RankCodeAdmin(DideAdmin):
@@ -51,9 +140,9 @@ class RankCodeAdmin(DideAdmin):
 
 
 class PaymentCodeAdmin(DideAdmin):
-    list_display = ('id', 'description')
+    list_display = ('id', 'description', 'is_tax')
     # add search field
-    search_fields = ('id',)
+    search_fields = ('id', 'description')
 
 
 class PaymentReportTypeAdmin(DideAdmin):

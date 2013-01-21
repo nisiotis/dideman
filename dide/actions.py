@@ -1,29 +1,28 @@
 # -*- coding: utf-8 -*-
-import os
-import csv
-import datetime
-import zipfile
-import inspect
 from cStringIO import StringIO
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.utils.cache import add_never_cache_headers
-from django.template import Context, loader, Template
-from dideman.settings import TEMPLATE_DIRS
-from dideman.dide.util.settings import SETTINGS
-from django.core.exceptions import PermissionDenied
-from django.utils.encoding import force_unicode
-from django.template.response import TemplateResponse
-from django.contrib.admin.util import get_deleted_objects, model_ngettext
-from django.utils.translation import ugettext as _
-from django.contrib.admin import helpers
-from django.db import router
-from dideman.dide.util.common import (without_accented,
-                                      current_year_date_from,
-                                      current_year_date_to,
-                                      parse_deletable_list)
+from dideman.dide.util.pay_reports import generate_pdf_structure
 from dideman import settings
 from dideman.dide.util import xml
+from dideman.dide.util.common import without_accented, current_year_date_from, \
+    current_year_date_to, parse_deletable_list
+from dideman.dide.util.settings import SETTINGS
+from dideman.settings import TEMPLATE_DIRS
+from django.contrib.admin import helpers
+from django.contrib.admin.util import get_deleted_objects, model_ngettext
+from django.core.exceptions import PermissionDenied
+from django.db import router
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.template import Context, loader, Template
+from django.template.response import TemplateResponse
+from django.utils.cache import add_never_cache_headers
+from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext as _
+import csv
+import datetime
+import inspect
+import os
+import zipfile
 
 
 def timestamp():
@@ -230,6 +229,22 @@ class CSVReport(TemplateAction):
         return self.response
 
 
+class CreatePDF(object):
+
+    def __init__(self, short_description):
+        self.response = HttpResponse()
+        self.short_description = short_description
+        self.__name__ = 'generate_mass_pdf'
+
+    def __call__(self, modeladmin, request, queryset):
+
+        self.response.content = ''
+
+        self.response = HttpResponse(mimetype='application/pdf')
+        self.response['Content-Disposition'] = 'attachment; filename=mass_pay_report.pdf'
+        return self.response
+
+
 class FieldAction(object):
 
     def __init__(self, short_description, field_name, changer):
@@ -378,13 +393,13 @@ class DeleteAction(object):
             "admin/%s/delete_selected_confirmation.html" % app_label,
             "admin/delete_selected_confirmation.html"
         ], context, current_app=modeladmin.admin_site.name)
+    
 
-
-class XMLReedAction(object):
+class XMLReadAction(object):
 
     def __init__(self, short_description):
         self.short_description = short_description
-        self.__name__ = 'reed_xml_file'
+        self.__name__ = 'read_xml_file'
 
     def __call__(self, modeladmin, request, queryset):
         opts = modeladmin.model._meta
@@ -397,9 +412,9 @@ class XMLReedAction(object):
         changeable_objects, perms_needed, protected = get_deleted_objects(
             queryset, opts, request.user, modeladmin.admin_site, using)
 
-        elapsed = 0
+        total_elapsed = 0
         rows_updated = 0
-        reed_results = []
+        read_results = []
         for o in queryset:
             if o.status == 0:
                 success, recs_affected, elapsed, recs_missed = xml.read(os.path.join(settings.MEDIA_ROOT,
@@ -409,10 +424,11 @@ class XMLReedAction(object):
                 o.status = success
                 o.imported_records = recs_affected
                 o.save()
-                elapsed += elapsed
+                
+                total_elapsed = total_elapsed + elapsed
                 rows_updated += 1
                 for (key), val in recs_missed.items():
-                    reed_results.append([o.description, key, val])
+                    read_results.append([o.description, key, val])
         if rows_updated == 1:
             msg = u'%s αρχείο αναγνώστηκε'
         else:
@@ -429,19 +445,16 @@ class XMLReedAction(object):
         context = {
             "title": title,
             "objects_name": objects_name,
-        #    'queryset': queryset,
             "opts": opts,
             "app_label": app_label,
             'action_title': self.short_description,
-            'reed_results': reed_results,
-            'action_time_elapsed': elapsed,
-            'reed_files': rows_updated,
-        #    'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
-        #    'action_name': self.__name__,
+            'read_results': read_results,
+            'action_time_elapsed': total_elapsed,
+            'read_files': rows_updated,
         }
 
         # Display the results page
         return TemplateResponse(request,
-                                'admin/xmlreed_selected_result.html',
+                                'admin/xmlread_selected_result.html',
                                 context,
                                 current_app=modeladmin.admin_site.name)

@@ -100,12 +100,12 @@ class PaymentReport(models.Model):
     net_amount2 = models.CharField(u"Β' Δεκαπενθήμερο",
                                    max_length=50, null=True, blank=True)
 
-    def amount_total(self):
+    def netab_amount(self):
         return float(self.net_amount1) + float(self.net_amount2)
 
-    def find_amount(self):
+    def calc_amount(self):
+        ta = 0
         if self.net_amount1 == '0' and self.net_amount2 == '0':
-            totala = 0
             for c in PaymentCategory.objects.filter(paymentreport=self.id):
                 grnum = 0
                 denum = 0
@@ -114,8 +114,8 @@ class PaymentReport(models.Model):
                         grnum += float(str(p.amount))
                     if p.type == 'de':
                         denum += float(str(p.amount))
-                totala += (grnum - denum)
-        return totala
+                ta += (grnum - denum)
+        return ta
 
     def __unicode__(self):
         return u"%s: %s" % (self.paymentfilename, self.employee)
@@ -139,7 +139,7 @@ class Payment(models.Model):
     type = models.CharField(u'Τύπος', max_length=2)  # (gr, et, de)
     code = models.ForeignKey('PaymentCode')
     amount = models.CharField(u'Ποσό', max_length=10)
-    info = models.CharField('Σχετικές πληοροφορίες', max_length=255,
+    info = models.CharField('Σχετικές πληροφορίες', max_length=255,
                             null=True, blank=True)
 
 
@@ -151,6 +151,8 @@ class PaymentCode(models.Model):
 
     id = models.IntegerField(u'Κωδικός', primary_key=True)
     description = models.CharField(u'Περιγραφή', max_length=255)
+    
+    is_tax = models.BooleanField(u'Είναι φόρος;', default=False)
 
     def __unicode__(self):
         return self.description

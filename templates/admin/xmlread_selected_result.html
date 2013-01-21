@@ -13,16 +13,16 @@
 {% endblock %}
 
 {% block content %}
-{% if reed_files == 1 %}
-<p>Παρακάτω εμφανίζονται {{ reed_results|length }} εγγραφές στo xml αρχείo πληρωμών προσωπικού που δεν βρέθηκαν στη βάση δεδομένων κατά τη διάρκεια της ενέργειας <b>{{ action_title }}</b>.</p>
-{% elif reed_files == 0 %}
+{% if read_files == 1 %}
+<p>Παρακάτω εμφανίζονται {{ read_results|length }} εγγραφές στo xml αρχείo πληρωμών προσωπικού που δεν βρέθηκαν στη βάση δεδομένων κατά τη διάρκεια της ενέργειας <b>{{ action_title }}</b>.</p>
+{% elif read_files == 0 %}
 <p>Τα αρχεία που έχετε επιλέξει έχουν ήδη διαβαστεί.</p>
 {% else %}
-<p>Παρακάτω εμφανίζονται {{ reed_results|length }} εγγραφές στα xml αρχεία πληρωμών προσωπικού που δεν βρέθηκαν στη βάση δεδομένων κατά τη διάρκεια της ενέργειας <b>{{ action_title }}</b>.</p>
+<p>Παρακάτω εμφανίζονται {{ read_results|length }} εγγραφές στα xml αρχεία πληρωμών προσωπικού που δεν βρέθηκαν στη βάση δεδομένων κατά τη διάρκεια της ενέργειας <b>{{ action_title }}</b>.</p>
 {% endif %}
 
-{% for reed_result in reed_results %}
-    <ul>{{ reed_result.0 }}: {{ reed_result.1 }} {{ reed_result.2 }}</ul>
+{% for read_result in read_results %}
+    <ul>{{ read_result.0 }}: {{ read_result.1 }} {{ read_result.2 }}</ul>
 {% endfor %}
 <p>Συνολικός χρόνος εκτέλεσης ενέργειας <b>{{ action_time_elapsed }}</b> δευτερόλεπτα.</p>
 <form action="" method="post">{% csrf_token %}

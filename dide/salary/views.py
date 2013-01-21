@@ -1,51 +1,46 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response
-from django.http import HttpResponse, HttpResponseRedirect
-from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
-                                 NonPermanent, Employee, Payment)
+from dideman import settings
 from dideman.dide.employee.decorators import match_required
+from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
+                                 NonPermanent, Employee, Payment, PaymentCode)
+from dideman.dide.util.settings import SETTINGS
+from dideman.dide.util.pay_reports import generate_pdf_structure, reports_calc_amount
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
-from dideman import settings
-from dideman.dide.util.settings import SETTINGS
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import cm
 from reportlab.pdfbase.pdfmetrics import registerFont
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.units import cm
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus.doctemplate import SimpleDocTemplate
 from reportlab.platypus import Paragraph, Image, Table
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
+from reportlab.platypus.flowables import PageBreak
+from itertools import chain
 import datetime
 import os
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 @match_required
 def print_pay(request, id):
-    def numtoStr(s):
-        """Convert string to either int or float."""
-        try:
-            ret = int(s)
-        except ValueError:
-            ret = float(s)
-        return ret
-
-    months = [u'Ιανουάριος', u'Φεβρουάριος', u'Μάρτιος',
-              u'Απρίλιος', u'Μάιος', u'Ιούνιος',
-              u'Ιούλιος', u'Αύγουστος', u'Σεπτέμβριος',
-              u'Οκτώβριος', u'Νοέμβριος', u'Δεκέμβριος']
-
-    logo = os.path.join(settings.MEDIA_ROOT, "logo.png")
-    pay = PaymentReport.objects.get(pk=id)
+    
+    rpt = PaymentReport.objects.get(pk=id)
     emptype = 0
-    if request.session['matched_employee_id'] == pay.employee_id:
+    if request.session['matched_employee_id'] == rpt.employee_id:
+        emp = Employee.objects.get(id=request.session['matched_employee_id'])
         try:
-            emp = Permanent.objects.get(pk=pay.employee_id)
-        except Permanent.DoesNotExist:
-            emp = Employee.objects.get(pk=pay.employee_id)
+            emp = Permanent.objects.get(parent_id=emp.id)
             emptype = 1
+        except Permanent.DoesNotExist:
+            emp = NonPermanent.objects.get(parent_id=emp.id)
+            emptype = 2
+        except NonPermanent.DoesNotExist:
+            emptype = 0
+            raise
         except:
             raise
     else:
@@ -53,215 +48,130 @@ def print_pay(request, id):
         return HttpResponseRedirect(
             '/employee/match/?next=/salary/view/')
 
+    report = {}
+    
+    report['report_type'] = '0'
+    report['type'] = rpt.type
+    report['year'] = rpt.year
+    report['emp_type'] = emptype
+    if emptype == 1:
+        report['registration_number'] = emp.registration_number
+    report['vat_number'] = emp.vat_number
+    report['lastname'] = emp.lastname
+    report['firstname'] = emp.firstname
+    report['rank'] = rpt.rank
+    report['net_amount1'] = rpt.net_amount1
+    report['net_amount2'] = rpt.net_amount2
+
+    pay_cat_list = []
+    for i in PaymentCategory.objects.filter(paymentreport=rpt.id):
+        pay_cat_dict = {}
+        pay_cat_dict['title'] = i.title
+        pay_cat_dict['month'] = i.month
+        pay_cat_dict['year'] = i.year
+        pay_cat_dict['start_date'] = i.start_date
+        pay_cat_dict['end_date'] = i.end_date
+        pay_cat_dict['payments'] = []
+        for o in Payment.objects.filter(category=i.id):
+            p = {}
+            p['type'] = o.type
+            p['code'] = o.code
+            p['amount'] = o.amount
+            p['info'] = o.info
+            pay_cat_dict['payments'].append(p)
+        pay_cat_list.append(pay_cat_dict)
+    report['payment_categories'] = pay_cat_list
+    
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=pay_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                   'DroidSans.ttf')))
     registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
                                                        'DroidSans-Bold.ttf')))
-    width, height = A4
-    head_logo = getSampleStyleSheet()
-    head_logo.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
-                                 fontName='DroidSans', fontSize=8))
-    heading_style = getSampleStyleSheet()
-    heading_style.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
-                                     fontName='DroidSans-Bold',
-                                     fontSize=12))
-    heading_style.add(ParagraphStyle(name='Spacer', spaceBefore=5,
-                                     spaceAfter=5,
-                                     fontName='DroidSans-Bold',
-                                     fontSize=12))
-    signature = getSampleStyleSheet()
-    signature.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
-                                 fontName='DroidSans', fontSize=10))
-    tbl_style = getSampleStyleSheet()
-    tbl_style.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
-                                 fontName='DroidSans', fontSize=10))
-    tbl_style.add(ParagraphStyle(name='Right', alignment=TA_RIGHT,
-                                 fontName='DroidSans', fontSize=10))
-    tbl_style.add(ParagraphStyle(name='BoldLeft', alignment=TA_LEFT,
-                                 fontName='DroidSans-Bold', fontSize=10))
 
-    tsl = [('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-           ('FONT', (0, 0), (-1, 0), 'DroidSans'),
-           ('FONTSIZE', (0, 0), (-1, 0), 8),
-           ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-           ('TOPPADDING', (0, 0), (-1, -1), 0)]
-    tsh = [('ALIGN', (1, 1), (-1, -1), 'LEFT'),
-           ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]
-    ts = [('ALIGN', (1, 1), (-1, -1), 'LEFT'),
-          ('FONT', (0, 0), (-1, 0), 'DroidSans'),
-          ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
-          ('GRID', (0, 0), (-1, -1), 0.5, colors.black)]
-    tsf = [('ALIGN', (1, 1), (-1, -1), 'CENTER')]
     doc = SimpleDocTemplate(response, pagesize=A4)
     doc.topMargin = 1.0 * cm
-    elements = []
-    im = Image(logo)
-    im.drawHeight = 1.25 * cm
-    im.drawWidth = 1.25 * cm
-    data = []
-    data.append([im, ""])
-    data.append([Paragraph(u'ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ', head_logo['Center']), ''])
-    data.append([Paragraph(u'ΥΠΟΥΡΓΕΙΟ ΠΑΙΔΕΙΑΣ, ΘΡΗΣΚΕΥΜΑΤΩΝ,',
-                           head_logo['Center']), ''])
-    data.append([Paragraph(u'ΠΟΛΙΤΙΣΜΟΥ ΚΑΙ ΑΘΛΗΤΙΣΜΟΥ',
-                           head_logo['Center']), ''])
-    data.append([Paragraph(u'ΠΕΡΙΦΕΡΙΑΚΗ ΔΙΕΥΘΥΝΣΗ ΠΡΩΤΟΒΑΘΜΙΑΣ',
-                           head_logo['Center']), ''])
-    data.append([Paragraph(u'ΚΑΙ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΝΟΤΙΟΥ ΑΙΓΑΙΟΥ',
-                           head_logo['Center']), ''])
-    data.append([Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΔΩΔΕΚΑΝΗΣΟΥ',
-                           head_logo['Center']), ''])
-    table0 = Table(data, style=tsl, colWidths=[8.0 * cm, 11.0 * cm])
-    elements.append(table0)
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ', heading_style['Center']))
-    if pay.type > 12:
-        elements.append(Paragraph(u'Αποδοχές %s %s' %
-                                  (pay.type, pay.year),
-                                  heading_style["Center"]))
-    else:
-        elements.append(Paragraph(u'Μισθοδοσία %s %s' %
-                                  (pay.type, pay.year),
-                                  heading_style['Center']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    if emptype == 0:
-        headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
-                     Paragraph('%s' % emp.registration_number or u'Δ/Υ',
-                               tbl_style['Left']),
-                     Paragraph('ΑΦΜ', tbl_style['Left']),
-                     Paragraph(u'%s' % emp.vat_number, tbl_style['Left'])],
-                    [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
-                     Paragraph('%s' % emp.lastname, tbl_style['Left']),
-                     Paragraph('', tbl_style['Left']),
-                     Paragraph('', tbl_style['Left'])],
-                    [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
-                     Paragraph('%s' % emp.firstname, tbl_style['Left']),
-                     Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
-                     Paragraph(u'%s' % pay.rank if pay.rank is not None else u'Δ/Υ',
-                               tbl_style['Left'])]]
-    else:
-        headdata = [[Paragraph(u'ΑΦΜ', tbl_style['Left']),
-                     Paragraph('%s' % emp.vat_number,
-                               tbl_style['Left']),
-                     Paragraph('', tbl_style['Left']),
-                     Paragraph('', tbl_style['Left'])],
-                    [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
-                     Paragraph('%s' % emp.lastname, tbl_style['Left']),
-                     Paragraph('', tbl_style['Left']),
-                     Paragraph('', tbl_style['Left'])],
-                    [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
-                     Paragraph('%s' % emp.firstname, tbl_style['Left']),
-                     Paragraph('', tbl_style['Left']),
-                     Paragraph('', tbl_style['Left'])]]
+    elements = generate_pdf_structure(report)
+    doc.build(elements)
+    return response
 
-    table1 = Table(headdata, style=tsh,
-                   colWidths=[3 * cm, 6 * cm, 5 * cm, 3 * cm])
-    elements.append(table1)
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    del data
-    data = []
-    totala = 0
-    for i in PaymentCategory.objects.filter(paymentreport=id):
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
-        s = u'%s' % i.title
-        if (i.start_date and i.start_date != 'NULL') and (i.end_date and i.start_date != 'NULL'):
-            s1 = "/".join(list(reversed(i.start_date.split('-'))))
-            s2 = "/".join(list(reversed(i.end_date.split('-'))))
-            s += ' (%s - %s) ' % (s1, s2)
-        if (i.month and i.month != 'NULL') and (i.year and i.year !='NULL'):
-            s += ' %s %s' % (months[int(i.month-1)], i.year)
-        data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
-        table2 = Table(data, style=tsh, colWidths=[17 * cm])
-        elements.append(table2)
-        del data
-        data = []
-        data.append([Paragraph('Αποδοχές', tbl_style['BoldLeft']),
-                     Paragraph('Κρατήσεις', tbl_style['BoldLeft'])])
-        table3 = Table(data, style=ts, colWidths=[8.5 * cm, 8.5 * cm])
-        elements.append(table3)
-        del data
-        gret = []
-        de = []
-        data = []
-        grnum = 0
-        denum = 0
-        for p in Payment.objects.filter(category=i.id):
-            if p.type == 'gr' or p.type == 'et':
-                s = u'%s' % p.code
-                gret.append([Paragraph(s, tbl_style['Left']),
-                             Paragraph('%.2f €' % numtoStr(p.amount),
-                                       tbl_style['Right'])])
-                if p.type == 'gr':
-                    grnum += float(str(p.amount))
-            else:
-                s = u'%s' % p.code
-                if p.info is not None:
-                    s = s + " (%s)" % p.info
-                de.append([Paragraph(s, tbl_style['Left']),
-                           Paragraph('%.2f €' % numtoStr(p.amount),
-                                     tbl_style['Right'])])
-                denum += float(str(p.amount))
-        _get = lambda l, i: l[i] if i < len(l) else ['', '']
-        data = [_get(gret, i) + _get(de, i) for i in range(0, max(len(gret),
-                                                                  len(de)))]
-        table4 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
-                                                  6.5 * cm, 2.0 * cm])
-        elements.append(table4)
-        totala += float(grnum) - float(denum)
-        del data
-        data = []
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    del data
-    data = []
-    data.append([Paragraph('Πληρωτέο', tbl_style['BoldLeft'])])
-    table5 = Table(data, style=ts, colWidths=[17 * cm])
-    elements.append(table5)
-    del data
-    data = []
-    if pay.net_amount1 != '0' and pay.net_amount2 != '0':
-        data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
-                     Paragraph('%.2f €' % numtoStr(pay.net_amount1),
-                               tbl_style['Right']), '', ''])
-        data.append([Paragraph('Β\' δεκαπενθήμερο', tbl_style['Left']),
-                     Paragraph('%.2f €' % numtoStr(pay.net_amount2),
-                               tbl_style['Right']), '', ''])
-    else:
-        data.append([Paragraph('Σύνολο', tbl_style['Left']),
-                     Paragraph('%.2f €' % totala,
-                               tbl_style['Right']), '', ''])
-        totala = 0
-    table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
-                                              6.5 * cm, 2.0 * cm])
-    elements.append(table5)
-    today = datetime.date.today()
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    del data
-    data = []
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u'Ρόδος, %s / %s / %s' %
-                           (today.day, today.month, today.year),
-                           signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u' ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u'Ο Διευθυντής', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u' ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u' ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u' ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u' ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(SETTINGS['manager'], signature['Center'])])
-    table6 = Table(data, style=tsf, colWidths=[11.0 * cm, 6.0 * cm])
-    elements.append(table6)
+
+@match_required
+def print_mass_pay(request, year):
+    
+    rpt = PaymentReport.objects.filter(employee_id=request.session['matched_employee_id'],year=year)
+    emptype = 0
+    emp = Employee.objects.get(id=request.session['matched_employee_id'])
+    try:
+        emp = Permanent.objects.get(parent_id=emp.id)
+        emptype = 1
+    except Permanent.DoesNotExist:
+        emp = NonPermanent.objects.get(parent_id=emp.id)
+        emptype = 2
+    except NonPermanent.DoesNotExist:
+        emptype = 0
+        raise
+    except:
+        raise
+    obj = PaymentCode.objects.all()
+    dict_codes = {c.id: c.description for c in obj}
+    tax_codes = [c for c in dict_codes.keys()]
+
+    payments_list = []
+    for o in rpt:
+        for p in Payment.objects.select_related().filter(category__paymentreport=o.id):
+            payments_list.append({'code_id':p.code_id,'type':p.type,'amount':p.amount})
+    
+    gr, de, et = reports_calc_amount(payments_list, tax_codes)
+    grd = [{'type':'gr','code_id':x[0],'amount':x[1]} for x in gr]
+    ded = [{'type':'de','code_id':x[0],'amount':x[1]} for x in de]
+    etd = [{'type':'et','code_id':x[0],'amount':x[1]} for x in et]
+ 
+    
+    calctd_payments_list = [x for x in chain(grd,ded)]
+    report = {}
+    
+    report['report_type'] = '1'
+    report['type'] = ''
+    report['year'] = year
+    report['emp_type'] = emptype
+    if emptype == 1:
+        report['registration_number'] = emp.registration_number
+    report['vat_number'] = emp.vat_number
+    report['lastname'] = emp.lastname
+    report['firstname'] = emp.firstname
+    report['rank'] = emp.rank()
+    report['net_amount1'] = ''
+    report['net_amount2'] = ''
+
+    pay_cat_list = []
+    pay_cat_dict = {}
+    pay_cat_dict['title'] = u'Επιμέρους Σύνολα'
+    pay_cat_dict['month'] = ''
+    pay_cat_dict['year'] = ''
+    pay_cat_dict['start_date'] = ''
+    pay_cat_dict['end_date'] = ''
+    pay_cat_dict['payments'] = []
+    for o in calctd_payments_list:
+        p = {}
+        p['type'] = o['type']
+        p['code'] = dict_codes[o['code_id']]
+        p['amount'] = o['amount']
+        p['info'] = None
+        pay_cat_dict['payments'].append(p)
+    pay_cat_list.append(pay_cat_dict)
+    report['payment_categories'] = pay_cat_list
+    
+    response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=pay_report_%s.pdf' % year
+    registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
+                                                  'DroidSans.ttf')))
+    registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
+                                                       'DroidSans-Bold.ttf')))
+
+    doc = SimpleDocTemplate(response, pagesize=A4)
+    doc.topMargin = 1.0 * cm
+    elements = generate_pdf_structure(report)
     doc.build(elements)
     return response
 
@@ -279,6 +189,12 @@ def view(request):
         else:
             return HttpResponseRedirect('/salary/view/')
 
+    if 'emp-action' in request.POST:
+        if request.POST['emp-action'] != '0':
+            return print_mass_pay(request, request.POST['emp-action'])
+        else:
+            return HttpResponseRedirect('/salary/view/')
+
     else:
         emp = Employee.objects.get(id=request.session['matched_employee_id'])
         try:
@@ -292,7 +208,7 @@ def view(request):
             raise
 
         pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year', '-type')
-
+        per_year = {p.year: p for p in pay}
         paginator = Paginator(pay, 10)
 
         page = request.GET.get('page')
@@ -305,4 +221,5 @@ def view(request):
 
         return render_to_response('salary/salary.html',
                                   RequestContext(request, {'emp': emptype,
+                                                           'yearly_reports': per_year,
                                                            'payments': pay_page}))
