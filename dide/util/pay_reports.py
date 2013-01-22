@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #---- usage ----
 #p = PaymentFileName.objects.filter(description__startswith = 'Ένταλμα')
 #all_emp = prtest.rprts_from_file(p)
@@ -231,6 +231,7 @@ def generate_pdf_structure(reports):
         del data
         data = []
         total_amount = 0
+        total_tax_amount = 0
         for i in report['payment_categories']:
             elements.append(Paragraph(u' ', heading_style['Spacer']))
             s = u'%s' % i['title']
@@ -267,6 +268,9 @@ def generate_pdf_structure(reports):
                     s = u'%s' % p['code']
                     if p['info'] is not None:
                         s = s + " (%s)" % p['info']
+                    if int(p['code_tax']) == 1:
+                        total_tax_amount += p['amount']
+                    
                     de.append([Paragraph(s, tbl_style['Left']),
                                Paragraph('%.2f €' % p['amount'],
                                          tbl_style['Right'])])
@@ -309,6 +313,22 @@ def generate_pdf_structure(reports):
                                                       6.5 * cm, 2.0 * cm])
             elements.append(table5)
             del data
+        else:
+            data = []
+            data.append([Paragraph('Καθαρό Ποσό', tbl_style['Left']),
+                         Paragraph('%.2f €' % total_amount, tbl_style['Right']),
+                         Paragraph('%s' % SETTINGS.get_desc('tax_reduction_factor'), tbl_style['Left']),
+                         Paragraph('%.2f €' % (total_tax_amount / float(SETTINGS['tax_reduction_factor'])), tbl_style['Right'])
+                         ])
+            total_amount = 0
+            total_tax_amount = 0
+            table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
+                                                      6.5 * cm, 2.0 * cm])
+            elements.append(table5)
+            del data
+
+
+
         today = datetime.date.today()
         elements.append(Paragraph(u' ', heading_style['Spacer']))
         elements.append(Paragraph(u' ', heading_style['Spacer']))

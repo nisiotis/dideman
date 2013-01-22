@@ -258,6 +258,7 @@ class CreatePDF(object):
     
         obj = PaymentCode.objects.all()
         dict_codes = {c.id: c.description for c in obj}
+        dict_tax_codes = {c.id: c.is_tax for c in obj}
         tax_codes = [c for c in dict_codes.keys()]
         all_emp = rprts_from_file(queryset)    
         u = set([x['employee_id'] for x in all_emp])
@@ -302,6 +303,7 @@ class CreatePDF(object):
                 p['code'] = dict_codes[o['code_id']]
                 p['amount'] = o['amount']
                 p['info'] = None
+                p['code_tax'] = dict_tax_codes[o['code_id']]
                 pay_cat_dict['payments'].append(p)
             pay_cat_list.append(pay_cat_dict)
             report['payment_categories'] = pay_cat_list
