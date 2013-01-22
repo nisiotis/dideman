@@ -3,6 +3,19 @@
 {% load base_site %}
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
+<script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
+<script>
+$(window).bind("load resize", function(){
+	windowWidth = $(window).width();
+	w1 = (windowWidth / 2) + 50
+	w2 = (windowWidth / 2) - 50
+	$("#content-main").width(w1-20);
+	$("#content-related").width(w2-20); 
+	
+});
+</script>
+
+
 {% endblock %}
 {% block title %}
 Δ.Δ.Ε. {% get_setting 'dide_place'  %}

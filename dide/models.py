@@ -7,7 +7,10 @@ from django.db.models import Max
 import sql
 from django.db import connection
 from south.modelsinspector import add_introspection_rules
+from django.db.models import Sum
 import datetime
+from operator import itemgetter, concat
+from itertools import groupby
 
 
 class NullableCharField(models.CharField):
@@ -104,8 +107,8 @@ class PaymentReport(models.Model):
         return float(self.net_amount1) + float(self.net_amount2)
 
     def calc_amount(self):
-        ta = 0
         if self.net_amount1 == '0' and self.net_amount2 == '0':
+            ta = 0
             for c in PaymentCategory.objects.filter(paymentreport=self.id):
                 grnum = 0
                 denum = 0
@@ -139,7 +142,7 @@ class Payment(models.Model):
     type = models.CharField(u'Τύπος', max_length=2)  # (gr, et, de)
     code = models.ForeignKey('PaymentCode')
     amount = models.CharField(u'Ποσό', max_length=10)
-    info = models.CharField('Σχετικές πληροφορίες', max_length=255,
+    info = models.CharField('Σχετικές πληοροφορίες', max_length=255,
                             null=True, blank=True)
 
 
@@ -151,7 +154,6 @@ class PaymentCode(models.Model):
 
     id = models.IntegerField(u'Κωδικός', primary_key=True)
     description = models.CharField(u'Περιγραφή', max_length=255)
-    
     is_tax = models.BooleanField(u'Είναι φόρος;', default=False)
 
     def __unicode__(self):
@@ -499,8 +501,10 @@ class EmployeeManager(models.Manager):
         # select permanent if exists
         return super(EmployeeManager, self).get_query_set().select_related('permanent')
 
+
 SEX_TYPES = ((u'Άνδρας', u'Άνδρας'),
-               (u'Γυναίκα', u'Γυναίκα'))
+             (u'Γυναίκα', u'Γυναίκα'))
+
 
 class Employee(models.Model):
 
@@ -625,23 +629,23 @@ class Employee(models.Model):
 
     def formatted_recognised_experience(self):
         return u'%s έτη %s μήνες %s μέρες' \
-            % parse_date(self.recognised_experience)
+            % Date360.from_string(self.recognised_experience).to_tuple()
     formatted_recognised_experience.short_description = \
         u'Μορφοποιημένη προϋπηρεσία'
 
-    def total_experience(self):
-        now = datetime.datetime.now()
-        if not self.date_hired:
-            return (0, 0, 0)
+    def no_pay_in_years(self):
+        """Returns a dict of {year: sum_of_no_pay_days } form"""
+        seq = reduce(concat, [l.split()
+                              for l in self.employeeleave_set.filter(
+                    leave__not_paying=True)], tuple())
+        return [(k, sum(map(itemgetter(1), g)))
+                 for k, g in groupby(sorted(seq), key=itemgetter(0))]
 
-        years, months, days = date_subtract(
-            (now.year, now.month, now.day),
-            (self.date_hired.year, self.date_hired.month,
-             self.date_hired.day))
-
-        years, months, days = date_to_period(date_add((years, months, days),
-                                       parse_date(self.recognised_experience)))
-        return u'%d έτη %d μήνες %d μέρες' % (years, months, days)
+    def calculable_no_pay(self):
+        return sum([max(days - 30, 0)
+                    for year, days in self.no_pay_in_years()])
+    calculable_no_pay.short_description = u'Υπολογισμένες ημέρες άδειας'\
+        u' άνευ αποδοχών'
 
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
@@ -773,6 +777,8 @@ class Permanent(Employee):
     has_permanent_post = models.BooleanField(u'Έχει οργανική θέση',
                                              null=False, blank=False,
                                              default=False)
+    no_pay_existing = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών από άλλα'
+                                          u' Π.Υ.Σ.Δ.Ε.', default=0)
 
     def natural_key(self):
         return (self.registration_number, )
@@ -796,17 +802,26 @@ class Permanent(Employee):
                                         date_from__gte=current_year_date_from()
                                         ).order_by('-date_from')
 
+    def total_no_pay(self):
+        return self.calculable_no_pay() + self.no_pay_existing
+
     def payment_start_date_auto(self):
         if not self.date_hired:
             return datetime.date.today()
-
-        dh = self.date_hired
-        years, months, days = date_subtract(
-            (dh.year, dh.month, dh.day),
-            parse_date(self.recognised_experience))
-        return '%s-%s-%s' % (days, months, years)
+        return (Date360.from_python(self.date_hired) -
+                Date360.from_string(self.recognised_experience) +
+                Date360.from_day_count(self.total_no_pay()))
     payment_start_date_auto.short_description = \
         u'Μισθολογική αφετηρία (αυτόματη)'
+
+    def formatted_payment_start_date_auto(self):
+        return self.payment_start_date_auto().format()
+
+    def total_experience(self):
+        now = datetime.datetime.now()
+        if not self.date_hired:
+            return (0, 0, 0)
+        return Date360.from_python(now) - self.payment_start_date_auto()
 
     def organization_serving(self):
         return super(Permanent, self).organization_serving() or \
@@ -823,7 +838,7 @@ class Permanent(Employee):
         rankdate = first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date'))
         return rankdate.date
-    rank_date.short_description = u'Ημερμηνία τελευταίου βαθμού'
+    rank_date.short_description = u'Ημερομηνία τελευταίου βαθμού'
 
     def rank_id(self):
         promotion = first_or_none(
@@ -893,7 +908,6 @@ class NonPermanentType(models.Model):
 
 
 class NonPermanentManager(models.Manager):
-
     def substitutes_in_transfer_area(self, area_id):
         ids = [s.substitute_id
                for s in OrderedSubstitution.objects.filter(
@@ -911,12 +925,23 @@ class NonPermanentManager(models.Manager):
                           order__date__gte=date_from)]
         return self.filter(parent_id__in=ids)
 
-    def serving_in_organization(self, org_id):
-        cursor = connection.cursor()
-        cursor.execute(sql.non_permanent_serving_in_organization.format(
-                org_id, datetime.date.today()))
-        ids = [row[0] for row in cursor.fetchall()]
-        return self.filter(parent_id__in=ids)
+    def temporary_post_in_organization(self, org_id):
+        td = datetime.date.today()
+        ids = [o.employee_id
+               for o in Placement.objects.only('employee').filter(
+                date_from__lte=td, date_to__gte=td, type__id=3,
+                organization_id=org_id)]
+        return self.filter(id__in=ids)
+
+    def with_total_extra_position(self, exclude=False):
+        td = datetime.date.today()
+        ids = [o.employee_id
+               for o in Placement.objects.only('employee').filter(
+                date_from__lte=td, date_to__gte=td, type__id=4)]
+        if exclude:
+            return self.exclude(id__in=ids)
+        else:
+            return self.filter(id__in=ids)
 
 
 class NonPermanent(Employee):
@@ -960,9 +985,7 @@ class NonPermanent(Employee):
     def experience(self, d=current_year_date_to_half()):
         p = self.current_placement()
         if p:
-            d1 = p.date_from.year, p.date_from.month, p.date_from.day
-            d2 = d.year, d.month, d.day
-            return date_to_period(date_subtract(d2, d1))
+            return (Date360.from_python(d) - Date360.from_python(p.date_from))
         else:
             return (0, 0, 0)
 
@@ -1240,7 +1263,6 @@ class EmployeeLeave(models.Model):
 
     def clean(self):
         from django.core.exceptions import ValidationError
-        from django.db.models import Sum
 
         if hasattr(self, 'leave') and hasattr(self, 'employee'):
             if self.leave.name == u'Κανονική':
@@ -1269,6 +1291,25 @@ class EmployeeLeave(models.Model):
             Q(date_to__range=[df, dt]) |
             Q(date_to__gte=df, date_from__lte=dt)).\
             exclude(id=self.id)
+
+    def split(self):
+        """Returns a tuple containing two tuples if the leave spans between two
+        years or one if not. The tuple is of the form (year, days).
+        Date conversions are made using 360 day year"""
+        if self.date_from.year != self.date_to.year:
+            end = datetime.date(self.date_from.year, 12, 31)
+            start = datetime.date(self.date_to.year, 1, 1)
+            s360 = Date360.from_python(start)
+            e360 = Date360.from_python(end)
+            df360 = Date360.from_python(self.date_from)
+            dt360 = Date360.from_python(self.date_to)
+
+            d1 = end.year, (e360 - df360).to_day_count()
+            d2 = start.year, (dt360 - s360).to_day_count()
+            return d1, d2
+        else:
+            return ((self.date_from.year,
+                    self.duration if self.duration < 360 else 360,), )
 
     def __unicode__(self):
         return unicode(self.employee) + '-' + unicode(self.date_from)

@@ -116,28 +116,9 @@ $(function() {
       {% else %}
         <div class="form-row"><p>Δεν έχουν καταχωρηθεί καταστάσεις πληρωμών.</p></div>
       {% endif %}
-	  <div class="submit-row">
-      <div class="pagination" style="text-align: left; float: left; width: 350px;">
-    <span class="step-links">
-        {% if payments.has_previous %}
-            <a href="?page={{ payments.previous_page_number }}">Προηγούμενη</a>
-        {% endif %}
-
-        <span class="current">
-            Σελίδα {{ payments.number }} από {{ payments.paginator.num_pages }}
-        </span>
-
-        {% if payments.has_next %}
-            <a href="?page={{ payments.next_page_number }}">Επόμενη</a>
-        {% endif %}
-    </span>
-	</div>
-    <div style="text-align: right; float: right; margin-left: 200px;">
-      <!--<input type="button" id="logout" value="Έξοδος" onclick="javascript:document.location.href='?logout' "/>-->
-      <a id="logout" href="?logout">Έξοδος από τo Σύστημα Μισθοδοσίας</a> 
-      </div>
-      </div>
+	  
     </fieldset>
   </form>
 </div>
 {% endblock %}
+

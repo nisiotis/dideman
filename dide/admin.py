@@ -17,7 +17,7 @@ from filters import (PermanentPostFilter, OrganizationServingFilter,
                      ServesInDideSchoolFilter, SubstituteAreaFilter,
                      SubstituteOrderFilter, SubstituteDateRangeFilter,
                      NonPermanentOrganizationServingFilter,
-                     ServesInDideOrgFilter)
+                     ServesInDideOrgFilter, NonPermanentWithTotalExtraPosition)
 from applications.filters import FinalisedFilter
 from models import (TransferArea, Leave, Responsibility, Profession,
                     Promotion, NonPermanentType,
@@ -355,7 +355,7 @@ class PermanentAdmin(EmployeeAdmin):
                                                PermanentPostFilter)
     list_per_page = 50
     fieldsets = [
-        ('Στοιχεία μόνιμου', {
+        ('Γενικά Στοιχεία', {
             'fields': [
                     'transfer_area',
                     'lastname', 'firstname', 'fathername', 'notes',
@@ -364,26 +364,29 @@ class PermanentAdmin(EmployeeAdmin):
                     'temporary_position', 'organization_serving',
                     'study_years', 'serving_type', 'date_hired',
                     'order_hired', 'hours', 'is_permanent',
-                    'has_permanent_post', 'currently_serves',
-                    'recognised_experience', 'formatted_recognised_experience',
-                    'payment_start_date_auto', 'payment_start_date_manual',
-                    'rank', 'date_end', 'address',
-                    'identity_number', 'inaccessible_school',
-                    'telephone_number1', 'telephone_number2', 'email',
+                    'has_permanent_post', 'rank', 'address', 'identity_number',
+                    'inaccessible_school', 'telephone_number1',
+                    'telephone_number2', 'email',
                     'birth_date', 'hours_current', 'date_created']}),
+        ('Στοιχεία Προϋπηρεσίας', {
+                'fields': ['currently_serves', 'recognised_experience',
+                           'formatted_recognised_experience',
+                           'formatted_payment_start_date_auto',
+                           'payment_start_date_manual',
+                           'calculable_no_pay', 'no_pay_existing',
+                           'date_end']}),
             economic_fieldset]
     search_fields = EmployeeAdmin.search_fields + ('registration_number',)
     readonly_fields = EmployeeAdmin.readonly_fields + \
         ['permanent_post', 'temporary_position',
-         'formatted_recognised_experience', 'payment_start_date_auto',
-         'rank', 'profession_description',
+         'formatted_recognised_experience', 'formatted_payment_start_date_auto',
+         'rank', 'profession_description', 'calculable_no_pay',
          'date_created']
 
     actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
                                      'temporary_position',
                                      'profession__description',
-                                     'payment_start_date_auto',
-                                     'payment_start_date_manual',
+                                     'formatted_payment_start_date_auto',
                                      'formatted_recognised_experience',
                                      'rank__value', 'rank__date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
@@ -449,7 +452,9 @@ class NonPermanentAdmin(EmployeeAdmin):
                                        ServiceInline, LeaveInline,
                                        ResponsibilityInline]
     list_filter = [SubstituteDateRangeFilter, SubstituteAreaFilter,
-                   SubstituteOrderFilter, 'profession__unified_profession', NonPermanentOrganizationServingFilter]
+                   SubstituteOrderFilter, 'profession__unified_profession',
+                   NonPermanentOrganizationServingFilter,
+                   NonPermanentWithTotalExtraPosition]
     actions = sorted([CSVReport(add=['current_placement',
                                      'profession__description'])] + \
     nonpermanent_docx_reports, key=lambda k: k.short_description)

@@ -76,7 +76,7 @@ def print_pay(request, id):
             p = {}
             p['type'] = o.type
             p['code'] = o.code
-            p['amount'] = o.amount
+            p['amount'] = float(o.amount)
             p['info'] = o.info
             pay_cat_dict['payments'].append(p)
         pay_cat_list.append(pay_cat_dict)
@@ -91,7 +91,7 @@ def print_pay(request, id):
 
     doc = SimpleDocTemplate(response, pagesize=A4)
     doc.topMargin = 1.0 * cm
-    elements = generate_pdf_structure(report)
+    elements = generate_pdf_structure([report])
     doc.build(elements)
     return response
 
@@ -171,7 +171,7 @@ def print_mass_pay(request, year):
 
     doc = SimpleDocTemplate(response, pagesize=A4)
     doc.topMargin = 1.0 * cm
-    elements = generate_pdf_structure(report)
+    elements = generate_pdf_structure([report])
     doc.build(elements)
     return response
 

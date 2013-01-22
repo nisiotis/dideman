@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from cStringIO import StringIO
-from dideman.dide.util.pay_reports import generate_pdf_structure
+from dideman.dide.util.pay_reports import (generate_pdf_structure, 
+                                           reports_calc_amount, rprts_from_file)
 from dideman import settings
 from dideman.dide.util import xml
 from dideman.dide.util.common import without_accented, current_year_date_from, \
@@ -18,11 +19,24 @@ from django.template.response import TemplateResponse
 from django.utils.cache import add_never_cache_headers
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import Paragraph, Image, Table
+from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
+from reportlab.platypus.flowables import PageBreak
+from itertools import chain
+
 import csv
 import datetime
 import inspect
 import os
 import zipfile
+from dideman.dide.models import Employee, PaymentCode
 
 
 def timestamp():
@@ -118,16 +132,11 @@ class DocxReport(TemplateAction):
         self.__name__ = short_description
         self.fields = fields
         self.model_fields = model_fields
-        self.dictionary = {'data': [], 'manager': SETTINGS['manager'],
-                           'address': SETTINGS['address'],
-                           'email': SETTINGS['email_dide'],
-                           'fax_number': SETTINGS['fax_number'],
-                           'dide_district': SETTINGS['dide_district'],
+        self.dictionary = {'data': [], 
+                           'settings': SETTINGS,
                            'dide_place':
                                without_accented(SETTINGS['dide_place']
                                                 .upper()),
-                           'telephone_number': SETTINGS['telephone_number'],
-                           'ministry_title': SETTINGS['ministry_title'],
                            'date': datetime.date.today,
                            'current_year_date_from': current_year_date_from(),
                            'current_year_date_to': current_year_date_to(),
@@ -242,6 +251,68 @@ class CreatePDF(object):
 
         self.response = HttpResponse(mimetype='application/pdf')
         self.response['Content-Disposition'] = 'attachment; filename=mass_pay_report.pdf'
+        registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
+                                                      'DroidSans.ttf')))
+        registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
+                                                           'DroidSans-Bold.ttf')))
+    
+        obj = PaymentCode.objects.all()
+        dict_codes = {c.id: c.description for c in obj}
+        tax_codes = [c for c in dict_codes.keys()]
+        all_emp = rprts_from_file(queryset)    
+        u = set([x['employee_id'] for x in all_emp])
+         
+        dict_emp = {c.id: [c.lastname, c.firstname, c.vat_number] for c in Employee.objects.filter(id__in=u)}
+        
+        elements = []
+        reports = []
+        for empx in u:
+            
+            gr, de, et = reports_calc_amount(filter(lambda s: s['employee_id'] == empx, all_emp), tax_codes)
+            grd = [{'type':'gr','code_id':x[0],'amount':x[1]} for x in gr]
+            ded = [{'type':'de','code_id':x[0],'amount':x[1]} for x in de]
+            etd = [{'type':'et','code_id':x[0],'amount':x[1]} for x in et]
+            calctd_payments_list = [x for x in chain(grd,ded)]
+            report = {}
+        
+            report['report_type'] = '1'
+            report['type'] = ''
+            report['year'] = ''
+            report['emp_type'] = 0
+            #if emptype == 1:
+            #    report['registration_number'] = emp.registration_number
+            report['vat_number'] = dict_emp[empx][2]
+            report['lastname'] = dict_emp[empx][0]
+            report['firstname'] = dict_emp[empx][1]
+            report['rank'] = None
+            report['net_amount1'] = ''
+            report['net_amount2'] = ''
+    
+            pay_cat_list = []
+            pay_cat_dict = {}
+            pay_cat_dict['title'] = u'Επιμέρους Σύνολα'
+            pay_cat_dict['month'] = ''
+            pay_cat_dict['year'] = ''
+            pay_cat_dict['start_date'] = ''
+            pay_cat_dict['end_date'] = ''
+            pay_cat_dict['payments'] = []
+            for o in calctd_payments_list:
+                p = {}
+                p['type'] = o['type']
+                p['code'] = dict_codes[o['code_id']]
+                p['amount'] = o['amount']
+                p['info'] = None
+                pay_cat_dict['payments'].append(p)
+            pay_cat_list.append(pay_cat_dict)
+            report['payment_categories'] = pay_cat_list
+            reports.append(report)
+        
+        elements = generate_pdf_structure(reports)
+        
+            
+        doc = SimpleDocTemplate(self.response, pagesize=A4)
+        doc.topMargin = 1.0 * cm
+        doc.build(elements)
         return self.response
 
 

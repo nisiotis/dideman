@@ -38,7 +38,7 @@
               <w:rPr>
                 <w:b/>
               </w:rPr>
-              <w:t>Ο Διευθυντής</w:t>
+              <w:t>Ο Διευθυντής Δ.Δ.Ε. {{settings.dide_place }}</w:t>
             </w:r>
           </w:p>
           <w:p w:rsidR="00F43BD4" w:rsidRPr="00F43BD4" w:rsidRDefault="00F43BD4" w:rsidP="00F43BD4">
@@ -57,7 +57,7 @@
               <w:rPr>
                 <w:b/>
               </w:rPr>
-              <w:t>{{ manager }}</w:t>
+              <w:t>{{ settings.manager }}</w:t>
             </w:r>
           </w:p>
         </w:tc>

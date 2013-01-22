@@ -111,7 +111,7 @@
                 <w:bCs/>
               </w:rPr>
               <w:br/>
-              <w:t>ΠΕΡΙΦΕΡΙΑΚΗ ΔΙΕΥΘΥΝΣΗ Α’ ΒΑΘΜΙΑΣ ΚΑΙ Β’ ΒΑΘΜΙΑΣ  ΕΚΠΑΙΔΕΥΣΗΣ {{ dide_district }}</w:t>
+              <w:t>ΠΕΡΙΦΕΡΙΑΚΗ ΔΙΕΥΘΥΝΣΗ Α’ ΒΑΘΜΙΑΣ ΚΑΙ Β’ ΒΑΘΜΙΑΣ  ΕΚΠΑΙΔΕΥΣΗΣ {{ settings.dide_district }}</w:t>
             </w:r>
             
             
@@ -265,7 +265,7 @@
               <w:pStyle w:val="a9"/>
             </w:pPr>
             <w:r>
-              <w:t>Ταχ. Διεύθυνση: {{address}}</w:t>
+              <w:t>Ταχ. Διεύθυνση: {{settings.address}}</w:t>
             </w:r>
             <w:r>
               <w:rPr/>
@@ -279,21 +279,21 @@
               <w:br/>
             </w:r>
             <w:r>
-              <w:t>Τηλέφωνο: {{telephone_number}}</w:t>
+              <w:t>Τηλέφωνο: {{settings.telephone_number}}</w:t>
             </w:r>
             <w:r>
               <w:rPr/>
               <w:br/>
             </w:r>
             <w:r>
-              <w:t>email: {{email}}</w:t>
+              <w:t>email: {{settings.email_dide}}</w:t>
             </w:r>
             <w:r>
               <w:rPr/>
               <w:br/>
             </w:r>
             <w:r>
-              <w:t>Fax: {{fax_number}}</w:t>
+              <w:t>Fax: {{settings.fax_number}}</w:t>
             </w:r>
           </w:p>
         </w:tc>

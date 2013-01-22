@@ -18,17 +18,17 @@
 */
 #content-main {
     float: left;
-    width: 60%;
-    max-width: 65em;
-    min-width: 45em;
-    margin-right: 1em;
+    width:40em;
+    margin-right: 0.5em;
+    
 }
 
 #content-related {
-    float: left;
-    width: 35em;
+    float: right;
+    min-width: 28em;
+	margin-left: 0.5em;
     position: relative;
-
+	
 }
 #img-container {
     text-align: center;
@@ -77,7 +77,7 @@
         {{ content }}
         {% endblock %}
         {% block sidebar %}{% endblock %}
-        <br class="clear" />
+        <!--<br class="clear" />-->
     </div>
     <!-- END Content -->
 

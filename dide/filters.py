@@ -520,6 +520,8 @@ class SubstituteDateRangeFilter(FreeDateFieldListFilter):
 
 
 class NonPermanentOrganizationServingFilter(OrganizationServingFilter):
+    title = u'Προσωρινή Τοποθέτηση'
+
     def lookups(self, request, model_admin):
         schools = School.objects.all()
         return ((s.id, s.name) for s in schools)
@@ -528,6 +530,39 @@ class NonPermanentOrganizationServingFilter(OrganizationServingFilter):
         val = query_dict.get(self.parameter_name, None)
         if val:
             return queryset & \
-                NonPermanent.objects.serving_in_organization(int(val))
+                NonPermanent.objects.temporary_post_in_organization(int(val))
         else:
             return queryset
+
+
+class NonPermanentWithTotalExtraPosition(ModifierSimpleListFilter):
+    title = u'Με ολική διάθεση'
+    parameter_name = 'with_total'
+    modifier_name = '_m_' + parameter_name
+    lookup_param = parameter_name
+    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
+    DideAdmin.add_filter_parameter(parameter_name)
+
+    def __init__(self, request, params, model, model_admin, *args, **kwargs):
+        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        super(NonPermanentWithTotalExtraPosition, self).\
+            __init__(request, params, model, model_admin, *args, **kwargs)
+
+    def lookups(self, request, model_admin):
+        return(('1', _('Yes')), ('2', _('No')))
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            if val == '1':
+                return queryset & NonPermanent.objects.with_total_extra_position()
+            elif val == '2':
+                return queryset & NonPermanent.objects.with_total_extra_position(exclude=True)
+        else:
+            return queryset
+
+    def has_output(self):
+        return True
+
+    def used_params(self):
+        return [self.parameter_name]

@@ -17,7 +17,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Απόφαση διορισμού {{ministry_title}}: {{rec.order__order}} </w:t>
+        <w:t>Απόφαση διορισμού {{settings.ministry_title}}: {{rec.order__order}} </w:t>
       </w:r>_
     </w:p>
     <w:p>
@@ -44,7 +44,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος υπηρεσίας έως {{end_date}}: {{rec.experience.1}} μήνες {{rec.experience.2}} ημέρες.</w:t>
+        <w:t>Χρόνος υπηρεσίας έως {{end_date}}: {{rec.experience.format_period}}.</w:t>
       </w:r>
     </w:p>
         <w:p>
