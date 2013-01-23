@@ -628,8 +628,7 @@ class Employee(models.Model):
                 self.profession)
 
     def formatted_recognised_experience(self):
-        return u'%s έτη %s μήνες %s μέρες' \
-            % Date360.from_string(self.recognised_experience).to_tuple()
+        return DateInterval(self.recognised_experience).format()
     formatted_recognised_experience.short_description = \
         u'Μορφοποιημένη προϋπηρεσία'
 
@@ -808,9 +807,9 @@ class Permanent(Employee):
     def payment_start_date_auto(self):
         if not self.date_hired:
             return datetime.date.today()
-        return (Date360.from_python(self.date_hired) -
-                Date360.from_string(self.recognised_experience) +
-                Date360.from_day_count(self.total_no_pay()))
+        return (Date(self.date_hired) -
+                DateInterval(self.recognised_experience) +
+                DateInterval(days=self.total_no_pay()))
     payment_start_date_auto.short_description = \
         u'Μισθολογική αφετηρία (αυτόματη)'
 
@@ -821,7 +820,7 @@ class Permanent(Employee):
         now = datetime.datetime.now()
         if not self.date_hired:
             return (0, 0, 0)
-        return Date360.from_python(now) - self.payment_start_date_auto()
+        return Date(now) - self.payment_start_date_auto()
 
     def organization_serving(self):
         return super(Permanent, self).organization_serving() or \
@@ -985,9 +984,9 @@ class NonPermanent(Employee):
     def experience(self, d=current_year_date_to_half()):
         p = self.current_placement()
         if p:
-            return (Date360.from_python(d) - Date360.from_python(p.date_from))
+            return Date(d) - Date(p.date_from)
         else:
-            return (0, 0, 0)
+            return DateInterval()
 
     def __unicode__(self):
         return u'%s %s του %s' % (self.lastname, self.firstname,
@@ -1293,13 +1292,12 @@ class EmployeeLeave(models.Model):
         if self.date_from.year != self.date_to.year:
             end = datetime.date(self.date_from.year, 12, 31)
             start = datetime.date(self.date_to.year, 1, 1)
-            s360 = Date360.from_python(start)
-            e360 = Date360.from_python(end)
-            df360 = Date360.from_python(self.date_from)
-            dt360 = Date360.from_python(self.date_to)
-
-            d1 = end.year, (e360 - df360).to_day_count()
-            d2 = start.year, (dt360 - s360).to_day_count()
+            s = Date(start)
+            e = Date(end)
+            df = Date(self.date_from)
+            dt = Date(self.date_to)
+            d1 = end.year, (e - df).total
+            d2 = start.year, (dt - s).total
             return d1, d2
         else:
             return ((self.date_from.year,
