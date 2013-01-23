@@ -2,7 +2,7 @@
 *.pyc
 *.json*
 *.orig
-*dide/migrations/**
+*/migrations/**
 *static/**
 *media/xmlfiles/**
 *.ropeproject/**
