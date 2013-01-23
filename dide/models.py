@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.db.models import Q
-from dideman.dide.util.common import *
+from dideman.lib.common import *
+from dideman.lib.date import *
 from dideman.dide.decorators import shorted
 from django.db.models import Max
 import sql
@@ -1206,8 +1207,7 @@ class SubstitutePlacement(Placement):
 class EmployeeLeaveManager(models.Manager):
 
     def date_range_intersect(self, ds, de):
-        return self.filter(Q(date_from__gte=ds, date_from__lte=de) |
-                    Q(date_from__lte=ds, date_to__gte=ds))
+        return self.exclude(Q(date_to__lt=ds) | Q(date_from__gt=de))
 
 
 class EmployeeLeave(models.Model):
@@ -1250,11 +1250,6 @@ class EmployeeLeave(models.Model):
         else:
             return self.employee.organization_serving()
     organization_serving.short_description = u'Θέση υπηρεσίας'
-
-    # a leave intersects with another date range (ds: date start, de: date end)
-    def date_range_intersects(ds, de):
-        return (self.date_from <= ds <= self.date_to) or \
-            (ds <= self.date_from <= de)
 
     def profession(self):
         return self.employee.profession

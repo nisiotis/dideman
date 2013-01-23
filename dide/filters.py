@@ -8,7 +8,7 @@ from models import (Organization, School, Permanent, DegreeCategory,
 import django.contrib.admin.views.main as views
 import datetime
 import re
-from util.common import current_year_date_to
+from dideman.lib.date import current_year_date_to
 from django.utils.translation import ugettext_lazy as _
 
 

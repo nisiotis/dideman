@@ -18,10 +18,8 @@ from django.contrib.admin.util import get_deleted_objects, model_ngettext
 from django.utils.translation import ugettext as _
 from django.contrib.admin import helpers
 from django.db import router
-from dideman.dide.util.common import (without_accented,
-                                      current_year_date_from,
-                                      current_year_date_to,
-                                      parse_deletable_list)
+from dideman.lib.date import current_year_date_from, current_year_date_to
+from dideman.lib.common import without_accented, parse_deletable_list
 from dideman import settings
 from dideman.dide.util import xml
 
@@ -119,7 +117,7 @@ class DocxReport(TemplateAction):
         self.__name__ = short_description
         self.fields = fields
         self.model_fields = model_fields
-        self.dictionary = {'data': [], 
+        self.dictionary = {'data': [],
                            'settings': SETTINGS,
                            'dide_place':
                                without_accented(SETTINGS['dide_place']

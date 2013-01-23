@@ -16,7 +16,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils.translation import ugettext as _
 from django.db import router
-from dideman.dide.util.common import parse_deletable_list
+from dideman.lib.common import parse_deletable_list
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
 
@@ -65,8 +65,7 @@ class DideAdmin(admin.ModelAdmin):
     def get_urls(self):
         url_patterns = patterns('',
                                 url('filters/$',
-                                    'dideman.dide.views.filters.%s' % \
-                                        self.model._meta.module_name))
+                                    'dideman.%s.views.filters.%s' % (self.model._meta.app_label, self.model._meta.module_name)))
         return url_patterns + super(DideAdmin, self).get_urls()
 
     def changelist_view(self, request, extra_context=None):

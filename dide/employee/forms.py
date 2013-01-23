@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from dideman.dide.models import Permanent, Employee
-from dideman.dide.util.common import without_accented
+from dideman.lib.common import without_accented
 from django.utils.translation import ugettext as _
 from django.db.models import Q
 
