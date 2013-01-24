@@ -205,8 +205,7 @@ class DateRange(object):
         """
         start, end are Date objects
         """
-        self.start = start
-        self.end = end
+        self.start, self.end = sorted([start, end])
 
     @property
     def total(self):
@@ -246,9 +245,11 @@ class DateRange(object):
                 r1, r2 = other, self
             inter = r1.intersection(r2)
             if inter:
+                max_end = max(r1.end, r2.end)
                 start = DateRange(r1.start, inter.start - DateInterval(1))
-                end = DateRange(inter.end + DateInterval(1), max(r1.end, r2.end))
-                return [r for r in [start, inter, end] if r.total > 0]
+                end = DateRange(inter.end + DateInterval(1), max_end)
+                valid = lambda r: r1.start <= r.start <= max_end and r1.start <= r.end <= max_end
+                return [r for r in [start, inter, end] if valid(r)]
             else:
                 return [r1, r2]
 
@@ -319,5 +320,3 @@ def test():
     assert str(r2003.split_intersection(r2003_2004)) == "[[20/3/2012 - 20/3/2012], [21/3/2012 - 20/4/2012]]"
 
     print "tests pass"
-
-test()
