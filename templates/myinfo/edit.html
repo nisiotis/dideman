@@ -6,11 +6,11 @@
 <script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
 <script>
 $(window).bind("load resize", function(){
-	windowWidth = $(window).width();
-	w1 = (windowWidth / 2) + 50
-	w2 = (windowWidth / 2) - 50
-	$("#content-main").width(w1-20);
-	$("#content-related").width(w2-20); 
+	//windowWidth = $(window).width();
+	//w1 = (windowWidth / 2) + 50
+	//w2 = (windowWidth / 2) - 50
+	//$("#content-main").width(w1-20);
+	//$("#content-related").width(w2-20); 
 	
 });
 </script>
@@ -92,7 +92,7 @@ $(window).bind("load resize", function(){
               <div>
                 {{ field.errors }}
                 <label  style="width:220px;" for="id_{{ field.html_name }}" {% if field.field.required %}class="required"{% endif %}>{{field.label}} : </label>
-                {{ field  }}{% if field.label == "Email" %}<div>Ο λογαριασμός Email από το Πανελλήνιο Σχολικό Δίκτυο - <a target="_blank" href="http://register.sch.gr/teachers/">Εγγραφή</a></div>{% endif %}
+                {{ field  }}{% if field.label == "Email" %}<div>Πανελλήνιο Σχολικό Δίκτυο - <a target="_blank" href="http://register.sch.gr/teachers/">Εγγραφή</a></div>{% endif %}
               </div>
            </div>
          {% endfor %}

@@ -248,8 +248,9 @@ def generate_pdf_structure(reports):
             if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
                 s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
             data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
-            table2 = Table(data, style=tsh, colWidths=[17 * cm])
-            elements.append(table2)
+            if data: 
+                table2 = Table(data, style=tsh, colWidths=[17 * cm])
+                elements.append(table2)
             del data
             data = []
             data.append([Paragraph('Αποδοχές', tbl_style['BoldLeft']),

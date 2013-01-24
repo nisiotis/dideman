@@ -270,9 +270,9 @@ class CreatePDF(object):
         elements = []
         reports = []
         for empx in u:
-            gr,
+            (gr,
             de,
-            et = reports_calc_amount(filter(lambda s: s['employee_id'] == empx,
+            et) = reports_calc_amount(filter(lambda s: s['employee_id'] == empx,
                                             all_emp), tax_codes)
             grd = [{'type':'gr', 'code_id':x[0], 'amount':x[1]} for x in gr]
             ded = [{'type':'de', 'code_id':x[0], 'amount':x[1]} for x in de]

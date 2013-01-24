@@ -16,18 +16,25 @@
 /*
     MyInfo App styles
 */
+
+
+#content {
+    overflow: hidden;
+    margin: 10px 15px;
+    
+}
+
 #content-main {
     float: left;
-    width:40em;
+    width: 60%;
     margin-right: 0.5em;
     
 }
 
 #content-related {
-    float: right;
-    min-width: 28em;
-	margin-left: 0.5em;
-    position: relative;
+    float: left;
+    margin-left: 0.5em;
+    width: 39%;
 	
 }
 #img-container {
@@ -69,7 +76,7 @@
     {% block messages %} {% endblock  %}
     
     <!-- Content -->
-    <div id="content" class="{% block coltype %}colMS{% endblock %}">
+    <div id="content" class="{% block coltype %}{% endblock %}">
         {% block pretitle %}{% endblock %}
         {% block content_title %}<h1>{{ emp.lastname  }} {{ emp.firstname  }}</h1>{% endblock %}
         {% block content %}
