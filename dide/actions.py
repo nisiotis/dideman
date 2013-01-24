@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from cStringIO import StringIO
-from dideman.dide.util.pay_reports import (generate_pdf_structure, 
+from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            reports_calc_amount, rprts_from_file)
 from dideman import settings
 from dideman.dide.util import xml
@@ -132,7 +132,7 @@ class DocxReport(TemplateAction):
         self.__name__ = short_description
         self.fields = fields
         self.model_fields = model_fields
-        self.dictionary = {'data': [], 
+        self.dictionary = {'data': [],
                            'settings': SETTINGS,
                            'dide_place':
                                without_accented(SETTINGS['dide_place']
@@ -255,27 +255,30 @@ class CreatePDF(object):
                                                       'DroidSans.ttf')))
         registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
                                                            'DroidSans-Bold.ttf')))
-    
+
         obj = PaymentCode.objects.all()
         dict_codes = {c.id: c.description for c in obj}
         dict_tax_codes = {c.id: c.is_tax for c in obj}
         tax_codes = [c for c in dict_codes.keys()]
-        all_emp = rprts_from_file(queryset)    
+        all_emp = rprts_from_file(queryset)
         u = set([x['employee_id'] for x in all_emp])
-         
-        dict_emp = {c.id: [c.lastname, c.firstname, c.vat_number] for c in Employee.objects.filter(id__in=u)}
-        
+
+        dict_emp = {c.id: [c.lastname,
+                           c.firstname,
+                           c.vat_number] for c in Employee.objects.filter(id__in=u)}
+
         elements = []
         reports = []
         for empx in u:
-            
-            gr, de, et = reports_calc_amount(filter(lambda s: s['employee_id'] == empx, all_emp), tax_codes)
-            grd = [{'type':'gr','code_id':x[0],'amount':x[1]} for x in gr]
-            ded = [{'type':'de','code_id':x[0],'amount':x[1]} for x in de]
-            etd = [{'type':'et','code_id':x[0],'amount':x[1]} for x in et]
-            calctd_payments_list = [x for x in chain(grd,ded)]
+            gr,
+            de,
+            et = reports_calc_amount(filter(lambda s: s['employee_id'] == empx,
+                                            all_emp), tax_codes)
+            grd = [{'type':'gr', 'code_id':x[0], 'amount':x[1]} for x in gr]
+            ded = [{'type':'de', 'code_id':x[0], 'amount':x[1]} for x in de]
+            etd = [{'type':'et', 'code_id':x[0], 'amount':x[1]} for x in et]
+            calctd_payments_list = [x for x in chain(grd, ded)]
             report = {}
-        
             report['report_type'] = '1'
             report['type'] = ''
             report['year'] = ''
@@ -288,7 +291,7 @@ class CreatePDF(object):
             report['rank'] = None
             report['net_amount1'] = ''
             report['net_amount2'] = ''
-    
+
             pay_cat_list = []
             pay_cat_dict = {}
             pay_cat_dict['title'] = u'Επιμέρους Σύνολα'
@@ -308,10 +311,9 @@ class CreatePDF(object):
             pay_cat_list.append(pay_cat_dict)
             report['payment_categories'] = pay_cat_list
             reports.append(report)
-        
+
         elements = generate_pdf_structure(reports)
-        
-            
+
         doc = SimpleDocTemplate(self.response, pagesize=A4)
         doc.topMargin = 1.0 * cm
         doc.build(elements)
@@ -466,7 +468,7 @@ class DeleteAction(object):
             "admin/%s/delete_selected_confirmation.html" % app_label,
             "admin/delete_selected_confirmation.html"
         ], context, current_app=modeladmin.admin_site.name)
-    
+
 
 class XMLReadAction(object):
 
@@ -497,7 +499,7 @@ class XMLReadAction(object):
                 o.status = success
                 o.imported_records = recs_affected
                 o.save()
-                
+
                 total_elapsed = total_elapsed + elapsed
                 rows_updated += 1
                 for (key), val in recs_missed.items():

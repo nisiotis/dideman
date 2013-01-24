@@ -4,7 +4,8 @@ from dideman.dide.employee.decorators import match_required
 from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
                                  NonPermanent, Employee, Payment, PaymentCode)
 from dideman.dide.util.settings import SETTINGS
-from dideman.dide.util.pay_reports import generate_pdf_structure, reports_calc_amount
+from dideman.dide.util.pay_reports import (generate_pdf_structure,
+                                           reports_calc_amount)
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -27,7 +28,6 @@ import os
 
 @match_required
 def print_pay(request, id):
-    
     rpt = PaymentReport.objects.get(pk=id)
     emptype = 0
     if request.session['matched_employee_id'] == rpt.employee_id:
@@ -48,8 +48,8 @@ def print_pay(request, id):
         return HttpResponseRedirect(
             '/employee/match/?next=/salary/view/')
 
+    dict_tax_codes = {c.id: c.is_tax for c in PaymentCode.objects.all()}
     report = {}
-    
     report['report_type'] = '0'
     report['type'] = rpt.type
     report['year'] = rpt.year
@@ -78,10 +78,11 @@ def print_pay(request, id):
             p['code'] = o.code
             p['amount'] = float(o.amount)
             p['info'] = o.info
+            p['code_tax'] = dict_tax_codes[o.code_id]
             pay_cat_dict['payments'].append(p)
         pay_cat_list.append(pay_cat_dict)
     report['payment_categories'] = pay_cat_list
-    
+
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=pay_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
@@ -98,8 +99,9 @@ def print_pay(request, id):
 
 @match_required
 def print_mass_pay(request, year):
-    
-    rpt = PaymentReport.objects.filter(employee_id=request.session['matched_employee_id'],year=year)
+
+    rpt = PaymentReport.objects.filter(employee_id=request.session['matched_employee_id'],
+                                       year=year)
     emptype = 0
     emp = Employee.objects.get(id=request.session['matched_employee_id'])
     try:
@@ -113,24 +115,34 @@ def print_mass_pay(request, year):
         raise
     except:
         raise
+
     obj = PaymentCode.objects.all()
     dict_codes = {c.id: c.description for c in obj}
+    dict_tax_codes = {c.id: c.is_tax for c in obj}
+
     tax_codes = [c for c in dict_codes.keys()]
 
     payments_list = []
+
     for o in rpt:
-        for p in Payment.objects.select_related().filter(category__paymentreport=o.id):
-            payments_list.append({'code_id':p.code_id,'type':p.type,'amount':p.amount})
-    
+        if o.type_id > 15:
+            taxed_list = [p.code_id for p in Payment.objects.select_related().filter(category__paymentreport=o.id,
+                                                                                     code__is_tax=1)]
+            if taxed_list:
+                for p in Payment.objects.select_related().filter(category__paymentreport=o.id):
+                    payments_list.append({'code_id': p.code_id, 'type': p.type, 'amount': p.amount})
+        else:
+            for p in Payment.objects.select_related().filter(category__paymentreport=o.id):
+                payments_list.append({'code_id': p.code_id, 'type': p.type, 'amount': p.amount})
+
     gr, de, et = reports_calc_amount(payments_list, tax_codes)
-    grd = [{'type':'gr','code_id':x[0],'amount':x[1]} for x in gr]
-    ded = [{'type':'de','code_id':x[0],'amount':x[1]} for x in de]
-    etd = [{'type':'et','code_id':x[0],'amount':x[1]} for x in et]
- 
-    
-    calctd_payments_list = [x for x in chain(grd,ded)]
+    grd = [{'type': 'gr', 'code_id': x[0], 'amount': x[1]} for x in gr]
+    ded = [{'type': 'de', 'code_id': x[0], 'amount': x[1]} for x in de]
+    etd = [{'type': 'et', 'code_id': x[0], 'amount': x[1]} for x in et]
+
+    calctd_payments_list = [x for x in chain(grd, ded)]
     report = {}
-    
+
     report['report_type'] = '1'
     report['type'] = ''
     report['year'] = year
@@ -158,10 +170,11 @@ def print_mass_pay(request, year):
         p['code'] = dict_codes[o['code_id']]
         p['amount'] = o['amount']
         p['info'] = None
+        p['code_tax'] = dict_tax_codes[o['code_id']]
         pay_cat_dict['payments'].append(p)
     pay_cat_list.append(pay_cat_dict)
     report['payment_categories'] = pay_cat_list
-    
+
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=pay_report_%s.pdf' % year
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
@@ -207,7 +220,7 @@ def view(request):
         except:
             raise
 
-        pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year', '-type')
+        pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year','-type')
         per_year = {p.year: p for p in pay}
         paginator = Paginator(pay, 10)
 

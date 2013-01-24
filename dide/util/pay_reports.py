@@ -41,7 +41,7 @@ def reports_calc_amount(dict_list, taxed_codes):
     de_l = filter(lambda x: x['type'] == 'de', dic_lst)
     gr_l = filter(lambda x: x['type'] == 'gr', dic_lst)
     et_l = filter(lambda x: x['type'] == 'et', dic_lst)
-    
+
     de_ca = [[x['code_id'], x['amount']] for x in de_l if x['code_id'] in taxed_codes] if len(de_l) > 0 else []
     gr_ca = [[x['code_id'], x['amount']] for x in gr_l] if len(gr_l) > 0 else []
     et_ca = [[x['code_id'], x['amount']] for x in et_l] if len(et_l) > 0 else []
@@ -82,7 +82,7 @@ def rprts_from_file(queryset):
     Accepts a queryset of paymentfilenames
     """
     cursor = connection.cursor()
-    sql ="""SELECT dide_paymentreport.employee_id, dide_payment.*
+    sql = """SELECT dide_paymentreport.employee_id, dide_payment.*
             FROM dide_paymentfilename
             INNER JOIN dide_paymentreport
             ON dide_paymentreport.paymentfilename_id = dide_paymentfilename.id
@@ -120,7 +120,7 @@ def generate_pdf_structure(reports):
     elements = []
     for report in reports:
         logo = os.path.join(settings.MEDIA_ROOT, "logo.png")
-    
+
         width, height = A4
         head_logo = getSampleStyleSheet()
         head_logo.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
@@ -143,7 +143,7 @@ def generate_pdf_structure(reports):
                                      fontName='DroidSans', fontSize=10))
         tbl_style.add(ParagraphStyle(name='BoldLeft', alignment=TA_LEFT,
                                      fontName='DroidSans-Bold', fontSize=10))
-    
+
         tsl = [('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                ('FONT', (0, 0), (-1, 0), 'DroidSans'),
                ('FONTSIZE', (0, 0), (-1, 0), 8),
@@ -156,8 +156,7 @@ def generate_pdf_structure(reports):
               ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
               ('GRID', (0, 0), (-1, -1), 0.5, colors.black)]
         tsf = [('ALIGN', (1, 1), (-1, -1), 'CENTER')]
-    
-    
+
         im = Image(logo)
         im.drawHeight = 1.25 * cm
         im.drawWidth = 1.25 * cm
@@ -177,9 +176,10 @@ def generate_pdf_structure(reports):
         table0 = Table(data, style=tsl, colWidths=[8.0 * cm, 11.0 * cm])
         elements.append(table0)
         elements.append(Paragraph(u' ', heading_style['Spacer']))
-        
+
         if report['report_type'] == '0':
-            elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ', heading_style['Center']))
+            elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ',
+                                      heading_style['Center']))
             if report['type'] > 12:
                 elements.append(Paragraph(u'Αποδοχές %s %s' %
                                           (report['type'], report['year']),
@@ -189,23 +189,27 @@ def generate_pdf_structure(reports):
                                           (report['type'], report['year']),
                                           heading_style['Center']))
             elements.append(Paragraph(u' ', heading_style['Spacer']))
-        
+
         else:
-            elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ %s' % report['year'], heading_style['Center']))
+            elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ %s' % report['year'],
+                                      heading_style['Center']))
             elements.append(Paragraph(u' ', heading_style['Spacer']))
-        
+
         if report['emp_type'] == 1:
             headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
                          Paragraph('%s' % report['registration_number'] or u'Δ/Υ',
                                    tbl_style['Left']),
                          Paragraph('ΑΦΜ', tbl_style['Left']),
-                         Paragraph(u'%s' % report['vat_number'], tbl_style['Left'])],
+                         Paragraph(u'%s' % report['vat_number'],
+                                   tbl_style['Left'])],
                         [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
-                         Paragraph('%s' % report['lastname'], tbl_style['Left']),
+                         Paragraph('%s' % report['lastname'],
+                                   tbl_style['Left']),
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])],
                         [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
-                         Paragraph('%s' % report['firstname'], tbl_style['Left']),
+                         Paragraph('%s' % report['firstname'],
+                                   tbl_style['Left']),
                          Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
                          Paragraph(u'%s' % report['rank'] if report['rank'] is not None else u'Δ/Υ',
                                    tbl_style['Left'])]]
@@ -216,14 +220,16 @@ def generate_pdf_structure(reports):
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])],
                         [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
-                         Paragraph('%s' % report['lastname'], tbl_style['Left']),
+                         Paragraph('%s' % report['lastname'],
+                                   tbl_style['Left']),
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])],
                         [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
-                         Paragraph('%s' % report['firstname'], tbl_style['Left']),
+                         Paragraph('%s' % report['firstname'],
+                                   tbl_style['Left']),
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])]]
-    
+
         table1 = Table(headdata, style=tsh,
                        colWidths=[3 * cm, 6 * cm, 5 * cm, 3 * cm])
         elements.append(table1)
@@ -239,8 +245,8 @@ def generate_pdf_structure(reports):
                 s1 = "/".join(list(reversed(i['start_date'].split('-'))))
                 s2 = "/".join(list(reversed(i['end_date'].split('-'))))
                 s += ' (%s - %s) ' % (s1, s2)
-            if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] !='NULL'):
-                s += ' %s %s' % (months[int(i['month']-1)], i['year'])
+            if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
+                s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
             data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
             table2 = Table(data, style=tsh, colWidths=[17 * cm])
             elements.append(table2)
@@ -270,7 +276,6 @@ def generate_pdf_structure(reports):
                         s = s + " (%s)" % p['info']
                     if int(p['code_tax']) == 1:
                         total_tax_amount += p['amount']
-                    
                     de.append([Paragraph(s, tbl_style['Left']),
                                Paragraph('%.2f €' % p['amount'],
                                          tbl_style['Right'])])
@@ -295,7 +300,7 @@ def generate_pdf_structure(reports):
             elements.append(table5)
             del data
             data = []
-        
+
             if report['net_amount1'] != '0' and report['net_amount2'] != '0':
                 data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
                              Paragraph('%.2f €' % numtoStr(report['net_amount1']),
@@ -308,7 +313,7 @@ def generate_pdf_structure(reports):
                              Paragraph('%.2f €' % total_amount,
                                        tbl_style['Right']), '', ''])
                 total_amount = 0
-        
+
             table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
                                                       6.5 * cm, 2.0 * cm])
             elements.append(table5)
@@ -332,7 +337,7 @@ def generate_pdf_structure(reports):
         today = datetime.date.today()
         elements.append(Paragraph(u' ', heading_style['Spacer']))
         elements.append(Paragraph(u' ', heading_style['Spacer']))
-        
+
         data = []
         data.append([Paragraph(u' ', signature['Center']),
                      Paragraph(u'Ρόδος, %s / %s / %s' %
