@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
+># -*- coding: utf-8 -*-
 from __future__ import division
 import datetime
-import math
 
 now = datetime.datetime.now()
 
@@ -46,7 +45,7 @@ class Date(object):
     def __init__(self, *args, **kwargs):
         """
         construct a Date object when given one of the following:
-        python datetime | "YYYYMMDD" string | DateInterval | (year, month, day)
+        python datetime | "YYYYMMDD" string | (year, month, day)
         """
         param = args[0]
         if isinstance(param, str):
@@ -54,8 +53,6 @@ class Date(object):
                                 for d in [param[:4], param[4:6], param[6:]]]
         elif isinstance(param, datetime.date):
             year, month, day = param.year, param.month, param.day
-        elif isinstance(param, DateInterval):
-            year, month, day = param.years, param.months, param.days
         else:
             year, month, day = args
 
@@ -83,10 +80,19 @@ class Date(object):
         return formatter % (self.day, self.month, self.year)
 
     def add_interval(self, interval):
-        return self.__class__(DateInterval(days=self.days + interval.total))
+        new_interval = DateInterval(self.days + interval.total)
+        y, m, d = new_interval.tuple()
+        return self.__class__(y, m, d)
 
     def sub_interval(self, interval):
-        return self.__class__(DateInterval(days=self.days - interval.total))
+        y, m, d = [a - b for a, b in zip(self.tuple(), interval.tuple())]
+        if d <= 0:
+            d += 30
+            m -= 1
+        if m <= 0:
+            m += 12
+            y -= 1
+        return self.__class__(y, m, d)
 
     def sub_date(self, other):
         return DateInterval(days=self.days - other.days)
@@ -122,7 +128,7 @@ class DateInterval(object):
         construct a DateInterval object when given one or all :
         one or all of days, months, years as kwargs |
         a string formatted as "YYYYMMDD" or "YYMMDD" |
-        days as first argument
+        days as first argument |
         years, months, days as 1st, 2nd 3rd argument
         """
         if args and isinstance(args[0], (str, unicode)):
@@ -202,6 +208,10 @@ class DateRange(object):
         self.start = start
         self.end = end
 
+    @property
+    def days(self):
+        return (self.end - self.start).total
+
     def intersects(self, other):
         """
         True if self has common days with other
@@ -221,49 +231,74 @@ class DateRange(object):
                              min(max(self.start, self.end),
                                  max(other.start, other.end)))
 
-    def split(self, other):
+    def split_intersection(self, other):
         """
         split a DateRange by injecting another DateRange into it.
-        The return value is a list of 1,2 or 3 elements consisting
-        of all computed DateRanges.
+        The return value is a list of 2 or 3 elements if the ranges intersect
+        or 2 if not
         """
-        inter = self.intersection(other)
-        if inter and inter != self:
-            if self.start == inter.start:
-                end = DateRange(inter.end + DateInterval(days=1), self.end)
-                return [inter, end]
-            elif self.end == inter.end:
-                start = DateRange(self.start, inter.start - DateInterval(days=1))
-                return [start, inter]
-            else:
-                start = DateRange(self.start, inter.start - DateInterval(days=1))
-                end = DateRange(inter.end + DateInterval(days=1), self.end)
-                return [start, inter, end]
-        else:
+        if self == other:
             return [self]
+        else:
+            if self.start < other.start:
+                r1, r2 = self, other
+            else:
+                r1, r2 = other, self
+            inter = r1.intersection(r2)
+            if inter:
+                start = DateRange(r1.start, inter.start - DateInterval(1))
+                end = DateRange(inter.end + DateInterval(1), max(r1.end, r2.end))
+                return [r for r in [start, inter, end] if r.days > 0]
+            else:
+                return [r1, r2]
 
     def __repr__(self):
         return "[%s - %s]" % (self.start, self.end)
 
-    def __cmp__(self, other):
-        return self.start.to_day_count() - self.end.to_day_count()
-
     def __eq__(self, other):
+        """
+        equal if same start and same end
+        """
         return self.start == other.start and self.end == other.end
 
     def __ne__(self, other):
+        """
+        start or end differs
+        """
         return self.start != other.start or self.end != other.end
 
 
 def test():
-    r0103_3003 = DateRange(Date(2012, 3, 1), Date(2012, 3, 30))
-    r2003_2004 = DateRange(Date(2012, 3, 20), Date(2012, 4, 20))
-    r0102_1003 = DateRange(Date(2012, 2, 1), Date(2012, 3, 10))
-    r0101_0105 = DateRange(Date(2012, 1, 1), Date(2012, 5, 1))
-    r1003_2003 = DateRange(Date(2012, 3, 10), Date(2012, 3, 20))
+    d01_03 = Date(2012, 3, 1)
+    d30_03 = Date(2012, 3, 30)
+    d20_03 = Date(2012, 3, 20)
+    d20_04 = Date(2012, 4, 20)
+    d01_02 = Date(2012, 2, 1)
+    d10_03 = Date(2012, 3, 10)
+    d01_01 = Date(2012, 1, 1)
+    d01_05 = Date(2012, 5, 1)
+    d10_03 = Date(2012, 3, 10)
+    d20_03 = Date(2012, 3, 20)
+    d20_04 = Date(2012, 4, 20)
+    d30_05 = Date(2012, 5, 30)
+    d20_01 = Date(2012, 1, 20)
+    d20_02 = Date(2012, 2, 20)
+    d01_03 = Date(2012, 3, 1)
+    d20_04 = Date(2012, 4, 20)
+    d10_03 = Date(2012, 3, 10)
+    d30_03 = Date(2012, 3, 30)
 
-    r2004_3005 = DateRange(Date(2012, 4, 20), Date(2012, 5, 30))
-    r2001_2002 = DateRange(Date(2012, 1, 20), Date(2012, 2, 20))
+    r0103_3003 = DateRange(d01_03, d30_03)
+    r2003_2004 = DateRange(d20_03, d20_04)
+    r0102_1003 = DateRange(d01_02, d10_03)
+    r0101_0105 = DateRange(d01_01, d01_05)
+    r1003_2003 = DateRange(d10_03, d20_03)
+
+    r2004_3005 = DateRange(d20_04, d30_05)
+    r2001_2002 = DateRange(d20_01, d20_02)
+
+    r0103_2004 = DateRange(d01_03, d20_04)
+    r1003_3003 = DateRange(d10_03, d30_03)
 
     assert str(r0103_3003.intersection(r2003_2004)) == "[20/3/2012 - 30/3/2012]"
     assert str(r0103_3003.intersection(r0102_1003)) == "[1/3/2012 - 10/3/2012]"
@@ -272,11 +307,15 @@ def test():
     assert not r0103_3003.intersects(r2004_3005)
     assert not r0103_3003.intersects(r2001_2002)
 
-    assert str(r0103_3003.split(r2003_2004)) == "[[1/3/2012 - 19/3/2012], [20/3/2012 - 30/3/2012]]"
-    assert str(r0103_3003.split(r0102_1003)) == "[[1/3/2012 - 10/3/2012], [11/3/2012 - 30/3/2012]]"
-    assert str(r0103_3003.split(r0101_0105)) == "[[1/3/2012 - 30/3/2012]]"
-    assert str(r0103_3003.split(r1003_2003)) == "[[1/3/2012 - 9/3/2012], [10/3/2012 - 20/3/2012], [21/3/2012 - 30/3/2012]]"
-    assert str(r0103_3003.split(r2004_3005)) == "[[1/3/2012 - 30/3/2012]]"
-    assert str(r0103_3003.split(r2001_2002)) == "[[1/3/2012 - 30/3/2012]]"
+    assert str(r0103_3003.split_intersection(r2003_2004)) == "[[1/3/2012 - 19/3/2012], [20/3/2012 - 30/3/2012], [1/4/2012 - 20/4/2012]]"
+    assert str(r0103_3003.split_intersection(r0102_1003)) == "[[1/2/2012 - 30/2/2012], [1/3/2012 - 10/3/2012], [11/3/2012 - 30/3/2012]]"
+    assert str(r0103_3003.split_intersection(r0101_0105)) == "[[1/1/2012 - 30/2/2012], [1/3/2012 - 30/3/2012], [1/4/2012 - 1/5/2012]]"
+    assert str(r0103_3003.split_intersection(r1003_2003)) == "[[1/3/2012 - 9/3/2012], [10/3/2012 - 20/3/2012], [21/3/2012 - 30/3/2012]]"
+    assert str(r0103_3003.split_intersection(r2004_3005)) == "[[1/3/2012 - 30/3/2012], [20/4/2012 - 30/5/2012]]"
+    assert str(r0103_3003.split_intersection(r2001_2002)) == "[[20/1/2012 - 20/2/2012], [1/3/2012 - 30/3/2012]]"
+    assert str(r0103_3003.split_intersection(r0103_2004)) == "[[1/3/2012 - 30/3/2012], [1/4/2012 - 20/4/2012]]"
+    assert str(r0103_3003.split_intersection(r1003_3003)) == "[[1/3/2012 - 9/3/2012], [10/3/2012 - 30/3/2012]]"
 
     print "tests pass"
+
+test()
