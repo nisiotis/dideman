@@ -1,4 +1,4 @@
-># -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from __future__ import division
 import datetime
 
@@ -306,7 +306,7 @@ def test():
     assert str(r0103_3003.intersection(r1003_2003)) == "[10/3/2012 - 20/3/2012]"
     assert not r0103_3003.intersects(r2004_3005)
     assert not r0103_3003.intersects(r2001_2002)
-
+    assert str(r0103_3003.split_intersection(r0103_3003)) == "[[1/3/2012 - 30/3/2012]]"
     assert str(r0103_3003.split_intersection(r2003_2004)) == "[[1/3/2012 - 19/3/2012], [20/3/2012 - 30/3/2012], [1/4/2012 - 20/4/2012]]"
     assert str(r0103_3003.split_intersection(r0102_1003)) == "[[1/2/2012 - 30/2/2012], [1/3/2012 - 10/3/2012], [11/3/2012 - 30/3/2012]]"
     assert str(r0103_3003.split_intersection(r0101_0105)) == "[[1/1/2012 - 30/2/2012], [1/3/2012 - 30/3/2012], [1/4/2012 - 1/5/2012]]"
