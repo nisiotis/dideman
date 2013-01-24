@@ -209,8 +209,8 @@ class DateRange(object):
         self.end = end
 
     @property
-    def days(self):
-        return (self.end - self.start).total
+    def total(self):
+        return (self.end - self.start).total + 1
 
     def intersects(self, other):
         """
@@ -248,7 +248,7 @@ class DateRange(object):
             if inter:
                 start = DateRange(r1.start, inter.start - DateInterval(1))
                 end = DateRange(inter.end + DateInterval(1), max(r1.end, r2.end))
-                return [r for r in [start, inter, end] if r.days > 0]
+                return [r for r in [start, inter, end] if r.total > 0]
             else:
                 return [r1, r2]
 
@@ -287,13 +287,13 @@ def test():
     d20_04 = Date(2012, 4, 20)
     d10_03 = Date(2012, 3, 10)
     d30_03 = Date(2012, 3, 30)
-
+    
     r0103_3003 = DateRange(d01_03, d30_03)
     r2003_2004 = DateRange(d20_03, d20_04)
     r0102_1003 = DateRange(d01_02, d10_03)
     r0101_0105 = DateRange(d01_01, d01_05)
     r1003_2003 = DateRange(d10_03, d20_03)
-
+    r2003 = DateRange(d20_03, d20_03)
     r2004_3005 = DateRange(d20_04, d30_05)
     r2001_2002 = DateRange(d20_01, d20_02)
 
@@ -315,6 +315,8 @@ def test():
     assert str(r0103_3003.split_intersection(r2001_2002)) == "[[20/1/2012 - 20/2/2012], [1/3/2012 - 30/3/2012]]"
     assert str(r0103_3003.split_intersection(r0103_2004)) == "[[1/3/2012 - 30/3/2012], [1/4/2012 - 20/4/2012]]"
     assert str(r0103_3003.split_intersection(r1003_3003)) == "[[1/3/2012 - 9/3/2012], [10/3/2012 - 30/3/2012]]"
+    assert r2003.total == 1
+    assert str(r2003.split_intersection(r2003_2004)) == "[[20/3/2012 - 20/3/2012], [21/3/2012 - 20/4/2012]]"
 
     print "tests pass"
 
