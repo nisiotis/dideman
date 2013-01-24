@@ -28,20 +28,35 @@
     float: left;
     width: 60%;
     margin-right: 0.5em;
-    
 }
 
 #content-related {
     float: left;
     margin-left: 0.5em;
-    width: 39%;
-	
+    width: 38%;	
 }
+
 #img-container {
     text-align: center;
     width: 100%;
     padding: 3px;
 }
+
+@media only screen
+  and (max-width: 800px) {
+
+#content-main {
+    margin-left: 0em;
+    width: 99%;
+    }
+
+#content-related {
+    margin-left: 0em;
+    width: 99%;
+    }
+}
+
+
 </style>
 <script>
  $(function() {
