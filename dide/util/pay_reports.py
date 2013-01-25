@@ -363,7 +363,6 @@ def generate_pdf_structure(reports):
     return elements
 
 
-
 def generate_pdf_landscape_structure(reports):
     """
     Returns the elements object for the report to be generated in PDF
@@ -393,14 +392,14 @@ def generate_pdf_landscape_structure(reports):
                                          fontSize=12))
         signature = getSampleStyleSheet()
         signature.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
-                                     fontName='DroidSans', fontSize=10))
+                                     fontName='DroidSans', fontSize=5))
         tbl_style = getSampleStyleSheet()
         tbl_style.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
-                                     fontName='DroidSans', fontSize=10))
+                                     fontName='DroidSans', fontSize=5))
         tbl_style.add(ParagraphStyle(name='Right', alignment=TA_RIGHT,
-                                     fontName='DroidSans', fontSize=10))
+                                     fontName='DroidSans', fontSize=5))
         tbl_style.add(ParagraphStyle(name='BoldLeft', alignment=TA_LEFT,
-                                     fontName='DroidSans-Bold', fontSize=10))
+                                     fontName='DroidSans-Bold', fontSize=5))
 
         tsl = [('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                ('FONT', (0, 0), (-1, 0), 'DroidSans'),
@@ -469,7 +468,7 @@ def generate_pdf_landscape_structure(reports):
                          Paragraph('', tbl_style['Left'])]]
 
         table1 = Table(headdata, style=tsh,
-                       colWidths=[6 * cm, 9 * cm, 8 * cm, 6 * cm])
+                       colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
         elements.append(table1)
         elements.append(Paragraph(u' ', heading_style['Spacer']))
         del data
@@ -487,13 +486,13 @@ def generate_pdf_landscape_structure(reports):
                 s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
             data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
             if data: 
-                table2 = Table(data, style=tsh, colWidths=[17 * cm])
+                table2 = Table(data, style=tsh, colWidths=[23 * cm])
                 elements.append(table2)
             del data
             data = []
             data.append([Paragraph('Αποδοχές', tbl_style['BoldLeft']),
                          Paragraph('Κρατήσεις', tbl_style['BoldLeft'])])
-            table3 = Table(data, style=ts, colWidths=[8.5 * cm, 8.5 * cm])
+            table3 = Table(data, style=ts, colWidths=[12.5 * cm, 12.5 * cm])
             elements.append(table3)
             del data
             gret = []
@@ -522,8 +521,8 @@ def generate_pdf_landscape_structure(reports):
             _get = lambda l, i: l[i] if i < len(l) else ['', '']
             data = [_get(gret, i) + _get(de, i) for i in range(0, max(len(gret),
                                                                       len(de)))]
-            table4 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
-                                                      6.5 * cm, 2.0 * cm])
+            table4 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
+                                                      9.5 * cm, 2.0 * cm])
             elements.append(table4)
             total_amount += float(grnum) - float(denum)
             del data
@@ -535,7 +534,7 @@ def generate_pdf_landscape_structure(reports):
         if report['report_type'] == '0':
             data = []
             data.append([Paragraph('Πληρωτέο', tbl_style['BoldLeft'])])
-            table5 = Table(data, style=ts, colWidths=[17 * cm])
+            table5 = Table(data, style=ts, colWidths=[23 * cm])
             elements.append(table5)
             del data
             data = []
@@ -553,8 +552,8 @@ def generate_pdf_landscape_structure(reports):
                                        tbl_style['Right']), '', ''])
                 total_amount = 0
 
-            table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
-                                                      6.5 * cm, 2.0 * cm])
+            table5 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
+                                                      9.5 * cm, 2.0 * cm])
             elements.append(table5)
             del data
         else:
@@ -566,8 +565,8 @@ def generate_pdf_landscape_structure(reports):
                          ])
             total_amount = 0
             total_tax_amount = 0
-            table5 = Table(data, style=ts, colWidths=[6.5 * cm, 2.0 * cm,
-                                                      6.5 * cm, 2.0 * cm])
+            table5 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
+                                                      9.5 * cm, 2.0 * cm])
             elements.append(table5)
             del data
 
@@ -596,7 +595,7 @@ def generate_pdf_landscape_structure(reports):
                      Paragraph(u' ', signature['Center'])])
         data.append([Paragraph(u' ', signature['Center']),
                      Paragraph(SETTINGS['manager'], signature['Center'])])
-        table6 = Table(data, style=tsf, colWidths=[11.0 * cm, 6.0 * cm])
+        table6 = Table(data, style=tsf, colWidths=[17.0 * cm, 6.0 * cm])
         elements.append(table6)
         elements.append(PageBreak())
     return elements

@@ -186,8 +186,8 @@ def print_mass_pay(request, year):
     doc = SimpleDocTemplate(response, pagesize=A4)
     doc.topMargin = 0.5 * cm
     doc.bottomMargin = 0.5 * cm
-    doc.leftMargin = 0.5 * cm
-    doc.rightMargin = 0.5 * cm
+    doc.leftMargin = 1.5 * cm
+    doc.rightMargin = 1.5 * cm
 
     doc.pagesize = landscape(A4) 
     elements = generate_pdf_landscape_structure([report])
