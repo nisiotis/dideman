@@ -5,6 +5,7 @@ from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
                                  NonPermanent, Employee, Payment, PaymentCode)
 from dideman.dide.util.settings import SETTINGS
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
+                                           generate_pdf_landscape_structure,
                                            reports_calc_amount)
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect
@@ -189,7 +190,7 @@ def print_mass_pay(request, year):
     doc.rightMargin = 0.5 * cm
 
     doc.pagesize = landscape(A4) 
-    elements = generate_pdf_structure([report])
+    elements = generate_pdf_landscape_structure([report])
     doc.build(elements)
     return response
 
