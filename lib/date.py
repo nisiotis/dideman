@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 import datetime
+import operator
 
 now = datetime.datetime.now()
 
@@ -253,6 +254,16 @@ class DateRange(object):
             else:
                 return [r1, r2]
 
+    @classmethod
+    def split_all(cls, ranges):
+        if len(ranges) < 1:
+            return ranges
+        return tuple(set(reduce(cls.split_multi, ranges[1:], [ranges[0]])))
+
+    @classmethod
+    def split_multi(cls, ranges, arange):
+        return [o for r in ranges for o in r.split_intersection(arange)]
+
     def __repr__(self):
         return "[%s - %s]" % (self.start, self.end)
 
@@ -319,4 +330,8 @@ def test():
     assert r2003.total == 1
     assert str(r2003.split_intersection(r2003_2004)) == "[[20/3/2012 - 20/3/2012], [21/3/2012 - 20/4/2012]]"
 
+    ranges = [r0103_3003, r2003_2004, r0101_0105]
+    assert str(sorted(DateRange.split_all(ranges), key=lambda r: (r.start, r.end))) == "[[1/1/2012 - 30/2/2012], [1/1/2012 - 19/3/2012], [1/1/2012 - 30/3/2012], [1/3/2012 - 19/3/2012], [20/3/2012 - 30/3/2012], [20/3/2012 - 1/5/2012], [1/4/2012 - 20/4/2012], [1/4/2012 - 1/5/2012], [21/4/2012 - 1/5/2012]]"
+    assert DateRange.split_all([]) == []
+    assert DateRange.split_all([r0103_3003]) == tuple([r0103_3003])
     print "tests pass"
