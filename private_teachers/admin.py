@@ -18,17 +18,17 @@ class PrivateTeacherAdmin(DideAdmin):
     fieldsets = [
         ('Γενικά Στοιχεία', {
             'fields': [
-                    'lastname', 'firstname', 'fathername',
-                    'sex', 'profession', 'profession_description',
-                    'school', 'identity_number', 'telephone_number1',
-                    'telephone_number2', 'email', 'birth_date',
-                    'no_pay_days', 'active', 'date_created']}),
+                    'lastname', 'firstname', 'fathername', 'sex', 'profession',
+                    'profession_description', 'total_experience', 'school',
+                    'identity_number', 'telephone_number1',
+                    'telephone_number2', 'email', 'birth_date', 'no_pay_days',
+                    'active', 'date_created']}),
         (u'Οικονομικά στοιχεία', {
                 'fields': ['vat_number', 'tax_office', 'bank',
                            'bank_account_number', 'iban',
                            'social_security_registration_number']})]
 
-    readonly_fields = ['organization_serving',
+    readonly_fields = ['organization_serving', 'total_experience',
                        'date_created', 'profession_description']
     inlines = [WorkingPeriodInline]
 

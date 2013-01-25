@@ -19,6 +19,22 @@ class PrivateTeacher(dide.Employee):
     no_pay_days = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών', default=0)
     active = models.BooleanField(u'Ενεργός', default=True)
 
+    def total_experience(self):
+        periods = self.workingperiod_set.all()
+        ranges = [DateRange(Date(w.date_from), Date(w.date_to)) for w in periods]
+        splitted = DateRange.split_all(ranges)
+        intersections = [(r, p) for r in splitted
+                         for i, p in enumerate(periods)
+                         if r.intersects(ranges[i])]
+        d = collections.defaultdict(list)
+        for r, p in intersections:
+            d[r].append(p)
+
+        # return DateInterval(
+        #     days=sum([min(r.total, sum([p.experience(r).total
+        #                                 for p in l]))
+        #               for r, l in d.items()]))
+
     def save(self, *args, **kwargs):
         self.currently_serves = False
         super(PrivateTeacher, self).save(*args, **kwargs)
@@ -39,20 +55,25 @@ class WorkingPeriod(models.Model):
     full_week = models.IntegerField(u'Εβδομαδιαίο ωράριο', max_length=2, default=18)
 
     def experience(self):
-        fr = Date(self.date_from)
-        to = Date(self.date_to)
-        days = (to - fr).total + 1
+        dr = DateRange(Date(self.date_from), Date(self.date_to))
 
         if self.hours_weekly >= self.full_week:
-            return DateInterval(days=days)
+            return DateInterval(days=dr.total)
 
+        #300 day year
         if self.hours_total:
             days = int((self.hours_total / self.full_week) * 6)
         else:
-            days = days * (300 / 360)
+            days = dr.total * (300 / 360)
             days = int(days * (self.hours_weekly / self.full_week))
 
         return DateInterval(days // 300, (days % 300) // 25, (days % 300) % 25)
+
+    def __repr__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return "<WorkingPeriod %s - %s>" % (self.date_from, self.date_to)
 
 
 class PrivateSchool(dide.Organization):
