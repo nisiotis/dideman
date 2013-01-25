@@ -17,7 +17,7 @@ from django.db import connection, transaction
 from itertools import groupby
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase.pdfmetrics import registerFont
@@ -121,7 +121,7 @@ def generate_pdf_structure(reports):
     for report in reports:
         logo = os.path.join(settings.MEDIA_ROOT, "logo.png")
 
-        width, height = A4
+        height, width = A4
         head_logo = getSampleStyleSheet()
         head_logo.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                      fontName='DroidSans', fontSize=8))
@@ -173,7 +173,7 @@ def generate_pdf_structure(reports):
                                head_logo['Center']), ''])
         data.append([Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΔΩΔΕΚΑΝΗΣΟΥ',
                                head_logo['Center']), ''])
-        table0 = Table(data, style=tsl, colWidths=[8.0 * cm, 11.0 * cm])
+        table0 = Table(data, style=tsl, colWidths=[18.0 * cm, 21.0 * cm])
         elements.append(table0)
         elements.append(Paragraph(u' ', heading_style['Spacer']))
 

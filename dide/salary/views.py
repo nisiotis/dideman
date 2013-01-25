@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase.pdfmetrics import registerFont
@@ -183,7 +183,12 @@ def print_mass_pay(request, year):
                                                        'DroidSans-Bold.ttf')))
 
     doc = SimpleDocTemplate(response, pagesize=A4)
-    doc.topMargin = 1.0 * cm
+    doc.topMargin = 0.5 * cm
+    doc.bottomMargin = 0.5 * cm
+    doc.leftMargin = 0.5 * cm
+    doc.rightMargin = 0.5 * cm
+
+    doc.pagesize = landscape(A4) 
     elements = generate_pdf_structure([report])
     doc.build(elements)
     return response
