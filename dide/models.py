@@ -366,9 +366,7 @@ class Organization(models.Model):
     objects = OrganizationManager()
 
     name = models.CharField(u'Όνομα', max_length=100)
-    belongs = models.BooleanField(
-         u'Ανήκει στην Δ.Δ.Ε. Δωδεκανήσου',
-         default=True)
+    belongs = models.BooleanField(u'Ανήκει στην Δ.Δ.Ε. Δωδεκανήσου')
 
     def natural_key(self):
         return (self.name, )
@@ -1031,7 +1029,8 @@ class SchoolType(models.Model):
     rank = models.IntegerField(max_length=2, verbose_name=u'Βαθμίδα',
                                choices=((10, u'Γυμνάσιο'),
                                         (20, u'ΜεταΓυμνασιακό'),
-                                        (15, u'Γυμνάσιο/Λ.Τ.')))
+                                        (15, u'Γυμνάσιο/Λ.Τ.'),
+                                        (11, u'Ιδιωτικό')))
 
     def natural_key(self):
         return (self.name, )
