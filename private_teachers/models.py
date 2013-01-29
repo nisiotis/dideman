@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+from functools import reduce
 import collections
 from dideman.lib.date import *
 from django.contrib import admin
 from django.db import models
 import dideman.dide.models as dide
+
+
+def int300(days):
+    return DateInterval(days // 300, (days % 300) // 25, (days % 300) % 25)
 
 
 class PrivateTeacher(dide.Employee):
@@ -18,6 +23,8 @@ class PrivateTeacher(dide.Employee):
     school = models.ForeignKey('PrivateSchool', verbose_name=u'Σχολείο', blank=True, null=True)
     no_pay_days = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών', default=0)
     active = models.BooleanField(u'Ενεργός', default=True)
+    current_hours = models.IntegerField(u'Τρέχον ωράριο', default=18)
+    current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης', default=current_year_date_from())
 
     def total_experience(self):
         periods = self.workingperiod_set.all()
@@ -30,10 +37,18 @@ class PrivateTeacher(dide.Employee):
         for r, p in intersections:
             d[r].append(p)
 
-        # return DateInterval(
-        #     days=sum([min(r.total, sum([p.experience(r).total
-        #                                 for p in l]))
-        #               for r, l in d.items()]))
+        exp = [(r.total, sum([p.range_experience(r) for p in l]))
+               for r, l in d.items()]
+
+        # all the reduced experience is summed before the conversion
+        # Δ2/2988/27.2.89
+        total, reduced = map(sum,
+                             zip(*[(t, 0) if r * 1.2 > t else (0, r)
+                                   for t, r in exp]))
+        return (DateInterval(int(total)) +
+                int300(int(reduced)) -
+                DateInterval(self.no_pay_days))
+    total_experience.short_description = u"Συνολική προϋπηρεσία"
 
     def save(self, *args, **kwargs):
         self.currently_serves = False
@@ -54,20 +69,20 @@ class WorkingPeriod(models.Model):
     hours_total = models.IntegerField(u'Συνολικές ώρες εργασίας', max_length=4, null=True, blank=True)
     full_week = models.IntegerField(u'Εβδομαδιαίο ωράριο', max_length=2, default=18)
 
-    def experience(self):
-        dr = DateRange(Date(self.date_from), Date(self.date_to))
-
+    def range_experience(self, arange):
         if self.hours_weekly >= self.full_week:
-            return DateInterval(days=dr.total)
-
-        #300 day year
-        if self.hours_total:
-            days = int((self.hours_total / self.full_week) * 6)
+            return arange.total
         else:
-            days = dr.total * (300 / 360)
-            days = int(days * (self.hours_weekly / self.full_week))
+            dr = self.date_range()
+            if self.hours_total:
+                hours = self.hours_total * (arange.total / dr.total)
+                return (hours / self.full_week) * 6
+            else:
+                days = arange.total * (300 / 360)
+                return days * (self.hours_weekly / self.full_week)
 
-        return DateInterval(days // 300, (days % 300) // 25, (days % 300) % 25)
+    def date_range(self):
+        return DateRange(Date(self.date_from), Date(self.date_to))
 
     def __repr__(self):
         return self.__unicode__()

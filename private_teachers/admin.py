@@ -14,12 +14,13 @@ class PrivateTeacherAdmin(DideAdmin):
         js = ('js/dide.js', )
 
     list_display = ['lastname', 'firstname', 'profession']
-    list_filter = ['lastname']
+    list_filter = ['profession__unified_profession']
     fieldsets = [
         ('Γενικά Στοιχεία', {
             'fields': [
                     'lastname', 'firstname', 'fathername', 'sex', 'profession',
                     'profession_description', 'total_experience', 'school',
+                    'current_placement_date', 'current_hours',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'birth_date', 'no_pay_days',
                     'active', 'date_created']}),

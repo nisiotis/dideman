@@ -126,7 +126,7 @@ class DateInterval(object):
     """
     def __init__(self, *args, **kwargs):
         """
-        construct a DateInterval object when given one or all :
+        construct a DateInterval object when given one of :
         one or all of days, months, years as kwargs |
         a string formatted as "YYYYMMDD" or "YYMMDD" |
         days as first argument |
