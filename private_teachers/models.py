@@ -24,10 +24,10 @@ class PrivateTeacher(dide.Employee):
     no_pay_days = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών', default=0)
     active = models.BooleanField(u'Ενεργός', default=True)
     current_hours = models.IntegerField(u'Τρέχον ωράριο', default=18)
-    current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης', default=current_year_date_from())
+    current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης')
 
-    def total_experience(self):
-        periods = self.workingperiod_set.all()
+    def total_experience(self, periods=None):
+        periods = periods or self.workingperiod_set.all()
         ranges = [DateRange(Date(w.date_from), Date(w.date_to)) for w in periods]
         splitted = DateRange.split_all(ranges)
         intersections = [(r, p) for r in splitted
@@ -48,7 +48,16 @@ class PrivateTeacher(dide.Employee):
         return (DateInterval(int(total)) +
                 int300(int(reduced)) -
                 DateInterval(self.no_pay_days))
-    total_experience.short_description = u"Συνολική προϋπηρεσία"
+    total_experience.short_description = u"Προϋπηρεσία"
+
+    def total_service(self):
+        wp = WorkingPeriod(teacher=self, date_from=self.current_placement_date,
+                           date_to=datetime.date.today(),
+                           hours_weekly=self.current_hours, full_week=18)
+        periods = list(self.workingperiod_set.all()) + [wp]
+        return self.total_experience(periods)
+
+    total_service.short_description = u'Συνολική υπηρεσία'
 
     def save(self, *args, **kwargs):
         self.currently_serves = False

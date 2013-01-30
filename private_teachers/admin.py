@@ -19,8 +19,9 @@ class PrivateTeacherAdmin(DideAdmin):
         ('Γενικά Στοιχεία', {
             'fields': [
                     'lastname', 'firstname', 'fathername', 'sex', 'profession',
-                    'profession_description', 'total_experience', 'school',
-                    'current_placement_date', 'current_hours',
+                    'profession_description', 'total_experience',
+                    'total_service', 'school', 'current_placement_date',
+                    'current_hours',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'birth_date', 'no_pay_days',
                     'active', 'date_created']}),
@@ -30,7 +31,8 @@ class PrivateTeacherAdmin(DideAdmin):
                            'social_security_registration_number']})]
 
     readonly_fields = ['organization_serving', 'total_experience',
-                       'date_created', 'profession_description']
+                       'total_service', 'date_created',
+                       'profession_description']
     inlines = [WorkingPeriodInline]
 
 admin.site.register(PrivateTeacher, PrivateTeacherAdmin)
