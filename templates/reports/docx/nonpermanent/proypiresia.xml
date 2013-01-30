@@ -44,7 +44,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος υπηρεσίας έως {{end_date}}: {{rec.experience.format_period}}.</w:t>
+        <w:t>Χρόνος υπηρεσίας έως {{end_date}}: {{rec.experience}}.</w:t>
       </w:r>
     </w:p>
         <w:p>

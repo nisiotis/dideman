@@ -2,7 +2,7 @@
 from django import forms
 from django.forms.models import ModelForm
 from dideman.dide.models import SubstitutePlacement, NonPermanent, PlacementType
-from dideman.dide.util.common import current_year_date_to
+from dideman.lib.date import current_year_date_to
 
 
 class SubstitutePlacementForm(ModelForm):

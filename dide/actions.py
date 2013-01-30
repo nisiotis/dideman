@@ -21,6 +21,10 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+from dideman.dide.util.common import (without_accented,
+                                      current_year_date_from,
+                                      current_year_date_to,
+                                      parse_deletable_list)
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
@@ -520,12 +524,18 @@ class XMLReadAction(object):
         context = {
             "title": title,
             "objects_name": objects_name,
+        #    'queryset': queryset,
             "opts": opts,
             "app_label": app_label,
             'action_title': self.short_description,
             'read_results': read_results,
             'action_time_elapsed': total_elapsed,
             'read_files': rows_updated,
+            'reed_results': reed_results,
+            'action_time_elapsed': elapsed,
+            'reed_files': rows_updated,
+        #    'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+        #    'action_name': self.__name__,
         }
 
         # Display the results page

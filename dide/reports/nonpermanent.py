@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dideman.dide.actions import DocxReport
-from dideman.dide.util.common import current_year, current_year_date_to_half
+from dideman.lib.date import current_year, current_year_date_to_half
 from dideman.dide.util.settings import SETTINGS
 import datetime
 import os
