@@ -13,6 +13,8 @@ def cc(obj):
                 not in [obj['organization_serving'].organization.name, '-']:
             ret.append(obj['employee__permanent__permanent_post'].\
                            organization.name)
+    if obj['employee__permanent__serving_type__id'] != 1:
+        ret.append(u'ΑΛΛΟ Π.Υ.Σ.Δ.Ε.')
     if obj['leave__not_paying']:
         ret.append(u'Εκκαθαριστής')
     ret.append(u'Α.Φ.')
@@ -27,6 +29,7 @@ class LeaveDocxReport(DocxReport):
         fields = fields or ['employee__firstname', 'employee__lastname',
                             'profession', 'organization_serving',
                             'employee__permanent__permanent_post',
+                            'employee__permanent__serving_type__id',
                             'employee__fathername', 'order',
                             'date_from', 'date_to', 'protocol_number',
                             'duration', 'date_issued', 'leave__not_paying']

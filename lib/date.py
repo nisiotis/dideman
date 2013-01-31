@@ -33,12 +33,6 @@ def current_year():
                       str(current_year_date_to().year))
 
 
-def get_class(name):
-    arr = name.split('.')
-    m = __import__('.'.join(arr[:-1]), fromlist=['none'])
-    return getattr(m, arr[-1:][0])
-
-
 class Date(object):
     """
     a class for handling 360 day year dates

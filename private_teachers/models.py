@@ -23,8 +23,8 @@ class PrivateTeacher(dide.Employee):
     school = models.ForeignKey('PrivateSchool', verbose_name=u'Σχολείο', blank=True, null=True)
     no_pay_days = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών', default=0)
     active = models.BooleanField(u'Ενεργός', default=True)
-    current_hours = models.IntegerField(u'Τρέχον ωράριο', default=18)
-    current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης')
+    current_hours = models.IntegerField(u'Τρέχον ωράριο', null=True, blank=True, default=18)
+    current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης', blank=True, null=True)
 
     def total_experience(self, periods=None):
         periods = periods or self.workingperiod_set.all()
