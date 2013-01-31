@@ -53,7 +53,7 @@ class Date(object):
 
         self.year = year
         self.month = month
-        self.day = day
+        self.day = min(day, 30)
 
     @property
     def days(self):
@@ -95,7 +95,14 @@ class Date(object):
         return self.__class__(y, m, d)
 
     def sub_date(self, other):
-        return DateInterval(days=self.days - other.days)
+        y, m, d = [a - b for a, b in zip(self.tuple(), other.tuple())]
+        if d <= 0:
+            d += 30
+            m -= 1
+        if m <= 0:
+            m += 12
+            y -= 1
+        return DateInterval(years=y, months=m, days=d)
 
     def __add__(self, interval):
         return self.add_interval(interval)
