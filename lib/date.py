@@ -75,8 +75,13 @@ class Date(object):
         return formatter % (self.day, self.month, self.year)
 
     def add_interval(self, interval):
-        new_interval = DateInterval(self.days + interval.total)
-        y, m, d = new_interval.tuple()
+        y, m, d = [a + b for a, b in zip(self.tuple(), interval.tuple())]
+        if d > 30:
+            d -= 30
+            m += 1
+        if m > 12:
+            m -= 12
+            y += 1
         return self.__class__(y, m, d)
 
     def sub_interval(self, interval):

@@ -809,11 +809,11 @@ class Permanent(Employee):
         return (Date(self.date_hired) -
                 DateInterval(self.recognised_experience) +
                 DateInterval(days=self.total_no_pay()))
-    payment_start_date_auto.short_description = \
-        u'Μισθολογική αφετηρία (αυτόματη)'
 
     def formatted_payment_start_date_auto(self):
         return self.payment_start_date_auto().format()
+    formatted_payment_start_date_auto.short_description = \
+        u'Μισθολογική αφετηρία (αυτόματη)'
 
     def total_experience(self):
         now = datetime.datetime.now()
