@@ -20,7 +20,7 @@ class PrivateTeacher(dide.Employee):
         ordering = ['lastname']
 
     parent = models.OneToOneField(dide.Employee, parent_link=True)
-    school = models.ForeignKey('PrivateSchool', verbose_name=u'Σχολείο', null=True)
+    school = models.ForeignKey('PrivateSchool', verbose_name=u'Σχολείο', blank=True, null=True)
     no_pay_days = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών', default=0)
     series_number = models.CharField(u'Αρ. Επετηρίδας', max_length=20, blank=True, null=True)
     active = models.BooleanField(u'Ενεργός', default=True)
@@ -52,6 +52,9 @@ class PrivateTeacher(dide.Employee):
     total_experience.short_description = u"Προϋπηρεσία"
 
     def total_service(self):
+        if not self.current_placement_date:
+            return self.total_experience()
+
         wp = WorkingPeriod(teacher=self, date_from=self.current_placement_date,
                            date_to=datetime.date.today(),
                            hours_weekly=self.current_hours, full_week=18)
