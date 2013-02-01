@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from dideman.dide.actions import CSVReport
 from django.contrib import admin
 from dideman.dide.overrides.admin import DideAdmin
 from dideman.private_teachers.models import *
@@ -13,15 +14,16 @@ class PrivateTeacherAdmin(DideAdmin):
     class Media:
         js = ('js/dide.js', )
 
+    actions = [CSVReport(add=["total_experience", "total_service"])]
     list_display = ['lastname', 'firstname', 'profession', 'school', 'active']
     list_filter = ['profession__unified_profession', 'school', 'active']
     fieldsets = [
         ('Γενικά Στοιχεία', {
             'fields': [
                     'lastname', 'firstname', 'fathername', 'sex', 'profession',
-                    'profession_description', 'total_experience',
-                    'total_service', 'school', 'current_placement_date',
-                    'current_hours',
+                    'profession_description', 'series_number',
+                    'total_experience', 'total_service',
+                    'school', 'current_placement_date', 'current_hours',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'birth_date', 'no_pay_days',
                     'active', 'date_created']}),
