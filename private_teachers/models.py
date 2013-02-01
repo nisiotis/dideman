@@ -40,12 +40,11 @@ class PrivateTeacher(dide.Employee):
 
         exp = [(r.total, sum([p.range_experience(r) for p in l]))
                for r, l in d.items()]
-
         # all the reduced experience is summed before the conversion
         # Δ2/2988/27.2.89
         total, reduced = map(sum,
                              zip(*[(t, 0) if r * 1.2 > t else (0, r)
-                                   for t, r in exp])) or 0, 0
+                                   for t, r in exp])) or (0, 0)
         return DateInterval(int(total)) + int300(int(reduced))
     total_experience.short_description = u"Προϋπηρεσία"
 
