@@ -13,8 +13,8 @@ class PrivateTeacherAdmin(DideAdmin):
     class Media:
         js = ('js/dide.js', )
 
-    list_display = ['lastname', 'firstname', 'profession']
-    list_filter = ['profession__unified_profession']
+    list_display = ['lastname', 'firstname', 'profession', 'school', 'active']
+    list_filter = ['profession__unified_profession', 'school', 'active']
     fieldsets = [
         ('Γενικά Στοιχεία', {
             'fields': [

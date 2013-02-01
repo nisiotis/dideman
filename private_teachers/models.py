@@ -20,8 +20,9 @@ class PrivateTeacher(dide.Employee):
         ordering = ['lastname']
 
     parent = models.OneToOneField(dide.Employee, parent_link=True)
-    school = models.ForeignKey('PrivateSchool', verbose_name=u'Σχολείο', blank=True, null=True)
+    school = models.ForeignKey('PrivateSchool', verbose_name=u'Σχολείο', null=True)
     no_pay_days = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών', default=0)
+    series_number = models.CharField(u'Αρ. Επετηρίδας', max_length=20, blank=True, null=True)
     active = models.BooleanField(u'Ενεργός', default=True)
     current_hours = models.IntegerField(u'Τρέχον ωράριο', null=True, blank=True, default=18)
     current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης', blank=True, null=True)
@@ -77,6 +78,7 @@ class WorkingPeriod(models.Model):
     hours_weekly = models.IntegerField(u'Εβδομαδιαίες ώρες εργασίας', max_length=2, null=True, blank=True)
     hours_total = models.IntegerField(u'Συνολικές ώρες εργασίας', max_length=4, null=True, blank=True)
     full_week = models.IntegerField(u'Εβδομαδιαίο ωράριο', max_length=2, default=18)
+    comments = models.CharField(u'Σχόλια', max_length=255, null=True, blank=True)
 
     def range_experience(self, arange):
         if self.hours_weekly >= self.full_week:
