@@ -62,6 +62,22 @@ class Date(object):
         """
         return self.year * 360 + self.month * 30 + self.day
 
+    @classmethod
+    def mod(cls, y, m, d):
+        if d <= 0:
+            d += 30
+            m -= 1
+        if m <= 0:
+            m += 12
+            y -= 1
+        if d > 30:
+            d -= 30
+            m += 1
+        if m > 12:
+            m -= 12
+            y += 1
+        return y, m, d
+
     def tuple(self):
         return self.year, self.month, self.day
 
@@ -76,32 +92,14 @@ class Date(object):
 
     def add_interval(self, interval):
         y, m, d = [a + b for a, b in zip(self.tuple(), interval.tuple())]
-        if d > 30:
-            d -= 30
-            m += 1
-        if m > 12:
-            m -= 12
-            y += 1
-        return self.__class__(y, m, d)
+        return self.__class__(*self.__class__.mod(y, m, d))
 
     def sub_interval(self, interval):
         y, m, d = [a - b for a, b in zip(self.tuple(), interval.tuple())]
-        if d <= 0:
-            d += 30
-            m -= 1
-        if m <= 0:
-            m += 12
-            y -= 1
-        return self.__class__(y, m, d)
+        return self.__class__(*self.__class__.mod(y, m, d))
 
     def sub_date(self, other):
-        y, m, d = [a - b for a, b in zip(self.tuple(), other.tuple())]
-        if d <= 0:
-            d += 30
-            m -= 1
-        if m <= 0:
-            m += 12
-            y -= 1
+        y, m, d = self.__class__.mod(*[a - b for a, b in zip(self.tuple(), other.tuple())])
         return DateInterval(years=y, months=m, days=d)
 
     def __add__(self, interval):
