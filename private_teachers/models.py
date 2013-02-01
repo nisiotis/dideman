@@ -45,22 +45,20 @@ class PrivateTeacher(dide.Employee):
         # Δ2/2988/27.2.89
         total, reduced = map(sum,
                              zip(*[(t, 0) if r * 1.2 > t else (0, r)
-                                   for t, r in exp]))
-        return (DateInterval(int(total)) +
-                int300(int(reduced)) -
-                DateInterval(self.no_pay_days))
+                                   for t, r in exp])) or 0, 0
+        return DateInterval(int(total)) + int300(int(reduced))
     total_experience.short_description = u"Προϋπηρεσία"
 
     def total_service(self):
         if not self.current_placement_date:
-            return self.total_experience()
-
-        wp = WorkingPeriod(teacher=self, date_from=self.current_placement_date,
-                           date_to=datetime.date.today(),
-                           hours_weekly=self.current_hours, full_week=18)
-        periods = list(self.workingperiod_set.all()) + [wp]
-        return self.total_experience(periods)
-
+            total_experience = self.total_experience()
+        else:
+            wp = WorkingPeriod(teacher=self, date_from=self.current_placement_date,
+                               date_to=datetime.date.today(),
+                               hours_weekly=self.current_hours, full_week=18)
+            periods = list(self.workingperiod_set.all()) + [wp]
+            total_experience = self.total_experience(periods)
+        return total_experience - DateInterval(self.no_pay_days)
     total_service.short_description = u'Συνολική υπηρεσία'
 
     def save(self, *args, **kwargs):

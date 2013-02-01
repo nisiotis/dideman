@@ -2,6 +2,10 @@
 from __future__ import division
 import datetime
 import operator
+import math
+import functools
+
+sign = functools.partial(math.copysign, 1)
 
 now = datetime.datetime.now()
 
@@ -160,15 +164,15 @@ class DateInterval(object):
 
     @property
     def years(self):
-        return self.total // 360
+        return int(sign(self.total)) * (abs(self.total) // 360)
 
     @property
     def months(self):
-        return (self.total % 360) // 30
+        return int(sign(self.total)) * ((abs(self.total) % 360) // 30)
 
     @property
     def days(self):
-        return (self.total % 360) % 30
+        return int(sign(self.total)) * ((abs(self.total) % 360) % 30)
 
     def tuple(self):
         return self.years, self.months, self.days
