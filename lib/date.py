@@ -285,7 +285,13 @@ class DateRange(object):
         """
         start or end differs
         """
-        return self.start != other.start or self.end != other.end
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        """
+        used for item uniqueness in sets
+        """
+        return hash(repr(self))
 
 
 def test():
