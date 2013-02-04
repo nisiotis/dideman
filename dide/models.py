@@ -627,7 +627,7 @@ class Employee(models.Model):
                 self.profession)
 
     def formatted_recognised_experience(self):
-        return DateInterval(self.recognised_experience).format()
+        return DateInterval(self.recognised_experience)
     formatted_recognised_experience.short_description = \
         u'Μορφοποιημένη προϋπηρεσία'
 
@@ -809,11 +809,7 @@ class Permanent(Employee):
         return (Date(self.date_hired) -
                 DateInterval(self.recognised_experience) +
                 DateInterval(days=self.total_no_pay()))
-
-    def formatted_payment_start_date_auto(self):
-        return self.payment_start_date_auto().format()
-    formatted_payment_start_date_auto.short_description = \
-        u'Μισθολογική αφετηρία (αυτόματη)'
+    payment_start_date_auto.short_description =  u'Μισθολογική αφετηρία (αυτόματη)'
 
     def total_experience(self):
         now = datetime.datetime.now()

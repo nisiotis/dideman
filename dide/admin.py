@@ -33,7 +33,7 @@ from models import (TransferArea, Leave, Responsibility, Profession,
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
 from actions import (CSVReport, FieldAction, XMLReadAction,
-                     CreatePDF, DeleteAction, timestamp) 
+                     CreatePDF, DeleteAction, timestamp)
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
@@ -59,12 +59,12 @@ class PaymentFileNameAdmin(DideAdmin):
         opts = self.model._meta
         form = PaymentFileNameMassForm
         title = u"Προσθήκη αρχείου ZIP"
-        
+
         if request.POST:
             form = PaymentFileNameMassForm(request.POST, request.FILES)
             if form.is_valid():
 
-#                if zipfile.is_zipfile(request.FILES['xml_file']):    
+#                if zipfile.is_zipfile(request.FILES['xml_file']):
 #                    zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
 #                    xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
 #                    for file in xml_li:
@@ -73,13 +73,13 @@ class PaymentFileNameAdmin(DideAdmin):
 #                        f = open(os.path.join(settings.MEDIA_ROOT,'xml_files',file.decode('iso8859-7').encode('utf-8')),"w")
 #                        f.write(zf.read(file))
 #                        f.close()
-#                        pf = PaymentFileName(xml_file='xml_files/%s' % force_unicode(file, 'cp737', 'ignore'), 
-#                                             description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]), 
-#                                             status=0, 
+#                        pf = PaymentFileName(xml_file='xml_files/%s' % force_unicode(file, 'cp737', 'ignore'),
+#                                             description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]),
+#                                             status=0,
 #                                             imported_records=0)
 #                        pf.save()
 
-                if zipfile.is_zipfile(request.FILES['xml_file']):    
+                if zipfile.is_zipfile(request.FILES['xml_file']):
                     zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
                     xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
                     for file in xml_li:
@@ -89,8 +89,8 @@ class PaymentFileNameAdmin(DideAdmin):
                         f = open(os.path.join(settings.MEDIA_ROOT,'xmlfiles','fromzipfile%s.xml' % t),"wb")
                         f.write(zf.read(file))
                         f.close()
-                        pf = PaymentFileName(xml_file='xmlfiles/fromzipfile%s.xml' % t, 
-                                             description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]), 
+                        pf = PaymentFileName(xml_file='xmlfiles/fromzipfile%s.xml' % t,
+                                             description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]),
                                              status=0)
                         pf.save()
 
@@ -104,8 +104,8 @@ class PaymentFileNameAdmin(DideAdmin):
                 else:
                     msg = u"Το αρχείο δεν είναι μορφής ZIP."
                     messages.error(request, msg)
-                    
-        media = self.media        
+
+        media = self.media
         context = {
             "title": title,
             "opts": opts,
@@ -115,7 +115,7 @@ class PaymentFileNameAdmin(DideAdmin):
             'errors': helpers.AdminErrorList(form, []),
             'action_name': u'Προσθήκη αρχείου ZIP',
             }
-        
+
         # Display the confirmation page
         return TemplateResponse(request,
                                 'admin/add_zip_file.html',
@@ -371,7 +371,7 @@ class PermanentAdmin(EmployeeAdmin):
         ('Στοιχεία Προϋπηρεσίας', {
                 'fields': ['currently_serves', 'recognised_experience',
                            'formatted_recognised_experience',
-                           'formatted_payment_start_date_auto',
+                           'payment_start_date_auto',
                            'payment_start_date_manual',
                            'calculable_no_pay', 'no_pay_existing',
                            'date_end']}),
@@ -379,14 +379,14 @@ class PermanentAdmin(EmployeeAdmin):
     search_fields = EmployeeAdmin.search_fields + ('registration_number',)
     readonly_fields = EmployeeAdmin.readonly_fields + \
         ['permanent_post', 'temporary_position',
-         'formatted_recognised_experience', 'formatted_payment_start_date_auto',
+         'formatted_recognised_experience', 'payment_start_date_auto',
          'rank', 'profession_description', 'calculable_no_pay',
          'date_created']
 
     actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
                                      'temporary_position',
                                      'profession__description',
-                                     'formatted_payment_start_date_auto',
+                                     'payment_start_date_auto',
                                      'formatted_recognised_experience',
                                      'rank__value', 'rank__date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
