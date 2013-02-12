@@ -132,28 +132,44 @@ def alter_choices(fn):
     def choices(self, cl):
         gen = fn(self, cl)
         yield gen.next()
+        first_param = self.lookup_param
+        other_params = [getattr(self, p)
+                        for p in ['lookup_kwarg2', 'lookup_kwarg_isnull']
+                        if hasattr(self, p)]
+        second_param = other_params[0] if other_params else None
+
         while 1:
             choice = gen.next()
-            GET_qd = cl.request.GET.copy()
-            GET_lookup_param_list = GET_qd.getlist(self.lookup_param, [])
-            parent_qd = QueryDict(choice['query_string'][1:]).copy()
-            parent_qd_value = parent_qd.get(self.lookup_param, None)
-            if self.modifier_value == 'OR':
-                if parent_qd_value in GET_lookup_param_list:
-                    GET_lookup_param_list.remove(parent_qd_value)
-                else:
-                    GET_lookup_param_list.append(parent_qd_value)
-                if not GET_lookup_param_list:
-                    del GET_qd[self.lookup_param]
+            query_dict = cl.request.GET.copy()
+            parent_query_dict = QueryDict(choice['query_string'][1:]).copy()
+            parent_second_value = parent_query_dict.get(second_param, None)
+
+            if parent_second_value:
+                param = second_param
+                param_list = query_dict.getlist(second_param, [])
+                parent_value = parent_query_dict.get(second_param, None)
             else:
-                if self.lookup_param  in GET_lookup_param_list:
-                    del GET_qd[self.lookup_param]
-                GET_lookup_param_list = [parent_qd_value]
-            GET_qd.setlist(self.lookup_param, GET_lookup_param_list)
-            choice['query_string'] = '?%s' % GET_qd.urlencode()
-            choice['selected'] = parent_qd_value and \
-                parent_qd_value in cl.request.GET. \
-                getlist(self.lookup_param, [])
+                param = first_param
+                param_list = query_dict.getlist(first_param, [])
+                parent_value = parent_query_dict.get(first_param, None)
+
+            if self.modifier_value == 'OR':
+                if parent_value in param_list:
+                    param_list.remove(parent_value)
+                else:
+                    param_list.append(parent_value)
+                if not param_list:
+                    del query_dict[param]
+            else:
+                if first_param  in query_dict:
+                    del query_dict[first_param]
+                if second_param in query_dict:
+                    del query_dict[second_param]
+                param_list = [parent_value]
+
+            query_dict.setlist(param, param_list)
+            choice['query_string'] = '?%s' % query_dict.urlencode()
+            choice['selected'] = parent_value and parent_value in cl.request.GET.getlist(param, [])
             yield choice
     return choices
 
