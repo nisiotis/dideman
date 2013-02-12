@@ -247,7 +247,7 @@ def generate_pdf_structure(reports):
             if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
                 s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
             data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
-            if data: 
+            if data:
                 table2 = Table(data, style=tsh, colWidths=[17 * cm])
                 elements.append(table2)
             del data
@@ -382,6 +382,14 @@ def generate_pdf_landscape_structure(reports):
     for report in reports:
         data = []
         height, width = A4
+        report_title = getSampleStyleSheet()
+        report_sub_title = getSampleStyleSheet()
+        report_section_titles = getSampleStyleSheet()
+        report_signature = getSampleStyleSheet()
+        report_small_captions = getSampleStyleSheet()
+        report_normal_captions = getSampleStyleSheet()
+        report_table_style = getSampleStyleSheet()
+
         heading_style = getSampleStyleSheet()
         heading_style.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                          fontName='DroidSans-Bold',
@@ -390,7 +398,6 @@ def generate_pdf_landscape_structure(reports):
                                          spaceAfter=5,
                                          fontName='DroidSans-Bold',
                                          fontSize=12))
-        signature = getSampleStyleSheet()
         signature.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                      fontName='DroidSans', fontSize=5))
         tbl_style = getSampleStyleSheet()
@@ -485,7 +492,7 @@ def generate_pdf_landscape_structure(reports):
             if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
                 s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
             data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
-            if data: 
+            if data:
                 table2 = Table(data, style=tsh, colWidths=[23 * cm])
                 elements.append(table2)
             del data
