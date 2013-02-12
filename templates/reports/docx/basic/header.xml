@@ -90,7 +90,7 @@
               <w:rPr/>
               <w:br/>
             </w:r>
-            <w:r> 
+            <w:r>
               <w:rPr>
                 <w:b/>
                 <w:bCs/>
@@ -113,8 +113,8 @@
               <w:br/>
               <w:t>ΠΕΡΙΦΕΡΙΑΚΗ ΔΙΕΥΘΥΝΣΗ Α’ ΒΑΘΜΙΑΣ ΚΑΙ Β’ ΒΑΘΜΙΑΣ  ΕΚΠΑΙΔΕΥΣΗΣ {{ settings.dide_district }}</w:t>
             </w:r>
-            
-            
+
+
             <w:r>
               <w:rPr>
                 <w:b/>
@@ -123,7 +123,7 @@
               <w:br/>
               <w:t>ΔΙΕΥΘΥΝΣΗ Β’ ΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ {{ dide_place }}</w:t>
             </w:r>
-            
+
           </w:p>
         </w:tc>
         <w:tc>
@@ -272,28 +272,28 @@
               <w:br/>
             </w:r>
             <w:r>
-              <w:t>Πληροφορίες: {{contact_person}} {{contact_email}}</w:t>
+              <w:t>Πληροφορίες: {{contact_person}}</w:t>
             </w:r>
             <w:r>
               <w:rPr/>
               <w:br/>
             </w:r>
             <w:r>
-              <w:t>Τηλέφωνο: {{settings.telephone_number}}</w:t>
+              <w:t>Τηλέφωνο: {{telephone_number}}</w:t>
             </w:r>
             <w:r>
               <w:rPr/>
               <w:br/>
             </w:r>
             <w:r>
-              <w:t>email: {{settings.email_dide}}</w:t>
+              <w:t>email: {{email}}</w:t>
             </w:r>
             <w:r>
               <w:rPr/>
               <w:br/>
             </w:r>
             <w:r>
-              <w:t>Fax: {{settings.fax_number}}</w:t>
+              <w:t>Fax: {{fax_number}}</w:t>
             </w:r>
           </w:p>
         </w:tc>
