@@ -4,8 +4,6 @@ from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            reports_calc_amount, rprts_from_file)
 from dideman import settings
 from dideman.dide.util import xml
-from dideman.dide.util.common import without_accented, current_year_date_from, \
-    current_year_date_to, parse_deletable_list
 from dideman.dide.util.settings import SETTINGS
 from dideman.settings import TEMPLATE_DIRS
 from django.contrib.admin import helpers
@@ -21,10 +19,8 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
-from dideman.dide.util.common import (without_accented,
-                                      current_year_date_from,
-                                      current_year_date_to,
-                                      parse_deletable_list)
+from dideman.lib.date import current_year_date_from, current_year_date_to
+from dideman.lib.common import without_accented, parse_deletable_list
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
