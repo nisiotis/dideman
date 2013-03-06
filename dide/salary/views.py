@@ -183,7 +183,13 @@ def print_mass_pay(request, year):
                                                        'DroidSans-Bold.ttf')))
 
     doc = SimpleDocTemplate(response, pagesize=A4)
-    doc.topMargin = 1.0 * cm
+    doc.topMargin = 0.5 * cm
+    doc.bottomMargin = 0.5 * cm
+    doc.leftMargin = 1.5 * cm
+    doc.rightMargin = 1.5 * cm
+
+    doc.pagesize = landscape(A4) 
+
     elements = generate_pdf_structure([report])
     doc.build(elements)
     return response
