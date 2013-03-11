@@ -186,6 +186,17 @@ class DateInterval(object):
         formatter = formatter or u"%s έτη, %s μήνες, %s ημέρες"
         return formatter % (self.years, self.months, self.days)
 
+    def total300(self):
+        """same interval in 300 day year"""
+        y, m, d = self.tuple()
+        if d >= 25:
+            d -= 25
+            m += 1
+        if m >= 12:
+            m -= 12
+            y += 1
+        return y * 300 + m * 25 + d
+
     def __add__(self, other):
         return self.__class__(days=self.total + other.total)
 

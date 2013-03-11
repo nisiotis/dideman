@@ -6,6 +6,8 @@ from dideman.lib.date import *
 from django.contrib import admin
 from django.db import models
 import dideman.dide.models as dide
+from dideman.lib.ranking import RANKS, next_index
+import datetime
 
 
 def int300(days):
@@ -27,7 +29,8 @@ class PrivateTeacher(dide.Employee):
     current_hours = models.IntegerField(u'Τρέχον ωράριο', null=True, blank=True, default=18)
     current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης', blank=True, null=True)
 
-    def total_experience(self, periods=None):
+
+    def _total_days(self, periods=None):
         periods = periods or self.workingperiod_set.all()
         ranges = [DateRange(Date(w.date_from), Date(w.date_to)) for w in periods]
         splitted = DateRange.split_all(ranges)
@@ -40,11 +43,16 @@ class PrivateTeacher(dide.Employee):
 
         exp = [(r.total, sum([p.range_experience(r) for p in l]))
                for r, l in d.items()]
+
         # all the reduced experience is summed before the conversion
         # Δ2/2988/27.2.89
         total, reduced = map(sum,
                              zip(*[(t, 0) if r * 1.2 > t else (0, r)
                                    for t, r in exp])) or (0, 0)
+        return total, reduced
+
+    def total_experience(self, periods=None):
+        total, reduced = self._total_days(periods)
         return DateInterval(int(total)) + int300(int(reduced))
     total_experience.short_description = u"Προϋπηρεσία"
 
@@ -59,6 +67,38 @@ class PrivateTeacher(dide.Employee):
             total_experience = self.total_experience(periods)
         return total_experience - DateInterval(self.no_pay_days)
     total_service.short_description = u'Συνολική υπηρεσία'
+
+    def rank(self):
+        r, mk = RANKS[min(
+                self.total_service().years + self.postgrad_extra().years, 40)]
+        return u"%s%s" % (r, mk)
+    rank.short_description = u'Βαθμός'
+
+    def postgrad_extra(self):
+        degrees = self.employeedegree_set.all().select_related('degree')
+        has_msc = degrees.filter(degree__id=1).exists()
+        has_phd = degrees.filter(degree__id=2).exists()
+        return DateInterval(years=min(int(has_msc) * 2 + int(has_phd) * 6, 7))
+
+    def next_rank_date(self):
+        #import pdb;pdb.set_trace()
+        total_service = self.total_service() + self.postgrad_extra()
+        r, mk = RANKS[min(total_service.years, 40)]
+        year = next_index((r, mk))
+        when = DateInterval(years=year)
+        interval = when - total_service
+
+        if self.current_hours:
+            if self.current_hours >= 18:
+                return interval
+            else:
+                x360, x300 = self._total_days()
+                days = (when - DateInterval(x360) - self.postgrad_extra()).total300() - x300
+                d = self.current_placement_date + datetime.timedelta(days=int(days * (18 / self.current_hours) * (365/300)))
+                return d.strftime("%d-%m-%Y")
+        else:
+            return "-"
+    next_rank_date.short_description = u'Ημερομηνία αλλαγής Μ.Κ. (εκτίμηση)'
 
     def save(self, *args, **kwargs):
         self.currently_serves = False
