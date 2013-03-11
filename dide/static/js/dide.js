@@ -1,7 +1,7 @@
 (function($) {
     $(document).ready(function() {
         var documentWidth = $(document).width();
-        if(window.hasOwnProperty('DateTimeShortcuts')) {
+        if(Object.prototype.hasOwnProperty.call(window, 'DateTimeShortcuts')) {
             oldFunc = DateTimeShortcuts.openCalendar;
             DateTimeShortcuts.openCalendar = function(num) {
                 oldFunc.call(DateTimeShortcuts, num);
