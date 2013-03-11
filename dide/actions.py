@@ -491,6 +491,7 @@ class XMLReadAction(object):
             queryset, opts, request.user, modeladmin.admin_site, using)
 
         total_elapsed = 0
+        elapsed = 0
         rows_updated = 0
         read_results = []
         for o in queryset:
@@ -530,9 +531,9 @@ class XMLReadAction(object):
             'read_results': read_results,
             'action_time_elapsed': total_elapsed,
             'read_files': rows_updated,
-            'reed_results': reed_results,
+            'read_results': read_results,
             'action_time_elapsed': elapsed,
-            'reed_files': rows_updated,
+            'read_files': rows_updated,
         #    'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
         #    'action_name': self.__name__,
         }
