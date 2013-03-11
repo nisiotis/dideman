@@ -81,7 +81,6 @@ class PrivateTeacher(dide.Employee):
         return DateInterval(years=min(int(has_msc) * 2 + int(has_phd) * 6, 7))
 
     def next_rank_date(self):
-        #import pdb;pdb.set_trace()
         total_service = self.total_service() + self.postgrad_extra()
         r, mk = RANKS[min(total_service.years, 40)]
         year = next_index((r, mk))
@@ -90,7 +89,8 @@ class PrivateTeacher(dide.Employee):
 
         if self.current_hours:
             if self.current_hours >= 18:
-                return interval
+                d = datetime.date.today() + datetime.timedelta(days=interval.total)
+                return d.strftime("%d-%m-%Y")
             else:
                 x360, x300 = self._total_days()
                 days = (when - DateInterval(x360) - self.postgrad_extra()).total300() - x300
