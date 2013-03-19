@@ -805,7 +805,7 @@ class Permanent(Employee):
 
     def payment_start_date_auto(self):
         if not self.date_hired:
-            return datetime.date.today()
+            return Date(datetime.date.today())
         return (Date(self.date_hired) -
                 DateInterval(self.recognised_experience) +
                 DateInterval(days=self.total_no_pay()))
