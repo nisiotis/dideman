@@ -1252,10 +1252,9 @@ class EmployeeLeave(models.Model):
 
     def clean(self):
         from django.core.exceptions import ValidationError
-
         if hasattr(self, 'leave') and hasattr(self, 'employee'):
             if self.leave.name == u'Κανονική':
-                y = datetime.date.today().year
+                y = self.date_from.year
                 dur = EmployeeLeave.objects.filter(
                     employee=self.employee, leave=self.leave,
                     date_from__gte=datetime.date(y, 1, 1),
@@ -1266,7 +1265,8 @@ class EmployeeLeave(models.Model):
                     u' Μέρες χωρίς την τρέχουσα άδεια: {0}'
 
                 if dur + self.duration > 10:
-                        raise ValidationError(msg.format(dur))
+                    print self
+                    raise ValidationError(msg.format(dur))
 
             if len(self.intersects_with()) > 0:
                 raise ValidationError('Υπάρχει και άλλη άδεια αυτό διάστημα')
