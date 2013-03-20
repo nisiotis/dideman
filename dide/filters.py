@@ -431,6 +431,33 @@ class NextPromotionInRangeFilter(FreeDateFieldListFilter):
                                                              self.date_to)
 
 
+class PaymentStartDateFilter(FreeDateFieldListFilter):
+    title = u'Ημερομηνία Μισθολογικής Αφετηρίας'
+    parameter_name = 'payment_start'
+    modifier_name = '_m_' + parameter_name
+    lookup_param = parameter_name
+    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
+    DideAdmin.add_filter_parameter(parameter_name)
+    list_view = False
+
+    def __init__(self, request, params, model, model_admin, *args, **kwargs):
+        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        super(PaymentStartDateFilter, self).__init__(request, params,
+                                                         model, model_admin,
+                                                         *args, **kwargs)
+
+    def queryset(self, request, queryset):
+        if [self.date_from, self.date_to] == self.default_date_values():
+            return queryset
+        else:
+            ids = [p.id for p in queryset
+                   if self.date_from <= \
+                       p.payment_start_date_auto().python() <=\
+                       self.date_to]
+            print ids
+            return queryset.filter(id__in=ids)
+
+
 class SubstituteAreaFilter(ModifierSimpleListFilter):
     title = u'Περιοχή τοποθέτησης'
     parameter_name = u'position_area'

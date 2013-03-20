@@ -9,15 +9,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 
 from forms import SubstitutePlacementForm, PaymentFileNameMassForm
 from overrides.admin import DideAdmin
-from filters import (PermanentPostFilter, OrganizationServingFilter,
-                     StudyFilter, DateHiredFilter, LeaveDateToFilter,
-                     LeaveDateFromFilter, CurrentlyServesFilter,
-                     TransferedFilter, NextPromotionInRangeFilter,
-                     EmployeeWithLeaveFilter, EmployeeWithOutLeaveFilter,
-                     ServesInDideSchoolFilter, SubstituteAreaFilter,
-                     SubstituteOrderFilter, SubstituteDateRangeFilter,
-                     NonPermanentOrganizationServingFilter,
-                     ServesInDideOrgFilter, NonPermanentWithTotalExtraPosition)
+from filters import *
 from applications.filters import FinalisedFilter
 from models import (TransferArea, Leave, Responsibility, Profession,
                     Promotion, NonPermanentType,
@@ -343,6 +335,7 @@ class PermanentAdmin(EmployeeAdmin):
     list_filter = EmployeeAdmin.list_filter + (TransferedFilter,
                                                'serving_type',
                                                DateHiredFilter,
+                                               PaymentStartDateFilter,
                                                'has_permanent_post',
                                                StudyFilter,
                                                CurrentlyServesFilter,

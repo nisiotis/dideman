@@ -85,6 +85,12 @@ class Date(object):
     def tuple(self):
         return self.year, self.month, self.day
 
+    def python(self):
+        """ converts self to a python datetime.date object avoiding leap year
+        errors
+        """
+        return datetime.date(self.year, self.month, 1) + datetime.timedelta(self.day - 1)
+
     def format(self, formatter=None):
         """
         format the tuple (self.day, self.month, self.year) as a string
