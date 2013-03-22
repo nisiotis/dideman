@@ -356,7 +356,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'profession_description', 'permanent_post',
                     'temporary_position', 'organization_serving',
                     'study_years', 'serving_type', 'date_hired',
-                    'order_hired', 'hours', 'is_permanent',
+                    'order_hired', 'is_permanent',
                     'has_permanent_post', 'rank', 'address', 'identity_number',
                     'inaccessible_school', 'telephone_number1',
                     'telephone_number2', 'email',
@@ -366,12 +366,13 @@ class PermanentAdmin(EmployeeAdmin):
                            'formatted_recognised_experience',
                            'payment_start_date_auto',
                            'payment_start_date_manual',
+                           'hours', 'total_service',
                            'calculable_no_pay', 'no_pay_existing',
                            'date_end']}),
             economic_fieldset]
     search_fields = EmployeeAdmin.search_fields + ('registration_number',)
     readonly_fields = EmployeeAdmin.readonly_fields + \
-        ['permanent_post', 'temporary_position',
+        ['permanent_post', 'temporary_position', 'hours', 'total_service',
          'formatted_recognised_experience', 'payment_start_date_auto',
          'rank', 'profession_description', 'calculable_no_pay',
          'date_created']

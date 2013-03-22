@@ -467,6 +467,10 @@ class Profession(models.Model):
     unified_profession = models.CharField(u'Κλάδος',
                                           max_length=100)  # ΠΕ04...
 
+    def category(self):
+        """ΠΕ, ΤΕ, ΔΕ"""
+        return self.id[:2]
+
     def __unicode__(self):
         return self.id
 
@@ -768,8 +772,6 @@ class Permanent(Employee):
         blank=True)
     payment_start_date_manual = models.DateField(
          u'Μισθολογική αφετηρία (μετά από άδεια)', null=True, blank=True)
-    hours = models.IntegerField(u'Υποχρεωτικό Ωράριο', max_length=2, null=True,
-                                blank=True)
     is_permanent = models.BooleanField(u'Έχει μονιμοποιηθεί', null=False,
                                        blank=False, default=False)
     has_permanent_post = models.BooleanField(u'Έχει οργανική θέση',
@@ -777,6 +779,47 @@ class Permanent(Employee):
                                              default=False)
     no_pay_existing = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών από άλλα'
                                           u' Π.Υ.Σ.Δ.Ε.', default=0)
+
+    def total_service(self):
+        if self.payment_start_date_manual:
+            start = Date(self.payment_start_date_manual)
+        else:
+            start = self.payment_start_date_auto()
+        return Date(datetime.date.today()) - start
+    total_service.short_description = u'Συνολική υπηρεσία'
+
+    def hours(self):
+        """
+        Π.Ε.
+        μέχρι 6 έτη        -> 21
+        6 έως 12           -> 19
+        12 έως 20          -> 18
+        περισσότερα από 20 -> 16
+
+        Τ.Ε.
+        μέχρι 7 έτη        -> 22
+        7 έως 13 έτη       -> 19
+        13 έως 20          -> 18
+        περισσότερα από 20 -> 16
+
+        Δ.Ε.
+        26 ώρες για όλους
+        """
+        cat = self.profession.category()
+        years = self.total_service().years
+
+        pe = [(5, 21), (11, 19), (19, 18), (50, 16)]
+        te = [(6, 22), (12, 19), (19, 18), (50, 16)]
+
+        get_hours = lambda sy, l: next((y, h) for y, h in l if sy <= y)[1]
+
+        if cat == u'ΠΕ':
+            return get_hours(years, pe)
+        elif cat == u'ΤΕ':
+            return get_hours(years, te)
+        else:
+            return 26
+    hours.short_description = u'Υποχρεωτικό ωράριο'
 
     def natural_key(self):
         return (self.registration_number, )
