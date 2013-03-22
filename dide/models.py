@@ -854,12 +854,6 @@ class Permanent(Employee):
                 DateInterval(days=self.total_no_pay()))
     payment_start_date_auto.short_description =  u'Μισθολογική αφετηρία (αυτόματη)'
 
-    def total_experience(self):
-        now = datetime.datetime.now()
-        if not self.date_hired:
-            return (0, 0, 0)
-        return Date(now) - self.payment_start_date_auto()
-
     def organization_serving(self):
         return super(Permanent, self).organization_serving() or \
             self.permanent_post()

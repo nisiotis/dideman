@@ -14,7 +14,7 @@
         <w:rPr>
           <w:b/>
         </w:rPr>
-        <w:t>{{ rec.total_experience }}.</w:t>
+        <w:t>{{ rec.total_service }}.</w:t>
       </w:r>
     </w:p>
     <w:p>
