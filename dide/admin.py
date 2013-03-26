@@ -379,6 +379,7 @@ class PermanentAdmin(EmployeeAdmin):
 
     actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
                                      'temporary_position',
+                                     'hours',
                                      'profession__description',
                                      'payment_start_date_auto',
                                      'formatted_recognised_experience',

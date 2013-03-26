@@ -551,7 +551,7 @@ class Employee(models.Model):
                                          null=True, blank=True)
     telephone_number2 = models.CharField(u'Αρ. Τηλεφώνου 2', max_length=14,
                                          null=True, blank=True)
-    social_security_registration_number = models.CharField('Α.Μ.Κ.Α.',
+    social_security_registration_number = models.CharField(u'Α.Μ.Κ.Α.',
                                                            max_length=11,
                                                            null=True,
                                                            blank=True)
