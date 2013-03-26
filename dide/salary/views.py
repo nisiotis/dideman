@@ -5,6 +5,7 @@ from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
                                  NonPermanent, Employee, Payment, PaymentCode)
 from dideman.dide.util.settings import SETTINGS
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
+                                           generate_pdf_landscape_structure,
                                            reports_calc_amount)
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect
@@ -13,7 +14,7 @@ from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase.pdfmetrics import registerFont
@@ -190,7 +191,7 @@ def print_mass_pay(request, year):
 
     doc.pagesize = landscape(A4) 
 
-    elements = generate_pdf_structure([report])
+    elements = generate_pdf_landscape_structure([report])
     doc.build(elements)
     return response
 

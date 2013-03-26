@@ -17,7 +17,7 @@ from django.db import connection, transaction
 from itertools import groupby
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase.pdfmetrics import registerFont
@@ -363,6 +363,7 @@ def generate_pdf_structure(reports):
         elements.append(PageBreak())
     return elements
 
+# here and on changes to be made.
 
 def generate_pdf_landscape_structure(reports):
     """
@@ -384,12 +385,39 @@ def generate_pdf_landscape_structure(reports):
         data = []
         height, width = A4
         report_title = getSampleStyleSheet()
+        report_title.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                        fontName='DroidSans-Bold',
+                                        fontSize=12))
+
         report_sub_title = getSampleStyleSheet()
+        report_sub_title.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
+                                            fontName='DroidSans',
+                                            fontSize=10))
+        report_sub_title.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                            fontName='DroidSans',
+                                            fontSize=10))
+
         report_section_titles = getSampleStyleSheet()
+        report_section_titles.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
+                                        fontName='DroidSans',
+                                        fontSize=8))
         report_signature = getSampleStyleSheet()
         report_small_captions = getSampleStyleSheet()
+        report_small_captions.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
+                                        fontName='DroidSans',
+                                        fontSize=6))
+
+
         report_normal_captions = getSampleStyleSheet()
+        report_normal_captions.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
+                                        fontName='DroidSans',
+                                        fontSize=10))
+        report_normal_captions.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                        fontName='DroidSans',
+                                        fontSize=10))
+       
         report_table_style = getSampleStyleSheet()
+        signature = getSampleStyleSheet()
 
         heading_style = getSampleStyleSheet()
         heading_style.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
@@ -408,7 +436,6 @@ def generate_pdf_landscape_structure(reports):
                                      fontName='DroidSans', fontSize=5))
         tbl_style.add(ParagraphStyle(name='BoldLeft', alignment=TA_LEFT,
                                      fontName='DroidSans-Bold', fontSize=5))
-
         tsl = [('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                ('FONT', (0, 0), (-1, 0), 'DroidSans'),
                ('FONTSIZE', (0, 0), (-1, 0), 8),
@@ -422,6 +449,32 @@ def generate_pdf_landscape_structure(reports):
               ('GRID', (0, 0), (-1, -1), 0.5, colors.black)]
         tsf = [('ALIGN', (1, 1), (-1, -1), 'CENTER')]
 
+        data = []
+        headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
+                     Paragraph('%s' % report['registration_number'] or u'Δ/Υ',
+                               tbl_style['Left']),
+                     Paragraph('ΑΦΜ', tbl_style['Left']),
+                     Paragraph(u'%s' % report['vat_number'],
+                               tbl_style['Left'])],
+                    [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
+                     Paragraph('%s' % report['lastname'],
+                               tbl_style['Left']),
+                     Paragraph('', tbl_style['Left']),
+                     Paragraph('', tbl_style['Left'])],
+                    [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
+                     Paragraph('%s' % report['firstname'],
+                               tbl_style['Left']),
+                     Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
+                     Paragraph(u'%s' % report['rank'] if report['rank'] is not None else u'Δ/Υ',
+                               tbl_style['Left'])]]
+        
+        table0 = Table(headdata, style=tsh,
+                       colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
+        elements.append(table0)
+        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        del data
+
+        data = [] 
         if report['report_type'] == '0':
             elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ',
                                       heading_style['Center']))
