@@ -436,7 +436,7 @@ def generate_pdf_landscape_structure(reports):
                                          fontName='DroidSans-Bold',
                                          fontSize=12))
         signature.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
-                                     fontName='DroidSans', fontSize=5))
+                                     fontName='DroidSans', fontSize=12))
         tbl_style = getSampleStyleSheet()
         tbl_style.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
                                      fontName='DroidSans', fontSize=12))
@@ -462,48 +462,66 @@ def generate_pdf_landscape_structure(reports):
 
         tsf = [('ALIGN', (1, 1), (-1, -1), 'CENTER')]
 
-        elements.append(Table([[Paragraph('ΣΤΟΙΧΕΙΑ ΕΡΓΟΔΟΤΗ - ΦΟΡΕΑ', report_sub_title['Left'])]], style=tsl,
+        elements.append(Table([[Paragraph('ΣΤΟΙΧΕΙΑ ΕΡΓΟΔΟΤΗ - ΦΟΡΕΑ',
+                                          report_sub_title['Left'])]], style=tsl,
                        colWidths=[28 * cm]))
    
         data = []
-        somedata = [[Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΔΩΔΕΚΑΝΗΣΟΥ', report_normal_captions['Left'])],
+        somedata = [[Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΔΩΔΕΚΑΝΗΣΟΥ',
+                               report_normal_captions['Left'])],
                     [Paragraph(u'Επωνυμία', report_small_captions['Left'])],
                     [Paragraph(u'ΔΗΜΟΣΙΑ ΥΠΗΡΕΣΙΑ', report_sub_title['Left'])], 
                     [Paragraph(u'Είδος επιχείρησης', report_small_captions['Left'])],
-                    [Paragraph(u'ΡΟΔΟΣ,  ΚΛΑΥΔΙΟΥ ΠΕΠΠΕΡ, 85100, 2241055832', report_sub_title['Left'])],
-                    [Paragraph(u'Δ/νση: Πόλη - Οδός - Αριθ. - Τ.Κ. - Αριθ. Τηλ.', report_small_captions['Left'])],
+                    [Paragraph(u'ΡΟΔΟΣ,  ΚΛΑΥΔΙΟΥ ΠΕΠΠΕΡ, 85100, 2241055832',
+                               report_sub_title['Left'])],
+                    [Paragraph(u'Δ/νση: Πόλη - Οδός - Αριθ. - Τ.Κ. - Αριθ. Τηλ.',
+                               report_small_captions['Left'])],
                     [Paragraph(u'ΑΦΜ: 099656721', report_title['Left'])]]
         table = Table(somedata, style=tsh,
                        colWidths=[14.5 * cm])
 
         headdata = [[table, [Paragraph('ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ', report_title['Center']),
-                             Paragraph('που καταβλήθηκαν από 01/01/2011 μέχρι 31/12/2011', report_normal_captions['Center']),
-                             Paragraph('(ΠΑΡΑΓΡΑΦΟΣ 3 ΑΡΘΡΟΥ 83 Ν 2238/1994)', report_small_captions['Center'])]]]
+                             Paragraph('που καταβλήθηκαν από 01/01/2011 μέχρι 31/12/2011',
+                                       report_normal_captions['Center']),
+                             Paragraph('(ΠΑΡΑΓΡΑΦΟΣ 3 ΑΡΘΡΟΥ 83 Ν 2238/1994)',
+                                       report_small_captions['Center'])]]]
         
         table0 = Table(headdata, style=tsl,
                        colWidths=[14.5 * cm, 13.5 * cm])
         elements.append(table0)
-        elements.append(Table([[Paragraph('Ι. ΣΤΟΙΧΕΙΑ ΤΟΥ ΔΙΚΑΙΟΥΧΟΥ ΜΙΣΘΩΤΟΥ ή ΣΥΝΤΑΞΙΟΥΧΟΥ', report_sub_title['Left'])]], 
+        elements.append(Table([[Paragraph('Ι. ΣΤΟΙΧΕΙΑ ΤΟΥ ΔΙΚΑΙΟΥΧΟΥ ΜΙΣΘΩΤΟΥ ή ΣΥΝΤΑΞΙΟΥΧΟΥ',
+                                          report_sub_title['Left'])]], 
                               style=tsl, colWidths=[28 * cm]))
 
         if report['emp_type'] == 1:
-            headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
-                         Paragraph('%s' % report['registration_number'] or u'Δ/Υ',
-                                   tbl_style['Left']),
-                         Paragraph('ΑΦΜ', tbl_style['Left']),
-                         Paragraph(u'%s' % report['vat_number'],
-                                   tbl_style['Left'])],
-                        [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
-                         Paragraph('%s' % report['lastname'],
-                                   tbl_style['Left']),
-                         Paragraph('', tbl_style['Left']),
-                         Paragraph('', tbl_style['Left'])],
-                        [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
-                         Paragraph('%s' % report['firstname'],
-                                   tbl_style['Left']),
-                         Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
-                         Paragraph(u'%s' % report['rank'] if report['rank'] is not None else u'Δ/Υ',
-                                   tbl_style['Left'])]]
+            headdata = [[Paragraph('%s' % report['lastname'], report_normal_captions['Left']),
+                         Paragraph('%s' % report['firstname'], report_normal_captions['Left']),
+                         Paragraph('%s' % report['fathername'], report_normal_captions['Left']),
+                         Paragraph('%s' % report['vat_number'], report_normal_captions['Left'])],
+                        [Paragraph('Επώνυμο', report_small_captions['Left']),
+                         Paragraph('Όνομα', report_small_captions['Left']),
+                         Paragraph('Όνομα Πατέρα', report_small_captions['Left']),
+                         Paragraph('Αριθμ. Φορολ. Μητρώου', report_small_captions['Left'])]]
+            table1 = Table(headdata, style=tsh,
+                           colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
+            elements.append(table1)
+            headdata = [[Paragraph('- ', report_normal_captions['Left']),
+                         Paragraph('- ', report_normal_captions['Left']),
+                         Paragraph('- ', report_normal_captions['Left']),
+                         Paragraph('- ', report_normal_captions['Left'])],
+                        [Paragraph('Δ/νση κατοικίας: Πόλη, Οδός - Αριθ.', report_small_captions['Left']),
+                         Paragraph('Ταχ. Κωδ.', report_small_captions['Left']),
+                         Paragraph('Αρ. Τηλ.', report_small_captions['Left']),
+                         Paragraph('Αρμόδια για τη φορολογία του ΔΟΥ', report_small_captions['Left'])]]
+            table1 = Table(headdata, style=tsh,
+                           colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
+            elements.append(table1)
+            headdata = [[Paragraph('- ', report_normal_captions['Left'])],
+                        [Paragraph('Είδος υπηρεσίας', report_small_captions['Left'])]]
+            table1 = Table(headdata, style=tsh,
+                           colWidths=[28 * cm])
+            elements.append(table1)
+            
         else:
             headdata = [[Paragraph(u'ΑΦΜ', tbl_style['Left']),
                          Paragraph('%s' % report['vat_number'],
@@ -521,36 +539,33 @@ def generate_pdf_landscape_structure(reports):
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])]]
 
-        table1 = Table(headdata, style=tsh,
-                       colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
-        elements.append(table1)
+       
+        elements.append(Table([[Paragraph('ΙΙ. ΑΜΟΙΒΕΣ ΠΟΥ ΦΟΡΟΛΟΓΟΥΝΤΑΙ',
+                                          report_sub_title['Left'])]],
+                              style=tsl, colWidths=[28 * cm]))
 
-
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
         del data
 
         data = [] 
-        if report['report_type'] == '0':
-            elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ',
-                                      heading_style['Center']))
-            if report['type'] > 12:
-                elements.append(Paragraph(u'Αποδοχές %s %s' %
-                                          (report['type'], report['year']),
-                                          heading_style["Center"]))
-            else:
-                elements.append(Paragraph(u'Μισθοδοσία %s %s' %
-                                          (report['type'], report['year']),
-                                          heading_style['Center']))
-            elements.append(Paragraph(u' ', heading_style['Spacer']))
+        #if report['report_type'] == '0':
+        #    if report['type'] > 12:
+        #        pass
+        #    else:
+        #        passelements.append(Paragraph(u'Μισθοδοσία %s %s' %
+        #                                  (report['type'], report['year']),
+        #                                  heading_style['Center']))
+        #    elements.append(Paragraph(u' ', heading_style['Spacer']))
 
-        else:
-            elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ %s' % report['year'],
-                                      heading_style['Center']))
-            elements.append(Paragraph(u' ', heading_style['Spacer']))
+        #else:
+        #    elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ %s' % report['year'],
+        #                              heading_style['Center']))
+        #    elements.append(Paragraph(u' ', heading_style['Spacer']))
 
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
-        del data
-        data = []
+        #elements.append(Paragraph(u' ', heading_style['Spacer']))
+        #del data
+        #data = []
+
+
         total_amount = 0
         total_tax_amount = 0
         for i in report['payment_categories']:
@@ -649,31 +664,42 @@ def generate_pdf_landscape_structure(reports):
             del data
 
 
+        elements.append(Table([[Paragraph('ΙIΙ. ΑΜΟΙΒΕΣ ΠΟΥ ΑΠΑΛΛΑΣΣΟΝΤΑΙ ΑΠΟ ΤΟ ΦΟΡΟ ή ΔΕ ΘΕΩΡΟΥΝΤΑΙ ΕΙΣΟΔΗΜΑ ή ΦΟΡΟΛΟΓΟΥΝΤΑΙ ΑΥΤΟΤΕΛΩΣ',
+                                          report_sub_title['Left'])]],
+                              style=tsl, colWidths=[28 * cm]))
+
 
         today = datetime.date.today()
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
-
+        del somedata
+        somedata = []
+        somedata = [[Paragraph(u'- ', report_normal_captions['Left'])],
+                    [Paragraph(u'- ', report_small_captions['Left'])],
+                    [Paragraph(u'- ', report_sub_title['Left'])], 
+                    [Paragraph(u'- ', report_small_captions['Left'])],
+                    [Paragraph(u'- ', report_sub_title['Left'])],
+                    [Paragraph(u'- ', report_small_captions['Left'])],
+                    [Paragraph(u'- ', report_title['Left'])]]
+        table = Table(somedata, style=tsh, colWidths=[18 * cm])
         data = []
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u'Ρόδος, %s / %s / %s' %
-                               (today.day, today.month, today.year),
-                               signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u'Ο Διευθυντής', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(SETTINGS['manager'], signature['Center'])])
-        table6 = Table(data, style=tsf, colWidths=[17.0 * cm, 6.0 * cm])
-        elements.append(table6)
+        
+        del headdata
+        headdata = [] 
+        headdata = [[table, [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
+                             Paragraph(u' ', signature['Center']),
+                             Paragraph(u' ', signature['Center']),
+                             Paragraph(u' ', signature['Center']),
+                             Paragraph(u'Ο Διευθυντής', signature['Center']),
+                             Paragraph(u' ', signature['Center']),
+                             Paragraph(u' ', signature['Center']),
+                             Paragraph(u' ', signature['Center']),
+                             Paragraph(u' ', signature['Center']),
+                             Paragraph(u' ', signature['Center']),
+                             Paragraph(SETTINGS['manager'], signature['Center'])]]]
+        table0 = Table(headdata, style=tsl,
+                       colWidths=[18 * cm, 10 * cm])
+        elements.append(table0)
+
+        #table6 = Table(data, style=tsf, colWidths=[17.0 * cm, 6.0 * cm])
+        #elements.append(table6)
         elements.append(PageBreak())
     return elements
