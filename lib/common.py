@@ -38,3 +38,21 @@ def get_class(name):
     arr = name.split('.')
     m = __import__('.'.join(arr[:-1]), fromlist=['none'])
     return getattr(m, arr[-1:][0])
+
+
+def try_many(*exps, **kwargs):
+    """
+    Takes a series of lambda expressions and tries to evaluate them in a try-
+    except context. If one of them succeeds then it returns its value.
+    If all of them raise exceptions then it returns a default value, if
+    provided, else it raises the last exception.
+    """
+    for e in exps:
+        try:
+            return e()
+        except Exception, error:
+            continue
+    if 'default' in kwargs:
+        return kwargs['default']
+    else:
+        raise error

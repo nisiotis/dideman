@@ -37,6 +37,7 @@ import inspect
 import os
 import zipfile
 from dideman.dide.models import Employee, PaymentCode
+from dideman.lib.common import try_many
 
 
 def timestamp():
@@ -65,14 +66,22 @@ class TemplateAction(object):
         self.add_response_headers()
         return self.response
 
-    def get_description(self, modeladmin, field):
-        try:
-            return modeladmin.model._meta.get_field_by_name(field)[0].verbose_name
-        except:
-            try:
-                return getattr(modeladmin.model, field).short_description
-            except:
-                return field
+    def get_description(self, model, field):
+
+        def foreign_key_desc():
+            index = field.find("__")
+            if index > 0:
+                first = field[:index]
+                rest = field[index + 2:]
+                fieldobj = model._meta.get_field_by_name(first)[0]
+                return "%s %s" % (self.get_description(model, first),
+                                  self.get_description(fieldobj.rel.to, rest))
+            else:
+                raise Exception("foreign key not found")
+
+        return try_many(lambda : model._meta.get_field_by_name(field)[0].verbose_name,
+                        lambda : getattr(model, field).short_description,
+                        foreign_key_desc, default=field)
 
     def merge_fields(self, modeladmin, add, remove):
         if not self.fields:
@@ -239,9 +248,11 @@ class CSVReport(TemplateAction):
         self.response.content = ''
         writer = csv.writer(self.response, delimiter=';', quotechar='"',
                             quoting=csv.QUOTE_NONNUMERIC)
-        descriptions = [self.convert_to_string(self.get_description(modeladmin, field),
-                                               encode_in_iso=True)
-                        for field in self.fields]
+        descriptions = [
+            self.convert_to_string(
+                self.get_description(modeladmin.model, field),
+                encode_in_iso=True)
+            for field in self.fields]
         writer.writerow(descriptions)
         for obj in queryset:
             writer.writerow([self.field_string_value(obj, f,
