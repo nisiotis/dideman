@@ -437,6 +437,9 @@ def generate_pdf_landscape_structure(reports):
                                          fontSize=12))
         signature.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                      fontName='DroidSans', fontSize=12))
+        signature.add(ParagraphStyle(name='Spacer', alignment=TA_CENTER,
+                                     fontName='DroidSans', fontSize=12, leading=40))
+
         tbl_style = getSampleStyleSheet()
         tbl_style.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
                                      fontName='DroidSans', fontSize=12))
@@ -564,12 +567,14 @@ def generate_pdf_landscape_structure(reports):
         #elements.append(Paragraph(u' ', heading_style['Spacer']))
         #del data
         #data = []
-
+        headdata = [[Paragraph('- ', signature['Spacer'])]]
+        table1 = Table(headdata, style=tsh, colWidths=[28 * cm])
+        elements.append(table1)
 
         total_amount = 0
         total_tax_amount = 0
         for i in report['payment_categories']:
-            elements.append(Paragraph(u' ', heading_style['Spacer']))
+            #elements.append(Paragraph(u' ', heading_style['Spacer']))
             s = u'%s' % i['title']
             if (i['start_date'] and i['start_date'] != 'NULL') and (i['end_date'] and i['start_date'] != 'NULL'):
                 s1 = "/".join(list(reversed(i['start_date'].split('-'))))
@@ -578,15 +583,15 @@ def generate_pdf_landscape_structure(reports):
             if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
                 s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
             data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
-            if data:
-                table2 = Table(data, style=tsh, colWidths=[23 * cm])
-                elements.append(table2)
+            #if data:
+                #table2 = Table(data, style=tsh, colWidths=[23 * cm])
+                #elements.append(table2)
             del data
             data = []
             data.append([Paragraph('Αποδοχές', tbl_style['BoldLeft']),
                          Paragraph('Κρατήσεις', tbl_style['BoldLeft'])])
-            table3 = Table(data, style=ts, colWidths=[12.5 * cm, 12.5 * cm])
-            elements.append(table3)
+            #table3 = Table(data, style=ts, colWidths=[12.5 * cm, 12.5 * cm])
+            #elements.append(table3)
             del data
             gret = []
             de = []
@@ -614,21 +619,21 @@ def generate_pdf_landscape_structure(reports):
             _get = lambda l, i: l[i] if i < len(l) else ['', '']
             data = [_get(gret, i) + _get(de, i) for i in range(0, max(len(gret),
                                                                       len(de)))]
-            table4 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
-                                                      9.5 * cm, 2.0 * cm])
-            elements.append(table4)
+            #table4 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
+            #                                          9.5 * cm, 2.0 * cm])
+            #elements.append(table4)
             total_amount += float(grnum) - float(denum)
             del data
             data = []
-            elements.append(Paragraph(u' ', heading_style['Spacer']))
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
+            #elements.append(Paragraph(u' ', heading_style['Spacer']))
+        #elements.append(Paragraph(u' ', heading_style['Spacer']))
+        #elements.append(Paragraph(u' ', heading_style['Spacer']))
         del data
         if report['report_type'] == '0':
             data = []
             data.append([Paragraph('Πληρωτέο', tbl_style['BoldLeft'])])
-            table5 = Table(data, style=ts, colWidths=[23 * cm])
-            elements.append(table5)
+            #table5 = Table(data, style=ts, colWidths=[23 * cm])
+            #elements.append(table5)
             del data
             data = []
 
@@ -645,9 +650,9 @@ def generate_pdf_landscape_structure(reports):
                                        tbl_style['Right']), '', ''])
                 total_amount = 0
 
-            table5 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
-                                                      9.5 * cm, 2.0 * cm])
-            elements.append(table5)
+            #table5 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
+            #                                          9.5 * cm, 2.0 * cm])
+            #elements.append(table5)
             del data
         else:
             data = []
@@ -658,10 +663,10 @@ def generate_pdf_landscape_structure(reports):
                          ])
             total_amount = 0
             total_tax_amount = 0
-            table5 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
-                                                      9.5 * cm, 2.0 * cm])
-            elements.append(table5)
-            del data
+            #table5 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
+            #                                          9.5 * cm, 2.0 * cm])
+            #elements.append(table5)
+            #del data
 
 
         elements.append(Table([[Paragraph('ΙIΙ. ΑΜΟΙΒΕΣ ΠΟΥ ΑΠΑΛΛΑΣΣΟΝΤΑΙ ΑΠΟ ΤΟ ΦΟΡΟ ή ΔΕ ΘΕΩΡΟΥΝΤΑΙ ΕΙΣΟΔΗΜΑ ή ΦΟΡΟΛΟΓΟΥΝΤΑΙ ΑΥΤΟΤΕΛΩΣ',
@@ -672,28 +677,26 @@ def generate_pdf_landscape_structure(reports):
         today = datetime.date.today()
         del somedata
         somedata = []
-        somedata = [[Paragraph(u'- ', report_normal_captions['Left'])],
-                    [Paragraph(u'- ', report_small_captions['Left'])],
-                    [Paragraph(u'- ', report_sub_title['Left'])], 
-                    [Paragraph(u'- ', report_small_captions['Left'])],
-                    [Paragraph(u'- ', report_sub_title['Left'])],
-                    [Paragraph(u'- ', report_small_captions['Left'])],
-                    [Paragraph(u'- ', report_title['Left'])]]
-        table = Table(somedata, style=tsh, colWidths=[18 * cm])
+        somedata = [[Paragraph(u'Είδος αμοιβής', report_normal_captions['Left']),
+                     Paragraph(u'Διάταξη Νόμου που παρέχει την απαλλαγή', report_normal_captions['Left']),
+                     Paragraph(u'Ακαθάριστο ποσό', report_normal_captions['Left']),
+                     Paragraph(u'Σύνολο κρατήσεων', report_normal_captions['Left']),
+                     Paragraph(u'Καθαρό ποσό', report_normal_captions['Left']),
+                     Paragraph(u'Φόρος παρακρατηθείς', report_normal_captions['Left'])],
+                    [Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left'])]]
+        table = Table(somedata, style=ts, colWidths=[3 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm])
         data = []
         
         del headdata
         headdata = [] 
         headdata = [[table, [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
-                             Paragraph(u' ', signature['Center']),
-                             Paragraph(u' ', signature['Center']),
-                             Paragraph(u' ', signature['Center']),
-                             Paragraph(u'Ο Διευθυντής', signature['Center']),
-                             Paragraph(u' ', signature['Center']),
-                             Paragraph(u' ', signature['Center']),
-                             Paragraph(u' ', signature['Center']),
-                             Paragraph(u' ', signature['Center']),
-                             Paragraph(u' ', signature['Center']),
+                             Paragraph(u'Ο Διευθυντής', signature['Spacer']),
+                             
                              Paragraph(SETTINGS['manager'], signature['Center'])]]]
         table0 = Table(headdata, style=tsl,
                        colWidths=[18 * cm, 10 * cm])
