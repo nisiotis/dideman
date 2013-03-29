@@ -384,7 +384,17 @@ def generate_pdf_landscape_structure(reports):
     for report in reports:
         data = []
         height, width = A4
+
+
+        report_content = getSampleStyleSheet()
+        report_content.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                        fontName='DroidSans',
+                                        fontSize=8,
+                                        leading=150))
+
+
         report_title = getSampleStyleSheet()
+
         report_title.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                         fontName='DroidSans-Bold',
                                         fontSize=12,
@@ -414,6 +424,14 @@ def generate_pdf_landscape_structure(reports):
         report_small_captions.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                         fontName='DroidSans',
                                         fontSize=6))
+
+        report_normal_captions_9 = getSampleStyleSheet()
+        report_normal_captions_9.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
+                                        fontName='DroidSans',
+                                        fontSize=9))
+        report_normal_captions_9.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                        fontName='DroidSans',
+                                        fontSize=9))
 
 
         report_normal_captions = getSampleStyleSheet()
@@ -484,7 +502,7 @@ def generate_pdf_landscape_structure(reports):
                        colWidths=[14.5 * cm])
 
         headdata = [[table, [Paragraph('ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ', report_title['Center']),
-                             Paragraph('που καταβλήθηκαν από 01/01/2011 μέχρι 31/12/2011',
+                             Paragraph(u'που καταβλήθηκαν από 01/01/%s μέχρι 31/12/%s' % (report['year'], report['year']),
                                        report_normal_captions['Center']),
                              Paragraph('(ΠΑΡΑΓΡΑΦΟΣ 3 ΑΡΘΡΟΥ 83 Ν 2238/1994)',
                                        report_small_captions['Center'])]]]
@@ -492,6 +510,7 @@ def generate_pdf_landscape_structure(reports):
         table0 = Table(headdata, style=tsl,
                        colWidths=[14.5 * cm, 13.5 * cm])
         elements.append(table0)
+        elements.append(Paragraph(' ', heading_style['Spacer']))
         elements.append(Table([[Paragraph('Ι. ΣΤΟΙΧΕΙΑ ΤΟΥ ΔΙΚΑΙΟΥΧΟΥ ΜΙΣΘΩΤΟΥ ή ΣΥΝΤΑΞΙΟΥΧΟΥ',
                                           report_sub_title['Left'])]], 
                               style=tsl, colWidths=[28 * cm]))
@@ -542,7 +561,7 @@ def generate_pdf_landscape_structure(reports):
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])]]
 
-       
+        elements.append(Paragraph(' ', heading_style['Spacer']))
         elements.append(Table([[Paragraph('ΙΙ. ΑΜΟΙΒΕΣ ΠΟΥ ΦΟΡΟΛΟΓΟΥΝΤΑΙ',
                                           report_sub_title['Left'])]],
                               style=tsl, colWidths=[28 * cm]))
@@ -567,7 +586,7 @@ def generate_pdf_landscape_structure(reports):
         #elements.append(Paragraph(u' ', heading_style['Spacer']))
         #del data
         #data = []
-        headdata = [[Paragraph('- ', signature['Spacer'])]]
+        headdata = [[Paragraph('- ', report_content['Center'])]]
         table1 = Table(headdata, style=tsh, colWidths=[28 * cm])
         elements.append(table1)
 
@@ -668,8 +687,9 @@ def generate_pdf_landscape_structure(reports):
             #elements.append(table5)
             #del data
 
-
-        elements.append(Table([[Paragraph('ΙIΙ. ΑΜΟΙΒΕΣ ΠΟΥ ΑΠΑΛΛΑΣΣΟΝΤΑΙ ΑΠΟ ΤΟ ΦΟΡΟ ή ΔΕ ΘΕΩΡΟΥΝΤΑΙ ΕΙΣΟΔΗΜΑ ή ΦΟΡΟΛΟΓΟΥΝΤΑΙ ΑΥΤΟΤΕΛΩΣ',
+ 
+        elements.append(Paragraph(' ', heading_style['Spacer']))
+        elements.append(Table([[Paragraph('ΙIΙ. ΑΜΟΙΒΕΣ ΠΟΥ ΑΠΑΛΛΑΣΣΟΝΤΑΙ ΑΠΟ ΤΟ ΦΟΡΟ ή ΔΕ ΘΕΩΡΟΥΝΤΑΙ ΕΙΣΟΔΗΜΑ ή ΦΟΡΟΛΟΓΟΥΝΤΑΙ ΑΥΤΟΤΕΛΩΣ', 
                                           report_sub_title['Left'])]],
                               style=tsl, colWidths=[28 * cm]))
 
@@ -677,29 +697,54 @@ def generate_pdf_landscape_structure(reports):
         today = datetime.date.today()
         del somedata
         somedata = []
-        somedata = [[Paragraph(u'Είδος αμοιβής', report_normal_captions['Left']),
-                     Paragraph(u'Διάταξη Νόμου που παρέχει την απαλλαγή', report_normal_captions['Left']),
-                     Paragraph(u'Ακαθάριστο ποσό', report_normal_captions['Left']),
-                     Paragraph(u'Σύνολο κρατήσεων', report_normal_captions['Left']),
-                     Paragraph(u'Καθαρό ποσό', report_normal_captions['Left']),
-                     Paragraph(u'Φόρος παρακρατηθείς', report_normal_captions['Left'])],
+        somedata = [[Paragraph(u'Είδος αμοιβής', report_normal_captions_9['Center']),
+                     Paragraph(u'Διάταξη Νόμου που παρέχει την απαλλαγή ή επιβάλλει αυτοτελή φορολογία',
+                               report_normal_captions_9['Center']),
+                     Paragraph(u'Ακαθάριστο ποσό', report_normal_captions_9['Center']),
+                     Paragraph(u'Σύνολο κρατήσεων που αφορούν τις αμοιβές που απαλλάσσονται',
+                               report_normal_captions_9['Center']),
+                     Paragraph(u'Καθαρό ποσό', report_normal_captions_9['Center']),
+                     Paragraph(u'Φόρος που παρακρατήθηκε (για την αυτοτελή φορολογία)',
+                               report_normal_captions_9['Center'])],
+                    [Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left'])],
                     [Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left'])]]
-        table = Table(somedata, style=ts, colWidths=[3 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm])
+
+        table_1 = Table(somedata, style=ts, colWidths=[3 * cm, 4 * cm, 2 * cm, 4 * cm, 2 * cm, 3 * cm])
+        del somedata
+        somedata = []
+        somedata = [[Paragraph(u'ΣΥΝΟΛΟ', report_normal_captions['Center']),
+                     
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left']),
+                     Paragraph(u'-', report_normal_captions['Left'])]]
+        
+        table_2 = Table(somedata, style=ts, colWidths=[7 * cm, 2 * cm, 4 * cm, 2 * cm, 3 * cm])
+        
         data = []
         
         del headdata
+        sig = os.path.join(settings.MEDIA_ROOT, "signature3.png")
+        im = Image(sig)
+        im.drawHeight = 3.0 * cm
+        im.drawWidth = 6.5 * cm
         headdata = [] 
-        headdata = [[table, [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
-                             Paragraph(u'Ο Διευθυντής', signature['Spacer']),
-                             
-                             Paragraph(SETTINGS['manager'], signature['Center'])]]]
-        table0 = Table(headdata, style=tsl,
-                       colWidths=[18 * cm, 10 * cm])
+        headdata = [[[table_1,table_2], 
+                     [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
+                      Paragraph(' ', heading_style['Spacer']),
+                      im]]]
+        
+        table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])
         elements.append(table0)
 
         #table6 = Table(data, style=tsf, colWidths=[17.0 * cm, 6.0 * cm])
