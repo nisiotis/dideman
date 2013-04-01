@@ -1,17 +1,4 @@
 # -*- coding: utf-8 -*-
-#---- usage ----
-#p = PaymentFileName.objects.filter(description__startswith = 'Ένταλμα')
-#all_emp = prtest.rprts_from_file(p)
-#u = set([x['employee_id'] for x in all_emp])
-
-#tg = []; td = []; te = []
-#for x in u:
-#    g, d, e = prtest.calc_amount(filter(lambda s: s['employee_id'] == x, all_emp))
-#    tg.append(g)
-#    td.append(d)
-#    te.append(e)
-
-# we need to remove the loans and the non taxed codes (added the code, maybe fixed)
 from dideman import settings
 from django.db import connection, transaction
 from itertools import groupby
@@ -569,119 +556,113 @@ def generate_pdf_landscape_structure(reports):
         del data
 
         data = [] 
-        #if report['report_type'] == '0':
-        #    if report['type'] > 12:
-        #        pass
-        #    else:
-        #        passelements.append(Paragraph(u'Μισθοδοσία %s %s' %
-        #                                  (report['type'], report['year']),
-        #                                  heading_style['Center']))
-        #    elements.append(Paragraph(u' ', heading_style['Spacer']))
 
-        #else:
-        #    elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ %s' % report['year'],
-        #                              heading_style['Center']))
-        #    elements.append(Paragraph(u' ', heading_style['Spacer']))
 
-        #elements.append(Paragraph(u' ', heading_style['Spacer']))
-        #del data
-        #data = []
-        headdata = [[Paragraph('- ', report_content['Center'])]]
-        table1 = Table(headdata, style=tsh, colWidths=[28 * cm])
-        elements.append(table1)
-
-        total_amount = 0
-        total_tax_amount = 0
+        #total_amount = 0
+        #total_tax_amount = 0
+        sections = 0
         for i in report['payment_categories']:
+            
             #elements.append(Paragraph(u' ', heading_style['Spacer']))
-            s = u'%s' % i['title']
-            if (i['start_date'] and i['start_date'] != 'NULL') and (i['end_date'] and i['start_date'] != 'NULL'):
-                s1 = "/".join(list(reversed(i['start_date'].split('-'))))
-                s2 = "/".join(list(reversed(i['end_date'].split('-'))))
-                s += ' (%s - %s) ' % (s1, s2)
-            if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
-                s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
-            data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
+            #s = u'%s' % i['title']
+            #if (i['start_date'] and i['start_date'] != 'NULL') and (i['end_date'] and i['start_date'] != 'NULL'):
+            #    s1 = "/".join(list(reversed(i['start_date'].split('-'))))
+            #    s2 = "/".join(list(reversed(i['end_date'].split('-'))))
+            #    s += ' (%s - %s) ' % (s1, s2)
+            #if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
+            #    s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
+            #data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
             #if data:
                 #table2 = Table(data, style=tsh, colWidths=[23 * cm])
                 #elements.append(table2)
-            del data
-            data = []
-            data.append([Paragraph('Αποδοχές', tbl_style['BoldLeft']),
-                         Paragraph('Κρατήσεις', tbl_style['BoldLeft'])])
+            #del data
+            #data = []
+            #data.append([Paragraph('Αποδοχές', tbl_style['BoldLeft']),
+            #             Paragraph('Κρατήσεις', tbl_style['BoldLeft'])])
             #table3 = Table(data, style=ts, colWidths=[12.5 * cm, 12.5 * cm])
             #elements.append(table3)
-            del data
-            gret = []
-            de = []
-            data = []
-            grnum = 0
-            denum = 0
+            #del data
+            #gret = []
+            #de = []
+            #data = []
+            #grnum = 0
+            #denum = 0
             for p in i['payments']:
-                if p['type'] == 'gr' or p['type'] == 'et':
-                    s = u'%s' % p['code']
-                    gret.append([Paragraph(s, tbl_style['Left']),
-                                 Paragraph('%.2f €' % p['amount'],
-                                           tbl_style['Right'])])
-                    if p['type'] == 'gr':
-                        grnum += float(p['amount'])
-                else:
-                    s = u'%s' % p['code']
-                    if p['info'] is not None:
-                        s = s + " (%s)" % p['info']
-                    if int(p['code_tax']) == 1:
-                        total_tax_amount += p['amount']
-                    de.append([Paragraph(s, tbl_style['Left']),
-                               Paragraph('%.2f €' % p['amount'],
-                                         tbl_style['Right'])])
-                    denum += float(p['amount'])
-            _get = lambda l, i: l[i] if i < len(l) else ['', '']
-            data = [_get(gret, i) + _get(de, i) for i in range(0, max(len(gret),
-                                                                      len(de)))]
+                sections += 1
+                #if p['type'] == 'gr' or p['type'] == 'et':
+                #    s = u'%s' % p['code']
+                #    gret.append([Paragraph(s, tbl_style['Left']),
+                #                 Paragraph('%.2f €' % p['amount'],
+                #                           tbl_style['Right'])])
+                #    if p['type'] == 'gr':
+                #        grnum += float(p['amount'])
+                #else:
+                #    s = u'%s' % p['code']
+                #    if p['info'] is not None:
+                #        s = s + " (%s)" % p['info']
+                #    if int(p['code_tax']) == 1:
+                #        total_tax_amount += p['amount']
+                #    de.append([Paragraph(s, tbl_style['Left']),
+                #               Paragraph('%.2f €' % p['amount'],
+                #                         tbl_style['Right'])])
+                #    denum += float(p['amount'])
+            #_get = lambda l, i: l[i] if i < len(l) else ['', '']
+            #data = [_get(gret, i) + _get(de, i) for i in range(0, max(len(gret),
+            #                                                          len(de)))]
             #table4 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
             #                                          9.5 * cm, 2.0 * cm])
             #elements.append(table4)
-            total_amount += float(grnum) - float(denum)
-            del data
-            data = []
+            #total_amount += float(grnum) - float(denum)
+            #del data
+            #data = []
             #elements.append(Paragraph(u' ', heading_style['Spacer']))
+        w = 0.00
+        w = 28.0 / sections
+        print w, sections
+        d = [w * cm for x in range(sections)]
+        print d
+        headdata = [[[Paragraph('- ', report_content['Center'])] for x in d]]
+        table1 = Table(headdata, style=ts, colWidths=d)
+        elements.append(table1)
+
+
         #elements.append(Paragraph(u' ', heading_style['Spacer']))
         #elements.append(Paragraph(u' ', heading_style['Spacer']))
-        del data
-        if report['report_type'] == '0':
-            data = []
-            data.append([Paragraph('Πληρωτέο', tbl_style['BoldLeft'])])
+        #del data
+        #if report['report_type'] == '0':
+        #    data = []
+        #    data.append([Paragraph('Πληρωτέο', tbl_style['BoldLeft'])])
             #table5 = Table(data, style=ts, colWidths=[23 * cm])
             #elements.append(table5)
-            del data
-            data = []
+        #    del data
+        #    data = []
 
-            if report['net_amount1'] != '0' and report['net_amount2'] != '0':
-                data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
-                             Paragraph('%.2f €' % numtoStr(report['net_amount1']),
-                                       tbl_style['Right']), '', ''])
-                data.append([Paragraph('Β\' δεκαπενθήμερο', tbl_style['Left']),
-                             Paragraph('%.2f €' % numtoStr(report['net_amount2']),
-                                       tbl_style['Right']), '', ''])
-            else:
-                data.append([Paragraph('Σύνολο', tbl_style['Left']),
-                             Paragraph('%.2f €' % total_amount,
-                                       tbl_style['Right']), '', ''])
-                total_amount = 0
+        #    if report['net_amount1'] != '0' and report['net_amount2'] != '0':
+        #        data.append([Paragraph('Α\' δεκαπενθήμερο', tbl_style['Left']),
+        #                     Paragraph('%.2f €' % numtoStr(report['net_amount1']),
+        #                               tbl_style['Right']), '', ''])
+        #        data.append([Paragraph('Β\' δεκαπενθήμερο', tbl_style['Left']),
+        #                     Paragraph('%.2f €' % numtoStr(report['net_amount2']),
+        #                               tbl_style['Right']), '', ''])
+        #    else:
+        #        data.append([Paragraph('Σύνολο', tbl_style['Left']),
+        #                     Paragraph('%.2f €' % total_amount,
+        #                               tbl_style['Right']), '', ''])
+        #        total_amount = 0
 
             #table5 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
             #                                          9.5 * cm, 2.0 * cm])
             #elements.append(table5)
-            del data
-        else:
-            data = []
-            data.append([Paragraph('Καθαρό Ποσό', tbl_style['Left']),
-                         Paragraph('%.2f €' % total_amount, tbl_style['Right']),
-                         Paragraph('%s' % SETTINGS.get_desc('tax_reduction_factor'), tbl_style['Left']),
-                         Paragraph('%.2f €' % (total_tax_amount / float(SETTINGS['tax_reduction_factor'])), tbl_style['Right'])
-                         ])
-            total_amount = 0
-            total_tax_amount = 0
+        #    del data
+        #else:
+        #    data = []
+        #    data.append([Paragraph('Καθαρό Ποσό', tbl_style['Left']),
+        #                 Paragraph('%.2f €' % total_amount, tbl_style['Right']),
+        #                 Paragraph('%s' % SETTINGS.get_desc('tax_reduction_factor'), tbl_style['Left']),
+        #                 Paragraph('%.2f €' % (total_tax_amount / float(SETTINGS['tax_reduction_factor'])), tbl_style['Right'])
+        #                 ])
+        #    total_amount = 0
+        #    total_tax_amount = 0
             #table5 = Table(data, style=ts, colWidths=[9.5 * cm, 2.0 * cm,
             #                                          9.5 * cm, 2.0 * cm])
             #elements.append(table5)
