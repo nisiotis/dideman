@@ -194,7 +194,7 @@ def print_mass_pay(request, year):
     doc.pagesize = landscape(A4) 
 
     elements = generate_pdf_landscape_structure([report])
-    elements = []
+#    elements = []
     doc.build(elements)
     return response
 

@@ -376,8 +376,7 @@ def generate_pdf_landscape_structure(reports):
         report_content = getSampleStyleSheet()
         report_content.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                         fontName='DroidSans',
-                                        fontSize=8,
-                                        leading=150))
+                                        fontSize=8))
 
 
         report_title = getSampleStyleSheet()
@@ -560,7 +559,13 @@ def generate_pdf_landscape_structure(reports):
 
         #total_amount = 0
         #total_tax_amount = 0
-        sections = 0
+        t_text = ''
+        t_tax = 0.00
+        t_amount = 0.00
+        codes_set = set()
+        amount_list = []
+
+        
         for i in report['payment_categories']:
             
             #elements.append(Paragraph(u' ', heading_style['Spacer']))
@@ -588,7 +593,18 @@ def generate_pdf_landscape_structure(reports):
             #grnum = 0
             #denum = 0
             for p in i['payments']:
-                sections += 1
+                if p['type'] == 'de' and p['code_tax'] == 0:
+                    
+                    codes_set.add(p['code'])
+                    amount_list.append(p['amount'])
+
+                if p['type'] == 'de' and p['code_tax'] == 1:
+                    t_tax += p['amount']
+
+                if p['type'] == 'gr':
+                    t_amount += p['amount']
+                    t_text += (p['code'] + ' ')
+
                 #if p['type'] == 'gr' or p['type'] == 'et':
                 #    s = u'%s' % p['code']
                 #    gret.append([Paragraph(s, tbl_style['Left']),
@@ -617,12 +633,26 @@ def generate_pdf_landscape_structure(reports):
             #data = []
             #elements.append(Paragraph(u' ', heading_style['Spacer']))
         w = 0.00
-        w = 28.0 / sections
-        print w, sections
-        d = [w * cm for x in range(sections)]
+        w = 20.0 / len(codes_set)
+        
+        d = [w * cm for x in range(len(codes_set))]
+        
+        c_dic = {x: u'%s' % f for x, f in enumerate(codes_set)} 
+        am_dic = {x: u'%s' % f for x, f in enumerate(amount_list)} 
+        print c_dic,  am_dic
         print d
-        headdata = [[[Paragraph('- ', report_content['Center'])] for x in d]]
-        table1 = Table(headdata, style=ts, colWidths=d)
+        i = 0
+        headdata = [[Paragraph('Είδος αποδοχών ή συντάξεων (μισθός,υπερωρίες, Επιδόματα κ.λ.π.)', report_content['Center'])] +
+                    [Paragraph('Ποσό άκαθάρ. αποδοχών', report_content['Center'])] +
+                    [Paragraph(u'%s' % c_dic[i], report_content['Center']) for i, x in enumerate(d)] + 
+                    [Paragraph('Φόρος', report_content['Center'])]]
+        i = 0
+        amounts = [[Paragraph(u'Σύνολα από μισθούς ή συντάξεις και άλλες αποδοχές', report_content['Center'])] +
+                    [Paragraph(u'%.2f' % t_amount, report_content['Center'])] +
+                    [Paragraph(u'%s' % am_dic[i], report_content['Center']) for i, x in enumerate(d)] + 
+                    [Paragraph(u'%.2f' % t_tax, report_content['Center'])]]
+            
+        table1 = Table(headdata + amounts, style=ts, colWidths=[3.0 * cm] + [2.0 * cm] +  d + [3.0 * cm])
         elements.append(table1)
 
 
