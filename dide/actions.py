@@ -338,10 +338,23 @@ class CreatePDF(object):
             report['payment_categories'] = pay_cat_list
             reports.append(report)
 
-        elements = generate_pdf_structure(reports)
+        doc = SimpleDocTemplate(response, pagesize=A4)
+        doc.topMargin = 0.5 * cm
+        doc.bottomMargin = 0.5 * cm
+        doc.leftMargin = 1.5 * cm
+        doc.rightMargin = 1.5 * cm
 
-        doc = SimpleDocTemplate(self.response, pagesize=A4)
-        doc.topMargin = 1.0 * cm
+        doc.pagesize = landscape(A4) 
+
+        elements = generate_pdf_landscape_structure(reports)
+
+        #elements = generate_pdf_structure(reports)
+
+        #doc = SimpleDocTemplate(self.response, pagesize=A4)
+        #doc.topMargin = 1.0 * cm
+
+
+
         doc.build(elements)
         return self.response
 
