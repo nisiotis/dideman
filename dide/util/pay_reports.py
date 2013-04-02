@@ -376,7 +376,7 @@ def generate_pdf_landscape_structure(reports):
         report_content = getSampleStyleSheet()
         report_content.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                         fontName='DroidSans',
-                                        fontSize=8))
+                                        fontSize=7))
 
 
         report_title = getSampleStyleSheet()
@@ -562,6 +562,8 @@ def generate_pdf_landscape_structure(reports):
         t_text = ''
         t_tax = 0.00
         t_amount = 0.00
+        t_ins = 0.00
+        pay_tax = 0.00
         codes_set = set()
         amount_list = []
 
@@ -597,6 +599,7 @@ def generate_pdf_landscape_structure(reports):
                     
                     codes_set.add(p['code'])
                     amount_list.append(p['amount'])
+                    t_ins += p['amount']
 
                 if p['type'] == 'de' and p['code_tax'] == 1:
                     t_tax += p['amount']
@@ -633,26 +636,32 @@ def generate_pdf_landscape_structure(reports):
             #data = []
             #elements.append(Paragraph(u' ', heading_style['Spacer']))
         w = 0.00
-        w = 20.0 / len(codes_set)
+        w = 18.00 / len(codes_set)
         
         d = [w * cm for x in range(len(codes_set))]
         
         c_dic = {x: u'%s' % f for x, f in enumerate(codes_set)} 
         am_dic = {x: u'%s' % f for x, f in enumerate(amount_list)} 
-        print c_dic,  am_dic
-        print d
-        i = 0
+
         headdata = [[Paragraph('Είδος αποδοχών ή συντάξεων (μισθός,υπερωρίες, Επιδόματα κ.λ.π.)', report_content['Center'])] +
                     [Paragraph('Ποσό άκαθάρ. αποδοχών', report_content['Center'])] +
                     [Paragraph(u'%s' % c_dic[i], report_content['Center']) for i, x in enumerate(d)] + 
-                    [Paragraph('Φόρος', report_content['Center'])]]
-        i = 0
+                    [Paragraph('Σύνολο κρατήσεων', report_content['Center'])] +
+                    [Paragraph('Καθαρό ποσό', report_content['Center'])] +
+                    [Paragraph('Φόρος που παρακρατήθηκε', report_content['Center'])] + 
+                    [Paragraph(u'%s' % SETTINGS.get_desc('tax_reduction_factor'), report_content['Center'])]]
+        
         amounts = [[Paragraph(u'Σύνολα από μισθούς ή συντάξεις και άλλες αποδοχές', report_content['Center'])] +
-                    [Paragraph(u'%.2f' % t_amount, report_content['Center'])] +
-                    [Paragraph(u'%s' % am_dic[i], report_content['Center']) for i, x in enumerate(d)] + 
-                    [Paragraph(u'%.2f' % t_tax, report_content['Center'])]]
+                   [Paragraph(u'%.2f' % t_amount, report_content['Center'])] +
+                   [Paragraph(u'%s' % am_dic[i], report_content['Center']) for i, x in enumerate(d)] + 
+                   [Paragraph(u'%.2f' % t_ins, report_content['Center'])] +
+                   [Paragraph(u'%.2f' % (t_amount - t_ins), report_content['Center'])] +
+                   [Paragraph(u'%.2f' % t_tax, report_content['Center'])] +
+                   [Paragraph(u'%.2f' % (t_tax / float(SETTINGS['tax_reduction_factor'])), report_content['Center'])]]
             
-        table1 = Table(headdata + amounts, style=ts, colWidths=[3.0 * cm] + [2.0 * cm] +  d + [3.0 * cm])
+        table1 = Table(headdata + amounts,
+                       style=ts,
+                       colWidths=[2.5 * cm, 1.5 * cm] +  d + [1.5 * cm, 1.5 * cm, 1.5 * cm, 1.5 * cm])
         elements.append(table1)
 
 
