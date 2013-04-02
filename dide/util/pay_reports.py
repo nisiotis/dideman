@@ -69,7 +69,7 @@ def rprts_from_file(queryset):
     Accepts a queryset of paymentfilenames
     """
     cursor = connection.cursor()
-    sql = """SELECT dide_paymentreport.employee_id, dide_payment.*
+    sql = """SELECT dide_paymentreport.employee_id, dide_paymentreport.year, dide_payment.*
             FROM dide_paymentfilename
             INNER JOIN dide_paymentreport
             ON dide_paymentreport.paymentfilename_id = dide_paymentfilename.id
@@ -376,7 +376,7 @@ def generate_pdf_landscape_structure(reports):
         report_content = getSampleStyleSheet()
         report_content.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                         fontName='DroidSans',
-                                        fontSize=7))
+                                        fontSize=8))
 
 
         report_title = getSampleStyleSheet()
@@ -474,16 +474,16 @@ def generate_pdf_landscape_structure(reports):
                        colWidths=[28 * cm]))
    
         data = []
-        somedata = [[Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΔΩΔΕΚΑΝΗΣΟΥ',
+        somedata = [[Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_place'].upper(),
                                report_normal_captions['Left'])],
                     [Paragraph(u'Επωνυμία', report_small_captions['Left'])],
                     [Paragraph(u'ΔΗΜΟΣΙΑ ΥΠΗΡΕΣΙΑ', report_sub_title['Left'])], 
                     [Paragraph(u'Είδος επιχείρησης', report_small_captions['Left'])],
-                    [Paragraph(u'ΡΟΔΟΣ,  ΚΛΑΥΔΙΟΥ ΠΕΠΠΕΡ, 85100, 2241055832',
+                    [Paragraph(u'%s, %s' % (SETTINGS['address'], SETTINGS['economics_contact_telephone_number']),
                                report_sub_title['Left'])],
-                    [Paragraph(u'Δ/νση: Πόλη - Οδός - Αριθ. - Τ.Κ. - Αριθ. Τηλ.',
+                    [Paragraph(u'Δ/νση: Οδός - Αριθ. - Τ.Κ. - Πόλη - Αριθ. Τηλ.',
                                report_small_captions['Left'])],
-                    [Paragraph(u'ΑΦΜ: 099656721', report_title['Left'])]]
+                    [Paragraph(u'ΑΦΜ: %s' % SETTINGS['afm_dide'], report_title['Left'])]]
         table = Table(somedata, style=tsh,
                        colWidths=[14.5 * cm])
 
@@ -501,51 +501,51 @@ def generate_pdf_landscape_structure(reports):
                                           report_sub_title['Left'])]], 
                               style=tsl, colWidths=[28 * cm]))
 
-        if report['emp_type'] == 1:
-            headdata = [[Paragraph('%s' % report['lastname'], report_normal_captions['Left']),
-                         Paragraph('%s' % report['firstname'], report_normal_captions['Left']),
-                         Paragraph('%s' % report['fathername'], report_normal_captions['Left']),
-                         Paragraph('%s' % report['vat_number'], report_normal_captions['Left'])],
-                        [Paragraph('Επώνυμο', report_small_captions['Left']),
-                         Paragraph('Όνομα', report_small_captions['Left']),
-                         Paragraph('Όνομα Πατέρα', report_small_captions['Left']),
-                         Paragraph('Αριθμ. Φορολ. Μητρώου', report_small_captions['Left'])]]
-            table1 = Table(headdata, style=tsh,
-                           colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
-            elements.append(table1)
-            headdata = [[Paragraph('- ', report_normal_captions['Left']),
-                         Paragraph('- ', report_normal_captions['Left']),
-                         Paragraph('- ', report_normal_captions['Left']),
-                         Paragraph('- ', report_normal_captions['Left'])],
-                        [Paragraph('Δ/νση κατοικίας: Πόλη, Οδός - Αριθ.', report_small_captions['Left']),
-                         Paragraph('Ταχ. Κωδ.', report_small_captions['Left']),
-                         Paragraph('Αρ. Τηλ.', report_small_captions['Left']),
-                         Paragraph('Αρμόδια για τη φορολογία του ΔΟΥ', report_small_captions['Left'])]]
-            table1 = Table(headdata, style=tsh,
-                           colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
-            elements.append(table1)
-            headdata = [[Paragraph('- ', report_normal_captions['Left'])],
-                        [Paragraph('Είδος υπηρεσίας', report_small_captions['Left'])]]
-            table1 = Table(headdata, style=tsh,
-                           colWidths=[28 * cm])
-            elements.append(table1)
+#        if report['emp_type'] == 1:
+        headdata = [[Paragraph('%s' % report['lastname'], report_normal_captions['Left']),
+                     Paragraph('%s' % report['firstname'], report_normal_captions['Left']),
+                     Paragraph('%s' % report['fathername'], report_normal_captions['Left']),
+                     Paragraph('%s' % report['vat_number'], report_normal_captions['Left'])],
+                    [Paragraph('Επώνυμο', report_small_captions['Left']),
+                     Paragraph('Όνομα', report_small_captions['Left']),
+                     Paragraph('Όνομα Πατέρα', report_small_captions['Left']),
+                     Paragraph('Αριθμ. Φορολ. Μητρώου', report_small_captions['Left'])]]
+        table1 = Table(headdata, style=tsh,
+                       colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
+        elements.append(table1)
+        headdata = [[Paragraph(u'%s' % report['address'] or '-', report_normal_captions['Left']),
+                     
+                     Paragraph(u'%s' % report['telephone_number1']  or  '-', report_normal_captions['Left']),
+                     Paragraph(u'%s' % report['tax_office'] or  '-', report_normal_captions['Left'])],
+                    [Paragraph('Διεύθυνση κατοικίας: Οδός - Αριθ. - Τ.Κ. - Πόλη', report_small_captions['Left']),
+                     
+                     Paragraph('Αρ. Τηλ.', report_small_captions['Left']),
+                     Paragraph('Αρμόδια για τη φορολογία του ΔΟΥ', report_small_captions['Left'])]]
+        table1 = Table(headdata, style=tsh,
+                       colWidths=[14.5 * cm, 8 * cm, 5.5 * cm])
+        elements.append(table1)
+        headdata = [[Paragraph(u'%s' % report['profession'] or  '-', report_normal_captions['Left'])],
+                    [Paragraph('Είδος υπηρεσίας', report_small_captions['Left'])]]
+        table1 = Table(headdata, style=tsh,
+                       colWidths=[28 * cm])
+        elements.append(table1)
             
-        else:
-            headdata = [[Paragraph(u'ΑΦΜ', tbl_style['Left']),
-                         Paragraph('%s' % report['vat_number'],
-                                   tbl_style['Left']),
-                         Paragraph('', tbl_style['Left']),
-                         Paragraph('', tbl_style['Left'])],
-                        [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
-                         Paragraph('%s' % report['lastname'],
-                                   tbl_style['Left']),
-                         Paragraph('', tbl_style['Left']),
-                         Paragraph('', tbl_style['Left'])],
-                        [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
-                         Paragraph('%s' % report['firstname'],
-                                   tbl_style['Left']),
-                         Paragraph('', tbl_style['Left']),
-                         Paragraph('', tbl_style['Left'])]]
+#        else:
+#            headdata = [[Paragraph(u'ΑΦΜ', tbl_style['Left']),
+#                         Paragraph('%s' % report['vat_number'],
+#                                   tbl_style['Left']),
+#                         Paragraph('', tbl_style['Left']),
+#                         Paragraph('', tbl_style['Left'])],
+#                        [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
+#                         Paragraph('%s' % report['lastname'],
+#                                   tbl_style['Left']),
+#                         Paragraph('', tbl_style['Left']),
+#                         Paragraph('', tbl_style['Left'])],
+#                        [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
+#                         Paragraph('%s' % report['firstname'],
+#                                   tbl_style['Left']),
+#                         Paragraph('', tbl_style['Left']),
+#                         Paragraph('', tbl_style['Left'])]]
 
         elements.append(Paragraph(' ', heading_style['Spacer']))
         elements.append(Table([[Paragraph('ΙΙ. ΑΜΟΙΒΕΣ ΠΟΥ ΦΟΡΟΛΟΓΟΥΝΤΑΙ',
@@ -636,7 +636,7 @@ def generate_pdf_landscape_structure(reports):
             #data = []
             #elements.append(Paragraph(u' ', heading_style['Spacer']))
         w = 0.00
-        w = 18.00 / len(codes_set)
+        w = 17.70 / len(codes_set)
         
         d = [w * cm for x in range(len(codes_set))]
         
@@ -647,8 +647,8 @@ def generate_pdf_landscape_structure(reports):
                     [Paragraph('Ποσό άκαθάρ. αποδοχών', report_content['Center'])] +
                     [Paragraph(u'%s' % c_dic[i], report_content['Center']) for i, x in enumerate(d)] + 
                     [Paragraph('Σύνολο κρατήσεων', report_content['Center'])] +
-                    [Paragraph('Καθαρό ποσό', report_content['Center'])] +
-                    [Paragraph('Φόρος που παρακρατήθηκε', report_content['Center'])] + 
+                    [Paragraph('Φορολογη- τέο εισόδημα', report_content['Center'])] +
+                    [Paragraph('Φόρος που παρα- κρατήθηκε', report_content['Center'])] + 
                     [Paragraph(u'%s' % SETTINGS.get_desc('tax_reduction_factor'), report_content['Center'])]]
         
         amounts = [[Paragraph(u'Σύνολα από μισθούς ή συντάξεις και άλλες αποδοχές', report_content['Center'])] +
@@ -656,12 +656,12 @@ def generate_pdf_landscape_structure(reports):
                    [Paragraph(u'%s' % am_dic[i], report_content['Center']) for i, x in enumerate(d)] + 
                    [Paragraph(u'%.2f' % t_ins, report_content['Center'])] +
                    [Paragraph(u'%.2f' % (t_amount - t_ins), report_content['Center'])] +
-                   [Paragraph(u'%.2f' % t_tax, report_content['Center'])] +
-                   [Paragraph(u'%.2f' % (t_tax / float(SETTINGS['tax_reduction_factor'])), report_content['Center'])]]
+                   [Paragraph(u'%.2f' % (t_tax / float(SETTINGS['tax_reduction_factor'])), report_content['Center'])] +
+                   [Paragraph(u'%.2f' % t_tax, report_content['Center'])]]
             
         table1 = Table(headdata + amounts,
                        style=ts,
-                       colWidths=[2.5 * cm, 1.5 * cm] +  d + [1.5 * cm, 1.5 * cm, 1.5 * cm, 1.5 * cm])
+                       colWidths=[2.5 * cm, 1.5 * cm] +  d + [1.5 * cm, 1.5 * cm, 1.5 * cm, 1.8 * cm])
         elements.append(table1)
 
 
@@ -731,12 +731,6 @@ def generate_pdf_landscape_structure(reports):
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left'])],
-                    [Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left'])]]
 
         table_1 = Table(somedata, style=ts, colWidths=[3 * cm, 4 * cm, 2 * cm, 4 * cm, 2 * cm, 3 * cm])
@@ -761,8 +755,11 @@ def generate_pdf_landscape_structure(reports):
         headdata = [] 
         headdata = [[[table_1,table_2], 
                      [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
+                      Paragraph(u'%s %s' % (SETTINGS.get_desc('manager'), SETTINGS['dide_place']), signature['Center']),
                       Paragraph(' ', heading_style['Spacer']),
-                      im]]]
+                      Paragraph(' ', heading_style['Spacer']),
+                      Paragraph(' ', heading_style['Spacer']),
+                      Paragraph(SETTINGS['manager'], signature['Center'])]]]
         
         table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])
         elements.append(table0)

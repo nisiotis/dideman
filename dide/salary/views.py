@@ -61,6 +61,10 @@ def print_pay(request, id):
     report['lastname'] = emp.lastname
     report['firstname'] = emp.firstname
     report['fathername'] = emp.fathername
+    report['address'] = emp.address
+    report['tax_office'] = emp.tax_office
+    report['profession'] = emp.profession
+    report['telephone_number1'] = emp.telephone_number1
     report['rank'] = rpt.rank
     report['net_amount1'] = rpt.net_amount1
     report['net_amount2'] = rpt.net_amount2
@@ -155,6 +159,10 @@ def print_mass_pay(request, year):
     report['lastname'] = emp.lastname
     report['firstname'] = emp.firstname
     report['fathername'] = emp.fathername
+    report['address'] = emp.address
+    report['tax_office'] = emp.tax_office
+    report['profession'] = emp.profession
+    report['telephone_number1'] = emp.telephone_number1
     report['rank'] = emp.rank()
     report['net_amount1'] = ''
     report['net_amount2'] = ''

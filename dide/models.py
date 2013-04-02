@@ -155,7 +155,24 @@ class PaymentCode(models.Model):
 
     id = models.IntegerField(u'Κωδικός', primary_key=True)
     description = models.CharField(u'Περιγραφή', max_length=255)
-    is_tax = models.BooleanField(u'Είναι φόρος;', default=False)
+    #is_tax = models.BooleanField(u'Είναι φόρος;', default=False)
+
+    def __unicode__(self):
+        return self.description
+
+
+CALC_TYPES = [(1, u'Φόρος'), (2,u'Ταμείο'), (3, u'Δάνειο'), (4,u'Άλλο')]
+
+
+class ReportStructure(models.Model):
+
+    class Meta:
+        verbose_name = u'Δομή Συγκεντρωτικών Μισθολογικών Καταστάσεων'
+        verbose_name_plural = u'Δομές Συγκεντρωτικών Μισθολογικών Καταστάσεων'
+
+    description = models.CharField(u'Περιγραφή', max_length=100)
+    type = models.IntegerField(u'Τύπος', choices=CALC_TYPES)
+    report_level = models.IntegerField(u'Επίπεδο στην αναφορά')
 
     def __unicode__(self):
         return self.description
