@@ -132,9 +132,9 @@ class RankCodeAdmin(DideAdmin):
 
 
 class PaymentCodeAdmin(DideAdmin):
-    list_display = ('id', 'description', 'is_tax')
+    list_display = ('id', 'description', 'group_name', 'calc_type')
     # add search field
-    search_fields = ('id', 'description')
+    search_fields = ('id', 'description', b'group_name')
 
 
 class PaymentReportTypeAdmin(DideAdmin):

@@ -284,6 +284,7 @@ class CreatePDF(object):
                                                            'DroidSans-Bold.ttf')))
 
         obj = PaymentCode.objects.all()
+        
         dict_codes = {c.id: c.description for c in obj}
         dict_tax_codes = {c.id: c.is_tax for c in obj}
         tax_codes = [c for c in dict_codes.keys()]

@@ -124,7 +124,7 @@ def print_mass_pay(request, year):
 
     obj = PaymentCode.objects.all()
     dict_codes = {c.id: c.description for c in obj}
-    dict_tax_codes = {c.id: c.is_tax for c in obj}
+    dict_tax_codes = {c.id: c.calc_type for c in obj}
 
     tax_codes = [c for c in dict_codes.keys()]
 
@@ -133,7 +133,7 @@ def print_mass_pay(request, year):
     for o in rpt:
         if o.type_id > 15:
             taxed_list = [p.code_id for p in Payment.objects.select_related().filter(category__paymentreport=o.id,
-                                                                                     code__is_tax=1)]
+                                                                                     code__calc_type=1)]
             if taxed_list:
                 for p in Payment.objects.select_related().filter(category__paymentreport=o.id):
                     payments_list.append({'code_id': p.code_id, 'type': p.type, 'amount': p.amount})
@@ -200,9 +200,14 @@ def print_mass_pay(request, year):
     doc.rightMargin = 1.5 * cm
 
     doc.pagesize = landscape(A4) 
-
-    elements = generate_pdf_landscape_structure([report])
-#    elements = []
+    if year == '2012':
+        style = getSampleStyleSheet()
+        style.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                 fontName='DroidSans', fontSize=12))
+        elements = [Paragraph(u'ΠΑΡΑΚΑΛΟΥΜΕ ΑΠΕΥΘΥΝΘΕΙΤΕ ΣΤΗΝ ΥΠΗΡΕΣΙΑ ΓΙΑ ΤΗΝ ΜΙΣΘΟΛΟΓΙΚΗ ΚΑΤΑΣΤΑΣΗ ΤΟΥ 2012', style['Center'])]
+    else:    
+        elements = generate_pdf_landscape_structure([report])
+    
     doc.build(elements)
     return response
 

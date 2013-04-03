@@ -69,7 +69,10 @@ def rprts_from_file(queryset):
     Accepts a queryset of paymentfilenames
     """
     cursor = connection.cursor()
-    sql = """SELECT dide_paymentreport.employee_id, dide_paymentreport.year, dide_payment.*
+    sql = """SELECT dide_paymentreport.employee_id, dide_paymentreport.year, 
+            dide_paymentreport.type_id, dide_paymentcategory.title_id, 
+            dide_paymentcategory.start_date, dide_paymentcategory.end_date, 
+            dide_payment.*
             FROM dide_paymentfilename
             INNER JOIN dide_paymentreport
             ON dide_paymentreport.paymentfilename_id = dide_paymentfilename.id

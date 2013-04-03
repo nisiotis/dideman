@@ -147,6 +147,9 @@ class Payment(models.Model):
                             null=True, blank=True)
 
 
+CALC_TYPES = [(1, u'Φόρος'), (2,u'Ταμείο'), (3,u'Απεργία'), (4,u'Σύνταξη'), (0,u'Άλλο')]
+
+
 class PaymentCode(models.Model):
 
     class Meta:
@@ -155,27 +158,26 @@ class PaymentCode(models.Model):
 
     id = models.IntegerField(u'Κωδικός', primary_key=True)
     description = models.CharField(u'Περιγραφή', max_length=255)
-    #is_tax = models.BooleanField(u'Είναι φόρος;', default=False)
+    group_name =  models.CharField(u'Όνομα ομάδας', max_length=100,
+                            null=True, blank=True)
+    calc_type = models.IntegerField(u'Τύπος', choices=CALC_TYPES,
+                            null=True, blank=True)
 
     def __unicode__(self):
         return self.description
 
 
-CALC_TYPES = [(1, u'Φόρος'), (2,u'Ταμείο'), (3, u'Δάνειο'), (4,u'Άλλο')]
+#class ReportStructure(models.Model):
 
+#    class Meta:
+#        verbose_name = u'Δομή Συγκεντρωτικών Μισθολογικών Καταστάσεων'
+#        verbose_name_plural = u'Δομές Συγκεντρωτικών Μισθολογικών Καταστάσεων'
 
-class ReportStructure(models.Model):
+#    description = models.CharField(u'Περιγραφή', max_length=100)
+#    report_level = models.IntegerField(u'Επίπεδο στην αναφορά')
 
-    class Meta:
-        verbose_name = u'Δομή Συγκεντρωτικών Μισθολογικών Καταστάσεων'
-        verbose_name_plural = u'Δομές Συγκεντρωτικών Μισθολογικών Καταστάσεων'
-
-    description = models.CharField(u'Περιγραφή', max_length=100)
-    type = models.IntegerField(u'Τύπος', choices=CALC_TYPES)
-    report_level = models.IntegerField(u'Επίπεδο στην αναφορά')
-
-    def __unicode__(self):
-        return self.description
+#    def __unicode__(self):
+#        return self.description
 
 
 class Application(models.Model):
