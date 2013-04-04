@@ -536,7 +536,7 @@ class Employee(models.Model):
                                       verbose_name=u'Περιοχή Μετάθεσης',
                                       null=True, blank=True)
     recognised_experience = models.CharField(
-         u'Αναγνωρισμένη προυπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True,
+         u'Προυπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True,
          default='000000', max_length=8)
     vat_number = NullableCharField(u'Α.Φ.Μ.', max_length=9, null=True,
                                    unique=True, blank=True)
@@ -777,8 +777,7 @@ class Permanent(Employee):
     has_permanent_post = models.BooleanField(u'Έχει οργανική θέση',
                                              null=False, blank=False,
                                              default=False)
-    no_pay_existing = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών από άλλα'
-                                          u' Π.Υ.Σ.Δ.Ε.', default=0)
+    no_pay_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', default=0)
 
     def total_service(self):
         if self.payment_start_date_manual:
