@@ -60,6 +60,11 @@ def print_pay(request, id):
     report['vat_number'] = emp.vat_number
     report['lastname'] = emp.lastname
     report['firstname'] = emp.firstname
+    report['fathername'] = emp.fathername
+    report['address'] = emp.address
+    report['tax_office'] = emp.tax_office
+    report['profession'] = emp.profession
+    report['telephone_number1'] = emp.telephone_number1
     report['rank'] = rpt.rank
     report['net_amount1'] = rpt.net_amount1
     report['net_amount2'] = rpt.net_amount2
@@ -119,7 +124,7 @@ def print_mass_pay(request, year):
 
     obj = PaymentCode.objects.all()
     dict_codes = {c.id: c.description for c in obj}
-    dict_tax_codes = {c.id: c.is_tax for c in obj}
+    dict_tax_codes = {c.id: c.calc_type for c in obj}
 
     tax_codes = [c for c in dict_codes.keys()]
 
@@ -128,7 +133,7 @@ def print_mass_pay(request, year):
     for o in rpt:
         if o.type_id > 15:
             taxed_list = [p.code_id for p in Payment.objects.select_related().filter(category__paymentreport=o.id,
-                                                                                     code__is_tax=1)]
+                                                                                     code__calc_type=1)]
             if taxed_list:
                 for p in Payment.objects.select_related().filter(category__paymentreport=o.id):
                     payments_list.append({'code_id': p.code_id, 'type': p.type, 'amount': p.amount})
@@ -153,6 +158,11 @@ def print_mass_pay(request, year):
     report['vat_number'] = emp.vat_number
     report['lastname'] = emp.lastname
     report['firstname'] = emp.firstname
+    report['fathername'] = emp.fathername
+    report['address'] = emp.address
+    report['tax_office'] = emp.tax_office
+    report['profession'] = emp.profession
+    report['telephone_number1'] = emp.telephone_number1
     report['rank'] = emp.rank()
     report['net_amount1'] = ''
     report['net_amount2'] = ''
@@ -190,8 +200,14 @@ def print_mass_pay(request, year):
     doc.rightMargin = 1.5 * cm
 
     doc.pagesize = landscape(A4) 
-
-    elements = generate_pdf_landscape_structure([report])
+    if year == '2012':
+        style = getSampleStyleSheet()
+        style.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                 fontName='DroidSans', fontSize=12))
+        elements = [Paragraph(u'ΠΑΡΑΚΑΛΟΥΜΕ ΑΠΕΥΘΥΝΘΕΙΤΕ ΣΤΗΝ ΥΠΗΡΕΣΙΑ ΓΙΑ ΤΗΝ ΜΙΣΘΟΛΟΓΙΚΗ ΚΑΤΑΣΤΑΣΗ ΤΟΥ 2012', style['Center'])]
+    else:    
+        elements = generate_pdf_landscape_structure([report])
+    
     doc.build(elements)
     return response
 

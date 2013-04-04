@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from cStringIO import StringIO
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
+                                           generate_pdf_landscape_structure,
                                            reports_calc_amount, rprts_from_file)
 from dideman import settings
 from dideman.dide.util import xml
@@ -21,7 +22,7 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 from dideman.lib.date import current_year_date_from, current_year_date_to
 from dideman.lib.common import without_accented, parse_deletable_list
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase.pdfmetrics import registerFont
@@ -283,15 +284,22 @@ class CreatePDF(object):
                                                            'DroidSans-Bold.ttf')))
 
         obj = PaymentCode.objects.all()
+        
         dict_codes = {c.id: c.description for c in obj}
         dict_tax_codes = {c.id: c.is_tax for c in obj}
         tax_codes = [c for c in dict_codes.keys()]
         all_emp = rprts_from_file(queryset)
         u = set([x['employee_id'] for x in all_emp])
-
+        y = {x['employee_id']: x['year'] for x in all_emp}
         dict_emp = {c.id: [c.lastname,
                            c.firstname,
-                           c.vat_number] for c in Employee.objects.filter(id__in=u)}
+                           c.vat_number,
+                           c.fathername,
+                           c.address,
+                           c.tax_office,
+                           u'%s' % c.profession,
+                           u'%s' % c.profession.description,
+                           c.telephone_number1] for c in Employee.objects.filter(id__in=u)}
 
         elements = []
         reports = []
@@ -307,13 +315,16 @@ class CreatePDF(object):
             report = {}
             report['report_type'] = '1'
             report['type'] = ''
-            report['year'] = ''
+            report['year'] = y[empx]
             report['emp_type'] = 0
-            #if emptype == 1:
-            #    report['registration_number'] = emp.registration_number
             report['vat_number'] = dict_emp[empx][2]
             report['lastname'] = dict_emp[empx][0]
             report['firstname'] = dict_emp[empx][1]
+            report['fathername'] = dict_emp[empx][3]
+            report['address'] = dict_emp[empx][4]
+            report['tax_office'] = dict_emp[empx][5]
+            report['profession'] = ' '.join([dict_emp[empx][6], dict_emp[empx][7]])
+            report['telephone_number1'] = dict_emp[empx][8]            
             report['rank'] = None
             report['net_amount1'] = ''
             report['net_amount2'] = ''
@@ -338,10 +349,23 @@ class CreatePDF(object):
             report['payment_categories'] = pay_cat_list
             reports.append(report)
 
-        elements = generate_pdf_structure(reports)
-
         doc = SimpleDocTemplate(self.response, pagesize=A4)
-        doc.topMargin = 1.0 * cm
+        doc.topMargin = 0.5 * cm
+        doc.bottomMargin = 0.5 * cm
+        doc.leftMargin = 1.5 * cm
+        doc.rightMargin = 1.5 * cm
+
+        doc.pagesize = landscape(A4) 
+
+        elements = generate_pdf_landscape_structure(reports)
+
+        #elements = generate_pdf_structure(reports)
+
+        #doc = SimpleDocTemplate(self.response, pagesize=A4)
+        #doc.topMargin = 1.0 * cm
+
+
+
         doc.build(elements)
         return self.response
 
