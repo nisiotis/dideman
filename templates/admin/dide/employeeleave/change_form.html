@@ -6,20 +6,6 @@
 
 {% block extrahead %}{{ block.super }}
 {% url 'admin:jsi18n' as jsi18nurl %}
-<script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
-<script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
-<link rel="stylesheet" href="/static/css/chosen.css"/>
-<script type="text/javascript" src="/static/js/chosen.jquery.js"></script>
-<script type="text/javascript" src="/static/js/chosen.jquery_ready.js"></script>
-
-<script type="text/javascript">
-$(document).ready(function() {
-    $('select').chosen();
-    $(".form-row").css("overflow", "visible");
-    $(".form-row").css("height", "auto");
-    $(".aligned label").css("width", "14em");
-});
-</script>
 {{ media }}
 {% endblock %}
 
