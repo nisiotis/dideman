@@ -6,7 +6,8 @@ from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
 from django.template.response import TemplateResponse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-
+from django.forms import ModelForm
+from django.forms import ModelChoiceField
 from forms import SubstitutePlacementForm, PaymentFileNameMassForm
 from overrides.admin import DideAdmin
 from filters import *
@@ -387,13 +388,29 @@ class PermanentAdmin(EmployeeAdmin):
     permanent_docx_reports, key=lambda k: k.short_description)
 
 
+class EmployeeLeaveForm(ModelForm):
+
+    class Meta:
+        model = EmployeeLeave
+
+    def __init__(self, *args, **kwargs):
+        super(EmployeeLeaveForm, self).__init__(*args, **kwargs)
+        self.fields['employee'] = EmployeeChoiceField()
+
+
+class EmployeeChoiceField(ModelChoiceField):
+    def __init__(self, *args, **kwargs):
+        self.choices = Permanent.objects.choices()
+        return super(EmployeeChoiceField, self).__init__(None, *args, **kwargs)
+
+
 class EmployeeLeaveAdmin(DideAdmin):
 
     class Media:
         css = {'all': ('/static/admin/css/widgets.css',)}
         js = ('/static/admin/js/calendar.js',
               '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
-
+    form = EmployeeLeaveForm
     search_fields = ('employee__lastname',
                      'employee__permanent__registration_number')
     list_display = ('employee', 'profession', 'category', 'date_from',

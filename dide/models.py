@@ -12,6 +12,7 @@ from django.db.models import Sum
 import datetime
 from operator import itemgetter, concat
 from itertools import groupby
+from dideman.lib.cachedecorators import memo_core_cache
 
 
 class NullableCharField(models.CharField):
@@ -701,6 +702,15 @@ class PermanentManager(models.Manager):
 
     def get_by_natural_key(self, registration_number):
         return self.get(registration_number=registration_number)
+
+    @memo_core_cache
+    def choices(self):
+        qs = self.all().only('firstname', 'lastname', 'fathername', 'registration_number')
+        choices = ( [(None, u'---------')] +
+                    [(obj.parent_id,
+                      "%s %s (%s)" % (obj.lastname, obj.firstname,
+                                      obj.registration_number)) for obj in qs])
+        return choices
 
     def serves_in_dide_school(self):
         cursor = connection.cursor()

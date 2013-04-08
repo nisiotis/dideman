@@ -56,3 +56,22 @@ def try_many(*exps, **kwargs):
         return kwargs['default']
     else:
         raise error
+
+callable = callable or (lambda o: hasattr(o, '__call__'))
+
+
+def _compose(f, g, unpack=False):
+    assert callable(f)
+    assert callable(g)
+
+    if unpack:
+        def composition(*args, **kwargs):
+            return f(*g(*args, **kwargs))
+    else:
+        def composition(*args, **kwargs):
+            return f(g(*args, **kwargs))
+    return composition
+
+
+def compose(*args):
+    return functools.reduce(_compose, args)
