@@ -12,7 +12,6 @@ from django.db.models import Sum
 import datetime
 from operator import itemgetter, concat
 from itertools import groupby
-from dideman.lib.cachedecorators import memo_core_cache
 
 
 class NullableCharField(models.CharField):
@@ -378,10 +377,6 @@ class OrganizationManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 
-    @memo_core_cache
-    def all(self):
-        return super(OrganizationManager, self).all()
-
 
 class Organization(models.Model):
 
@@ -427,7 +422,6 @@ class LeaveManager(models.Manager):
 
     def get_by_natural_key(self, name):
         return self.get(name=name)
-
 
 LEAVE_TYPES = ((u'Κανονική', u'Κανονική'),
                (u'Αναρρωτική', u'Αναρρωτική'),
@@ -707,7 +701,6 @@ class PermanentManager(models.Manager):
     def get_by_natural_key(self, registration_number):
         return self.get(registration_number=registration_number)
 
-    @memo_core_cache(TIMEOUT=60 * 60 * 24)
     def choices(self):
         qs = self.all().only('firstname', 'lastname', 'fathername', 'registration_number')
         choices = ( [(None, u'---------')] +

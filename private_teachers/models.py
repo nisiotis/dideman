@@ -5,7 +5,7 @@ import collections
 from dideman.lib.date import *
 from django.contrib import admin
 from django.db import models
-import dideman.dide.models as dide
+from dideman.dide import models as dide
 from dideman.lib.ranking import RANKS, next_index
 import datetime
 
