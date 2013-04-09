@@ -378,6 +378,10 @@ class OrganizationManager(models.Manager):
     def get_by_natural_key(self, name):
         return self.get(name=name)
 
+    @memo_core_cache
+    def all(self):
+        return super(OrganizationManager, self).all()
+
 
 class Organization(models.Model):
 
@@ -703,7 +707,7 @@ class PermanentManager(models.Manager):
     def get_by_natural_key(self, registration_number):
         return self.get(registration_number=registration_number)
 
-    @memo_core_cache
+    @memo_core_cache(TIMEOUT=60 * 60 * 24)
     def choices(self):
         qs = self.all().only('firstname', 'lastname', 'fathername', 'registration_number')
         choices = ( [(None, u'---------')] +
@@ -1281,8 +1285,8 @@ class EmployeeLeave(models.Model):
     employee = models.ForeignKey(Employee, verbose_name=u'Υπάλληλος')
     leave = models.ForeignKey(Leave, verbose_name=u'Κατηγορία Άδειας')
     date_issued = models.DateField(u'Χορήγηση', null=True, blank=True)
-    date_from = models.DateField(u'Έναρξη', null=True, blank=True)
-    date_to = models.DateField(u'Λήξη', null=True, blank=True)
+    date_from = models.DateField(u'Έναρξη')
+    date_to = models.DateField(u'Λήξη')
     order = models.CharField(u'Απόφαση', max_length=300, null=True, blank=True)
     authority = models.CharField(u'Αρχή έγκρισης', max_length=200, null=True,
                                  blank=True)

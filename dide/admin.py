@@ -401,7 +401,7 @@ class EmployeeLeaveForm(ModelForm):
 class EmployeeChoiceField(ModelChoiceField):
     def __init__(self, *args, **kwargs):
         self.choices = Permanent.objects.choices()
-        return super(EmployeeChoiceField, self).__init__(None, *args, **kwargs)
+        return super(EmployeeChoiceField, self).__init__(Permanent.objects, *args, **kwargs)
 
 
 class EmployeeLeaveAdmin(DideAdmin):
