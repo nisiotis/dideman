@@ -702,8 +702,9 @@ class PermanentManager(models.Manager):
         return self.get(registration_number=registration_number)
 
     def choices(self):
-        qs = self.all().only('firstname', 'lastname', 'fathername', 'registration_number')
-        choices = ( [(None, u'---------')] +
+        qs = self.filter(currently_serves=True).only(
+            'firstname', 'lastname', 'fathername', 'registration_number')
+        choices = ([(None, u'---------')] +
                     [(obj.parent_id,
                       "%s %s (%s)" % (obj.lastname, obj.firstname,
                                       obj.registration_number)) for obj in qs])
