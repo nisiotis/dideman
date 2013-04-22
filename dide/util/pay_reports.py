@@ -17,9 +17,12 @@ from django.http import HttpResponse
 import os
 import datetime
 
+def tax_groups(dict_list, p_codes):
+    pass
 
 
-def reports_calc_amount(dict_list, taxed_codes):
+
+def reports_calc_amount(dict_list, group__codes):
     """
     Returns the totals for an employee from a set of paymentreports
     Accepts a list of dicts of payments and a list of taxed codes

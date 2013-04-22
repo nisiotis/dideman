@@ -273,21 +273,16 @@ class CreatePDF(object):
         self.__name__ = 'generate_mass_pdf'
 
     def __call__(self, modeladmin, request, queryset):
-
         self.response.content = ''
-
         self.response = HttpResponse(mimetype='application/pdf')
         self.response['Content-Disposition'] = 'attachment; filename=mass_pay_report.pdf'
         registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                       'DroidSans.ttf')))
         registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
                                                            'DroidSans-Bold.ttf')))
-
         obj = PaymentCode.objects.all()
-        
-        dict_codes = {c.id: c.description for c in obj}
-        dict_tax_codes = {c.id: c.is_tax for c in obj}
-        tax_codes = [c for c in dict_codes.keys()]
+        #dict_codes = {c.id: c.description for c in obj}
+        #dict_tax_codes = {c.id: c.is_tax for c in obj}
         all_emp = rprts_from_file(queryset)
         u = set([x['employee_id'] for x in all_emp])
         y = {x['employee_id']: x['year'] for x in all_emp}
@@ -304,10 +299,13 @@ class CreatePDF(object):
         elements = []
         reports = []
         for empx in u:
+            group_codes = tax_groups(filter(lambda s: s['employee_id'] == empx,
+                                            all_emp), obj)
+
             (gr,
             de,
             et) = reports_calc_amount(filter(lambda s: s['employee_id'] == empx,
-                                            all_emp), tax_codes)
+                                            all_emp), group_codes)
             grd = [{'type':'gr', 'code_id':x[0], 'amount':x[1]} for x in gr]
             ded = [{'type':'de', 'code_id':x[0], 'amount':x[1]} for x in de]
             etd = [{'type':'et', 'code_id':x[0], 'amount':x[1]} for x in et]
@@ -324,11 +322,10 @@ class CreatePDF(object):
             report['address'] = dict_emp[empx][4]
             report['tax_office'] = dict_emp[empx][5]
             report['profession'] = ' '.join([dict_emp[empx][6], dict_emp[empx][7]])
-            report['telephone_number1'] = dict_emp[empx][8]            
+            report['telephone_number1'] = dict_emp[empx][8]      
             report['rank'] = None
             report['net_amount1'] = ''
             report['net_amount2'] = ''
-
             pay_cat_list = []
             pay_cat_dict = {}
             pay_cat_dict['title'] = u'Επιμέρους Σύνολα'
@@ -354,18 +351,8 @@ class CreatePDF(object):
         doc.bottomMargin = 0.5 * cm
         doc.leftMargin = 1.5 * cm
         doc.rightMargin = 1.5 * cm
-
         doc.pagesize = landscape(A4) 
-
         elements = generate_pdf_landscape_structure(reports)
-
-        #elements = generate_pdf_structure(reports)
-
-        #doc = SimpleDocTemplate(self.response, pagesize=A4)
-        #doc.topMargin = 1.0 * cm
-
-
-
         doc.build(elements)
         return self.response
 
