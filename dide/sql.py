@@ -16,7 +16,7 @@ serving_in_organization = """
 SELECT employee_id FROM (
         SELECT dide_placement.employee_id
         FROM dide_placement
-        WHERE dide_placement.organization_id = {0} AND dide_placement.type_id IN (2, 3, 4, 6)
+        WHERE dide_placement.organization_id = {0} AND dide_placement.type_id IN (2, 3)
         AND (DATE('{1}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
 
         UNION
@@ -31,6 +31,12 @@ WHERE fb.employee_id NOT IN (
         GROUP BY employee_id
     ) AS foobar
 )
+UNION
+    SELECT dide_placement.employee_id
+    FROM dide_placement
+    WHERE dide_placement.organization_id = {0}
+          AND dide_placement.type_id IN ( 4, 6 )
+          AND (DATE('{1}') BETWEEN dide_placement.date_from  AND dide_placement.date_to )
 """
 
 serves_in_dide_school = """
