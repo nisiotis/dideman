@@ -839,7 +839,7 @@ class Permanent(Employee):
         26 ώρες για όλους
         """
         cat = self.profession.category()
-        years = self.total_service().years
+        years = self.educational_service().years
 
         pe = [(5, 23), (11, 21), (19, 20), (50, 18)]
         te = [(6, 22), (12, 19), (19, 18), (50, 16)]
