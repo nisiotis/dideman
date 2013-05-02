@@ -824,25 +824,26 @@ class Permanent(Employee):
     def hours(self):
         """
         Π.Ε.
-        μέχρι 6 έτη        -> 21
-        6 έως 12           -> 19
-        12 έως 20          -> 18
-        περισσότερα από 20 -> 16
+        μέχρι 6 έτη        -> 23
+        6 έως 12           -> 21
+        12 έως 20          -> 20
+        περισσότερα από 20 -> 18
 
         Τ.Ε.
-        μέχρι 7 έτη        -> 22
-        7 έως 13 έτη       -> 19
-        13 έως 20          -> 18
-        περισσότερα από 20 -> 16
+        μέχρι 7 έτη        -> 24
+        7 έως 13 έτη       -> 21
+        13 έως 20          -> 20
+        περισσότερα από 20 -> 18
 
         Δ.Ε.
-        26 ώρες για όλους
+        ΔΕ.01 Αρχιτεχνίτες 28
+        ΔΕ.01 Τεχνίτες 30
         """
         cat = self.profession.category()
         years = self.educational_service().years
 
         pe = [(5, 23), (11, 21), (19, 20), (50, 18)]
-        te = [(6, 22), (12, 19), (19, 18), (50, 16)]
+        te = [(6, 24), (12, 21), (19, 20), (50, 18)]
 
         get_hours = lambda sy, l: next((y, h) for y, h in l if sy <= y)[1]
 
@@ -851,7 +852,7 @@ class Permanent(Employee):
         elif cat == u'ΤΕ':
             return get_hours(years, te)
         else:
-            return 26
+            return 30
     hours.short_description = u'Υποχρεωτικό ωράριο'
 
     def natural_key(self):

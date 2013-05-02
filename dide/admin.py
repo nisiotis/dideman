@@ -363,14 +363,16 @@ class PermanentAdmin(EmployeeAdmin):
                     'telephone_number2', 'email',
                     'birth_date', 'hours_current', 'date_created']}),
         ('Στοιχεία Προϋπηρεσίας', {
-                'fields': ['currently_serves', 'recognised_experience',
+                'fields': ['currently_serves',
+                           'recognised_experience',
                            'formatted_recognised_experience',
-                           'educational_service',
                            'non_educational_experience',
+                           'calculable_no_pay', 'no_pay_existing',
+                           'total_service',
                            'payment_start_date_auto',
                            'payment_start_date_manual',
-                           'hours', 'total_service',
-                           'calculable_no_pay', 'no_pay_existing',
+                           'educational_service',
+                           'hours',
                            'date_end']}),
             economic_fieldset]
     search_fields = EmployeeAdmin.search_fields + ('registration_number',)
