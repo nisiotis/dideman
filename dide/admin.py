@@ -363,12 +363,16 @@ class PermanentAdmin(EmployeeAdmin):
                     'telephone_number2', 'email',
                     'birth_date', 'hours_current', 'date_created']}),
         ('Στοιχεία Προϋπηρεσίας', {
-                'fields': ['currently_serves', 'recognised_experience',
+                'fields': ['currently_serves',
+                           'recognised_experience',
                            'formatted_recognised_experience',
+                           'non_educational_experience',
+                           'calculable_no_pay', 'no_pay_existing',
+                           'total_service',
                            'payment_start_date_auto',
                            'payment_start_date_manual',
-                           'hours', 'total_service',
-                           'calculable_no_pay', 'no_pay_existing',
+                           'educational_service',
+                           'hours',
                            'date_end']}),
             economic_fieldset]
     search_fields = EmployeeAdmin.search_fields + ('registration_number',)
@@ -376,7 +380,7 @@ class PermanentAdmin(EmployeeAdmin):
         ['permanent_post', 'temporary_position', 'hours', 'total_service',
          'formatted_recognised_experience', 'payment_start_date_auto',
          'rank', 'profession_description', 'calculable_no_pay',
-         'date_created']
+         'date_created', 'educational_service']
 
     actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
                                      'temporary_position',
@@ -384,6 +388,8 @@ class PermanentAdmin(EmployeeAdmin):
                                      'profession__description',
                                      'payment_start_date_auto',
                                      'formatted_recognised_experience',
+                                     'non_educational_experience',
+                                     'educational_service',
                                      'rank__value', 'rank__date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
 

@@ -554,8 +554,11 @@ class Employee(models.Model):
                                       verbose_name=u'Περιοχή Μετάθεσης',
                                       null=True, blank=True)
     recognised_experience = models.CharField(
-         u'Προυπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True,
+         u'Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True,
          default='000000', max_length=8)
+    non_educational_experience = models.CharField(
+        u'Μη εκπαιδευτική Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True,
+        default='000000', max_length=8)
     vat_number = NullableCharField(u'Α.Φ.Μ.', max_length=9, null=True,
                                    unique=True, blank=True)
     tax_office = models.CharField(u'Δ.Ο.Υ.', max_length=100, null=True,
@@ -652,6 +655,10 @@ class Employee(models.Model):
         return DateInterval(self.recognised_experience)
     formatted_recognised_experience.short_description = \
         u'Μορφοποιημένη προϋπηρεσία'
+
+    def educational_service(self):
+        return self.total_service() - DateInterval(self.non_educational_experience)
+    educational_service.short_description = u'Εκπαιδευτική υπηρεσία'
 
     def no_pay_in_years(self):
         """Returns a dict of {year: sum_of_no_pay_days } form"""
@@ -817,25 +824,26 @@ class Permanent(Employee):
     def hours(self):
         """
         Π.Ε.
-        μέχρι 6 έτη        -> 21
-        6 έως 12           -> 19
-        12 έως 20          -> 18
-        περισσότερα από 20 -> 16
+        μέχρι 6 έτη        -> 23
+        6 έως 12           -> 21
+        12 έως 20          -> 20
+        περισσότερα από 20 -> 18
 
         Τ.Ε.
-        μέχρι 7 έτη        -> 22
-        7 έως 13 έτη       -> 19
-        13 έως 20          -> 18
-        περισσότερα από 20 -> 16
+        μέχρι 7 έτη        -> 24
+        7 έως 13 έτη       -> 21
+        13 έως 20          -> 20
+        περισσότερα από 20 -> 18
 
         Δ.Ε.
-        26 ώρες για όλους
+        ΔΕ.01 Αρχιτεχνίτες 28
+        ΔΕ.01 Τεχνίτες 30
         """
         cat = self.profession.category()
-        years = self.total_service().years
+        years = self.educational_service().years
 
-        pe = [(5, 21), (11, 19), (19, 18), (50, 16)]
-        te = [(6, 22), (12, 19), (19, 18), (50, 16)]
+        pe = [(5, 23), (11, 21), (19, 20), (50, 18)]
+        te = [(6, 24), (12, 21), (19, 20), (50, 18)]
 
         get_hours = lambda sy, l: next((y, h) for y, h in l if sy <= y)[1]
 
@@ -844,7 +852,7 @@ class Permanent(Employee):
         elif cat == u'ΤΕ':
             return get_hours(years, te)
         else:
-            return 26
+            return 30
     hours.short_description = u'Υποχρεωτικό ωράριο'
 
     def natural_key(self):
