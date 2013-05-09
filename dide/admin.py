@@ -333,20 +333,21 @@ class PermanentAdmin(EmployeeAdmin):
                                        ServiceInline, LeaveInline,
                                        ResponsibilityInline]
 
-    list_filter = EmployeeAdmin.list_filter + (TransferedFilter,
-                                               'serving_type',
-                                               DateHiredFilter,
-                                               PaymentStartDateFilter,
-                                               'has_permanent_post',
-                                               StudyFilter,
-                                               CurrentlyServesFilter,
+    list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
+                                               PermanentPostFilter,
+                                               TemporaryPostFilter,
+                                               ServingTypeFilter,
                                                ServesInDideSchoolFilter,
                                                ServesInDideOrgFilter,
+                                               'has_permanent_post',
+                                               StudyFilter,
+                                               TransferedFilter,
+                                               CurrentlyServesFilter,
+                                               DateHiredFilter,
+                                               PaymentStartDateFilter,
                                                NextPromotionInRangeFilter,
                                                EmployeeWithLeaveFilter,
-                                               EmployeeWithOutLeaveFilter,
-                                               OrganizationServingFilter,
-                                               PermanentPostFilter)
+                                               EmployeeWithOutLeaveFilter)
     list_per_page = 50
     fieldsets = [
         ('Γενικά Στοιχεία', {

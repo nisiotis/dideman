@@ -741,6 +741,12 @@ class PermanentManager(models.Manager):
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
+    def temporary_post_in_organization(self, org_id):
+        cursor = connection.cursor()
+        cursor.execute(sql.temporary_post_in_organization.format(org_id))
+        ids = [row[0] for row in cursor.fetchall()]
+        return self.filter(parent_id__in=ids)
+
     def permanent_post_in_organization(self, org_id):
         cursor = connection.cursor()
         cursor.execute(sql.permanent_post_in_organization.format(org_id))
@@ -818,7 +824,7 @@ class Permanent(Employee):
             start = Date(self.payment_start_date_manual)
         else:
             start = self.payment_start_date_auto()
-        return Date(datetime.date.today()) - start
+        return Date(datetime.date(2013,12,31)) - start
     total_service.short_description = u'Συνολική υπηρεσία'
 
     def hours(self):

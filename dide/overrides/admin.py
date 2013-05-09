@@ -19,6 +19,7 @@ from django.db import router
 from dideman.lib.common import parse_deletable_list
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
+import django.contrib.admin.views.main as views
 
 
 class DideAdmin(admin.ModelAdmin):
@@ -193,7 +194,6 @@ class BaseModifierFilter(object):
 
     def __init__(self, *args, **kwargs):
         super(BaseModifierFilter, self).__init__(*args, **kwargs)
-        BaseModifierFilter.registered_filters.append(self)
 
     def filter_param(self, queryset, query_dict):
         return queryset.filter(**query_dict)
@@ -263,6 +263,19 @@ class ModifierSimpleListFilter(BaseModifierFilter, SimpleListFilter):
     def __init__(self, request, params, *args, **kwargs):
         super(ModifierSimpleListFilter, self).__init__(request,
                                                        params, *args, **kwargs)
+        self.modifier_name = "_m_" + self.parameter_name
+        self.lookup_param = self.parameter_name
+        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        views.__dict__['IGNORED_PARAMS'] += [self.modifier_name]
+        DideAdmin.add_filter_parameter(self.parameter_name)
+        BaseModifierFilter.registered_filters.append(self)
+
+    def has_output(self):
+        return True
+
+    def used_params(self):
+        return [self.parameter_name]
+
 
 RelatedFieldListFilter.__bases__ = (ModifierFieldListFilter, )
 BooleanFieldListFilter.__bases__ = (ModifierFieldListFilter, )

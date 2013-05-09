@@ -13,18 +13,9 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class PermanentPostFilter(ModifierSimpleListFilter):
-    title = u'Οργανική Θέση'
+    title = u'Σχολείο Οργανικής'
     parameter_name = 'organization__id'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
-    DideAdmin.add_filter_parameter(parameter_name)
     list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(PermanentPostFilter, self).__init__(request, params, model,
-                                                  model_admin)
 
     def lookups(self, request, model_admin):
         schools = School.objects.all()
@@ -38,26 +29,28 @@ class PermanentPostFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-    def has_output(self):
-        return True
 
-    def used_params(self):
-        return [self.parameter_name]
+class TemporaryPostFilter(ModifierSimpleListFilter):
+    title = u'Σχολείο Προσωρινής'
+    parameter_name = 'temp_organization__id'
+    list_view = False
+
+    def lookups(self, request, model_admin):
+        schools = School.objects.all()
+        return ((s.id, s.name) for s in schools)
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            return queryset & \
+                Permanent.objects.temporary_post_in_organization(int(val))
+        else:
+            return queryset
 
 
 class TransferedFilter(ModifierSimpleListFilter):
     title = u'Έχει μετατεθεί'
     parameter_name = 'is_transfered'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(TransferedFilter, self).__init__(request, params, model,
-                                                model_admin)
 
     def lookups(self, request, model_admin):
         return(('1', _('Yes')), ('2', _('No')))
@@ -72,27 +65,28 @@ class TransferedFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-    def has_output(self):
-        return True
 
-    def used_params(self):
-        return [self.parameter_name]
+class ServingTypeFilter(ModifierSimpleListFilter):
+    title = u"Ανήκει οργανικά στην Δ.Δ.Ε."
+    parameter_name = "serving_type"
+
+    def lookups(self, request, model_admin):
+        return(('1', _('Yes')), ('2', _('No')))
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            if val == '1':
+                return queryset & Permanent.objects.filter(serving_type=val)
+            elif val == '2':
+                return queryset & Permanent.objects.exclude(serving_type=1)
+        else:
+            return queryset
 
 
 class CurrentlyServesFilter(ModifierSimpleListFilter):
-    title = u'Υπηρετεί στην Δ.Δ.Ε.Δ.'
+    title = u'Είναι ενεργός'
     parameter_name = 'currently_serves'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    field = 'currently_serves'
-    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = True
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(CurrentlyServesFilter, self).__init__(request, params, model,
-                                                    model_admin)
 
     def lookups(self, request, model_admin):
         return  (('1', _('Yes')),
@@ -107,12 +101,6 @@ class CurrentlyServesFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-    def has_output(self):
-        return True
-
-    def used_params(self):
-        return [self.parameter_name]
-
 
 class NonPermanentCurrentlyServesFilter(CurrentlyServesFilter):
     def filter_param(self, queryset, query_dict):
@@ -123,15 +111,7 @@ class NonPermanentCurrentlyServesFilter(CurrentlyServesFilter):
 class StudyFilter(ModifierSimpleListFilter):
     title = u'Σπουδές'
     parameter_name = 'study'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
-    DideAdmin.add_filter_parameter(parameter_name)
     list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(StudyFilter, self).__init__(request, params, model, model_admin)
 
     def lookups(self, request, model_admin):
         degrees = DegreeCategory.objects.all().only('id', 'name')
@@ -144,27 +124,11 @@ class StudyFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-    def has_output(self):
-        return True
-
-    def used_params(self):
-        return [self.parameter_name]
-
 
 class OrganizationServingFilter(ModifierSimpleListFilter):
     title = u'Σχολείο υπηρεσίας'
     parameter_name = 'serving_organization__id'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
-    DideAdmin.add_filter_parameter(parameter_name)
     list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(OrganizationServingFilter, self).__init__(request, params, model,
-                                                        model_admin, *args,
-                                                        **kwargs)
 
     def lookups(self, request, model_admin):
         organizations = Organization.objects.all()
@@ -177,12 +141,6 @@ class OrganizationServingFilter(ModifierSimpleListFilter):
                 Permanent.objects.serving_in_organization(int(val))
         else:
             return queryset
-
-    def has_output(self):
-        return True
-
-    def used_params(self):
-        return [self.parameter_name]
 
 
 class FreeDateFieldListFilter(SimpleListFilter):
@@ -199,6 +157,11 @@ class FreeDateFieldListFilter(SimpleListFilter):
 
     def __init__(self, request, *args, **kwargs):
         super(FreeDateFieldListFilter, self).__init__(request, *args, **kwargs)
+        self.modifier_name = '_m_' + self.parameter_name
+        self.lookup_param = self.parameter_name
+        views.__dict__['IGNORED_PARAMS'].append(self.modifier_name)
+        DideAdmin.add_filter_parameter(self.parameter_name)
+
         url_value = request.GET.get(self.parameter_name, '')
         if re.match('^\d{1,2}-\d{1,2}-\d{4}\|\d{1,2}-\d{1,2}-\d{4}',
                     url_value):
@@ -228,16 +191,6 @@ class FreeDateFieldListFilter(SimpleListFilter):
 class DateHiredFilter(FreeDateFieldListFilter):
     title = u'Ημερομηνία Διορισμού'
     parameter_name = 'date_hired_period'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(DateHiredFilter, self).__init__(request, params, model,
-                                              model_admin, *args, **kwargs)
 
     def queryset(self, request, queryset):
         if [self.date_from, self.date_to] == self.default_date_values():
@@ -250,16 +203,6 @@ class DateHiredFilter(FreeDateFieldListFilter):
 class LeaveDateToFilter(FreeDateFieldListFilter):
     title = u'Ημερομηνία Λήξης'
     parameter_name = 'leave_date_to'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(LeaveDateToFilter, self).__init__(request, params, model,
-                                                model_admin, *args, **kwargs)
 
     def queryset(self, request, queryset):
         if [self.date_from, self.date_to] == self.default_date_values():
@@ -272,17 +215,6 @@ class LeaveDateToFilter(FreeDateFieldListFilter):
 class EmployeeWithOutLeaveFilter(FreeDateFieldListFilter):
     title = u'Χωρίς Άδεια'
     parameter_name = 'ewo_leave_date_to'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(EmployeeWithOutLeaveFilter, self).__init__(request, params,
-                                                         model, model_admin,
-                                                         *args, **kwargs)
 
     def queryset(self, request, queryset):
         if [self.date_from, self.date_to] == self.default_date_values():
@@ -297,17 +229,6 @@ class EmployeeWithOutLeaveFilter(FreeDateFieldListFilter):
 class EmployeeWithLeaveFilter(FreeDateFieldListFilter):
     title = u'Με Άδεια'
     parameter_name = 'ew_leave_date_to'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(EmployeeWithLeaveFilter, self).__init__(request, params,
-                                                         model, model_admin,
-                                                         *args, **kwargs)
 
     def queryset(self, request, queryset):
         if [self.date_from, self.date_to] == self.default_date_values():
@@ -321,16 +242,6 @@ class EmployeeWithLeaveFilter(FreeDateFieldListFilter):
 class ServesInDideSchoolFilter(ModifierSimpleListFilter):
     title = u'Υπηρετεί σε σχολείο της Δ.Δ.Ε.'
     parameter_name = 'serves_in_dde_sch'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(ServesInDideSchoolFilter, self).__init__(request, params, model,
-                                                model_admin)
 
     def lookups(self, request, model_admin):
         return(('1', _('Yes')), ('2', _('No')))
@@ -345,26 +256,11 @@ class ServesInDideSchoolFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-    def has_output(self):
-        return True
-
-    def used_params(self):
-        return [self.parameter_name]
-
 
 class ServesInDideOrgFilter(ModifierSimpleListFilter):
     title = u'Υπηρετεί σε σχολείο/φορέα της Δ.Δ.Ε.'
     parameter_name = 'serves_in_dde_org'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(ServesInDideOrgFilter, self).__init__(request, params, model,
-                                                model_admin)
+    list_view = True
 
     def lookups(self, request, model_admin):
         return(('1', _('Yes')), ('2', _('No')))
@@ -379,26 +275,10 @@ class ServesInDideOrgFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-    def has_output(self):
-        return True
-
-    def used_params(self):
-        return [self.parameter_name]
-
 
 class LeaveDateFromFilter(FreeDateFieldListFilter):
     title = u'Ημερομηνία Έναρξης'
     parameter_name = 'leave_date_from'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(LeaveDateFromFilter, self).__init__(request, params, model,
-                                                  model_admin, *args, **kwargs)
 
     def queryset(self, request, queryset):
         if [self.date_from, self.date_to] == self.default_date_values():
@@ -411,17 +291,6 @@ class LeaveDateFromFilter(FreeDateFieldListFilter):
 class NextPromotionInRangeFilter(FreeDateFieldListFilter):
     title = u'Ημερομηνία χορήγησης επόμενου Μ.Κ.'
     parameter_name = 'next_promotion_date'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(NextPromotionInRangeFilter, self).__init__(request, params,
-                                                         model, model_admin,
-                                                         *args, **kwargs)
 
     def queryset(self, request, queryset):
         if [self.date_from, self.date_to] == self.default_date_values():
@@ -434,17 +303,6 @@ class NextPromotionInRangeFilter(FreeDateFieldListFilter):
 class PaymentStartDateFilter(FreeDateFieldListFilter):
     title = u'Ημερομηνία Μισθολογικής Αφετηρίας'
     parameter_name = 'payment_start'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
-    list_view = False
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(PaymentStartDateFilter, self).__init__(request, params,
-                                                         model, model_admin,
-                                                         *args, **kwargs)
 
     def queryset(self, request, queryset):
         if [self.date_from, self.date_to] == self.default_date_values():
@@ -454,23 +312,13 @@ class PaymentStartDateFilter(FreeDateFieldListFilter):
                    if self.date_from <= \
                        p.payment_start_date_auto().python() <=\
                        self.date_to]
-            print ids
             return queryset.filter(id__in=ids)
 
 
 class SubstituteAreaFilter(ModifierSimpleListFilter):
     title = u'Περιοχή τοποθέτησης'
     parameter_name = u'position_area'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
     list_view = True
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(SubstituteAreaFilter, self).__init__(request, params, model,
-                                                   model_admin)
 
     def lookups(self, request, model_admin):
         return [(a.id, a.name) for a in TransferArea.objects.all()]
@@ -484,26 +332,11 @@ class SubstituteAreaFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-    def has_output(self):
-        return True
-
-    def used_params(self):
-        return [self.parameter_name]
-
 
 class SubstituteOrderFilter(ModifierSimpleListFilter):
     title = u'Υπουργική απόφαση'
     parameter_name = u'date_order'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
     list_view = True
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(SubstituteOrderFilter, self).__init__(request, params, model,
-                                                   model_admin)
 
     def lookups(self, request, model_admin):
         return [(a.id, '%s - %s' % (a.order, a.date)) \
@@ -516,27 +349,11 @@ class SubstituteOrderFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-    def has_output(self):
-        return True
-
-    def used_params(self):
-        return [self.parameter_name]
-
 
 class SubstituteDateRangeFilter(FreeDateFieldListFilter):
     title = u'Χρονικό διάστημα εργασίας'
     parameter_name = 'sub_order_date'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
     list_view = True
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(SubstituteDateRangeFilter, self).__init__(request, params,
-                                                         model, model_admin,
-                                                         *args, **kwargs)
 
     def queryset(self, request, queryset):
         if [self.date_from, self.date_to] == self.default_date_values():
@@ -565,15 +382,7 @@ class NonPermanentOrganizationServingFilter(OrganizationServingFilter):
 class NonPermanentWithTotalExtraPosition(ModifierSimpleListFilter):
     title = u'Με ολική διάθεση'
     parameter_name = 'with_total'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'].append(modifier_name)
-    DideAdmin.add_filter_parameter(parameter_name)
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
-        super(NonPermanentWithTotalExtraPosition, self).\
-            __init__(request, params, model, model_admin, *args, **kwargs)
+    list_view = True
 
     def lookups(self, request, model_admin):
         return(('1', _('Yes')), ('2', _('No')))
@@ -587,9 +396,3 @@ class NonPermanentWithTotalExtraPosition(ModifierSimpleListFilter):
                 return queryset & NonPermanent.objects.with_total_extra_position(exclude=True)
         else:
             return queryset
-
-    def has_output(self):
-        return True
-
-    def used_params(self):
-        return [self.parameter_name]

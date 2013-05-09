@@ -12,6 +12,23 @@ INNER JOIN dide_employee ON dide_employee.id=dide_placement.employee_id
 WHERE dide_employee.currently_serves=1 AND dide_placement.organization_id={0}
 """
 
+temporary_post_in_organization = """
+SELECT dide_placement.employee_id
+FROM dide_placement
+INNER JOIN (
+    SELECT employee_id, MAX(date_from) AS maxdate
+    FROM dide_placement
+    WHERE type_id = 3
+    GROUP BY employee_id
+) AS aggr ON aggr.employee_id=dide_placement.employee_id AND dide_placement.date_from=aggr.maxdate
+INNER JOIN dide_employee ON dide_employee.id=dide_placement.employee_id
+INNER JOIN dide_permanent ON dide_employee.id=dide_permanent.parent_id
+WHERE
+    dide_employee.currently_serves=1 AND
+    dide_placement.organization_id={0} AND
+    dide_permanent.has_permanent_post=0
+"""
+
 serving_in_organization = """
 SELECT employee_id FROM (
         SELECT dide_placement.employee_id
