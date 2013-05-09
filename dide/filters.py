@@ -30,6 +30,24 @@ class PermanentPostFilter(ModifierSimpleListFilter):
             return queryset
 
 
+class TemporaryPostFilter(ModifierSimpleListFilter):
+    title = u'Σχολείο Προσωρινής'
+    parameter_name = 'temp_organization__id'
+    list_view = False
+
+    def lookups(self, request, model_admin):
+        schools = School.objects.all()
+        return ((s.id, s.name) for s in schools)
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            return queryset & \
+                Permanent.objects.temporary_post_in_organization(int(val))
+        else:
+            return queryset
+
+
 class TransferedFilter(ModifierSimpleListFilter):
     title = u'Έχει μετατεθεί'
     parameter_name = 'is_transfered'

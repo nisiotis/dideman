@@ -335,6 +335,7 @@ class PermanentAdmin(EmployeeAdmin):
 
     list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
                                                PermanentPostFilter,
+                                               TemporaryPostFilter,
                                                ServingTypeFilter,
                                                ServesInDideSchoolFilter,
                                                ServesInDideOrgFilter,

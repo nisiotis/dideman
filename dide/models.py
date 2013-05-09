@@ -741,6 +741,12 @@ class PermanentManager(models.Manager):
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
+    def temporary_post_in_organization(self, org_id):
+        cursor = connection.cursor()
+        cursor.execute(sql.temporary_post_in_organization.format(org_id))
+        ids = [row[0] for row in cursor.fetchall()]
+        return self.filter(parent_id__in=ids)
+
     def permanent_post_in_organization(self, org_id):
         cursor = connection.cursor()
         cursor.execute(sql.permanent_post_in_organization.format(org_id))
