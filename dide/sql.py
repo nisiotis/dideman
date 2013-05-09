@@ -11,7 +11,6 @@ INNER JOIN (
 INNER JOIN dide_employee ON dide_employee.id=dide_placement.employee_id
 WHERE dide_employee.currently_serves=1 AND dide_placement.organization_id={0}
 """
-
 serving_in_organization = """
 SELECT employee_id FROM (
         SELECT dide_placement.employee_id

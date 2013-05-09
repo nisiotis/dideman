@@ -818,7 +818,7 @@ class Permanent(Employee):
             start = Date(self.payment_start_date_manual)
         else:
             start = self.payment_start_date_auto()
-        return Date(datetime.date.today()) - start
+        return Date(datetime.date(2013,12,31)) - start
     total_service.short_description = u'Συνολική υπηρεσία'
 
     def hours(self):
