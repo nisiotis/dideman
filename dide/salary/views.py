@@ -244,7 +244,9 @@ def view(request):
             raise
 
         pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year','-type')
-        per_year = {p.year: p for p in pay}
+        current_year = datetime.date.today().year
+        per_year = {p.year: p for p in pay if p.year < current_year}
+        #per_year =  {p.year: p for p in pay}
         paginator = Paginator(pay, 10)
 
         page = request.GET.get('page')

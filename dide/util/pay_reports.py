@@ -23,7 +23,7 @@ def tax_groups(dict_list, p_codes):
 
 
 
-def reports_calc_amount(dict_list, group__codes):
+def reports_calc_amount(dict_list, group_codes):
     """
     Returns the totals for an employee from a set of paymentreports
     Accepts a list of dicts of payments and a list of taxed codes
@@ -33,7 +33,7 @@ def reports_calc_amount(dict_list, group__codes):
     gr_l = filter(lambda x: x['type'] == 'gr', dic_lst)
     et_l = filter(lambda x: x['type'] == 'et', dic_lst)
 
-    de_ca = [[x['code_id'], x['amount']] for x in de_l if x['code_id'] in taxed_codes] if len(de_l) > 0 else []
+    de_ca = [[x['code_id'], x['amount']] for x in de_l if x['code_id'] in group_codes] if len(de_l) > 0 else []
     gr_ca = [[x['code_id'], x['amount']] for x in gr_l] if len(gr_l) > 0 else []
     et_ca = [[x['code_id'], x['amount']] for x in et_l] if len(et_l) > 0 else []
     de_ca_ex = []
