@@ -56,29 +56,11 @@ class PaymentFileNameAdmin(DideAdmin):
         if request.POST:
             form = PaymentFileNameMassForm(request.POST, request.FILES)
             if form.is_valid():
-
-#                if zipfile.is_zipfile(request.FILES['xml_file']):
-#                    zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
-#                    xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
-#                    for file in xml_li:
-#                        if os.path.isfile(os.path.join(settings.MEDIA_ROOT,'xml_files',file.decode('iso8859-7').encode('utf-8'))):
-#                            os.unlink(os.path.join(settings.MEDIA_ROOT,'xml_files',file.decode('iso8859-7').encode('utf-8')))
-#                        f = open(os.path.join(settings.MEDIA_ROOT,'xml_files',file.decode('iso8859-7').encode('utf-8')),"w")
-#                        f.write(zf.read(file))
-#                        f.close()
-#                        pf = PaymentFileName(xml_file='xml_files/%s' % force_unicode(file, 'cp737', 'ignore'),
-#                                             description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]),
-#                                             status=0,
-#                                             imported_records=0)
-#                        pf.save()
-
                 if zipfile.is_zipfile(request.FILES['xml_file']):
                     zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
                     xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
                     for file in xml_li:
                         t = timestamp()
-#                        if os.path.isfile(os.path.join(settings.MEDIA_ROOT,'xml_files',force_unicode(file, 'cp737', 'ignore'))):
-#                            os.unlink(os.path.join(settings.MEDIA_ROOT,'xml_files',force_unicode(file, 'cp737', 'ignore')))
                         f = open(os.path.join(settings.MEDIA_ROOT,'xmlfiles','fromzipfile%s.xml' % t),"wb")
                         f.write(zf.read(file))
                         f.close()
