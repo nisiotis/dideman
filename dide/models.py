@@ -167,19 +167,6 @@ class PaymentCode(models.Model):
         return self.description
 
 
-#class ReportStructure(models.Model):
-
-#    class Meta:
-#        verbose_name = u'Δομή Συγκεντρωτικών Μισθολογικών Καταστάσεων'
-#        verbose_name_plural = u'Δομές Συγκεντρωτικών Μισθολογικών Καταστάσεων'
-
-#    description = models.CharField(u'Περιγραφή', max_length=100)
-#    report_level = models.IntegerField(u'Επίπεδο στην αναφορά')
-
-#    def __unicode__(self):
-#        return self.description
-
-
 class Application(models.Model):
 
     class Meta:

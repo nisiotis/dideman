@@ -2,7 +2,7 @@
 from cStringIO import StringIO
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            generate_pdf_landscape_structure,
-                                           reports_calc_amount, rprts_from_file)
+                                           calc_reports, rprts_from_file)
 from dideman import settings
 from dideman.dide.util import xml
 from dideman.dide.util.settings import SETTINGS
@@ -37,7 +37,7 @@ import datetime
 import inspect
 import os
 import zipfile
-from dideman.dide.models import Employee, PaymentCode
+from dideman.dide.models import Employee, PaymentCode, PaymentCategoryTitle
 from dideman.lib.common import try_many
 
 
@@ -266,6 +266,11 @@ class CSVReport(TemplateAction):
 
 
 class CreatePDF(object):
+    """
+    This class contains the required methods to create a PDF
+    report. It will be merged with the salary app some time 
+    later.
+    """
 
     def __init__(self, short_description):
         self.response = HttpResponse()
@@ -280,9 +285,8 @@ class CreatePDF(object):
                                                       'DroidSans.ttf')))
         registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
                                                            'DroidSans-Bold.ttf')))
-        obj = PaymentCode.objects.all()
-        #dict_codes = {c.id: c.description for c in obj}
-        #dict_tax_codes = {c.id: c.is_tax for c in obj}
+        payment_codes = PaymentCode.objects.all()
+        category_titles = PaymentCategoryTitle.objects.all()
         all_emp = rprts_from_file(queryset)
         u = set([x['employee_id'] for x in all_emp])
         y = {x['employee_id']: x['year'] for x in all_emp}
@@ -299,53 +303,27 @@ class CreatePDF(object):
         elements = []
         reports = []
         for empx in u:
-            group_codes = tax_groups(filter(lambda s: s['employee_id'] == empx,
-                                            all_emp), obj)
-
-            (gr,
-            de,
-            et) = reports_calc_amount(filter(lambda s: s['employee_id'] == empx,
-                                            all_emp), group_codes)
-            grd = [{'type':'gr', 'code_id':x[0], 'amount':x[1]} for x in gr]
-            ded = [{'type':'de', 'code_id':x[0], 'amount':x[1]} for x in de]
-            etd = [{'type':'et', 'code_id':x[0], 'amount':x[1]} for x in et]
-            calctd_payments_list = [x for x in chain(grd, ded)]
-            report = {}
-            report['report_type'] = '1'
-            report['type'] = ''
-            report['year'] = y[empx]
-            report['emp_type'] = 0
-            report['vat_number'] = dict_emp[empx][2]
-            report['lastname'] = dict_emp[empx][0]
-            report['firstname'] = dict_emp[empx][1]
-            report['fathername'] = dict_emp[empx][3]
-            report['address'] = dict_emp[empx][4]
-            report['tax_office'] = dict_emp[empx][5]
-            report['profession'] = ' '.join([dict_emp[empx][6], dict_emp[empx][7]])
-            report['telephone_number1'] = dict_emp[empx][8]      
-            report['rank'] = None
-            report['net_amount1'] = ''
-            report['net_amount2'] = ''
-            pay_cat_list = []
-            pay_cat_dict = {}
-            pay_cat_dict['title'] = u'Επιμέρους Σύνολα'
-            pay_cat_dict['month'] = ''
-            pay_cat_dict['year'] = ''
-            pay_cat_dict['start_date'] = ''
-            pay_cat_dict['end_date'] = ''
-            pay_cat_dict['payments'] = []
-            for o in calctd_payments_list:
-                p = {}
-                p['type'] = o['type']
-                p['code'] = dict_codes[o['code_id']]
-                p['amount'] = o['amount']
-                p['info'] = None
-                p['code_tax'] = dict_tax_codes[o['code_id']]
-                pay_cat_dict['payments'].append(p)
-            pay_cat_list.append(pay_cat_dict)
-            report['payment_categories'] = pay_cat_list
-            reports.append(report)
-
+            if empx == 1316:
+                r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, all_emp))
+                report = {}
+                report['report_type'] = '1'
+                report['type'] = ''
+                report['year'] = y[empx]
+                report['emp_type'] = 0
+                report['vat_number'] = dict_emp[empx][2]
+                report['lastname'] = dict_emp[empx][0]
+                report['firstname'] = dict_emp[empx][1]
+                report['fathername'] = dict_emp[empx][3]
+                report['address'] = dict_emp[empx][4]
+                report['tax_office'] = dict_emp[empx][5]
+                report['profession'] = ' '.join([dict_emp[empx][6], dict_emp[empx][7]])
+                report['telephone_number1'] = dict_emp[empx][8]      
+                report['rank'] = None
+                report['net_amount1'] = ''
+                report['net_amount2'] = ''
+                report['payment_categories'] = r_list
+                reports.append(report)
+            
         doc = SimpleDocTemplate(self.response, pagesize=A4)
         doc.topMargin = 0.5 * cm
         doc.bottomMargin = 0.5 * cm
@@ -558,7 +536,6 @@ class XMLReadAction(object):
         context = {
             "title": title,
             "objects_name": objects_name,
-        #    'queryset': queryset,
             "opts": opts,
             "app_label": app_label,
             'action_title': self.short_description,
@@ -568,8 +545,6 @@ class XMLReadAction(object):
             'read_results': read_results,
             'action_time_elapsed': elapsed,
             'read_files': rows_updated,
-        #    'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
-        #    'action_name': self.__name__,
         }
 
         # Display the results page

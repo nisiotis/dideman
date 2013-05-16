@@ -8,8 +8,60 @@
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
 <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+<script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
 {% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+<style>
+/*
+    Menu App styles
+*/
+
+p {
+    text-align: justify;
+}
+
+#content {
+    overflow: hidden;
+    margin: 10px 15px; 
+    
+}
+
+
+.dashboard #content {
+    width: 95%;
+}
+
+#content-main {
+    float: left;
+    width: 500px; 
+    margin-right: 0.5em;
+}
+
+#content-related {
+    margin-top: 10px;
+    float: left;
+    margin-left: 0.5em; 
+    width: 45%; 	
+}
+
+
+@media only screen
+  and (max-width: 800px) {
+
+#content-main {
+    margin-left: 0em;
+    width: 99%;
+    }
+
+#content-related {
+    margin-left: 0em;
+    width: 99%;
+    }
+}
+
+
+</style>
+<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
 </head>
 {% load i18n %}
 
@@ -33,7 +85,7 @@
     {% endblock %}
     {% block messages %} {% endblock  %}
     <!-- Content -->
-    <div id="content" class="{% block coltype %}colMS{% endblock %}">
+    <div id="content" class="{% block coltype %}{% endblock %}">
         {% block pretitle %}{% endblock %}
         {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
         {% block content %}
@@ -41,11 +93,13 @@
         {{ content }}
         {% endblock %}
         {% block sidebar %}{% endblock %}
-        <br class="clear" />
+        <!--<br class="clear" />-->
     </div>
     <!-- END Content -->
-    <div id="content-related"></div>
-    {% block footer %}<div id="footer"  class="" style="position: absolute; bottom: 0;">
+    <!-- <div id="content-related"></div> -->
+    {% block footer %}
+    <br class="clear" />
+    <div id="footer"  class="" style="position: relative; bottom: 0; margin-top:10px;">
     <p class="tiny">Κατασκευή 2012 Στάθης Στέργου, Βασίλης Κασαπίδης</p>
     </div>{% endblock %}
 </div>

@@ -30,18 +30,6 @@ $(window).bind("load resize", function(){
     <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
       <fieldset class="module aligned">
         <h2>Στοιχεία Καρτέλας</h2>
-        <!--<div class="form-row field-lastname">
-          <div>
-            <label style="width:220px;">Επώνυμο : </label>
-            <p>{{ emp.lastname  }}</p>
-          </div>
-        </div>
-        <div class="form-row field-firstname">
-          <div>
-            <label style="width:220px;">Όνομα : </label>
-            <p>{{ emp.firstname  }}</p>
-          </div>
-      </div>-->
       <div class="form-row field-fathername">
         <div>
           <label style="width:220px;">Πατρώνυμο : </label>
@@ -51,7 +39,7 @@ $(window).bind("load resize", function(){
       <div class="form-row field-profession">
         <div>
           <label style="width:220px;">Ειδικότητα : </label>
-          <p>{{ emp.profession  }}</p>
+          <p>{{ emp.profession  }} - {{ emp.profession_description  }}</p>
         </div>
       </div>
 	{% if emp.registration_number %}
@@ -86,6 +74,23 @@ $(window).bind("load resize", function(){
         </div>
       </div>
 	{% endif %}
+	{% if emp.total_service %}
+	<div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Συνολική υπηρεσία : </label>
+          <p>{{ emp.total_service }} - ({{ emp.educational_service }} εκπαιδευτική)</p>
+        </div>
+      </div>
+	{% endif %}
+	{% if emp.hours %}
+	<div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Ωράριο (Μετά το ΠΔ του 2013) : </label>
+          <p>{{ emp.hours }} ώρες</p>
+        </div>
+      </div>
+	{% endif %}
+
  	<h2>Περισσότερα στοιχεία</h2>
               {% for field in form %}
             <div class="form-row field-{{ field.html_name }}">
