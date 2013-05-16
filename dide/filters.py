@@ -339,8 +339,10 @@ class SubstituteOrderFilter(ModifierSimpleListFilter):
     list_view = True
 
     def lookups(self, request, model_admin):
+        """ only last two years"""
+        year = datetime.date.today().year
         return [(a.id, '%s - %s' % (a.order, a.date)) \
-                    for a in SubstituteMinistryOrder.objects.all()]
+                    for a in SubstituteMinistryOrder.objects.filter(date__gte="%s-01-01" % (year - 1))]
 
     def filter_param(self, queryset, query_dict):
         val = query_dict.get(self.parameter_name, None)
