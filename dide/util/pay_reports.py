@@ -69,6 +69,7 @@ def calc_reports(emp_reports):
 
     for (cat_id, cat_title), d in groups.items():
         rows.append([cat_title] + [d.get(h, "-") for h in headers])
+    rows.append([u''] + [u' ' for h in headers])
     rows.append([u'Σύνολα'] + [round(sums[h], 2) for h in headers])
     headers.insert(0, u'Είδος Αποδοχών ή Συντάξεων') 
     return [headers] + rows
