@@ -303,26 +303,26 @@ class CreatePDF(object):
         elements = []
         reports = []
         for empx in u:
-            if empx == 1316:
-                r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, all_emp))
-                report = {}
-                report['report_type'] = '1'
-                report['type'] = ''
-                report['year'] = y[empx]
-                report['emp_type'] = 0
-                report['vat_number'] = dict_emp[empx][2]
-                report['lastname'] = dict_emp[empx][0]
-                report['firstname'] = dict_emp[empx][1]
-                report['fathername'] = dict_emp[empx][3]
-                report['address'] = dict_emp[empx][4]
-                report['tax_office'] = dict_emp[empx][5]
-                report['profession'] = ' '.join([dict_emp[empx][6], dict_emp[empx][7]])
-                report['telephone_number1'] = dict_emp[empx][8]      
-                report['rank'] = None
-                report['net_amount1'] = ''
-                report['net_amount2'] = ''
-                report['payment_categories'] = r_list
-                reports.append(report)
+           # if empx == 1316:
+            r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, all_emp))
+            report = {}
+            report['report_type'] = '1'
+            report['type'] = ''
+            report['year'] = y[empx]
+            report['emp_type'] = 0
+            report['vat_number'] = dict_emp[empx][2]
+            report['lastname'] = dict_emp[empx][0]
+            report['firstname'] = dict_emp[empx][1]
+            report['fathername'] = dict_emp[empx][3]
+            report['address'] = dict_emp[empx][4]
+            report['tax_office'] = dict_emp[empx][5]
+            report['profession'] = ' '.join([dict_emp[empx][6], dict_emp[empx][7]])
+            report['telephone_number1'] = dict_emp[empx][8]      
+            report['rank'] = None
+            report['net_amount1'] = ''
+            report['net_amount2'] = ''
+            report['payment_categories'] = r_list
+            reports.append(report)
             
         doc = SimpleDocTemplate(self.response, pagesize=A4)
         doc.topMargin = 0.5 * cm
