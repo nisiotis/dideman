@@ -9,7 +9,6 @@ sign = functools.partial(math.copysign, 1)
 
 now = datetime.datetime.now()
 
-
 def current_year_date_from():
     if now.month < 9:
         return datetime.date(now.year - 1, 9, 1)

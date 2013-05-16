@@ -2,7 +2,7 @@
 from django import forms
 from django.forms.models import ModelForm
 from dideman.dide.models import SubstitutePlacement, NonPermanent, PlacementType
-from dideman.lib.date import current_year_date_to
+from dideman.lib.date import current_year_date_to_half
 
 
 class SubstitutePlacementForm(ModelForm):
@@ -14,7 +14,8 @@ class SubstitutePlacementForm(ModelForm):
 
     def _post_clean(self):
         super(SubstitutePlacementForm, self)._post_clean()
-        self.instance.date_to = current_year_date_to()
+        if not self.instance.date_to:
+            self.instance.date_to = current_year_date_to_half()
         self.instance.type = SubstitutePlacementForm.pltype
 
 

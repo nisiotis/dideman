@@ -161,7 +161,7 @@ class SubstitutePlacementInline(admin.TabularInline):
         return inlineformset_factory(NonPermanent, SubstitutePlacement,
                                      form=SubstitutePlacementForm,
                                      fields=['organization', 'ministry_order',
-                                             'date_from'],
+                                             'date_from', 'date_to'],
                                      extra=SubstitutePlacementInline.extra)
 
 
@@ -283,6 +283,8 @@ class EmployeeAdmin(DideAdmin):
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
+    list_display = ['order', 'date', 'web_code']
+    search_fields = ['order', 'date', 'web_code']
     inlines = [OrderedSubstitutionInline]
     extra = 0
 

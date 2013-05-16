@@ -1040,10 +1040,10 @@ class NonPermanent(Employee):
         return s.type if s else None
     type.short_description = u'Τύπος απασχόλησης'
 
-    def experience(self, d=current_year_date_to_half()):
+    def experience(self):
         p = self.current_placement()
         if p:
-            return Date(d) - Date(p.date_from)
+            return Date(p.date_to) - Date(p.date_from) + DateInterval(days=1)
         else:
             return DateInterval()
 
