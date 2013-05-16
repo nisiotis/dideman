@@ -8,7 +8,7 @@
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.organization_serving}} ως {{rec.type}} και υπηρέτησε από {{rec.current_placement__date_from}} έως {{end_date}}.</w:t>
+        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.current_placement}} ως {{rec.type}} και υπηρέτησε από {{rec.current_placement__date_from}} έως {{rec.current_placement__date_to}}.</w:t>
       </w:r>
     </w:p>
     <w:p>
