@@ -14,7 +14,7 @@ from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
 from dideman.dide.util.settings import SETTINGS
 from django.http import HttpResponse
-import os
+import os, re
 import datetime
 from collections import defaultdict
 
@@ -24,6 +24,7 @@ def calc_reports(emp_reports):
     types = {1: u'Φόρος που παρακρατήθηκε', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 0: '', 4: ''}
     groups = defaultdict(lambda : defaultdict(float))
     sums = defaultdict(float)
+    d_fact = 0.00
     for r in emp_reports:
         amount = float(r['amount'])
         key = (r['category_id'], r['title'])
@@ -38,26 +39,16 @@ def calc_reports(emp_reports):
                 sums[u'Φορολογητέο Ποσό'] -= amount
 
             if r['calc_type'] == 1: 
-                groups[key][types[r['calc_type']]] += round(amount / 1.015, 2)
-                sums[types[r['calc_type']]] += round(amount / 1.015, 2)
-
-#        else:
-#            groups[key][r['description']] += amount
-#            sums[r['description']] += amount
+                d_fact = (amount / float(SETTINGS['tax_reduction_factor']))
+                groups[key][types[r['calc_type']]] += d_fact
+                sums[types[r['calc_type']]] += d_fact
 
         if r['type'] == 'gr': 
-            groups[key][r['description']] += amount
-            sums[r['description']] += amount
+            groups[key][u'Αποδοχές από μισθούς ή συντάξεις'] += amount
+            sums[u'Αποδοχές από μισθούς ή συντάξεις'] += amount
+
             groups[key][u'Φορολογητέο Ποσό'] += amount
             sums[u'Φορολογητέο Ποσό'] += amount
-
-
-            #groups[key][types[r['calc_type']]] += round(amount / 1.015, 2)
-            #sums[types[r['calc_type']]] += round(amount / 1.015, 2)
-            #groups[key][r['description']] += amount
-            #sums[r['description']] += amount
-
-
 
     headers = set()
     for cat, d in groups.items():
@@ -74,13 +65,12 @@ def calc_reports(emp_reports):
     headers.remove(u'Φόρος που αναλογεί')
     headers.append(u'Φόρος που αναλογεί')
 
-#    import pdb; pdb.set_trace()
     rows = []
 
     for (cat_id, cat_title), d in groups.items():
         rows.append([cat_title] + [d.get(h, "-") for h in headers])
-    rows.append([u''] + [u' ' for h in headers])
-    rows.append([u'Σύνολα'] + [round(sums[h], 2) for h in headers])
+    rows.append([u' '] + [u' ' for h in headers])
+    rows.append([u'Σύνολα'] + [sums[h] for h in headers])
     headers.insert(0, u'Είδος Αποδοχών ή Συντάξεων') 
     return [headers] + rows
             
@@ -422,7 +412,17 @@ def generate_pdf_structure(reports):
         elements.append(PageBreak())
     return elements
 
-# here and on changes to be made.
+# mass pay report
+def to_float(s):
+
+    if len(s) > 0:
+        if re.match("^\d+?\.\d+?$", s) is None:
+            return None
+        else:
+            return float(s)
+    else:
+        return None
+
 
 def generate_pdf_landscape_structure(reports):
     """
@@ -573,7 +573,6 @@ def generate_pdf_landscape_structure(reports):
                                           report_sub_title['Left'])]], 
                               style=tsl, colWidths=[28 * cm]))
 
-#        if report['emp_type'] == 1:
         headdata = [[Paragraph('%s' % report['lastname'], report_normal_captions['Left']),
                      Paragraph('%s' % report['firstname'], report_normal_captions['Left']),
                      Paragraph('%s' % report['fathername'], report_normal_captions['Left']),
@@ -608,20 +607,22 @@ def generate_pdf_landscape_structure(reports):
                               style=tsl, colWidths=[28 * cm]))
 
         del data
-
         data = [] 
         headdata = []
         for line in report['payment_categories']:
             
             w = 28.00 / len(line)
-      
             d = [w * cm for x in range(len(line))]
-            print w
-            headdata.append([Paragraph('%s' % i, report_content['Center']) for i in line])
-            
-        table1 = Table(headdata,
-                       style=ts,
-                       colWidths=d)
+#            headdata.append([Paragraph('%s' % to_float(i) if None else round(to_float(i), 2), report_content['Center']) for i in line])
+            l = []
+            for i in line:
+                if to_float(unicode(i)) is None:
+                    l.append(Paragraph('%s' % i, report_content['Center']))
+                else:
+                    l.append(Paragraph('%.2f' % round(float(i), 2), report_content['Center']))
+            headdata.append(l)
+
+        table1 = Table(headdata, style=ts, colWidths=d)
         elements.append(table1)
  
         elements.append(Paragraph(' ', heading_style['Spacer']))
@@ -679,8 +680,5 @@ def generate_pdf_landscape_structure(reports):
         
         table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])
         elements.append(table0)
-
-        #table6 = Table(data, style=tsf, colWidths=[17.0 * cm, 6.0 * cm])
-        #elements.append(table6)
         elements.append(PageBreak())
     return elements
