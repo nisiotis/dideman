@@ -21,7 +21,7 @@ from collections import defaultdict
 
 def calc_reports(emp_reports): 
     
-    types = {1: u'Φόρος που αναλογεί', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 0: '', 4: ''}
+    types = {1: u'Φόρος που παρακρατήθηκε', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 0: '', 4: ''}
     groups = defaultdict(lambda : defaultdict(float))
     sums = defaultdict(float)
     for r in emp_reports:
@@ -34,6 +34,9 @@ def calc_reports(emp_reports):
             if r['calc_type'] == 2: 
                 groups[key][types[r['calc_type']]] += amount
                 sums[types[r['calc_type']]] += amount
+                groups[key][u'Φορολογητέο Ποσό'] -= amount
+                sums[u'Φορολογητέο Ποσό'] -= amount
+
             if r['calc_type'] == 1: 
                 groups[key][types[r['calc_type']]] += round(amount / 1.015, 2)
                 sums[types[r['calc_type']]] += round(amount / 1.015, 2)
@@ -45,6 +48,9 @@ def calc_reports(emp_reports):
         if r['type'] == 'gr': 
             groups[key][r['description']] += amount
             sums[r['description']] += amount
+            groups[key][u'Φορολογητέο Ποσό'] += amount
+            sums[u'Φορολογητέο Ποσό'] += amount
+
 
             #groups[key][types[r['calc_type']]] += round(amount / 1.015, 2)
             #sums[types[r['calc_type']]] += round(amount / 1.015, 2)
@@ -61,8 +67,12 @@ def calc_reports(emp_reports):
     headers.sort()
     headers.remove(types[2])
     headers.append(types[2])
+    headers.remove(u'Φορολογητέο Ποσό')
+    headers.append(u'Φορολογητέο Ποσό')
     headers.remove(types[1])
     headers.append(types[1])
+    headers.remove(u'Φόρος που αναλογεί')
+    headers.append(u'Φόρος που αναλογεί')
 
 #    import pdb; pdb.set_trace()
     rows = []
