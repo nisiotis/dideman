@@ -21,13 +21,15 @@ $(function() {
 
 
 {% block content %}
-<div id="content-main">
-  <h1>Σύστημα Μισθοδοσίας</h1>
+<div id="content-main" style="padding-top: 10px;">
+<!--  <h1>Σύστημα Μισθοδοσίας</h1> -->
     <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
       <input type="hidden" id="emp-action" name="emp-action" value="0" />
       <fieldset class="module aligned">
-        <h2>Στοιχεία εκπαιδευτικού</h2>
-        <div class="form-row field-lastname">
+<!--        <h2>Στοιχεία εκπαιδευτικού</h2> -->
+        <h2>Στοιχεία Καρτέλας</h2>
+
+<!--        <div class="form-row field-lastname">
           <div>
             <label style="width:220px;">Επώνυμο : </label>
             <p>{{ emp.lastname  }}</p>
@@ -38,19 +40,20 @@ $(function() {
             <label style="width:220px;">Όνομα : </label>
             <p>{{ emp.firstname  }}</p>
           </div>
-      </div>
+      </div> -->
       <div class="form-row field-fathername">
         <div>
           <label style="width:220px;">Πατρώνυμο : </label>
             <p>{{ emp.fathername  }}</p>
         </div>
-      </div>
+      </div> 
       <div class="form-row field-profession">
         <div>
           <label style="width:220px;">Ειδικότητα : </label>
-          <p>{{ emp.profession  }}</p>
+          <p>{{ emp.profession  }} - {{ emp.profession_description  }}</p>
         </div>
       </div>
+
 	{% if emp.registration_number %}
 	<div class="form-row field-registration_number">
         <div>
@@ -89,7 +92,7 @@ $(function() {
   	</div>
   	</div>
       {% if payments %}
-        <div style="height: 300px;">
+        <div style="height: 420px;">
             <table summary="Αποδοχές" style="width:100%">
               <tbody>
                 <tr>
@@ -119,6 +122,16 @@ $(function() {
 	  
     </fieldset>
   </form>
+</div>
+{% endblock %}
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>Πληροφορίες</h2>
+            <p></p> 
+
+
+    </div>
 </div>
 {% endblock %}
 

@@ -247,7 +247,7 @@ def view(request):
         current_year = datetime.date.today().year
         per_year = {p.year: p for p in pay if p.year < current_year}
         #per_year =  {p.year: p for p in pay}
-        paginator = Paginator(pay, 10)
+        paginator = Paginator(pay, 15)
 
         page = request.GET.get('page')
         try:

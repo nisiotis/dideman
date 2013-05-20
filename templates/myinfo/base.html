@@ -24,6 +24,7 @@
 }
 
 #content-main {
+    padding-top: 10px;
     float: left;
     width: 60%;
     margin-right: 0.5em;
@@ -32,7 +33,8 @@
 #content-related {
     float: left;
     margin-left: 0.5em;
-    width: 38%;	
+    width: 36%;
+    padding-top: 10px;	
 }
 
 #img-container {
@@ -92,7 +94,7 @@
     <!-- Content -->
     <div id="content" class="{% block coltype %}{% endblock %}">
         {% block pretitle %}{% endblock %}
-        {% block content_title %}<h1>{{ emp.lastname  }} {{ emp.firstname  }}</h1>{% endblock %}
+        {% block content_title %}<h1><img src="{% static "img/page_full.png" %}" style="pading: 2px; "> {{ emp.lastname  }} {{ emp.firstname  }}</h1>{% endblock %}
         {% block content %}
         {% block object-tools %}{% endblock %}
         {{ content }}

@@ -10,6 +10,57 @@
 <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
 {% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+<style>
+/*
+    MyInfo App styles
+*/
+p {
+    text-align: justify;
+}
+
+
+#content {
+    overflow: hidden;
+    margin: 10px 15px;
+    
+}
+
+#content-main {
+    padding-top: 10px;
+    float: left;
+    width: 60%;
+    margin-right: 0.5em;
+}
+
+#content-related {
+    float: left;
+    margin-left: 0.5em;
+    width: 36%;
+    padding-top: 10px;	
+}
+
+#img-container {
+    text-align: center;
+    width: 100%;
+    padding: 3px;
+}
+
+@media only screen
+  and (max-width: 800px) {
+
+#content-main {
+    margin-left: 0em;
+    width: 99%;
+    }
+
+#content-related {
+    margin-left: 0em;
+    width: 99%;
+    }
+}
+
+
+</style>
 </head>
 {% load i18n %}
 
@@ -35,7 +86,9 @@
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">
         {% block pretitle %}{% endblock %}
-        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        {% block content_title %}<h1><img src="{% static "img/euro_currency_sign.png" %}" style="pading: 2px; ">  {{ emp.lastname  }} {{ emp.firstname  }}</h1>{% endblock %}
+
+<!--        { % block content_title % }{ % if title % }<h1>{ { title } }</h1>{ % endif % }{ % endblock % } -->
         {% block content %}
         {% block object-tools %}{% endblock %}
         {{ content }}

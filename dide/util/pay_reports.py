@@ -21,7 +21,7 @@ from collections import defaultdict
 
 def calc_reports(emp_reports): 
     
-    types = {1: u'Φόρος που παρακρατήθηκε', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 0: '', 4: ''}
+    types = {1: u'Φόρος που αναλογεί', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 0: '', 4: ''}
     groups = defaultdict(lambda : defaultdict(float))
     sums = defaultdict(float)
     d_fact = 0.00
@@ -39,7 +39,7 @@ def calc_reports(emp_reports):
                 sums[u'Φορολογητέο Ποσό'] -= amount
 
             if r['calc_type'] == 1: 
-                d_fact = (amount / float(SETTINGS['tax_reduction_factor']))
+                d_fact = (amount * float(SETTINGS['tax_reduction_factor']))
                 groups[key][types[r['calc_type']]] += d_fact
                 sums[types[r['calc_type']]] += d_fact
 
@@ -62,8 +62,8 @@ def calc_reports(emp_reports):
     headers.append(u'Φορολογητέο Ποσό')
     headers.remove(types[1])
     headers.append(types[1])
-    headers.remove(u'Φόρος που αναλογεί')
-    headers.append(u'Φόρος που αναλογεί')
+    headers.remove(u'Φόρος που παρακρατήθηκε')
+    headers.append(u'Φόρος που παρακρατήθηκε')
 
     rows = []
 

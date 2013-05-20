@@ -11,8 +11,8 @@
 
 {% block content %}
 
-  <h1>Επιλογές</h1>
-  <div id="content-main" style="padding:10px">
+  <h1><img src="{% static "img/directions.png" %}" style="pading: 2px; "> ΕΠΙΛΟΓΕΣ<!--Επιλογές--></h1>
+  <div id="content-main" style="padding-top: 10px">
     <div class="module" style="margin-bottom:20px">
         <table summary="Διαχείριση">
         <caption><a href="/" class="section">Διαχείριση</a></caption>
@@ -83,7 +83,8 @@
 <div id="content-related">
     <div class="module" id="recent-actions-module">
         <h2>Πληροφορίες</h2>
-<p>Στο πληροφοριακό σύστημα της Δ.Δ.Ε. Δωδεκανήσου προσφέρονται οι παρακάτω υπηρεσίες για τους εκπαιδευτικούς, μόνιμους και αναπληρωτές:</p> 
+<p>Στο πληροφοριακό σύστημα της Δ.Δ.Ε. {% get_setting 'dide_place'  %} προσφέρονται οι παρακάτω υπηρεσίες για τους εκπαιδευτικούς, μόνιμους και αναπληρωτές:</p> 
+
 
 <h3>Μισθοδοσία Δ.Δ.Ε. {% get_setting 'dide_place'  %}</h3>
 <p>Στην επιλογή “Μισθοδοσία Δ.Δ.Ε. {% get_setting 'dide_place'  %}” μπορείτε να ενημερωθείτε για την μισθοδοσία σας, για κάθε μήνα, άλλα και να εκδώσετε την ετήσια συγκεντρωτική μισθοδοτική κατάσταση για την φορολογική σας δήλωση (διαθέσιμη από το οικονομικό έτος 2013).</p> 
