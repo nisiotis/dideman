@@ -130,7 +130,7 @@ $(function() {
         <h2>Ετήσια σύνολα</h2>
 	<p>Σύνολα καταχωρημένων αμοιβών ανά έτος (συμπεριλαμβανομένων και των εκτάκτων αποδοχών)</p>
 	    <table style="width:100%">
-                {% for k, t in total_per_year.items %}
+                {% for k, t in total_per_year %}
 		<tr>
 		 <td><h4>Έτος {{ k }}:</h4></td>
 		 <td style="text-align: right;"><h4>{{ t }} €</h4></td>

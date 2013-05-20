@@ -250,7 +250,10 @@ def view(request):
         all_year = set(p.year for p in pay)
         
         year_t = {y: emptype.totals_per_year(y) for y in all_year}
-        
+
+        o_year_t = [(k, v) for k, v in year_t.iteritems()]
+        o_year_t.sort(reverse=True)
+                                           
         paginator = Paginator(pay, 15)
 
         page = request.GET.get('page')
@@ -264,5 +267,5 @@ def view(request):
         return render_to_response('salary/salary.html',
                                   RequestContext(request, {'emp': emptype,
                                                            'yearly_reports': per_year,
-                                                           'total_per_year': year_t,
+                                                           'total_per_year': o_year_t,
                                                            'payments': pay_page}))
