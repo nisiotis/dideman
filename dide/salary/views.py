@@ -244,9 +244,13 @@ def view(request):
             raise
 
         pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year','-type')
+        
         current_year = datetime.date.today().year
         per_year = {p.year: p for p in pay if p.year < current_year}
-        #per_year =  {p.year: p for p in pay}
+        all_year = set(p.year for p in pay)
+        
+        year_t = {y: emptype.totals_per_year(y) for y in all_year}
+        
         paginator = Paginator(pay, 15)
 
         page = request.GET.get('page')
@@ -260,4 +264,5 @@ def view(request):
         return render_to_response('salary/salary.html',
                                   RequestContext(request, {'emp': emptype,
                                                            'yearly_reports': per_year,
+                                                           'total_per_year': year_t,
                                                            'payments': pay_page}))

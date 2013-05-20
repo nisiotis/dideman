@@ -92,19 +92,19 @@ $(function() {
   	</div>
   	</div>
       {% if payments %}
-        <div style="height: 420px;">
+        <div style="height: 400px;">
             <table summary="Αποδοχές" style="width:100%">
               <tbody>
                 <tr>
                   <th>Περιγραφή </th>
                   <th>Βαθμός - Κλιμάκιο</th>
-                  <th>Αποδοχές</th>
+                  <th style="text-align: right;">Αποδοχές</th>
 				</tr>
                 {% for p in payments %}
                   <tr>
                     <td scope="row"><a href="?print=1&id={{ p.id }} "> {{ p.type }} {{ p.year }}</a></td>
                     <td>{% if p.rank %} {{ p.rank }} {% else %} Δ/Υ {% endif %}</td>
-                    <td>
+                    <td style="text-align: right; padding-right: 5px;">
 					{% if p.netab_amount == 0 %}
 						{{ p.calc_amount }} €
 					{% else %}
@@ -127,9 +127,16 @@ $(function() {
 {% block sidebar %}
 <div id="content-related">
     <div class="module" id="recent-actions-module">
-        <h2>Πληροφορίες</h2>
-            <p></p> 
-
+        <h2>Ετήσια σύνολα</h2>
+	<p>Σύνολα καταχωρημένων αμοιβών ανά έτος (συμπεριλαμβανομένων και των εκτάκτων αποδοχών)</p>
+	    <table style="width:100%">
+                {% for k, t in total_per_year.items %}
+		<tr>
+		 <td><h4>Έτος {{ k }}:</h4></td>
+		 <td style="text-align: right;"><h4>{{ t }} €</h4></td>
+                </tr>
+		{% endfor %}
+	    </table>
 
     </div>
 </div>

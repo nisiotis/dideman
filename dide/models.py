@@ -108,11 +108,12 @@ class PaymentReport(models.Model):
         return float(self.net_amount1) + float(self.net_amount2)
 
     def calc_amount(self):
+        ta = 0.00
         if self.net_amount1 == '0' and self.net_amount2 == '0':
-            ta = 0
+            ta = 0.00
             for c in PaymentCategory.objects.filter(paymentreport=self.id):
-                grnum = 0
-                denum = 0
+                grnum = 0.00
+                denum = 0.00
                 for p in Payment.objects.filter(category=c.id):
                     if p.type == 'gr':
                         grnum += float(str(p.amount))
@@ -660,6 +661,14 @@ class Employee(models.Model):
                     for year, days in self.no_pay_in_years()])
     calculable_no_pay.short_description = u'Υπολογισμένες ημέρες άδειας'\
         u' άνευ αποδοχών'
+
+    def totals_per_year(self, year):
+        total_y = 0.00
+        pay_reports = PaymentReport.objects.filter(employee=self, year=year)
+        for each_pay in pay_reports:
+            total_y += each_pay.calc_amount()
+            total_y += each_pay.netab_amount()
+        return total_y
 
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
