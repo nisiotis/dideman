@@ -1039,6 +1039,16 @@ class NonPermanent(Employee):
                                                        type__id=3))
     current_placement.short_description = u'Προσωρινή τοποθέτηση'
 
+    def organization_serving(self):
+        return self.total_extra_position_school() or self.current_placement()
+    organization_serving.short_description = u'Θέση υπηρεσίας'
+
+    def total_extra_position_school(self):
+        td = datetime.date.today()
+        return first_or_none(
+            self.placement_set.filter(date_from__lte=td, date_to__gte=td,
+                                      type__id=4))
+
     def current_transfer_area(self, d=current_year_date_from()):
         s = self.substitution(d)
         return s.transfer_area if s else None

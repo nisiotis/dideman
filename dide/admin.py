@@ -442,14 +442,16 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'lastname', 'firstname', 'fathername', 'mothername',
                     'sex', 'current_transfer_area',
                     'notes', 'type', 'profession', 'profession_description',
-                    'current_placement', 'study_years',
+                    'current_placement', 'organization_serving',
+                    'study_years',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'birth_date',
                     'date_created', 'pedagogical_sufficiency',
                     'social_security_number']}),
             economic_fieldset]
     readonly_fields = ['type', 'profession_description',
-                       'current_placement', 'date_created',
+                       'current_placement', 'organization_serving',
+                       'date_created',
                        'current_transfer_area']
     inlines = EmployeeAdmin.inlines + [SubstitutePlacementInline,
                                        ServiceInline, LeaveInline,
@@ -458,7 +460,8 @@ class NonPermanentAdmin(EmployeeAdmin):
                    SubstituteOrderFilter, 'profession__unified_profession',
                    NonPermanentOrganizationServingFilter,
                    NonPermanentWithTotalExtraPosition]
-    actions = sorted([CSVReport(add=['current_placement',
+    actions = sorted([CSVReport(add=['current_placement', 
+                                     'organization_serving',
                                      'profession__description'])] + \
     nonpermanent_docx_reports, key=lambda k: k.short_description)
 
