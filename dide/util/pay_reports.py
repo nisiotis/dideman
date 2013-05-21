@@ -675,9 +675,5 @@ def generate_pdf_landscape_structure(reports):
         
         table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])
         elements.append(table0)
-        elements.append(Paragraph(' ', heading_style['Spacer']))
-        elements.append(Paragraph(' ', heading_style['Spacer']))
-        elements.append(Paragraph('%s' % report['organization_serving'] if report['organization_serving'] is not None else u'', report_small_captions['Left']))
- 
         elements.append(PageBreak())
     return elements
