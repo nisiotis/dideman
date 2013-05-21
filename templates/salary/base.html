@@ -45,8 +45,38 @@ p {
     padding: 3px;
 }
 
+#main-list-div {
+    width: 100%; 
+    margin: 0px; 
+    background: #7CA0C7 url({% static "admin/img/default-bg.gif" %}) top left repeat-x; 
+    color: white;
+    overflow: hidden;
+}
+
+#left-list-div, #right-list-div {
+    line-height: 25px;
+    font-size: 11px; 
+    font-weight: bold; 
+    color: white;
+}
+
+#left-list-div {
+    /*margin: 0px;*/ 
+    margin: 1px 1px 1px 5px; 
+    float: left;
+}
+
+#right-list-div {
+    margin: 1px 1px 1px 0;
+    float: right;
+}
+
 @media only screen
   and (max-width: 800px) {
+
+#container {
+    min-width: auto;
+}
 
 #content-main {
     margin-left: 0em;

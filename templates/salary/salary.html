@@ -22,25 +22,11 @@ $(function() {
 
 {% block content %}
 <div id="content-main" style="padding-top: 10px;">
-<!--  <h1>Σύστημα Μισθοδοσίας</h1> -->
     <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
       <input type="hidden" id="emp-action" name="emp-action" value="0" />
       <fieldset class="module aligned">
-<!--        <h2>Στοιχεία εκπαιδευτικού</h2> -->
         <h2>Στοιχεία Καρτέλας</h2>
 
-<!--        <div class="form-row field-lastname">
-          <div>
-            <label style="width:220px;">Επώνυμο : </label>
-            <p>{{ emp.lastname  }}</p>
-          </div>
-        </div>
-        <div class="form-row field-firstname">
-          <div>
-            <label style="width:220px;">Όνομα : </label>
-            <p>{{ emp.firstname  }}</p>
-          </div>
-      </div> -->
       <div class="form-row field-fathername">
         <div>
           <label style="width:220px;">Πατρώνυμο : </label>
@@ -78,18 +64,16 @@ $(function() {
         </div>
       </div>
 	{% endif %}
- 	<div style="text-align: left;  width: 100%; height: 25px; margin: 0; background: #7CA0C7 url({% static "admin/img/default-bg.gif" %}) top left repeat-x; color: white;">
- 	<div style="text-align: left; float: left; width: 60%; margin: 0; padding: 5px 5px 3px 5px; font-size: 11px; font-weight: bold; color: white;">
- 		Αποδοχές
- 	</div>
- 	<div style="text-align: right; float: right; width: 30%; margin: 0; padding: 0px 3px 0px 5px; font-size: 11px; font-weight: bold; color: white; ">
+ 	<div id="main-list-div">
+ 	  <div id="left-list-div">Αποδοχές</div>
+ 	  <div id="right-list-div">
  		<select id="totalreports" style="font-size: 11px; font-family: 'Lucida Grande΄', Verdana, Arial, sans-serif;">
         	<option value="0" selected="">Έκδοση συγκεντρωτικής...</option>
       		{% for opt in yearly_reports %}
       		<option value="{{opt}}">Μισθοδοτικής κατάστασης {{opt}}</option>
       		{% endfor %}
-      	</select>
-  	</div>
+      		</select>
+  	  </div>
   	</div>
       {% if payments %}
         <div style="height: 400px;">
