@@ -298,12 +298,12 @@ class CreatePDF(object):
                            c.tax_office,
                            u'%s' % c.profession,
                            u'%s' % c.profession.description,
-                           c.telephone_number1] for c in Employee.objects.filter(id__in=u)}
-
+                           c.telephone_number1,
+                           c.organization_serving()] for c in Employee.objects.filter(id__in=u)}
+            
         elements = []
         reports = []
         for empx in u:
-           # if empx == 1316:
             r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, all_emp))
             report = {}
             report['report_type'] = '1'
@@ -321,6 +321,7 @@ class CreatePDF(object):
             report['rank'] = None
             report['net_amount1'] = ''
             report['net_amount2'] = ''
+            report['organization_serving'] = dict_emp[empx][9] 
             report['payment_categories'] = r_list
             reports.append(report)
             

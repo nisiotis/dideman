@@ -595,7 +595,7 @@ def generate_pdf_landscape_structure(reports):
         table1 = Table(headdata, style=tsh,
                        colWidths=[14.5 * cm, 8 * cm, 5.5 * cm])
         elements.append(table1)
-        headdata = [[Paragraph(u'%s' % report['profession'] or  '-', report_normal_captions['Left'])],
+        headdata = [[Paragraph(' '.join((u'%s' % (report['profession'] or  '-'), u'στο %s' % report['organization_serving'] if report['organization_serving'] is not None else u'')), report_normal_captions['Left'])],
                     [Paragraph('Είδος υπηρεσίας', report_small_captions['Left'])]]
         table1 = Table(headdata, style=tsh,
                        colWidths=[28 * cm])
@@ -613,7 +613,6 @@ def generate_pdf_landscape_structure(reports):
             
             w = 28.00 / len(line)
             d = [w * cm for x in range(len(line))]
-#            headdata.append([Paragraph('%s' % to_float(i) if None else round(to_float(i), 2), report_content['Center']) for i in line])
             l = []
             for i in line:
                 if to_float(unicode(i)) is None:
@@ -665,10 +664,6 @@ def generate_pdf_landscape_structure(reports):
         data = []
         
         del headdata
-        sig = os.path.join(settings.MEDIA_ROOT, "signature3.png")
-        im = Image(sig)
-        im.drawHeight = 3.0 * cm
-        im.drawWidth = 6.5 * cm
         headdata = [] 
         headdata = [[[table_1,table_2], 
                      [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
@@ -680,5 +675,9 @@ def generate_pdf_landscape_structure(reports):
         
         table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])
         elements.append(table0)
+        elements.append(Paragraph(' ', heading_style['Spacer']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
+        elements.append(Paragraph('%s' % report['organization_serving'] if report['organization_serving'] is not None else u'', report_small_captions['Left']))
+ 
         elements.append(PageBreak())
     return elements
