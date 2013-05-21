@@ -217,8 +217,8 @@ def print_mass_pay(request, year):
 def view(request):
     if 'logout' in request.GET:
         request.session.clear()
-        return HttpResponseRedirect(
-            '/employee/match/?next=/salary/view/')
+        return HttpResponseRedirect('/?logout=True')
+
     if 'print' in request.GET:
         if 'id' in request.GET:
             return print_pay(request, request.GET['id'])

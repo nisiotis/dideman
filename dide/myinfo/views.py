@@ -55,8 +55,8 @@ def MailSender(name, email):
 def edit(request):
     if 'logout' in request.GET:
         request.session.clear()
-        return HttpResponseRedirect(
-            '/employee/match/?next=/myinfo/edit/')
+        return HttpResponseRedirect('/?logout=True')
+        
     elif 'print' in request.GET:
         return print_app(request, request.GET['app'])
     else:
