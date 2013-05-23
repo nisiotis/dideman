@@ -667,11 +667,13 @@ def generate_pdf_landscape_structure(reports):
         headdata = [] 
         headdata = [[[table_1,table_2], 
                      [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
-                      Paragraph(u'%s %s' % (SETTINGS.get_desc('manager'), SETTINGS['dide_place']), signature['Center']),
+                      #Paragraph(u'%s %s' % (SETTINGS.get_desc('manager'), SETTINGS['dide_place']), signature['Center']),
+                      Paragraph('Ο/Η Βεβαιών/ούσα ', signature['Center']),
                       Paragraph(' ', heading_style['Spacer']),
                       Paragraph(' ', heading_style['Spacer']),
-                      Paragraph(' ', heading_style['Spacer']),
-                      Paragraph(SETTINGS['manager'], signature['Center'])]]]
+                      Paragraph(' ', heading_style['Spacer'])
+                      #Paragraph(SETTINGS['manager'], signature['Center'])
+                      ]]]
         
         table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])
         elements.append(table0)
