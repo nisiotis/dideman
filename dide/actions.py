@@ -299,7 +299,7 @@ class CreatePDF(object):
                            u'%s' % c.profession,
                            u'%s' % c.profession.description,
                            c.telephone_number1,
-                           c.organization_serving(), c.permanent_post()] for c in Employee.objects.filter(id__in=u)}
+                           c.organization_serving()] for c in Employee.objects.filter(id__in=u)}
             
         elements = []
         reports = []
@@ -322,7 +322,6 @@ class CreatePDF(object):
             report['net_amount1'] = ''
             report['net_amount2'] = ''
             report['organization_serving'] = dict_emp[empx][9]
-            report['permanent_post'] = dict_emp[empx][10]
             report['payment_categories'] = r_list
             reports.append(report)
             

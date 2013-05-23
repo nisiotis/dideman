@@ -595,7 +595,7 @@ def generate_pdf_landscape_structure(reports):
         table1 = Table(headdata, style=tsh,
                        colWidths=[14.5 * cm, 8 * cm, 5.5 * cm])
         elements.append(table1)
-        headdata = [[Paragraph(' '.join((u'%s' % (report['profession'] or  '-'), u'στο %s' % report['organization_serving'] if report['organization_serving'] is not None else u'στο %s' % report['permanent_post'] or '')), report_normal_captions['Left'])],
+        headdata = [[Paragraph(' '.join((u'%s' % (report['profession'] or  '-'), u'στο %s' % report['organization_serving'] if report['organization_serving'] is not None else u'')), report_normal_captions['Left'])],
                     [Paragraph('Είδος υπηρεσίας', report_small_captions['Left'])]]
         table1 = Table(headdata, style=tsh,
                        colWidths=[28 * cm])
