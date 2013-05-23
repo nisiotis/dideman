@@ -16,6 +16,6 @@ def menu(request):
     set = ApplicationSet.objects.filter(end_date__gte=today)
     if 'logout' in request.GET:
         request.session.clear()
-        messages.info(request, 'Αποσυνδεθήκατε με επιτυχία.')
+        messages.info(request, 'Αποσυνδεθήκατε με επιτυχία. Σε περίπτωση που χρησιμοποιήσατε έναν δημόσιο ηλεκτρονικό υπολογιστή, παρακαλούμε κλείστε το πρόγραμμα περιήγησης (browser).')
     return render_to_response(_template_path + 'menu.html',
                               RequestContext(request, {'app': set, 'messages': messages }))

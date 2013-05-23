@@ -51,7 +51,7 @@ $(function() {
 	{% if emp.vat_number and not emp.registration_number %}
 	<div class="form-row field-rank">
         <div>
-          <label style = "width:220px;">Α.Φ.Μ.: </label>
+          <label style = "width:220px;">Α.Φ.Μ. : </label>
           <p>{{ emp.vat_number  }}</p>
         </div>
       </div>
@@ -59,7 +59,7 @@ $(function() {
 	{% if emp.rank %}
 	<div class="form-row field-rank">
         <div>
-          <label style = "width:220px;">Βαθμός - Κλιμάκιο: </label>
+          <label style = "width:220px;">Βαθμός - Κλιμάκιο : </label>
           <p>{{ emp.rank  }} (από {{ emp.rank_date  }}) </p>
         </div>
       </div>
