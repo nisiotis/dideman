@@ -239,6 +239,23 @@ class EmployeeWithLeaveFilter(FreeDateFieldListFilter):
                         self.date_from, self.date_to)])
 
 
+class OnServiceFilter(ModifierSimpleListFilter):
+    title = u'Υπηρετεί με θητεία.'
+    parameter_name = 'on_service'
+
+    def lookups(self, request, model_admin):
+        return(('1', _('Yes')), ('2', _('No')))
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            if val == '1':
+                return queryset & Permanent.objects.on_service()
+            elif val == '2':
+                return queryset & Permanent.objects.on_service(exclude=True)
+        else:
+            return queryset
+
 class ServesInDideSchoolFilter(ModifierSimpleListFilter):
     title = u'Υπηρετεί σε σχολείο της Δ.Δ.Ε.'
     parameter_name = 'serves_in_dde_sch'

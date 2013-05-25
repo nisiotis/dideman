@@ -323,6 +323,7 @@ class PermanentAdmin(EmployeeAdmin):
                                                ServingTypeFilter,
                                                ServesInDideSchoolFilter,
                                                ServesInDideOrgFilter,
+                                               OnServiceFilter,
                                                'has_permanent_post',
                                                StudyFilter,
                                                TransferedFilter,

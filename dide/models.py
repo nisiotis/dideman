@@ -713,6 +713,15 @@ class PermanentManager(models.Manager):
                                       obj.registration_number)) for obj in qs])
         return choices
 
+    def on_service(self, exclude=False):
+        cursor = connection.cursor()
+        cursor.execute(sql.on_service.format(datetime.date.today()))
+        ids = [row[0] for row in cursor.fetchall()]
+        if exclude:
+            return self.exclude(id__in=ids)
+        else:
+            return self.filter(id__in=ids)
+        
     def serves_in_dide_school(self):
         cursor = connection.cursor()
         cursor.execute(sql.serves_in_dide_school.format(datetime.date.today()))

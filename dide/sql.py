@@ -29,6 +29,14 @@ WHERE
     dide_permanent.has_permanent_post=0
 """
 
+on_service = """
+SELECT dide_placement.employee_id
+    FROM dide_placement
+    WHERE dide_placement.type_id=6
+    AND (DATE('{0}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
+"""
+
+
 serving_in_organization = """
 SELECT employee_id FROM (
         SELECT dide_placement.employee_id
