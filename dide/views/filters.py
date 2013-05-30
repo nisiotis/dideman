@@ -180,3 +180,9 @@ def paymentcategorytitle(request):
     from dideman.dide.models import PaymentCategoryTitle
     return render_template(request, PaymentCategoryTitle,
                            PaymentCategoryTitleAdmin)
+
+def schoolcommission(request):
+    from dideman.dide.admin import SchoolCommissionAdmin
+    from dideman.dide.models import SchoolCommission
+    return render_template(request, SchoolCommission,
+                           SchoolCommissionAdmin)

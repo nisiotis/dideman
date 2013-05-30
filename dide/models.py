@@ -1134,6 +1134,30 @@ class SchoolManager(models.Manager):
         return self.get(code=code)
 
 
+MUNICIPALITIES = (u"Αγαθονησίου", u"Αστυπάλαιας", u"Καλυμνίων", u"Καρπάθου", 
+                  u"Κάσου", u"Κω", u"Λειψών", u"Λέρου", u"Μεγίστης",  u"Νισύρου",
+                  u"Πάτμου", u"Ρόδου", u"Σύμης", u"Τήλου", u"Χάλκης")
+MUNICIPALITIES_CHOICES = [(x, x) for x in MUNICIPALITIES]
+
+class SchoolCommission(models.Model):
+    
+    class Meta:
+        verbose_name = u'Σχολική επιτροπή'
+        verbose_name_plural = u'Σχολικές επιτροπές'
+        ordering = ['municipality']
+
+    municipality = models.CharField(u'Δήμος', max_length=100, choices=MUNICIPALITIES_CHOICES)
+    vat_number = models.CharField(u'Α.Φ.Μ.', max_length=9, unique=True)
+    tax_office = models.CharField(u'Δ.Ο.Υ.', max_length=100)
+    bank = models.CharField(u'Τράπεζα', max_length=100, null=True, blank=True)
+    bank_account_number = models.CharField(u'Αριθμός λογαριασμού τράπεζας', max_length=100, null=True, blank=True)
+    iban = models.CharField(u'IBAN', max_length=27, null=True, blank=True)
+
+    def __unicode__(self):
+        return u'Σχολική Επιτροπή Δήμου ' + self.municipality
+
+        
+
 class School(Organization):
 
     class Meta:
@@ -1146,6 +1170,7 @@ class School(Organization):
     parent_organization = models.OneToOneField(Organization, parent_link=True)
     transfer_area = models.ForeignKey(TransferArea,
                                       verbose_name=u'Περιοχή Μετάθεσης')
+    commission = models.ForeignKey(SchoolCommission, verbose_name=u'Σχολική επιτροπή', null=True, blank=True)
     points = models.IntegerField(u'Μόρια', max_length=2, null=True, blank=True)
     code = models.IntegerField(u'Κωδικός Σχολείου', max_length=5, unique=True)
     # γενικό λύκειο, γυμνάσιο, επαλ...

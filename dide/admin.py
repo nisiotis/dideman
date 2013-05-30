@@ -22,7 +22,7 @@ from models import (TransferArea, Leave, Responsibility, Profession,
                     MoveInside, TemporaryPosition,
                     TemporaryPositionAllAreas, SubstitutePlacement,
                     SubstituteMinistryOrder, OrderedSubstitution,
-                    ApplicationChoice, ApplicationType, )
+                    ApplicationChoice, ApplicationType, SchoolCommission)
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
 from actions import (CSVReport, FieldAction, XMLReadAction,
@@ -294,6 +294,11 @@ class OtherOrganizationAdmin(DideAdmin):
     list_display = ('name', 'belongs')
 
 
+class SchoolCommissionAdmin(DideAdmin):
+    search_fields= ('municipality', )
+    list_display = ('municipality', 'vat_number', 'tax_office')
+    actions = [CSVReport()]
+
 class SchoolAdmin(OtherOrganizationAdmin):
     search_fields = ('name', 'code')
     list_display = ['name', 'code', 'transfer_area', 'type',
@@ -472,25 +477,26 @@ class SchoolTypeAdmin(DideAdmin):
 
 
 map(lambda t: admin.site.register(*t), (
-        (Permanent, PermanentAdmin),
-        (Profession, ProfessionAdmin),
-        (SchoolType, SchoolTypeAdmin),
-        (SubstituteMinistryOrder, SubstituteMinistryOrderAdmin),
-        (OtherOrganization, OtherOrganizationAdmin),
-        (School, SchoolAdmin),
-        (NonPermanent, NonPermanentAdmin),
-        (PlacementType, PlacementTypeAdmin),
-        (EmployeeLeave, EmployeeLeaveAdmin),
-        (MoveInside, MoveInsideAdmin),
-        (TemporaryPosition, TemporaryPositionAdmin),
-        (TemporaryPositionAllAreas, TemporaryPositionAllAreasAdmin),
-        (ApplicationSet, ApplicationSetAdmin),
-        (PaymentCategoryTitle, PaymentCategoryTitleAdmin),
-        (PaymentReportType, PaymentReportTypeAdmin),
-        (PaymentFileName, PaymentFileNameAdmin),
-        (RankCode, RankCodeAdmin),
-        (PaymentCode, PaymentCodeAdmin)
-        ))
+    (Permanent, PermanentAdmin),
+    (Profession, ProfessionAdmin),
+    (SchoolType, SchoolTypeAdmin),
+    (SubstituteMinistryOrder, SubstituteMinistryOrderAdmin),
+    (OtherOrganization, OtherOrganizationAdmin),
+    (School, SchoolAdmin),
+    (NonPermanent, NonPermanentAdmin),
+    (PlacementType, PlacementTypeAdmin),
+    (EmployeeLeave, EmployeeLeaveAdmin),
+    (MoveInside, MoveInsideAdmin),
+    (TemporaryPosition, TemporaryPositionAdmin),
+    (TemporaryPositionAllAreas, TemporaryPositionAllAreasAdmin),
+    (ApplicationSet, ApplicationSetAdmin),
+    (PaymentCategoryTitle, PaymentCategoryTitleAdmin),
+    (PaymentReportType, PaymentReportTypeAdmin),
+    (PaymentFileName, PaymentFileNameAdmin),
+    (RankCode, RankCodeAdmin),
+    (PaymentCode, PaymentCodeAdmin),
+    (SchoolCommission, SchoolCommissionAdmin),
+))
 
 admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,
