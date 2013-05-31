@@ -8,7 +8,7 @@ from django.template.response import TemplateResponse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.forms import ModelForm
 from django.forms import ModelChoiceField
-from forms import SubstitutePlacementForm, PaymentFileNameMassForm
+from forms import SubstitutePlacementForm, PaymentFileNameMassForm, SchoolCommissionForm
 from overrides.admin import DideAdmin
 from filters import *
 from applications.filters import FinalisedFilter
@@ -295,6 +295,7 @@ class OtherOrganizationAdmin(DideAdmin):
 
 
 class SchoolCommissionAdmin(DideAdmin):
+    form = SchoolCommissionForm
     search_fields= ('municipality', )
     list_display = ('municipality', 'vat_number', 'tax_office')
     actions = [CSVReport()]
@@ -305,7 +306,9 @@ class SchoolAdmin(OtherOrganizationAdmin):
                     'telephone_number', 'email']
     list_filter = ['transfer_area', 'type', 'type__shift',
                    'type__category', 'inaccessible']
-    actions = [CSVReport()]
+
+    readonly_fields = ('commission_data', )
+    actions = [CSVReport(add=['commission_data'])]
 
 
 class ProfessionAdmin(DideAdmin):

@@ -545,7 +545,7 @@ class Employee(models.Model):
          u'Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True,
          default='000000', max_length=8)
     non_educational_experience = models.CharField(
-        u'Μη εκπαιδευτική Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True,
+        u'Εκτός Ωραρίου (ΕΕΜΜΗΜΗΜ)', null=True, blank=True,
         default='000000', max_length=8)
     vat_number = NullableCharField(u'Α.Φ.Μ.', max_length=9, null=True,
                                    unique=True, blank=True)
@@ -1153,6 +1153,8 @@ class SchoolCommission(models.Model):
     bank_account_number = models.CharField(u'Αριθμός λογαριασμού τράπεζας', max_length=100, null=True, blank=True)
     iban = models.CharField(u'IBAN', max_length=27, null=True, blank=True)
 
+
+
     def __unicode__(self):
         return u'Σχολική Επιτροπή Δήμου ' + self.municipality
 
@@ -1186,6 +1188,10 @@ class School(Organization):
     email = models.EmailField(null=True, blank=True)
     manager = models.ForeignKey(Permanent, null=True, blank=True,
                                 verbose_name=u'Διευθυντής')
+
+    def commission_data(self):
+        return u"ΑΦΜ: %s , ΔΟΥ: %s" % (self.commission.vat_number, self.commission.tax_office)
+    commission_data.short_description = u'Στοιχεία σχολ. επ.'
 
     def natural_key(self):
         return (self.code, )
