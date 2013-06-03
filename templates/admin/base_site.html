@@ -3,6 +3,7 @@
 {% load base_site %}
 
 {% block title %}{{ title }} | {% trans 'Django site admin' %}{% endblock %}
+{% block extrastyle %}<link rel="stylesheet" type="text/css" href="/static/admin_change_form.css">{% endblock %}
 {% block branding %}
 <h1 id="site-name">Δ.Δ.Ε. {% get_setting 'dide_place'  %} </h1>
 {% endblock %}
