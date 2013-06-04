@@ -1,0 +1,44 @@
+.form_nav > li {
+    display: inline;
+    margin-left: 0;
+    padding: 0;
+    border: 1px dotted rgb(200, 200, 200);
+    background-color: rgb(239, 239, 239);
+}
+
+.form_nav > li > a {
+    font-size: 12px;
+    padding: 5px;
+}
+
+.form_nav {
+    list-style-type: none;
+    padding: 0;
+    margin: 5px;
+}
+
+.fixed_header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10001;
+    background-color: white;
+    border-bottom: 1px solid rgb(204, 204, 204);
+}
+
+.change-form #content {
+    margin: 100px 10px;
+}
+.change-list #content {
+    margin: 70px 10px;
+}
+.dashboard #content {
+    margin: 60px 10px;
+}
+.anchor {
+    display: block; 
+    position: relative;
+    top: -90px;
+    visibility: hidden;
+}
