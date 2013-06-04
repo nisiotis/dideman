@@ -276,6 +276,12 @@ class CreatePDF(object):
         self.response = HttpResponse()
         self.short_description = short_description
         self.__name__ = 'generate_mass_pdf'
+    def sch (self, c):
+        try:
+            return c.permanent and c.permanent.organization_serving()
+        except:
+            return c.organization_serving()
+        
 
     def __call__(self, modeladmin, request, queryset):
         self.response.content = ''
@@ -290,7 +296,6 @@ class CreatePDF(object):
         all_emp = rprts_from_file(queryset)
         u = set([x['employee_id'] for x in all_emp])
         y = {x['employee_id']: x['year'] for x in all_emp}
-        sch = lambda c: (c.permanent and c.permanent.organization_serving()) or c.organization_serving()
         dict_emp = {c.id: [c.lastname,
                            c.firstname,
                            c.vat_number,
@@ -300,7 +305,7 @@ class CreatePDF(object):
                            u'%s' % c.profession,
                            u'%s' % c.profession.description,
                            c.telephone_number1,
-                           sch(c)] for c in Employee.objects.filter(id__in=u)}
+                           self.sch(c)] for c in Employee.objects.filter(id__in=u)}
             
         elements = []
         reports = []
