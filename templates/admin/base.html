@@ -51,6 +51,10 @@
     {% endblock %}
     {% endif %}
 
+    {% block form_nav %} {% endblock %}
+    </div> <!-- fixed header -->
+    <!-- Content -->
+    <div id="content" class="{% block coltype %}colM{% endblock %}">
     {% block messages %}
         {% if messages %}
         <ul class="messagelist">{% for message in messages %}
@@ -58,11 +62,7 @@
         {% endfor %}</ul>
         {% endif %}
     {% endblock messages %}
-    {% block form_nav %} {% endblock %}
-    </div> <!-- fixed header -->
 
-    <!-- Content -->
-    <div id="content" class="{% block coltype %}colM{% endblock %}">
         {% block pretitle %}{% endblock %}
         {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
         {% block content %}

@@ -153,5 +153,9 @@ leave_docx_reports = [
 
     LeaveDocxReport(u'Επαπειλούμενης κύησης', 'adeia_epapiloumenis.xml',
                     custom_context={'subject':
-                                        u'Χορήγηση αναρρωτικής άδειας'})
+                                        u'Χορήγηση αναρρωτικής άδειας'}),
+
+    LeaveDocxReport(u'Εκπαιδευτική Επιμορφώσεων', 'ekpaideftiki_epimorfoseon.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση ειδικής άδειας απουσίας σε εκπαιδευτικό για επιμορφωτικούς ή επιστημονικούς λόγους.'})
     ]

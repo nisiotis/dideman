@@ -1,0 +1,39 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις διατάξεις του άρθρου 59 παρ. 2 του Ν.3528/2007 (Φ.Ε.Κ. 26/9-2-2007 τ.Α') του υπαλληλικού κώδικα</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>Την παρ.2 του άρθρου 53 του Ν.2721/1999 (Φ.Ε.Κ. 112/3-6-1999)</w:t>
+            </w:r>
+        </w:p>     
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>Τη Φ.353.1/324/105657/Δ1/8-10-2002 υπουργική απόφαση (Φ.Ε.Κ. 1340/16-20-2002 τ.Β') "Καθορισμός των ειδικότερων καθηκόντων και αρμοδιοτήτων των προϊσταμένων, των περιφερειακών υπηρεσιών πρωτοβάθμιας και δευτεροβάθμιας εκπαίδευσης, των διευθυντών και υποδιευθυντών των σχολικών μονάδων και ΣΕΚ και των συλλόγων διδασκόντων"</w:t>
+            </w:r>
+        </w:p> 
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε στην {{ rec.recipient }} του {{ rec.employee__fathername }}, εκπαιδευτικό κλάδου {{ rec.profession }} του {{ rec.organization_serving }} ειδική άδεια {{ rec.duration }} εργάσιμων ημερών, από {{ rec.date_from }} έως {{ rec.date_to }} με αποδοχές για τους λόγους που αναφέρει στην αίτησή του/της.</w:t>
+            </w:r>
+        </w:p>
