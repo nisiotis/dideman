@@ -1,6 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_static admin_modify %}
 {% load admin_urls %}
+{% load custom_admin %}
 
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
@@ -29,6 +30,8 @@
   {% for fieldset in adminform %}
     {% if fieldset.name %}
       <li><a href="#anc-{{ fieldset.name }}">{{ fieldset.name }}</a></li>
+    {% else %}
+      <li> Στοιχεία </li>
     {% endif %}
   {% endfor %}
   {% for inline_admin_formset in inline_admin_formsets %}
@@ -36,8 +39,8 @@
   {% endfor %}
 </ul>
 {% endblock %}
-
-{% block content %}<div id="content-main">
+{% block content %}
+<div id="content-main">
 {% block object-tools %}
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
