@@ -39,6 +39,12 @@
 .dashboard #content {
     margin: 60px 10px;
 }
+.login #content {
+    margin: 15px 10px;
+}
+.login .fixed_header {
+    position: relative;
+}
 .anchor {
     display: block; 
     position: relative;
