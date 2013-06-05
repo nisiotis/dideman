@@ -17,6 +17,32 @@
     MyInfo App styles
 */
 
+.fixed_header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10001;
+    background-color: white;
+/*    border-bottom: 1px solid rgb(204, 204, 204); */
+}
+
+.fixed_footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    z-index: 10001;
+    background-color: white;
+/*    border-bottom: 1px solid rgb(204, 204, 204); */
+}
+
+
+#footer {
+    clear: both;
+    padding-top: 0;
+
+}
 
 #content {
     overflow: hidden;
@@ -29,6 +55,7 @@
     float: left;
     width: 60%;
     margin-right: 0.5em;
+    padding-bottom: 35px;
 }
 
 #content-related {
@@ -36,6 +63,7 @@
     margin-left: 0.5em;
     width: 36%;
     padding-top: 10px;	
+    padding-bottom: 35px;
 }
 
 #img-container {
@@ -50,11 +78,13 @@
 #content-main {
     margin-left: 0em;
     width: 99%;
+    padding-bottom: 0;
     }
 
 #content-related {
     margin-left: 0em;
     width: 99%;
+    padding-bottom: 35px;
     }
 }
 
@@ -78,11 +108,12 @@
 
 
     <!-- Header -->
+    <div class="fixed_header">
     <div id="header">
         <div id="branding">
             <h1 id="site-name">Δ.Δ.Ε. {% get_setting 'dide_place'  %} </h1>
         </div>
-    </div>
+    
     <!-- END Header -->
     {% block breadcrumbs %}
     <div class="breadcrumbs">
@@ -90,8 +121,11 @@
     </div>
     
     {% endblock %}
+    </div>
+    </div>    
+    <div style="padding-top:57px"> </div>
     {% block messages %} {% endblock  %}
-    
+
     <!-- Content -->
     <div id="content" class="{% block coltype %}{% endblock %}">
         {% block pretitle %}{% endblock %}
@@ -105,18 +139,21 @@
     </div>
     <!-- END Content -->
 
-    {% block footer %}<div id="footer">
-        <div class="submit-row">
-    <div style="text-align: left; float: left; width: 350px;">
+    {% block footer %}
+<div class="fixed_footer">
+  <div id="footer">
+    <div class="submit-row">
+     <div style="text-align: left; float: left; width: 350px;">
       <!--<input type="button" id="bsave" value="Αποθήκευση" />-->
       <a id="save" href="#">Αποθήκευση Αλλαγών</a>
-    </div>
-    <div style="text-align: right; float: right; margin-left: 200px;">
+      </div>
+      <div style="text-align: right; float: right; margin-left: 200px;">
       <!--<input type="button" id="logout" value="Έξοδος" onclick="javascript:document.location.href='?logout' "/>-->
       <a id="salary" href="/salary/view">Μισθοδοσία</a> | <a id="logout" href="?logout">Έξοδος</a> 
       </div>
-      </div>
-    </div>{% endblock %}
+     </div>
+    </div>
+  </div>{% endblock %}
 </div>
 <!-- END Container -->
 

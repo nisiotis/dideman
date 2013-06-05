@@ -17,9 +17,35 @@
     Menu App styles
 */
 
+.fixed_header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10001;
+    background-color: white;
+/*    border-bottom: 1px solid rgb(204, 204, 204); */
+}
+
+.fixed_footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    z-index: 10001; 
+    background-color: white;
+    border-top: 1px solid rgb(204, 204, 204); 
+}
+
 p {
     text-align: justify;
 }
+
+#footer {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 
 #content {
     overflow: hidden;
@@ -37,6 +63,7 @@ p {
     float: left;
     width: 50%; 
     margin-right: 0.5em;
+    padding-bottom: 35px;
 }
 
 #content-related {
@@ -45,6 +72,7 @@ p {
     float: left;
     margin-left: 0.5em; 
     width: 45%; 	
+    padding-bottom: 35px;
 }
 
 
@@ -58,11 +86,13 @@ p {
 #content-main {
     margin-left: 0em;
     width: 99%;
+    padding-bottom: 0;
     }
 
 #content-related {
     margin-left: 0em;
     width: 99%;
+    padding-bottom: 35px;
     }
 }
 
@@ -79,6 +109,7 @@ p {
 
 
     <!-- Header -->
+    <div class="fixed_header">
     <div id="header">
         <div id="branding">
             <h1 id="site-name">Δ.Δ.Ε. {% get_setting 'dide_place'  %} </h1>
@@ -90,6 +121,8 @@ p {
         Καλωσορίσατε στο πληροφοριακό σύστημα της Δ.Δ.Ε. {% get_setting 'dide_place'  %}
     </div>
     {% endblock %}
+    </div>
+    <div style="padding-top:57px"> </div>
     {% block messages %} {% endblock  %}
     <!-- Content -->
     <div id="content" class="{% block coltype %}{% endblock %}">
@@ -106,9 +139,11 @@ p {
     <!-- <div id="content-related"></div> -->
     {% block footer %}
     <br class="clear" />
-    <div id="footer"  class="" style="position: relative; bottom: 0; margin-top:10px;">
-    <p class="tiny">Κατασκευή 2012 Στάθης Στέργου, Βασίλης Κασαπίδης</p>
-    </div>{% endblock %}
+    <div class="fixed_footer">
+      <div id="footer"  class="" style="position: relative; bottom: 0;">
+	<p class="tiny">Κατασκευή 2012 - 2013 Στάθης Στέργου, Βασίλης Κασαπίδης</p>
+      </div>{% endblock %}
+    </div>
 </div>
 <!-- END Container -->
 

@@ -21,7 +21,7 @@ $(function() {
 
 
 {% block content %}
-<div id="content-main" style="padding-top: 10px;">
+<div id="content-main">
     <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
       <input type="hidden" id="emp-action" name="emp-action" value="0" />
       <fieldset class="module aligned">
@@ -101,7 +101,7 @@ $(function() {
             </table>
       </div>
       {% else %}
-        <div style="height: 300px;" class="form-row"><p>Δεν έχουν καταχωρηθεί καταστάσεις πληρωμών.</p></div>
+        <div style="height: 400px;" class="form-row"><p>Δεν έχουν καταχωρηθεί καταστάσεις πληρωμών.</p></div>
       {% endif %}
 	  
     </fieldset>

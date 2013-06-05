@@ -13,12 +13,39 @@
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 <style>
 /*
-    MyInfo App styles
+    Salary App styles
 */
+
+.fixed_header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10001;
+    background-color: white;
+/*    border-bottom: 1px solid rgb(204, 204, 204); */
+}
+
+.fixed_footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    z-index: 10001;
+    background-color: white;
+/*    border-bottom: 1px solid rgb(204, 204, 204); */
+}
+
+
 p {
     text-align: justify;
 }
 
+#footer {
+    clear: both;
+    padding-top: 0;
+
+}
 
 #content {
     overflow: hidden;
@@ -31,6 +58,7 @@ p {
     float: left;
     width: 60%;
     margin-right: 0.5em;
+    padding-bottom: 35px;
 }
 
 #content-related {
@@ -38,6 +66,7 @@ p {
     margin-left: 0.5em;
     width: 36%;
     padding-top: 10px;	
+    padding-bottom: 35px;
 }
 
 #img-container {
@@ -75,12 +104,14 @@ p {
   and (max-width: 800px) {
 
 #container {
+
     min-width: auto;
 }
 
 #content-main {
     margin-left: 0em;
     width: 99%;
+    padding-bottom: 0;
     }
 
 #content-related {
@@ -101,17 +132,21 @@ p {
 
 
     <!-- Header -->
+    <div class="fixed_header">
     <div id="header">
         <div id="branding">
             <h1 id="site-name">Δ.Δ.Ε. {% get_setting 'dide_place'  %} </h1>
         </div>
     </div>
+    
     <!-- END Header -->
     {% block breadcrumbs %}
     <div class="breadcrumbs">
         Σύστημα Μισθοδοσίας
     </div>
     {% endblock %}
+    </div>
+    <div style="padding-top:57px"> </div>
     {% block messages %} {% endblock  %}
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">
@@ -128,7 +163,9 @@ p {
     </div>
     <!-- END Content -->
 
-    {% block footer %}<div id="footer">
+    {% block footer %}
+  <div  class="fixed_footer">
+   <div id="footer">
     	<div class="submit-row">
       <div class="pagination" style="text-align: left; float: left; width: 350px;">
     <span class="step-links">
@@ -153,7 +190,8 @@ p {
       </div>
       </div>
     	
-    </div>{% endblock %}
+    </div>
+  </div>{% endblock %}
 </div>
 <!-- END Container -->
 
