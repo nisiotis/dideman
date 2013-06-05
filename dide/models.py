@@ -612,15 +612,6 @@ class Employee(models.Model):
     def unified_profession(self):
         return self.profession.unified_profession
 
-    def temporary_position(self):
-        if self.has_permanent_post:
-            return None
-        else:
-            return first_or_none(Placement.objects.filter(employee=self,
-                                         date_from__gte=current_year_date_from,
-                                         type__id=3).order_by('-date_from'))
-    temporary_position.short_description = u'Προσωρινή Τοποθέτηση'
-
     def organization_serving(self):
         p = Placement.objects.filter(employee=self).order_by('-date_from')
         this_years = p.filter(date_from__gte=current_year_date_from()). \
@@ -880,6 +871,17 @@ class Permanent(Employee):
         else:
             return '-'
     permanent_post.short_description = u'Οργανική θέση'
+
+    def temporary_position(self):
+        if self.has_permanent_post:
+            return None
+        else:
+            return first_or_none(Placement.objects.filter(employee=self,
+                                         date_from__lte=current_year_date_to,
+                                         date_to__gte=current_year_date_from,
+                                         type__id=3).order_by('-date_from'))
+    temporary_position.short_description = u'Προσωρινή Τοποθέτηση'
+
 
     def current_year_services(self):
         return Placement.objects.filter(employee=self,
