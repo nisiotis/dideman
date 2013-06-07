@@ -637,7 +637,7 @@ class Employee(models.Model):
 
     def educational_service(self):
         return self.total_service() - DateInterval(self.non_educational_experience)
-    educational_service.short_description = u'Εκπαιδευτική υπηρεσία'
+    educational_service.short_description = u'Εκπαιδευτική υπηρεσία (για μείωση ωραρίου)'
 
     def no_pay_in_years(self):
         """Returns a dict of {year: sum_of_no_pay_days } form"""
