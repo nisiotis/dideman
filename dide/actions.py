@@ -103,14 +103,14 @@ class TemplateAction(object):
         if callable(field):
             return field(obj)
         if hasattr(obj, field):
-            attr = getattr(obj, field)
+            attr = getattr(obj, field, '')
             if callable(attr):
                 attr = attr()
         else:
             if '__' in field:
                 t = obj
                 for sf in field.split('__'):
-                    t = getattr(t, sf)
+                    t = getattr(t, sf, '')
                     if callable(t):
                         t = t()
                 attr = t
