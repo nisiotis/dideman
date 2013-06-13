@@ -187,6 +187,7 @@ class Application(models.Model):
                 choice.choice.name for choice in
                 sorted(ApplicationChoice.objects.filter(application=self),
                        key=lambda x: x.position)])
+    join_choices.short_description = u'Επιλογές'
 
     def finalised(self):
         return bool(self.datetime_finalised)

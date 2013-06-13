@@ -141,7 +141,7 @@ $(window).bind("load resize", function(){
         <h3>Αιτήσεις</h3>
             <ul class="actionlist">
             {% for entry in applications %}
-            <li>{{entry.datetime_finalised}}: <a id="applicationprint" href="javascript:document.location.href=document.location.href.split('?')[0]+'?print=1&app={{entry.set_id}}'">{{entry.set}}</a></li>
+            <li>{{entry.datetime_finalised}}: <a id="applicationprint" href="/applications/edit/{{entry.set_id}}/?print=1">{{entry.set}}</a></li>
             {% empty %}
             <li>Δεν βρέθηκαν ηλεκτρονικές αιτήσεις</li>  
             {% endfor %}
