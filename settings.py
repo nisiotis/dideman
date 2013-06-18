@@ -32,6 +32,7 @@ CACHES = {
     }
 }
 
+
 JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_dideman'
 
 # Local time zone for this installation. Choices can be found here:
