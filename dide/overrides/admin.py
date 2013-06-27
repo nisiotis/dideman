@@ -124,7 +124,8 @@ def alter_changelist_constructor(fn):
         self.param_lists = {}
         for l in request.GET.lists():
             key, val = l
-            if key not in OLD_IGNORED_PARAMS:
+            if key != "e":
+            # if key not in OLD_IGNORED_PARAMS:
                 self.param_lists[key] = val
     return __init__
 
