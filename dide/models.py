@@ -615,8 +615,8 @@ class Employee(models.Model):
 
     def organization_serving(self):
         p = Placement.objects.filter(employee=self).order_by('-date_from')
-        this_years = p.filter(date_from__gte=current_year_date_from()). \
-            order_by('-date_from')
+        this_years = p.filter(date_from__gte=current_year_date_from(),
+                              date_to__gte=datetime.date.today()).order_by('-date_from')
         if this_years:
             return this_years[0]
         else:
