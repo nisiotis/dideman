@@ -444,6 +444,7 @@ class EmployeeLeaveAdmin(DideAdmin):
 class NonPermanentAdmin(EmployeeAdmin):
     list_display = ['lastname', 'firstname', 'fathername',
                     'profession', 'current_placement']
+    search_fields = ('lastname', 'identity_number', 'vat_number')
     list_per_page = 50
     fieldsets = [
         ('Στοιχεία μη-μόνιμου', {
