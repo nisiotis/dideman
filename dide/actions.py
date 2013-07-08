@@ -241,12 +241,11 @@ class CSVReport(TemplateAction):
         self.fields = fields
         self.add = add
         self.exclude = exclude
-        self.response = HttpResponse()
         super(CSVReport, self).__init__(short_description, None, 'csv')
 
     def __call__(self, modeladmin, request, queryset, *args, **kwargs):
+        self.response = HttpResponse()
         self.merge_fields(modeladmin, self.add, self.exclude)
-        self.response.content = ''
         writer = csv.writer(self.response, delimiter=';', quotechar='"',
                             quoting=csv.QUOTE_NONNUMERIC)
         descriptions = [
@@ -256,9 +255,9 @@ class CSVReport(TemplateAction):
             for field in self.fields]
         writer.writerow(descriptions)
         for obj in queryset:
-            writer.writerow([self.field_string_value(obj, f,
-                                                     encode_in_iso=True)
-                             for f in self.fields])
+            row = [self.field_string_value(obj, f, encode_in_iso=True)
+                   for f in self.fields]
+            writer.writerow(row)
         self.add_response_headers()
         self.response.close()
         self.response.flush()
