@@ -384,7 +384,7 @@ class PermanentAdmin(EmployeeAdmin):
                                      'formatted_recognised_experience',
                                      'non_educational_experience',
                                      'educational_service',
-                                     'rank__value', 'rank__date'])] + \
+                                     'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
 
 
