@@ -133,6 +133,19 @@
           <p>{{ emp.transfer_area  }}</p>
         </div>
       </div>
+      <div class="form-row field-transfer_area">
+        <div>
+          <label>Οργανική Θέση : </label>
+          <p>{{ emp.permanent.permanent_post  }}</p>
+        </div>
+      </div>
+      <div class="form-row field-transfer_area">
+        <div>
+          <label> Θέση υπηρεσίας : </label>
+          <p>{{ emp.transfer_area  }}</p>
+        </div>
+      </div>
+
       <h2>Στοιχεία Αίτησης</h2>
       {% if not application.finalised %}
           {% for field in form %}
