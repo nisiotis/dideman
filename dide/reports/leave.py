@@ -157,5 +157,15 @@ leave_docx_reports = [
 
     LeaveDocxReport(u'Εκπαιδευτική Επιμορφώσεων', 'ekpaideftiki_epimorfoseon.xml',
                     custom_context={'subject':
-                                        u'Χορήγηση ειδικής άδειας απουσίας σε εκπαιδευτικό για επιμορφωτικούς ή επιστημονικούς λόγους.'})
+                                        u'Χορήγηση ειδικής άδειας απουσίας σε εκπαιδευτικό για επιμορφωτικούς ή επιστημονικούς λόγους.'}), 
+
+    LeaveDocxReport(u'Ανατροφής (2ου Δίδυμου)', 'trimini_didimou.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας ανατροφής τέκνου (τρίμηνη 2ου δίδυμου)'}),
+    LeaveDocxReport(u'Υιοθεσίας (Τρίμηνη)', 'trimini_yiothesias.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση τρίμηνης άδειας υιοθεσίας'}),
+    LeaveDocxReport(u'Ανατροφής (Υπόλοιπο)', 'anatrofis_ypoloipo.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας ανατροφής τέκνου (υπόλοιπο)'})
     ]
