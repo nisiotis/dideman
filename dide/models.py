@@ -361,6 +361,24 @@ class TransferArea(models.Model):
         return self.name
 
 
+class Island(models.Model):
+
+    class Meta:
+        verbose_name = u'Νησί'
+        verbose_name_plural = u'Νησιά'
+        ordering = ['name']
+
+    name = models.CharField(u'Νησί', max_length=100)
+    transfer_area = models.ForeignKey(TransferArea,
+                                    verbose_name=u'Περιοχή Μετάθεσης')
+
+    def natural_key(self):
+        return (self.name, )
+
+    def __unicode__(self):
+        return self.name
+
+
 class OrganizationManager(models.Manager):
 
     def get_by_natural_key(self, name):
@@ -1182,6 +1200,7 @@ class School(Organization):
     parent_organization = models.OneToOneField(Organization, parent_link=True)
     transfer_area = models.ForeignKey(TransferArea,
                                       verbose_name=u'Περιοχή Μετάθεσης')
+    island = models.ForeignKey(Island, verbose_name=u'Νησί', null=True, blank=True)
     commission = models.ForeignKey(SchoolCommission, verbose_name=u'Σχολική επιτροπή', null=True, blank=True)
     points = models.IntegerField(u'Μόρια', max_length=2, null=True, blank=True)
     code = models.IntegerField(u'Κωδικός Σχολείου', max_length=5, unique=True)

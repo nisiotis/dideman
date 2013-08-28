@@ -12,7 +12,7 @@ from forms import SubstitutePlacementForm, PaymentFileNameMassForm, SchoolCommis
 from overrides.admin import DideAdmin
 from filters import *
 from applications.filters import FinalisedFilter
-from models import (TransferArea, Leave, Responsibility, Profession,
+from models import (TransferArea, Island, Leave, Responsibility, Profession,
                     Promotion, NonPermanentType,
                     NonPermanent, Permanent, Employee, DegreeCategory,
                     SchoolType, School, OtherOrganization, PlacementType,
@@ -302,9 +302,9 @@ class SchoolCommissionAdmin(DideAdmin):
 
 class SchoolAdmin(OtherOrganizationAdmin):
     search_fields = ('name', 'code')
-    list_display = ['name', 'code', 'transfer_area', 'type',
+    list_display = ['name', 'code', 'transfer_area', 'island', 'type',
                     'telephone_number', 'email']
-    list_filter = ['transfer_area', 'type', 'type__shift',
+    list_filter = ['transfer_area', 'island', 'type', 'type__shift',
                    'type__category', 'inaccessible']
 
     readonly_fields = ('commission_data', )
@@ -502,7 +502,7 @@ map(lambda t: admin.site.register(*t), (
     (SchoolCommission, SchoolCommissionAdmin),
 ))
 
-admin.site.register((TransferArea, Leave, Responsibility, NonPermanentType,
+admin.site.register((TransferArea, Island, Leave, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,
                      ApplicationType))
 admin.site.disable_action('delete_selected')
