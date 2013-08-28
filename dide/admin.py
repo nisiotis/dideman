@@ -326,7 +326,9 @@ class PermanentAdmin(EmployeeAdmin):
                                        ResponsibilityInline]
 
     list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
+                                               IslandServingFilter,
                                                PermanentPostFilter,
+                                               PermanentPostInIslandFilter,
                                                TemporaryPostFilter,
                                                ServingTypeFilter,
                                                ServesInDideSchoolFilter,
@@ -377,6 +379,7 @@ class PermanentAdmin(EmployeeAdmin):
          'date_created', 'educational_service']
 
     actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
+                                     'permanent_post_island',
                                      'temporary_position',
                                      'hours',
                                      'profession__description',

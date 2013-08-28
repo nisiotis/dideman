@@ -762,6 +762,13 @@ class PermanentManager(models.Manager):
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
+    def permanent_post_in_island(self, island_id):
+        cursor = connection.cursor()
+        print sql.permanent_post_in_island.format(island_id)
+        cursor.execute(sql.permanent_post_in_island.format(island_id))
+        ids = [row[0] for row in cursor.fetchall()]
+        return self.filter(parent_id__in=ids)
+        
     def permanent_post_in_organization(self, org_id):
         cursor = connection.cursor()
         cursor.execute(sql.permanent_post_in_organization.format(org_id))
@@ -772,6 +779,13 @@ class PermanentManager(models.Manager):
         cursor = connection.cursor()
         cursor.execute(
             sql.serving_in_organization.format(org_id, datetime.date.today()))
+        ids = [row[0] for row in cursor.fetchall()]
+        return self.filter(parent_id__in=ids)
+
+    def serving_in_island(self, island_id):
+        cursor = connection.cursor()
+        cursor.execute(
+            sql.serving_in_island.format(island_id, datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
@@ -924,6 +938,14 @@ class Permanent(Employee):
         return super(Permanent, self).organization_serving() or \
             self.permanent_post()
     organization_serving.short_description = u'Θέση υπηρεσίας'
+
+    def permanent_post_island(self):
+        permanent_post = self.permanent_post()
+        if permanent_post != "-":
+            return permanent_post.organization.school.island
+        else:
+            return "-"
+    permanent_post_island.short_description = u'Νησί Οργανικής'
 
     def rank(self):
         return first_or_none(

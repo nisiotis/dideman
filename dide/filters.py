@@ -3,7 +3,7 @@ from overrides.admin import ModifierSimpleListFilter
 from overrides.admin import DideAdmin
 from django.contrib.admin.filters import SimpleListFilter
 from models import (Organization, School, Permanent, DegreeCategory,
-                    NonPermanent, EmployeeLeave, TransferArea,
+                    NonPermanent, EmployeeLeave, TransferArea, Island,
                     SubstituteMinistryOrder)
 import django.contrib.admin.views.main as views
 import datetime
@@ -26,6 +26,23 @@ class PermanentPostFilter(ModifierSimpleListFilter):
         if val:
             return queryset & \
                 Permanent.objects.permanent_post_in_organization(int(val))
+        else:
+            return queryset
+
+class PermanentPostInIslandFilter(ModifierSimpleListFilter):
+    title = u'Νησί Οργανικής'
+    parameter_name = 'island__id'
+    list_view = False
+
+    def lookups(self, request, model_admin):
+        islands = Island.objects.all()
+        return ((i.id, i.name) for i in islands)
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            return queryset & \
+                Permanent.objects.permanent_post_in_island(int(val))
         else:
             return queryset
 
@@ -141,6 +158,24 @@ class OrganizationServingFilter(ModifierSimpleListFilter):
                 Permanent.objects.serving_in_organization(int(val))
         else:
             return queryset
+
+class IslandServingFilter(ModifierSimpleListFilter):
+    title = u'Νησί υπηρεσίας'
+    parameter_name = 'serving_island__id'
+    list_view = False
+
+    def lookups(self, request, model_admin):
+        islands = Island.objects.all()
+        return ((i.id, i.name) for i in islands)
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            return queryset & \
+                Permanent.objects.serving_in_island(int(val))
+        else:
+            return queryset
+
 
 
 class FreeDateFieldListFilter(SimpleListFilter):
