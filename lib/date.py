@@ -4,6 +4,7 @@ import datetime
 import operator
 import math
 import functools
+from dideman.lib.common import memo
 
 sign = functools.partial(math.copysign, 1)
 
@@ -214,7 +215,6 @@ class DateInterval(object):
     def __repr__(self):
         return "<%s '%s-%s-%s'>" % (self.__class__.__name__,
                                   self.years, self.months, self.days)
-
     def __str__(self):
         return "%s-%s-%s" % self.tuple()
 
@@ -231,6 +231,7 @@ class DateRange(object):
         start, end are Date objects
         """
         self.start, self.end = sorted([start, end])
+        self.h = hash(self.start.tuple() + self.end.tuple())
 
     @property
     def total(self):
@@ -255,6 +256,7 @@ class DateRange(object):
                              min(max(self.start, self.end),
                                  max(other.start, other.end)))
 
+    @memo
     def split_intersection(self, other):
         """
         split a DateRange by injecting another DateRange into it.
@@ -282,7 +284,8 @@ class DateRange(object):
     def split_all(cls, ranges):
         if len(ranges) < 1:
             return ranges
-        return tuple(set(reduce(cls.split_multi, ranges[1:], [ranges[0]])))
+        res = tuple(set(reduce(cls.split_multi, ranges[1:], [ranges[0]])))
+        return res
 
     @classmethod
     def split_multi(cls, ranges, arange):
@@ -307,7 +310,9 @@ class DateRange(object):
         """
         used for item uniqueness in sets
         """
-        return hash(repr(self))
+        return self.h
+
+
 
 
 def test():

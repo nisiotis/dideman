@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import functools
 
 _accent_map = {u'Ά': u'Α', u'Έ': u'Ε', u'Ή': u'Η', u'Ό': u'Ο',
                u'Ί': u'Ι', u'Ύ': u'Υ', u'Ώ': u'Ω'}
@@ -75,3 +76,16 @@ def _compose(f, g, unpack=False):
 
 def compose(*args):
     return functools.reduce(_compose, args)
+
+def memo(fn):
+    _cache = {}
+    @functools.wraps(fn)
+    def dec(*args):
+        key = tuple(map(hash, args))
+        try:
+            return _cache[key]
+        except KeyError:
+            result = fn(*args)
+            _cache[key] = result
+            return result
+    return dec
