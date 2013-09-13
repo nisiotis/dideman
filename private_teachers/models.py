@@ -52,10 +52,7 @@ class PrivateTeacher(dide.Employee):
         return total, reduced
 
     def total_experience(self, periods=None):
-        import pycallgraph
-        pycallgraph.start_trace()
         total, reduced = self._total_days(periods)
-        pycallgraph.make_dot_graph('/tmp/test.png')
         return DateInterval(int(total)) + int300(int(reduced))
     total_experience.short_description = u"Προϋπηρεσία"
 
