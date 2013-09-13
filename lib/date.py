@@ -284,12 +284,11 @@ class DateRange(object):
     def split_all(cls, ranges):
         if len(ranges) < 1:
             return ranges
-        res = tuple(set(reduce(cls.split_multi, ranges[1:], [ranges[0]])))
-        return res
+        return tuple(set(reduce(cls.split_multi, ranges[1:], [ranges[0]])))
 
     @classmethod
     def split_multi(cls, ranges, arange):
-        return [o for r in ranges for o in r.split_intersection(arange)]
+        return set([o for r in ranges for o in r.split_intersection(arange)])
 
     def __repr__(self):
         return "[%s - %s]" % (self.start, self.end)

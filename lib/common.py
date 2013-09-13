@@ -79,6 +79,7 @@ def compose(*args):
 
 def memo(fn):
     _cache = {}
+
     @functools.wraps(fn)
     def dec(*args):
         key = tuple(map(hash, args))
