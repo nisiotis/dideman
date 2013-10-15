@@ -73,6 +73,9 @@ leave_docx_reports = [
     LeaveDocxReport(u'Ειδική 22 ημερών', 'adeia_22.xml',
                     custom_context={'subject': u'Χορήγηση ειδικής άδειας'}),
 
+    LeaveDocxReport(u'Ειδική 6 ημερών', 'adeia_6.xml',
+                    custom_context={'subject': u'Χορήγηση ειδικής άδειας'}),
+
     LeaveDocxReport(u'Διευκόλυνσης', 'adeia_diefkolinsis.xml',
                     custom_context={'subject':
                                         u'Χορήγηση άδειας διευκόλυνσης'}),
