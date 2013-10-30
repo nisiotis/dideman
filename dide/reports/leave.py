@@ -20,7 +20,10 @@ def cc(obj):
         ret.append(u'ΑΛΛΟ Π.Υ.Σ.Δ.Ε.')
     if obj['leave__not_paying']:
         ret.append(u'Εκκαθαριστής')
-    ret.append(u'Α.Φ.')
+    if obj['employee__permanent__serving_type'].id == 1:
+        ret.append(u'Α.Φ. (Δ.Δ.Ε. Δωδεκανήσου)')
+    else:
+        ret.append(u'Α.Φ.')
     return ret
 
 
@@ -30,6 +33,7 @@ class LeaveDocxReport(DocxReport):
                  include_header=True, include_footer=True):
 
         fields = fields or ['employee__firstname', 'employee__lastname',
+                            'employee__permanent__serving_type',
                             'profession', 'organization_serving',
                             'employee__permanent__permanent_post',
                             'employee__permanent__temporary_position',
