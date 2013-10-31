@@ -15,10 +15,13 @@ class PrivateTeacherAdmin(DideAdmin):
     class Media:
         js = ('js/dide.js', )
 
+
     actions = [CSVReport(add=["total_experience", "total_service", "rank",
                               "next_rank_date"])]
     list_display = ['lastname', 'firstname', 'profession', 'school', 'active']
     list_filter = ['profession__unified_profession', 'school', 'active']
+    search_fields = ('lastname', 'identity_number')
+
     fieldsets = [
         ('Γενικά Στοιχεία', {
             'fields': [
