@@ -166,9 +166,9 @@ leave_docx_reports = [
                     custom_context={'subject':
                                         u'Χορήγηση ειδικής άδειας απουσίας σε εκπαιδευτικό για επιμορφωτικούς ή επιστημονικούς λόγους.'}), 
 
-    LeaveDocxReport(u'Ανατροφής (2ου Δίδυμου)', 'trimini_didimou.xml',
+    LeaveDocxReport(u'Ανατροφής (__ου Πολύδυμου)', 'trimini_polidimou.xml',
                     custom_context={'subject':
-                                        u'Χορήγηση άδειας ανατροφής τέκνου (τρίμηνη 2ου δίδυμου)'}),
+                                        u'Χορήγηση άδειας ανατροφής τέκνου (τρίμηνη __ου πολύδυμου)'}),
     LeaveDocxReport(u'Υιοθεσίας (Τρίμηνη)', 'trimini_yiothesias.xml',
                     custom_context={'subject':
                                         u'Χορήγηση τρίμηνης άδειας υιοθεσίας'}),
