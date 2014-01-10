@@ -2,7 +2,7 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, NonPermanent, Employee, Placement,
-                                 EmployeeLeave, Application)
+                                 EmployeeLeave, Application, EmployeeResponsibility)
 from dideman.dide.employee.decorators import match_required
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
@@ -73,6 +73,7 @@ def edit(request):
 
         p = Placement.objects.filter(employee=emp.id).order_by('-date_from')
         l = EmployeeLeave.objects.filter(employee=emp.id).order_by('-date_from')
+        r = EmployeeResponsibility.objects.filter(employee=emp.id).order_by('date_to')
         a = Application.objects.filter(employee=emp.id).exclude(datetime_finalised=None).order_by('-datetime_finalised')
         emp_form = MyInfoForm(emp.__dict__)
         if request.POST:
@@ -91,5 +92,6 @@ def edit(request):
                                                            'messages': messages,
                                                            'leaves': l,
                                                            'positions': p,
+                                                           'responsibilities': r,
                                                            'applications': a,
                                                            'form': emp_form}))

@@ -4,16 +4,6 @@
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
 <script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
-<script>
-$(window).bind("load resize", function(){
-	//windowWidth = $(window).width();
-	//w1 = (windowWidth / 2) + 50
-	//w2 = (windowWidth / 2) - 50
-	//$("#content-main").width(w1-20);
-	//$("#content-related").width(w2-20); 
-	
-});
-</script>
 
 
 {% endblock %}
@@ -115,17 +105,12 @@ $(window).bind("load resize", function(){
 {% endblock %}
 {% block sidebar %}
 <div id="content-related">
-    <!--<div class="module" id="recent-actions-module">
-        <h2>Ποσοστό ολοκλήρωσης καρτέλας</h2>
-            <div id="img-container"><img src="{{ graphimage }}"></div>
-    </div>-->
     <div class="module" id="recent-actions-module">
         <h2>Το ιστορικό μου</h2>
         <h3>Άδειες</h3>
             <ul class="actionlist">
             {% for entry in leaves %}
             <li>{{entry.date_from}} - {% if entry.date_to %}{{entry.date_to}}{% endif %}: {{entry.leave}}</li>
-            <!--<li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">            </li>-->
             {% empty %}
             <li>Δεν βρέθηκαν άδειες</li>  
             {% endfor %}
@@ -138,6 +123,16 @@ $(window).bind("load resize", function(){
             <li>Δεν βρέθηκαν θέσεις υπηρεσίας</li>  
             {% endfor %}
             </ul>
+	{% if responsibilities %}
+        <h3>Θέσεις ευθύνης</h3>
+            <ul class="actionlist">
+            {% for entry in responsibilities %}
+            <li>{{entry.date_from}} - {% if entry.date_to %}{{entry.date_to}}{% endif %}: {{entry.responsibility}} (Αρ. Απόφ. {{entry.order}})</li>
+            {% empty %}
+            <li>Δεν βρέθηκαν θέσεις ευθύνης</li>  
+            {% endfor %}
+            </ul>
+	{% endif %}
         <h3>Αιτήσεις</h3>
             <ul class="actionlist">
             {% for entry in applications %}
