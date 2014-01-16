@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
-from functools import reduce
 import collections
 from dideman.lib.date import *
-from django.contrib import admin
 from django.db import models
 from dideman.dide import models as dide
 from dideman.lib.ranking import RANKS, next_index
@@ -28,7 +26,6 @@ class PrivateTeacher(dide.Employee):
     active = models.BooleanField(u'Ενεργός', default=True)
     current_hours = models.IntegerField(u'Τρέχον ωράριο', null=True, blank=True, default=18)
     current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης', blank=True, null=True)
-
 
     def _total_days(self, periods=None):
         periods = periods or self.workingperiod_set.all()

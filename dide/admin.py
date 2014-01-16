@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+from dideman.private_teachers.models import PrivateTeacher
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.conf.urls.defaults import *
@@ -13,7 +15,7 @@ from overrides.admin import DideAdmin
 from filters import *
 from applications.filters import FinalisedFilter
 from models import (TransferArea, Island, Leave, Responsibility, Profession,
-                    Promotion, NonPermanentType,
+                    Promotion, NonPermanentType, Administrative,
                     NonPermanent, Permanent, Employee, DegreeCategory,
                     SchoolType, School, OtherOrganization, PlacementType,
                     Placement, EmployeeLeave, EmployeeResponsibility,
@@ -26,7 +28,7 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
 from actions import (CSVReport, FieldAction, XMLReadAction,
-                     CreatePDF, DeleteAction, timestamp)
+                     CreatePDF, DeleteAction, timestamp, EmployeeBecome)
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
@@ -249,6 +251,11 @@ economic_fieldset = (u'Οικονομικά στοιχεία', {
                    'organization_paying']})
 
 
+to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
+to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
+to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
+to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
+
 class EmployeeAdmin(DideAdmin):
 
     class Media:
@@ -278,8 +285,8 @@ class EmployeeAdmin(DideAdmin):
                        'date_created', 'profession_description']
     list_max_show_all = 10000
     list_per_page = 50
-    actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves',
-                           lambda: False)]
+    actions = [to_permanent, to_private_teacher, to_administrative, 
+      FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False)]
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
@@ -378,7 +385,8 @@ class PermanentAdmin(EmployeeAdmin):
          'rank', 'profession_description', 'calculable_no_pay',
          'date_created', 'educational_service']
 
-    actions = sorted([CSVReport(add=['permanent_post', 'organization_serving',
+    actions = sorted([to_private_teacher, to_administrative,
+      CSVReport(add=['permanent_post', 'organization_serving',
                                      'permanent_post_island',
                                      'temporary_position',
                                      'hours',
@@ -390,6 +398,64 @@ class PermanentAdmin(EmployeeAdmin):
                                      'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
 
+
+class AdministrativeAdmin(PermanentAdmin):
+    inlines = EmployeeAdmin.inlines + [PromotionInline, PlacementInline,
+                                       LeaveInline, ResponsibilityInline]
+    list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
+                                               IslandServingFilter,
+                                               PermanentPostFilter,
+                                               PermanentPostInIslandFilter,
+                                               ServingTypeFilter,
+                                               ServesInDideOrgFilter,
+                                               'has_permanent_post',
+                                               StudyFilter,
+                                               DateHiredFilter,
+                                               PaymentStartDateFilter,
+                                               NextPromotionInRangeFilter,
+                                               EmployeeWithLeaveFilter,
+                                               EmployeeWithOutLeaveFilter)
+    fieldsets = [
+            ('Γενικά Στοιχεία', {
+                'fields': [
+                        'transfer_area',
+                        'lastname', 'firstname', 'fathername', 'notes',
+                        'sex', 'registration_number', 'profession',
+                        'profession_description', 'permanent_post',
+                        'organization_serving',
+                        'study_years', 'serving_type', 'date_hired',
+                        'order_hired', 'is_permanent',
+                        'has_permanent_post', 'rank', 'address', 'identity_number',
+                         'telephone_number1',
+                        'telephone_number2', 'email',
+                        'birth_date', 'hours_current', 'date_created']}),
+            ('Στοιχεία Προϋπηρεσίας', {
+                    'fields': ['currently_serves',
+                               'recognised_experience',
+                               'formatted_recognised_experience',
+                               'calculable_no_pay', 'no_pay_existing',
+                               'total_service',
+                               'payment_start_date_auto',
+                               'payment_start_date_manual',
+                               'date_end']}),
+                economic_fieldset]
+
+    search_fields = EmployeeAdmin.search_fields + ('registration_number',)
+    readonly_fields = EmployeeAdmin.readonly_fields + \
+            ['permanent_post', 'total_service',
+             'formatted_recognised_experience', 'payment_start_date_auto',
+             'rank', 'profession_description', 'calculable_no_pay',
+             'date_created']
+
+    actions = sorted([to_permanent, to_private_teacher,
+      CSVReport(add=['permanent_post', 
+                                    'organization_serving',
+                                    'permanent_post_island',
+                                    'profession__description',
+                                    'payment_start_date_auto',
+                                    'formatted_recognised_experience',
+                                    'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
+        permanent_docx_reports, key=lambda k: k.short_description)   
 
 class EmployeeLeaveForm(ModelForm):
 
@@ -403,7 +469,7 @@ class EmployeeLeaveForm(ModelForm):
 
 class EmployeeChoiceField(ModelChoiceField):
     def __init__(self, *args, **kwargs):
-        self.choices = Permanent.objects.choices()
+        self.choices = Permanent.objects.choices() + Administrative.objects.choices()
         return super(EmployeeChoiceField, self).__init__(Permanent.objects, *args, **kwargs)
 
 
@@ -473,10 +539,10 @@ class NonPermanentAdmin(EmployeeAdmin):
                    SubstituteOrderFilter, 'profession__unified_profession',
                    NonPermanentOrganizationServingFilter,
                    NonPermanentWithTotalExtraPosition]
-    actions = sorted([CSVReport(add=['current_placement', 
-                                     'organization_serving',
-                                     'profession__description'])] + \
-    nonpermanent_docx_reports, key=lambda k: k.short_description)
+    actions = sorted([
+        CSVReport(add=['current_placement', 'organization_serving', 'profession__description']),
+       
+        ] + nonpermanent_docx_reports, key=lambda k: k.short_description)
 
 
 class SchoolTypeAdmin(DideAdmin):
@@ -485,6 +551,7 @@ class SchoolTypeAdmin(DideAdmin):
 
 map(lambda t: admin.site.register(*t), (
     (Permanent, PermanentAdmin),
+    (Administrative, AdministrativeAdmin),
     (Profession, ProfessionAdmin),
     (SchoolType, SchoolTypeAdmin),
     (SubstituteMinistryOrder, SubstituteMinistryOrderAdmin),
