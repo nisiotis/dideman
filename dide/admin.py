@@ -285,8 +285,7 @@ class EmployeeAdmin(DideAdmin):
                        'date_created', 'profession_description']
     list_max_show_all = 10000
     list_per_page = 50
-    actions = [to_permanent, to_private_teacher, to_administrative, 
-      FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False)]
+    actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False)]
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
@@ -408,6 +407,7 @@ class AdministrativeAdmin(PermanentAdmin):
                                                PermanentPostInIslandFilter,
                                                ServingTypeFilter,
                                                ServesInDideOrgFilter,
+                                               CurrentlyServesFilter,
                                                'has_permanent_post',
                                                StudyFilter,
                                                DateHiredFilter,

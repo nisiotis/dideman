@@ -110,11 +110,11 @@ class CurrentlyServesFilter(ModifierSimpleListFilter):
                 ('0', _('No')),
                 ('3', u'Όλοι'))
 
-    def filter_param(self, queryset, query_dict, klass=Permanent):
+    def filter_param(self, queryset, query_dict):
         # value defaults to 1 so that not serving permanents are filtered out
         val = query_dict.get(self.parameter_name, 1)
         if val != '3':
-            return queryset & klass.objects.filter(currently_serves=int(val))
+            return queryset & queryset.model.objects.filter(currently_serves=int(val))
         else:
             return queryset
 

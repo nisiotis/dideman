@@ -903,7 +903,7 @@ class Administrative(Employee):
     date_hired = models.DateField(u'Ημερομηνία διορισμού', null=True, blank=True)
     date_end = models.DateField(u'Ημερομηνία λήξης υπηρεσίας', null=True, blank=True)
     order_hired = models.CharField(u'Φ.Ε.Κ. διορισμού', max_length=200, null=True, blank=True)
-    registration_number = NullableCharField(u'Αρ. Μητρώου', max_length=6, unique=True, null=True, blank=True)
+    registration_number = NullableCharField(u'Αρ. Μητρώου', max_length=7, unique=True, null=True, blank=True)
     payment_start_date_manual = models.DateField(u'Μισθολογική αφετηρία (μετά από άδεια)', null=True, blank=True)
     is_permanent = models.NullBooleanField(u'Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
     has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση', null=True, blank=True, default=False)
