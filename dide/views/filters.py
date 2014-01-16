@@ -102,6 +102,12 @@ def nonpermanent(request):
     from dideman.dide.models import NonPermanent
     return render_template(request, NonPermanent, NonPermanentAdmin)
 
+def administrative(request):
+    from dideman.dide.admin import AdministrativeAdmin
+    from dideman.dide.models import Administrative
+    return render_template(request, Administrative, AdministrativeAdmin)
+
+
 
 def employeeleave(request):
     from dideman.dide.admin import EmployeeLeaveAdmin

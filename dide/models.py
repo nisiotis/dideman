@@ -6,7 +6,7 @@ from dideman.lib.date import *
 from dideman.dide.decorators import shorted
 from django.db.models import Max
 import sql
-from django.db import connection
+from django.db import connection, transaction
 from south.modelsinspector import add_introspection_rules
 from django.db.models import Sum
 import datetime
@@ -662,9 +662,10 @@ class Employee(models.Model):
         """Returns a dict of {year: sum_of_no_pay_days } form"""
         seq = reduce(concat, [l.split()
                               for l in self.employeeleave_set.filter(
-                    leave__not_paying=True)], tuple())
+                                      leave__not_paying=True
+                              )], tuple())
         return [(k, sum(map(itemgetter(1), g)))
-                 for k, g in groupby(sorted(seq), key=itemgetter(0))]
+                for k, g in groupby(sorted(seq), key=itemgetter(0))]
 
     def calculable_no_pay(self):
         return sum([max(days - 30, 0)
@@ -679,6 +680,14 @@ class Employee(models.Model):
             total_y += each_pay.calc_amount()
             total_y += each_pay.netab_amount()
         return total_y
+
+    def become(self, model_to):
+        cursor = connection.cursor()
+        query = """INSERT IGNORE INTO `{table}`(`{column}`) VALUES({pk})""".format(
+            table=model_to._meta.db_table, column=model_to._meta.pk.column, pk=self.pk)
+        print query
+        cursor.execute(query)
+        transaction.commit_unless_managed()
 
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
@@ -816,7 +825,6 @@ class PermanentManager(models.Manager):
                               .filter(next_promotion_date__gte=date_from,
                                       next_promotion_date__lte=date_to)]])
 
-
 class Permanent(Employee):
 
     class Meta:
@@ -826,7 +834,7 @@ class Permanent(Employee):
     objects = PermanentManager()
 
     parent = models.OneToOneField(Employee, parent_link=True)
-    serving_type = models.ForeignKey(PlacementType,
+    serving_type = models.ForeignKey(PlacementType, null=True, blank=True,
                                      verbose_name=u'Είδος Υπηρέτησης')
     date_hired = models.DateField(u'Ημερομηνία διορισμού', null=True,
                                   blank=True)
@@ -841,10 +849,10 @@ class Permanent(Employee):
         blank=True)
     payment_start_date_manual = models.DateField(
          u'Μισθολογική αφετηρία (μετά από άδεια)', null=True, blank=True)
-    is_permanent = models.BooleanField(u'Έχει μονιμοποιηθεί', null=False,
-                                       blank=False, default=False)
-    has_permanent_post = models.BooleanField(u'Έχει οργανική θέση',
-                                             null=False, blank=False,
+    is_permanent = models.NullBooleanField(u'Έχει μονιμοποιηθεί', null=True,
+                                       blank=True, default=False)
+    has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση',
+                                             null=True, blank=True,
                                              default=False)
     no_pay_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', default=0)
 
@@ -935,8 +943,7 @@ class Permanent(Employee):
     payment_start_date_auto.short_description =  u'Μισθολογική αφετηρία (αυτόματη)'
 
     def organization_serving(self):
-        return super(Permanent, self).organization_serving() or \
-            self.permanent_post()
+        return Employee.organization_serving(self) or self.permanent_post()
     organization_serving.short_description = u'Θέση υπηρεσίας'
 
     def permanent_post_island(self):
@@ -964,7 +971,6 @@ class Permanent(Employee):
             Promotion.objects.filter(employee=self).order_by('-date'))
         return rankdate.next_promotion_date
     next_rank_date.short_description = u'Ημερομηνία επόμενου βαθμού'
-        
 
     def rank_id(self):
         promotion = first_or_none(
@@ -990,6 +996,37 @@ PROMOTION_CHOICES = [(x, x) for x in [u'ΣΤ0', u'Ε4', u'Ε3', u'Ε2', u'Ε1',
                                       u'Α4', u'Α3', u'Α2', u'Α1', u'Α0']]
 
 
+class AdministrativeManager(models.Manager):
+    pass
+
+AdministrativeManager.choices = PermanentManager.choices.im_func
+
+
+class Administrative(Employee):
+    class Meta:
+        verbose_name = u'Διοικητικός'
+        verbose_name_plural = u'Διοικητικοί'
+
+    objects = AdministrativeManager()
+
+    parent = models.OneToOneField(Employee, parent_link=True)
+    serving_type = models.ForeignKey(PlacementType, null=True, blank=True, verbose_name=u'Είδος Υπηρέτησης')
+    date_hired = models.DateField(u'Ημερομηνία διορισμού', null=True, blank=True)
+    date_end = models.DateField(u'Ημερομηνία λήξης υπηρεσίας', null=True, blank=True)
+    order_hired = models.CharField(u'Φ.Ε.Κ. διορισμού', max_length=200, null=True, blank=True)
+    registration_number = NullableCharField(u'Αρ. Μητρώου', max_length=6, unique=True, null=True, blank=True)
+    payment_start_date_manual = models.DateField(u'Μισθολογική αφετηρία (μετά από άδεια)', null=True, blank=True)
+    is_permanent = models.NullBooleanField(u'Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
+    has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση', null=True, blank=True, default=False)
+    no_pay_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', null=True, blank=True, default=0)
+
+methods = ["total_service", "natural_key", "promotions", "permanent_post", "total_no_pay", "payment_start_date_auto",
+           "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "__unicode__"]
+
+for m in methods:
+    setattr(Administrative, m, getattr(Permanent, m).im_func)
+
+
 class Promotion(models.Model):
 
     class Meta:
@@ -998,7 +1035,7 @@ class Promotion(models.Model):
 
     value = models.CharField(u'Μεταβολή', max_length=100,
                              choices=PROMOTION_CHOICES)
-    employee = models.ForeignKey(Permanent)
+    employee = models.ForeignKey(Employee)
     date = models.DateField(u'Ημερομηνία μεταβολής')
     next_promotion_date = models.DateField(u'Ημερομηνία επόμενης μεταβολής',
                                            null=True, blank=True)

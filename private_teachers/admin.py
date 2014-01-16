@@ -4,7 +4,13 @@ from django.contrib import admin
 from dideman.dide.overrides.admin import DideAdmin
 from dideman.private_teachers.models import *
 from dideman.dide.admin import DegreeInline
+from dideman.dide.actions import EmployeeBecome
+from dideman.dide.models import Permanent, NonPermanent, Administrative
 
+to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
+to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
+to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
+to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
 
 class WorkingPeriodInline(admin.TabularInline):
     model = WorkingPeriod
@@ -16,7 +22,8 @@ class PrivateTeacherAdmin(DideAdmin):
         js = ('js/dide.js', )
 
 
-    actions = [CSVReport(add=["total_experience", "total_service", "rank",
+    actions = [to_permanent, to_non_permanent, to_administrative,
+        CSVReport(add=["total_experience", "total_service", "rank",
                               "next_rank_date"])]
     list_display = ['lastname', 'firstname', 'profession', 'school', 'active']
     list_filter = ['profession__unified_profession', 'school', 'active']

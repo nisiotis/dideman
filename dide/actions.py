@@ -396,7 +396,7 @@ class FieldAction(object):
             'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
             'changeable_objects': [changeable_objects],
             'action_name': self.__name__,
-            }
+        }
         new_changeable_objects = parse_deletable_list(changeable_objects)
         extra_context = {'changeable_objects': [new_changeable_objects]}
         context.update(extra_context or {})
@@ -407,6 +407,30 @@ class FieldAction(object):
                                 context,
                                 current_app=modeladmin.admin_site.name)
 
+
+class EmployeeBecome(object):
+    def __init__(self, short_description, to_model):
+        self.short_description = short_description
+        self.__name__ = 'employee -> ' + to_model._meta.db_table
+        self.to_model = to_model
+
+    def __call__(self, modeladmin, request, queryset):
+        from warnings import filterwarnings
+        import MySQLdb as Database
+        filterwarnings('ignore', category=Database.Warning)
+
+        errors = []
+        for employee in queryset:
+            try:
+                employee.become(self.to_model)
+            except Exception as e:
+                errors.append(unicode(employee))
+                continue
+
+        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset) - len(errors))
+        if errors:
+            msg += u"Λάθη για τους: %s" % ", ".join(errors)
+        modeladmin.message_user(request, msg)
 
 class DeleteAction(object):
 
