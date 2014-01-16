@@ -560,12 +560,14 @@ class Employee(models.Model):
 
     def no_pay_in_years(self):
         """Returns a dict of {year: sum_of_no_pay_days } form"""
-        seq = reduce(concat, [l.split()
-                              for l in self.employeeleave_set.filter(
-                                      leave__not_paying=True
-                              )], tuple())
-        return [(k, sum(map(itemgetter(1), g)))
+        leaves = self.employeeleave_set.filter(leave__not_paying=True)  
+        today = datetime.date.today()  
+        
+        sub = sum([(l.date_to - today).days for l in leaves if l.date_to > today])
+        seq = reduce(concat, [l.split() for l in leaves], tuple())
+        groups = [(k, sum(map(itemgetter(1), g)))
                 for k, g in groupby(sorted(seq), key=itemgetter(0))]
+        return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]        
 
     def calculable_no_pay(self):
         return sum([max(days - 30, 0)
