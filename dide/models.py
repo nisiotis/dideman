@@ -485,7 +485,6 @@ class Employee(models.Model):
     fathername = models.CharField(u'Όνομα Πατέρα', max_length=100)
     mothername = models.CharField(u'Όνομα Μητέρας', max_length=100, null=True, blank=True)
     sex = models.CharField(u'Φύλο', max_length=10, null=True, blank=True, choices=SEX_TYPES)
-    currently_serves = models.BooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', default=True)
     address = models.CharField(u'Διεύθυνση', max_length=200, null=True, blank=True)
     identity_number = NullableCharField(u'Αρ. Δελτίου Ταυτότητας', max_length=8, null=True, unique=True, blank=True)
     transfer_area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης', null=True, blank=True)
@@ -562,7 +561,6 @@ class Employee(models.Model):
         """Returns a dict of {year: sum_of_no_pay_days } form"""
         leaves = self.employeeleave_set.filter(leave__not_paying=True)  
         today = datetime.date.today()  
-        
         sub = sum([(l.date_to - today).days for l in leaves if l.date_to > today])
         seq = reduce(concat, [l.split() for l in leaves], tuple())
         groups = [(k, sum(map(itemgetter(1), g)))
@@ -744,6 +742,7 @@ class Permanent(Employee):
     is_permanent = models.NullBooleanField(u'Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
     has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση',null=True, blank=True, default=False)
     no_pay_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', default=0)
+    currently_serves = models.NullBooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
 
     def total_service(self):
         if self.payment_start_date_manual:
@@ -908,6 +907,7 @@ class Administrative(Employee):
     is_permanent = models.NullBooleanField(u'Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
     has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση', null=True, blank=True, default=False)
     no_pay_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', null=True, blank=True, default=0)
+    currently_serves = models.NullBooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
 
 methods = ["total_service", "natural_key", "promotions", "permanent_post", "total_no_pay", "payment_start_date_auto",
            "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "__unicode__"]
@@ -1107,8 +1107,6 @@ class SchoolCommission(models.Model):
 
     def __unicode__(self):
         return u'Σχολική Επιτροπή Δήμου ' + self.municipality
-
-        
 
 class School(Organization):
 
