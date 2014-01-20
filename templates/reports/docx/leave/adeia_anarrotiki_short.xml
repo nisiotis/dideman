@@ -10,17 +10,24 @@
         </w:p>
         <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
             <w:r>
-                <w:t>2. Την αριθ. 160443/29.12.2009(ΦΕΚ 2450 τ. Β) υπουργική απόφαση</w:t>
+                <w:t>2. Την αριθ. 160443/29.12.2009(Φ.Ε.Κ. 2450 τ. Β) υπουργική απόφαση</w:t>
+            </w:r>
+        </w:p>
+
+	<w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+          <w:r>
+            <w:t>3. Τις σχετικές διατάξεις του νόμου 4210/2013 (Φ.Ε.Κ. 254 Α')</w:t>
+          </w:r>
+        </w:p>
+
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>4. Την αίτηση του/της ενδιαφερόμενου/ης</w:t>
             </w:r>
         </w:p>
         <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
             <w:r>
-                <w:t>3. Την αίτηση του/της ενδιαφερόμενου/ης</w:t>
-            </w:r>
-        </w:p>
-        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
-            <w:r>
-                <w:t>4. Την συνημμένη {{rec.order}}</w:t>
+                <w:t>5. Την συνημμένη {{rec.order}}</w:t>
             </w:r>
         </w:p>
         <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
