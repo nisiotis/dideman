@@ -587,6 +587,9 @@ class Employee(models.Model):
         cursor.execute(query)
         transaction.commit_unless_managed()
 
+    def normal_leave_days(self):
+        raise NotImplementedError
+
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
             return u'%s %s (%s)' % (self.lastname, self.firstname,
@@ -842,6 +845,9 @@ class Permanent(Employee):
             return "-"
     permanent_post_island.short_description = u'Νησί Οργανικής'
 
+    def normal_leave_days(self):
+        return 10
+
     def rank(self):
         return first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date')) or \
@@ -908,6 +914,9 @@ class Administrative(Employee):
     has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση', null=True, blank=True, default=False)
     no_pay_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', null=True, blank=True, default=0)
     currently_serves = models.NullBooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
+
+    def normal_leave_days(self):
+        return min(24 + self.total_service().years, 29)
 
 methods = ["total_service", "natural_key", "promotions", "permanent_post", "total_no_pay", "payment_start_date_auto",
            "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "__unicode__"]
@@ -1298,27 +1307,41 @@ class EmployeeLeave(models.Model):
     def clean(self):
         from django.core.exceptions import ValidationError
         if hasattr(self, 'leave') and hasattr(self, 'employee'):
+            if hasattr(self.employee, 'permanent'):
+                limit = self.employee.permanent.normal_leave_days()
+            else:
+                limit = self.employee.administrative.normal_leave_days()
+
             if self.leave.name == u'Κανονική':
                 y = self.date_from.year
-                dur = EmployeeLeave.objects.filter(
-                    employee=self.employee, leave=self.leave,
-                    date_from__gte=datetime.date(y, 1, 1),
-                    date_to__lte=datetime.date(y, 12, 31)).\
-                    exclude(id=self.id).\
-                    aggregate(Sum('duration'))['duration__sum'] or 0
-                msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις 10. ' \
-                    u' Μέρες χωρίς την τρέχουσα άδεια: {0}'
 
-                if dur + self.duration > 10:
-                    print self
-                    raise ValidationError(msg.format(dur))
+                # Οι διοικητικοί έχουν έξτρα 5 μέρες αν πάρουν την άδειά τους από 1/1 έως 14/5
+                if hasattr(self.employee, 'administrative'):
+                    leaves = list(EmployeeLeave.objects.filter(
+                        employee=self.employee, leave=self.leave, date_from__gte=datetime.date(y, 1, 1),
+                        date_to__lte=datetime.date(y, 12, 31)
+                    ).exclude(id=self.id))
+                    dur = sum([l.duration for l in leaves])
+                    extra_range = (datetime.date(y, 11, 1), datetime.date(y, 5, 14))
+                    extra5 = all([not intersect((l.date_from, l.date_to), extra_range) for l in leaves + [self]])
+                    if extra5:
+                        limit += 5
+                else:
+                    dur = EmployeeLeave.objects.filter(
+                        employee=self.employee, leave=self.leave, date_from__gte=datetime.date(y, 1, 1),
+                        date_to__lte=datetime.date(y, 12, 31)
+                    ).exclude(id=self.id).aggregate(Sum('duration'))['duration__sum'] or 0                
+
+
+                msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις {0}. Μέρες χωρίς την τρέχουσα άδεια: {1}'
+                if dur + self.duration > limit:
+                    raise ValidationError(msg.format(limit, dur))
 
             if len(self.intersects_with()) > 0:
                 raise ValidationError('Υπάρχει και άλλη άδεια αυτό διάστημα')
 
     def intersects_with(self):
-        df, dt = [d.strftime('%Y-%m-%d') \
-                      for d in self.date_from, self.date_to]
+        df, dt = [d.strftime('%Y-%m-%d') for d in self.date_from, self.date_to]
         return EmployeeLeave.objects.filter(
             Q(employee=self.employee),
             Q(date_from__range=[df, dt]) |
