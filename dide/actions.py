@@ -100,22 +100,24 @@ class TemplateAction(object):
                                       encode_in_iso)
 
     def field_value(self, obj, field):
-        if callable(field):
-            return field(obj)
-        if hasattr(obj, field):
-            attr = getattr(obj, field, '')
-            if callable(attr):
-                attr = attr()
-        else:
-            if '__' in field:
-                t = obj
-                for sf in field.split('__'):
-                    t = getattr(t, sf, '')
-                    if callable(t):
-                        t = t()
-                attr = t
-            else:
-                attr = ''
+        attr = ''
+        try:
+            if callable(field):
+                return field(obj)
+            try:
+                attr = getattr(obj, field)
+                if callable(attr):
+                    attr = attr()
+            except:
+                if '__' in field:
+                    t = obj
+                    for sf in field.split('__'):
+                        t = getattr(t, sf, '')
+                        if callable(t):
+                            t = t()
+                    attr = t
+        except:
+            pass
         return attr
 
     def convert_to_string(self, value, encode_in_iso=False):

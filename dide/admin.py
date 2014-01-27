@@ -496,7 +496,6 @@ class EmployeeLeaveAdmin(DideAdmin):
         if (len(leave_qs) != 1):
             return HttpResponse(u'Η άδεια δεν βρέθηκε')
         leave = leave_qs[0]
-
         for r in leave_docx_reports:
             if r.short_description == leave.leave.name:
                 return r(self, request, leave_qs)
