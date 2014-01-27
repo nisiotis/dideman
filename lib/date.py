@@ -35,6 +35,11 @@ def current_year():
     return '%s-%s' % (str(current_year_date_from().year),
                       str(current_year_date_to().year))
 
+def intersect(r1, r2):
+    r1s, r1e = r1
+    r2s, r2e = r2
+    return not (r1e < r2s or r1s > r2e)
+
 
 class Date(object):
     """
