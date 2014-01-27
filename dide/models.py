@@ -587,6 +587,17 @@ class Employee(models.Model):
         cursor.execute(query)
         transaction.commit_unless_managed()
 
+
+    def subclass(self):
+        for attr in ["permanent", "administrative", "nonnermanent", "privateteacher"]:
+            try:
+                print getattr(self, attr)
+                return getattr(self, attr)
+            except:
+                continue
+        return None
+
+
     def normal_leave_days(self):
         raise NotImplementedError
 

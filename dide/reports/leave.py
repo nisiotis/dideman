@@ -3,24 +3,23 @@ from dideman.dide.actions import DocxReport
 from dideman.dide.util.settings import SETTINGS
 import os
 
-
 def cc(obj):
     ret = []
     if hasattr(obj['organization_serving'], 'organization'):
         ret.append(obj['organization_serving'].organization.name)
-    if hasattr(obj['employee__permanent__permanent_post'], 'organization'):
-        if obj['employee__permanent__permanent_post'].organization.name \
+    if hasattr(obj['employee__subclass__permanent_post'], 'organization'):
+        if obj['employee__subclass__permanent_post'].organization.name \
                 not in [obj['organization_serving'].organization.name, '-']:
-            ret.append(obj['employee__permanent__permanent_post'].\
+            ret.append(obj['employee__subclass__permanent_post'].\
                            organization.name)
-    elif hasattr(obj['employee__permanent__temporary_position'], 'organization'):
-        if obj['employee__permanent__temporary_position'].organization.name != obj['organization_serving']:
-            ret.append(obj['employee__permanent__temporary_position'].organization.name)
-    if obj['employee__permanent__serving_type__id'] != 1:
+    elif hasattr(obj['employee__subclass__temporary_position'], 'organization'):
+        if obj['employee__subclass__temporary_position'].organization.name != obj['organization_serving']:
+            ret.append(obj['employee__subclass__temporary_position'].organization.name)
+    if obj['employee__subclass__serving_type__id'] != 1:
         ret.append(u'ΑΛΛΟ Π.Υ.Σ.Δ.Ε.')
     if obj['leave__not_paying']:
         ret.append(u'Εκκαθαριστής')
-    if obj['employee__permanent__serving_type'].id == 1:
+    if obj['employee__subclass__serving_type'].id == 1:
         ret.append(u'Α.Φ. (Δ.Δ.Ε. Δωδεκανήσου)')
     else:
         ret.append(u'Α.Φ.')
@@ -33,11 +32,11 @@ class LeaveDocxReport(DocxReport):
                  include_header=True, include_footer=True):
 
         fields = fields or ['employee__firstname', 'employee__lastname',
-                            'employee__permanent__serving_type',
+                            'employee__subclass__serving_type',
                             'profession', 'organization_serving',
-                            'employee__permanent__permanent_post',
-                            'employee__permanent__temporary_position',
-                            'employee__permanent__serving_type__id',
+                            'employee__subclass__permanent_post',
+                            'employee__subclass__temporary_position',
+                            'employee__subclass__serving_type__id',
                             'employee__fathername', 'order',
                             'date_from', 'date_to', 'protocol_number',
                             'duration', 'date_issued', 'leave__not_paying']
