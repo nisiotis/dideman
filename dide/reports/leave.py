@@ -5,15 +5,15 @@ import os
 
 def cc(obj):
     ret = []
-    if hasattr(obj['organization_serving'], 'organization'):
-        ret.append(obj['organization_serving'].organization.name)
+    if hasattr(obj['employee__subclass__organization_serving'], 'organization'):
+        ret.append(obj['employee__subclass__organization_serving'].organization.name)
     if hasattr(obj['employee__subclass__permanent_post'], 'organization'):
         if obj['employee__subclass__permanent_post'].organization.name \
-                not in [obj['organization_serving'].organization.name, '-']:
+                not in [obj['employee__subclass__organization_serving'].organization.name, '-']:
             ret.append(obj['employee__subclass__permanent_post'].\
                            organization.name)
     elif hasattr(obj['employee__subclass__temporary_position'], 'organization'):
-        if obj['employee__subclass__temporary_position'].organization.name != obj['organization_serving']:
+        if obj['employee__subclass__temporary_position'].organization.name != obj['employee__subclass__organization_serving']:
             ret.append(obj['employee__subclass__temporary_position'].organization.name)
     if obj['employee__subclass__serving_type__id'] != 1:
         ret.append(u'ΑΛΛΟ Π.Υ.Σ.Δ.Ε.')
@@ -33,7 +33,7 @@ class LeaveDocxReport(DocxReport):
 
         fields = fields or ['employee__firstname', 'employee__lastname',
                             'employee__subclass__serving_type',
-                            'profession', 'organization_serving',
+                            'profession', 'employee__subclass__organization_serving',
                             'employee__subclass__permanent_post',
                             'employee__subclass__temporary_position',
                             'employee__subclass__serving_type__id',

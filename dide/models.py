@@ -591,7 +591,6 @@ class Employee(models.Model):
     def subclass(self):
         for attr in ["permanent", "administrative", "nonnermanent", "privateteacher"]:
             try:
-                print getattr(self, attr)
                 return getattr(self, attr)
             except:
                 continue
@@ -685,7 +684,6 @@ class PermanentManager(models.Manager):
 
     def permanent_post_in_island(self, island_id):
         cursor = connection.cursor()
-        print sql.permanent_post_in_island.format(island_id)
         cursor.execute(sql.permanent_post_in_island.format(island_id))
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
@@ -1305,10 +1303,7 @@ class EmployeeLeave(models.Model):
     permanent_post.short_description = u'Οργανική θέση'
 
     def organization_serving(self):
-        if hasattr(self.employee, 'permanent'):
-            return self.employee.permanent.organization_serving()
-        else:
-            return self.employee.organization_serving()
+        return self.subclass().organization_serving()
     organization_serving.short_description = u'Θέση υπηρεσίας'
 
     def profession(self):
