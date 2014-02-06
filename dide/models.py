@@ -589,7 +589,7 @@ class Employee(models.Model):
 
 
     def subclass(self):
-        for attr in ["permanent", "administrative", "nonnermanent", "privateteacher"]:
+        for attr in ["administrative", "permanent", "nonnermanent", "privateteacher"]:
             try:
                 return getattr(self, attr)
             except:
