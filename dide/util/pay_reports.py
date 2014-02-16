@@ -21,7 +21,7 @@ from collections import defaultdict
 
 def calc_reports(emp_reports): 
     
-    types = {1: u'Φόρος που αναλογεί', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 0: '', 4: ''}
+    types = {1: u'Φόρος που αναλογεί', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 0: 'Δάνειο', 4: ''}
     groups = defaultdict(lambda : defaultdict(float))
     sums = defaultdict(float)
     d_fact = 0.00
@@ -33,19 +33,27 @@ def calc_reports(emp_reports):
             groups[key][r['group_name']] += amount
             sums[r['group_name']] += amount
             if r['calc_type'] == 2: 
-                groups[key][types[r['calc_type']]] += amount
-                sums[types[r['calc_type']]] += amount
-                groups[key][u'Φορολογητέο Ποσό'] -= amount
-                sums[u'Φορολογητέο Ποσό'] -= amount
+                if r['info'] == None:
+                    groups[key][types[r['calc_type']]] += amount
+                    sums[types[r['calc_type']]] += amount
+                    groups[key][u'Φορολογητέο Ποσό'] -= amount
+                    sums[u'Φορολογητέο Ποσό'] -= amount
 
             if r['calc_type'] == 1: 
+              #  if r['info'] == None:
                 d_fact = (amount * float(SETTINGS['tax_reduction_factor']))
                 groups[key][types[r['calc_type']]] += d_fact
                 sums[types[r['calc_type']]] += d_fact
 
+            if r['calc_type'] == 3: 
+                groups[key][u'Φορολογητέο Ποσό'] -= amount
+                sums[u'Φορολογητέο Ποσό'] -= amount
+
+
+
         if r['type'] == 'gr': 
-            groups[key][u'Αποδοχές από μισθούς ή συντάξεις'] += amount
-            sums[u'Αποδοχές από μισθούς ή συντάξεις'] += amount
+            groups[key][u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
+            sums[u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
 
             groups[key][u'Φορολογητέο Ποσό'] += amount
             sums[u'Φορολογητέο Ποσό'] += amount
@@ -68,7 +76,7 @@ def calc_reports(emp_reports):
     rows = []
 
     for (cat_id, cat_title), d in groups.items():
-        rows.append([cat_title] + [d.get(h, "-") for h in headers])
+        rows.append([cat_title] + [d.get(h, 0) for h in headers])
     rows.append([u' '] + [u' ' for h in headers])
     rows.append([u'Σύνολα'] + [sums[h] for h in headers])
     headers.insert(0, u'Είδος Αποδοχών ή Συντάξεων') 
@@ -117,13 +125,41 @@ def dict_fetch_all(cursor):
         for row in cursor.fetchall()
     ]
 
+def rprts_from_user(emp_id, year):
+    """ Returns a list of dicts of employee's payments
+    defined in paymentreports from a set of paymentreports 
+    filtered by year and employee.
+    Accepts a year and employee """
+
+    cursor = connection.cursor()
+    sql = """SELECT dide_paymentreport.employee_id, dide_paymentreport.year, 
+            dide_paymentreport.type_id, dide_paymentcategory.id, dide_paymentcategorytitle.title, 
+            dide_paymentcategory.start_date, dide_paymentcategory.end_date, 
+            dide_payment.*, dide_paymentcode.calc_type, dide_paymentcode.group_name, dide_paymentcode.description   
+            FROM dide_paymentreport
+            INNER JOIN dide_paymentcategory
+            ON dide_paymentcategory.paymentreport_id = dide_paymentreport.id
+            INNER JOIN dide_payment
+            ON dide_payment.category_id = dide_paymentcategory.id
+            INNER JOIN dide_paymentcode ON dide_payment.code_id = dide_paymentcode.id
+            INNER JOIN dide_paymentcategorytitle ON dide_paymentcategory.title_id = dide_paymentcategorytitle.id
+            WHERE dide_paymentreport.year = {0}
+            AND dide_paymentreport.employee_id = {1}             
+            AND dide_payment.type IN ('de', 'gr') 
+            ORDER BY dide_payment.type DESC;"""
+
+    s_emp_id = ''.join('%s' % emp_id)
+    s_year = ''.join('%s' % year)
+
+    result = cursor.execute(sql.format(s_year, s_emp_id))
+    return dict_fetch_all(cursor)
+
 
 def rprts_from_file(queryset):
-    """
-    Returns a list of dicts of employees and their payments
+    """ Returns a list of dicts of employees and their payments
     defined in paymentreports from a set of paymentreportfiles.
-    Accepts a queryset of paymentfilenames
-    """
+    Accepts a queryset of paymentfilenames """
+
     cursor = connection.cursor()
     sql = """SELECT dide_paymentreport.employee_id, dide_paymentreport.year, 
             dide_paymentreport.type_id, dide_paymentcategory.id, dide_paymentcategorytitle.title, 
@@ -618,8 +654,12 @@ def generate_pdf_landscape_structure(reports):
             d = [w * cm for x in range(len(line))]
             l = []
             for i in line:
+                
                 if to_float(unicode(i)) is None:
-                    l.append(Paragraph('%s' % i, report_content['Center']))
+                    if i == 0:
+                        l.append(Paragraph('-', report_content['Center']))
+                    else:
+                        l.append(Paragraph('%s' % i, report_content['Center']))
                 else:
                     l.append(Paragraph('%.2f' % round(float(i), 2), report_content['Center']))
             headdata.append(l)

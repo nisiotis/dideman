@@ -2,11 +2,12 @@
 from dideman import settings
 from dideman.dide.employee.decorators import match_required
 from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
-                                 NonPermanent, Employee, Payment, PaymentCode)
+                                 NonPermanent, Employee, Payment, PaymentCode,
+                                 PaymentCode, PaymentCategoryTitle)
 from dideman.dide.util.settings import SETTINGS
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            generate_pdf_landscape_structure,
-                                           reports_calc_amount)
+                                           calc_reports, rprts_from_user)
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -105,9 +106,21 @@ def print_pay(request, id):
 
 @match_required
 def print_mass_pay(request, year):
+    """
+    This function contains the required methods to create a PDF
+    report. It will be merged with the salary app some time 
+    later.
+    """
 
-    rpt = PaymentReport.objects.filter(employee_id=request.session['matched_employee_id'],
-                                       year=year)
+    def sch (c):
+        try:
+            return c.permanent and c.permanent.organization_serving()
+        except:
+            return c.organization_serving()
+        
+    payment_codes = PaymentCode.objects.all()
+    category_titles = PaymentCategoryTitle.objects.all()
+    
     emptype = 0
     emp = Employee.objects.get(id=request.session['matched_employee_id'])
     try:
@@ -122,69 +135,67 @@ def print_mass_pay(request, year):
     except:
         raise
 
-    obj = PaymentCode.objects.all()
-    dict_codes = {c.id: c.description for c in obj}
-    dict_tax_codes = {c.id: c.calc_type for c in obj}
+    emp_payments = rprts_from_user(emp.id, year)
 
-    tax_codes = [c for c in dict_codes.keys()]
+        
 
-    payments_list = []
+    u = set([x['employee_id'] for x in emp_payments])
+    y = {x['employee_id']: x['year'] for x in emp_payments}
+    dict_emp = {c.id: [c.lastname,
+                       c.firstname,
+                       c.vat_number,
+                       c.fathername,
+                       c.address,
+                       c.tax_office,
+                       u'%s' % c.profession,
+                       u'%s' % c.profession.description,
+                       c.telephone_number1,
+                       sch(c)] for c in Employee.objects.filter(id__in=u)}
+            
+    elements = []
+    reports = []
+    for empx in u:
+        r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, emp_payments))
+        import operator
+        hd = r_list[0]
+        ft = [r_list[-2]] + [r_list[-1]]
+        dt = r_list
+        del dt[0]
+        del dt[-2]
+        del dt[-1]
+        newlist = []
+        output = dict()
+        for sublist in dt:
+            try:
+                output[sublist[0]] = map(operator.add, output[sublist[0]], sublist[1:])
+            except KeyError:
+                output[sublist[0]] = sublist[1:]
+        for key in output.keys():
+            newlist.append([key] + output[key])
+        newlist.sort(key=lambda x: x[0], reverse=True)
+        r_list = [hd] + newlist + ft
+        #import pdb; pdb.set_trace()
+        
+        report = {}
+        report['report_type'] = '1'
+        report['type'] = ''
+        report['year'] = y[empx]
+        report['emp_type'] = 0
+        report['vat_number'] = dict_emp[empx][2]
+        report['lastname'] = dict_emp[empx][0]
+        report['firstname'] = dict_emp[empx][1]
+        report['fathername'] = dict_emp[empx][3]
+        report['address'] = dict_emp[empx][4]
+        report['tax_office'] = dict_emp[empx][5]
+        report['profession'] = ' '.join([dict_emp[empx][6], dict_emp[empx][7]])
+        report['telephone_number1'] = dict_emp[empx][8]      
+        report['rank'] = None
+        report['net_amount1'] = ''
+        report['net_amount2'] = ''
+        report['organization_serving'] = dict_emp[empx][9]
+        report['payment_categories'] = r_list
+        reports.append(report)
 
-    for o in rpt:
-        if o.type_id > 15:
-            taxed_list = [p.code_id for p in Payment.objects.select_related().filter(category__paymentreport=o.id,
-                                                                                     code__calc_type=1)]
-            if taxed_list:
-                for p in Payment.objects.select_related().filter(category__paymentreport=o.id):
-                    payments_list.append({'code_id': p.code_id, 'type': p.type, 'amount': p.amount})
-        else:
-            for p in Payment.objects.select_related().filter(category__paymentreport=o.id):
-                payments_list.append({'code_id': p.code_id, 'type': p.type, 'amount': p.amount})
-
-    gr, de, et = reports_calc_amount(payments_list, tax_codes)
-    grd = [{'type': 'gr', 'code_id': x[0], 'amount': x[1]} for x in gr]
-    ded = [{'type': 'de', 'code_id': x[0], 'amount': x[1]} for x in de]
-    etd = [{'type': 'et', 'code_id': x[0], 'amount': x[1]} for x in et]
-
-    calctd_payments_list = [x for x in chain(grd, ded)]
-    report = {}
-
-    report['report_type'] = '1'
-    report['type'] = ''
-    report['year'] = year
-    report['emp_type'] = emptype
-    if emptype == 1:
-        report['registration_number'] = emp.registration_number
-    report['vat_number'] = emp.vat_number
-    report['lastname'] = emp.lastname
-    report['firstname'] = emp.firstname
-    report['fathername'] = emp.fathername
-    report['address'] = emp.address
-    report['tax_office'] = emp.tax_office
-    report['profession'] = emp.profession
-    report['telephone_number1'] = emp.telephone_number1
-    report['rank'] = emp.rank()
-    report['net_amount1'] = ''
-    report['net_amount2'] = ''
-
-    pay_cat_list = []
-    pay_cat_dict = {}
-    pay_cat_dict['title'] = u'Επιμέρους Σύνολα'
-    pay_cat_dict['month'] = ''
-    pay_cat_dict['year'] = ''
-    pay_cat_dict['start_date'] = ''
-    pay_cat_dict['end_date'] = ''
-    pay_cat_dict['payments'] = []
-    for o in calctd_payments_list:
-        p = {}
-        p['type'] = o['type']
-        p['code'] = dict_codes[o['code_id']]
-        p['amount'] = o['amount']
-        p['info'] = None
-        p['code_tax'] = dict_tax_codes[o['code_id']]
-        pay_cat_dict['payments'].append(p)
-    pay_cat_list.append(pay_cat_dict)
-    report['payment_categories'] = pay_cat_list
 
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=pay_report_%s.pdf' % year
@@ -198,16 +209,18 @@ def print_mass_pay(request, year):
     doc.bottomMargin = 0.5 * cm
     doc.leftMargin = 1.5 * cm
     doc.rightMargin = 1.5 * cm
-
     doc.pagesize = landscape(A4) 
+        
     if year == '2012':
         style = getSampleStyleSheet()
         style.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                  fontName='DroidSans', fontSize=12))
         elements = [Paragraph(u'ΠΑΡΑΚΑΛΟΥΜΕ ΑΠΕΥΘΥΝΘΕΙΤΕ ΣΤΗΝ ΥΠΗΡΕΣΙΑ ΓΙΑ ΤΗΝ ΜΙΣΘΟΛΟΓΙΚΗ ΚΑΤΑΣΤΑΣΗ ΤΟΥ 2012', style['Center'])]
     else:    
-        elements = generate_pdf_landscape_structure([report])
+        elements = generate_pdf_landscape_structure(reports)
     
+
+
     doc.build(elements)
     return response
 
