@@ -410,6 +410,30 @@ class FieldAction(object):
                                 current_app=modeladmin.admin_site.name)
 
 
+class ShowMassReports(object):
+    def __init__(self, short_description):
+        self.short_description = short_description
+        self.__name__ = 'show_mass_reports'
+
+    def __call__(self, modeladmin, request, queryset):
+        queryset.update(show_mass_pay=True)
+
+        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+        modeladmin.message_user(request, msg)
+
+
+class HideMassReports(object):
+    def __init__(self, short_description):
+        self.short_description = short_description
+        self.__name__ = 'hide_mass_reports'
+
+    def __call__(self, modeladmin, request, queryset):
+        queryset.update(show_mass_pay=False)
+
+        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+        modeladmin.message_user(request, msg)
+
+
 class EmployeeBecome(object):
     def __init__(self, short_description, to_model):
         self.short_description = short_description

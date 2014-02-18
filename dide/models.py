@@ -514,6 +514,7 @@ class Employee(models.Model):
     study_years = models.IntegerField(u'Έτη φοίτησης', max_length=1, null=True, blank=True, 
         choices=[(x, str(x)) for x in range(2, 7)])
     notes = models.TextField(u'Σημειώσεις', blank=True, default='')
+    show_mass_pay = models.BooleanField(u'Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', default=True)
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
 
     def profession_description(self):

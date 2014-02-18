@@ -28,7 +28,8 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
 from actions import (CSVReport, FieldAction, XMLReadAction,
-                     CreatePDF, DeleteAction, timestamp, EmployeeBecome)
+                     CreatePDF, DeleteAction, timestamp, EmployeeBecome,
+                     HideMassReports, ShowMassReports)
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
@@ -248,7 +249,7 @@ economic_fieldset = (u'Οικονομικά στοιχεία', {
         'fields': ['vat_number', 'tax_office', 'bank', 'bank_account_number',
                    'iban', 'social_security_registration_number', 'before_93',
                    'has_family_subsidy', 'other_social_security',
-                   'organization_paying']})
+                   'organization_paying', 'show_mass_pay']})
 
 
 to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
@@ -285,7 +286,9 @@ class EmployeeAdmin(DideAdmin):
                        'date_created', 'profession_description']
     list_max_show_all = 10000
     list_per_page = 50
-    actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False)]
+    actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
+               ShowMassReports(u'Εμφάνιση Μισθοδοτιών Καταστάσεων'),               
+               HideMassReports(u'Απόκρυψη Μισθοδοτιών Καταστάσεων')]
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):

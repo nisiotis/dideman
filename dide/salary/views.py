@@ -3,7 +3,7 @@ from dideman import settings
 from dideman.dide.employee.decorators import match_required
 from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
                                  NonPermanent, Employee, Payment, PaymentCode,
-                                 PaymentCode, PaymentCategoryTitle)
+                                 Administrative, PaymentCategoryTitle)
 from dideman.dide.util.settings import SETTINGS
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            generate_pdf_landscape_structure,
@@ -30,34 +30,36 @@ import os
 
 @match_required
 def print_pay(request, id):
+    non_p = 1
     rpt = PaymentReport.objects.get(pk=id)
-    emptype = 0
     if request.session['matched_employee_id'] == rpt.employee_id:
         emp = Employee.objects.get(id=request.session['matched_employee_id'])
         try:
-            emp = Permanent.objects.get(parent_id=emp.id)
-            emptype = 1
+            emptype = Permanent.objects.get(parent_id=emp.id)
         except Permanent.DoesNotExist:
-            emp = NonPermanent.objects.get(parent_id=emp.id)
-            emptype = 2
-        except NonPermanent.DoesNotExist:
-            emptype = 0
-            raise
+            try:
+                emptype = NonPermanent.objects.get(parent_id=emp.id)
+                non_p = 0
+            except NonPermanent.DoesNotExist:
+                try:
+                    emptype = Administrative.objects.get(parent_id=emp.id)
+                except Administrative.DoesNotExist:
+                    emptype = 0
         except:
             raise
     else:
         request.session.clear()
         return HttpResponseRedirect(
             '/employee/match/?next=/salary/view/')
-
+    print emptype
     dict_tax_codes = {c.id: c.calc_type for c in PaymentCode.objects.all()}
     report = {}
     report['report_type'] = '0'
     report['type'] = rpt.type
     report['year'] = rpt.year
-    report['emp_type'] = emptype
-    if emptype == 1:
-        report['registration_number'] = emp.registration_number
+    report['emp_type'] = non_p
+    if non_p == 1:
+        report['registration_number'] = emptype.registration_number
     report['vat_number'] = emp.vat_number
     report['lastname'] = emp.lastname
     report['firstname'] = emp.firstname
@@ -120,18 +122,17 @@ def print_mass_pay(request, year):
         
     payment_codes = PaymentCode.objects.all()
     category_titles = PaymentCategoryTitle.objects.all()
-    
-    emptype = 0
     emp = Employee.objects.get(id=request.session['matched_employee_id'])
     try:
-        emp = Permanent.objects.get(parent_id=emp.id)
-        emptype = 1
+        emptype = Permanent.objects.get(parent_id=emp.id)
     except Permanent.DoesNotExist:
-        emp = NonPermanent.objects.get(parent_id=emp.id)
-        emptype = 2
-    except NonPermanent.DoesNotExist:
-        emptype = 0
-        raise
+        try:
+            emptype = NonPermanent.objects.get(parent_id=emp.id)
+        except NonPermanent.DoesNotExist:
+            try:
+                emptype = Administrative.objects.get(parent_id=emp.id)
+            except Administrative.DoesNotExist:
+                emptype = 0
     except:
         raise
 
@@ -174,7 +175,6 @@ def print_mass_pay(request, year):
             newlist.append([key] + output[key])
         newlist.sort(key=lambda x: x[0], reverse=True)
         r_list = [hd] + newlist + ft
-        #import pdb; pdb.set_trace()
         
         report = {}
         report['report_type'] = '1'
@@ -249,10 +249,13 @@ def view(request):
         try:
             emptype = Permanent.objects.get(parent_id=emp.id)
         except Permanent.DoesNotExist:
-            emptype = NonPermanent.objects.get(parent_id=emp.id)
-        except NonPermanent.DoesNotExist:
-            emptype = 0
-            raise
+            try:
+                emptype = NonPermanent.objects.get(parent_id=emp.id)
+            except NonPermanent.DoesNotExist:
+                try:
+                    emptype = Administrative.objects.get(parent_id=emp.id)
+                except Administrative.DoesNotExist:
+                    emptype = 0
         except:
             raise
 
@@ -276,7 +279,7 @@ def view(request):
             pay_page = paginator.page(1)
         except EmptyPage:
             pay_page = paginator.page(paginator.num_pages)
-
+        print emptype.show_mass_pay, SETTINGS['show_mass_reports']
         return render_to_response('salary/salary.html',
                                   RequestContext(request, {'emp': emptype,
                                                            'yearly_reports': per_year,

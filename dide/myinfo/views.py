@@ -2,7 +2,8 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, NonPermanent, Employee, Placement,
-                                 EmployeeLeave, Application, EmployeeResponsibility)
+                                 EmployeeLeave, Application, EmployeeResponsibility,
+                                 Administrative)
 from dideman.dide.employee.decorators import match_required
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
@@ -64,10 +65,13 @@ def edit(request):
         try:
             emptype = Permanent.objects.get(parent_id=emp.id)
         except Permanent.DoesNotExist:
-            emptype = NonPermanent.objects.get(parent_id=emp.id)
-        except NonPermanent.DoesNotExist:
-            emptype = 0
-            raise
+            try:
+                emptype = NonPermanent.objects.get(parent_id=emp.id)
+            except NonPermanent.DoesNotExist:
+                try:
+                    emptype = Administrative.objects.get(parent_id=emp.id)
+                except Administrative.DoesNotExist:
+                    emptype = 0
         except:
             raise
 

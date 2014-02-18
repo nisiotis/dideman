@@ -67,12 +67,14 @@ $(function() {
  	<div id="main-list-div">
  	  <div id="left-list-div">Αποδοχές</div>
  	  <div id="right-list-div">
+	    {% if emp.show_mass_pay %}
  		<select id="totalreports" style="font-size: 11px; font-family: 'Lucida Grande΄', Verdana, Arial, sans-serif;">
         	<option value="0" selected="">Έκδοση συγκεντρωτικής...</option>
       		{% for opt in yearly_reports %}
       		<option value="{{opt}}">Μισθοδοτικής κατάστασης {{opt}}</option>
       		{% endfor %}
       		</select>
+	    {% endif %}
   	  </div>
   	</div>
       {% if payments %}
