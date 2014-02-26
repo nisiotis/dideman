@@ -24,6 +24,7 @@ from reportlab.platypus import Paragraph, Image, Table
 from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
 from itertools import chain
+import operator
 import datetime
 import os
 
@@ -157,7 +158,6 @@ def print_mass_pay(request, year):
     reports = []
     for empx in u:
         r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, emp_payments))
-        import operator
         hd = r_list[0]
         ft = [r_list[-2]] + [r_list[-1]]
         dt = r_list

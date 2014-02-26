@@ -2,7 +2,8 @@
 from cStringIO import StringIO
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            generate_pdf_landscape_structure,
-                                           calc_reports, rprts_from_file)
+                                           calc_reports, rprts_from_file, 
+                                           rprts_from_user)
 from dideman import settings
 from dideman.dide.util import xml
 from dideman.dide.util.settings import SETTINGS
@@ -31,7 +32,7 @@ from reportlab.platypus import Paragraph, Image, Table
 from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
 from itertools import chain
-
+import operator
 import csv
 import datetime
 import inspect
@@ -264,6 +265,69 @@ class CSVReport(TemplateAction):
         self.response.close()
         self.response.flush()
         return self.response
+
+
+class CSVEconomicsReport(TemplateAction):
+
+    def __init__(self, short_description=u'Εξαγωγή λίστας ΚΕΠΥΟ %s' % str(datetime.date.today().year - 1),
+                 fields=None, add=None, exclude=None):
+        self.fields = fields
+        self.add = add
+        self.exclude = exclude
+        super(CSVEconomicsReport, self).__init__(short_description, None, 'csv')
+
+    def __call__(self, modeladmin, request, queryset, *args, **kwargs):
+        self.response = HttpResponse()
+        self.merge_fields(modeladmin, self.add, self.exclude)
+        writer = csv.writer(self.response, delimiter=';', quotechar='"',
+                            quoting=csv.QUOTE_NONNUMERIC)
+        descriptions = [
+            self.convert_to_string(
+                self.get_description(modeladmin.model, field),
+                encode_in_iso=True)
+            for field in self.fields]
+        writer.writerow(descriptions)
+        for obj in queryset:
+            emp_payments = rprts_from_user(obj.id, datetime.date.today().year - 1)
+            
+            
+            
+            u = set([x['employee_id'] for x in emp_payments])
+            y = {x['employee_id']: x['year'] for x in emp_payments}
+            dict_emp = {c.id: [c.lastname, c.firstname,
+                               c.vat_number] for c in Employee.objects.filter(id__in=u)}
+            
+            elements = []
+            reports = []
+            for empx in u:
+                r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, emp_payments))
+
+            hd = r_list[0]
+            ft = [r_list[-2]] + [r_list[-1]]
+            dt = r_list
+            del dt[0]
+            del dt[-2]
+            del dt[-1]
+            newlist = []
+            output = dict()
+            for sublist in dt:
+                try:
+                    output[sublist[0]] = map(operator.add, output[sublist[0]], sublist[1:])
+                except KeyError:
+                    output[sublist[0]] = sublist[1:]
+            for key in output.keys():
+                newlist.append([key] + output[key])
+            newlist.sort(key=lambda x: x[0], reverse=True)
+            r_list = [hd] + newlist + ft
+
+#            row = [self.field_string_value(obj, f, encode_in_iso=True)
+#                   for f in self.fields]
+#            writer.writerow(row)
+        self.add_response_headers()
+        self.response.close()
+        self.response.flush()
+        return self.response
+
 
 
 class CreatePDF(object):

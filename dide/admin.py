@@ -27,7 +27,7 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
                     ApplicationChoice, ApplicationType, SchoolCommission)
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
-from actions import (CSVReport, FieldAction, XMLReadAction,
+from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
                      CreatePDF, DeleteAction, timestamp, EmployeeBecome,
                      HideMassReports, ShowMassReports)
 from reports.permanent import permanent_docx_reports
@@ -288,7 +288,8 @@ class EmployeeAdmin(DideAdmin):
     list_per_page = 50
     actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
                ShowMassReports(u'Εμφάνιση Μισθοδοτιών Καταστάσεων'),               
-               HideMassReports(u'Απόκρυψη Μισθοδοτιών Καταστάσεων')]
+               HideMassReports(u'Απόκρυψη Μισθοδοτιών Καταστάσεων'),
+               CSVEconomicsReport(add=[])]
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
