@@ -32,6 +32,8 @@ from reportlab.platypus import Paragraph, Image, Table
 from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
 from itertools import chain
+from collections import defaultdict
+from itertools import groupby
 import operator
 import csv
 import datetime
@@ -281,17 +283,12 @@ class CSVEconomicsReport(TemplateAction):
         self.merge_fields(modeladmin, self.add, self.exclude)
         writer = csv.writer(self.response, delimiter=';', quotechar='"',
                             quoting=csv.QUOTE_NONNUMERIC)
-        descriptions = [
-            self.convert_to_string(
-                self.get_description(modeladmin.model, field),
-                encode_in_iso=True)
-            for field in self.fields]
-        writer.writerow(descriptions)
+        final = defaultdict(list)
+        all_types = PaymentCategoryTitle.objects.all()
+
+        emp_dict = {}
         for obj in queryset:
-            emp_payments = rprts_from_user(obj.id, datetime.date.today().year - 1)
-            
-            
-            
+            emp_payments = rprts_from_user(obj.id, datetime.date.today().year - 1)            
             u = set([x['employee_id'] for x in emp_payments])
             y = {x['employee_id']: x['year'] for x in emp_payments}
             dict_emp = {c.id: [c.lastname, c.firstname,
@@ -319,10 +316,62 @@ class CSVEconomicsReport(TemplateAction):
                 newlist.append([key] + output[key])
             newlist.sort(key=lambda x: x[0], reverse=True)
             r_list = [hd] + newlist + ft
+            emp_dict[obj.vat_number] = [hd] + newlist
+        
+        data = []
+        dtFrame = []
+        for emp, values in emp_dict.iteritems():
+            localhd = values[0]
+            r = range(len(localhd))
+        
+            fin = defaultdict(list)
+            for row in values[1:]:
+                for i in r:
+                    fin[localhd[i]].append(unicode(row[i]))
+            data.append({emp: fin})
 
-#            row = [self.field_string_value(obj, f, encode_in_iso=True)
-#                   for f in self.fields]
-#            writer.writerow(row)
+        for data_rows in data:
+            for i in data_rows:
+                for head_item in data_rows[i]:
+                    dtFrame.append([i, head_item, data_rows[i][head_item]])
+        worklist = []
+        finallist = [u'Εργαζόμενος', ]
+
+        for e in dtFrame:
+            if e[1] == u'Είδος Αποδοχών ή Συντάξεων' or e[1] == u'1. Αποδοχές από μισθούς ή συντάξεις' \
+            or e[1] == u'9. Εισφορά αλληλεγγύης' or e[1] == u'Σύνολο Κρατήσεων' \
+            or e[1] == u'Φορολογητέο Ποσό' or e[1] == u'Φόρος που αναλογεί' or e[1] == u'7. Απεργία':
+                worklist.append(e)
+                if len(finallist) < 7:
+                    finallist.append(e[1])
+        finallist = [finallist]        
+        for k, g in groupby(worklist, lambda x: x[0]):
+            t=zip(*(i[-1] for i in g))
+            for i in t:
+                finallist.append([k]+list(i))
+
+            
+        row = []
+        for item in finallist[0]:
+            if isinstance(item, unicode):
+                row.append(item.encode('iso8859-7', 'ignore'))
+            elif hasattr(item, '__unicode__'):
+                row.append(unicode(item).encode('iso8859-7', 'ignore'))
+            else:
+                row.append(str(item))
+        
+        writer.writerow(row)
+        row = []
+
+        for eachrow in finallist[1:]:
+            for item in eachrow:
+                if type(item) is float or type(item) is long:
+                    row.append(item)
+                else:
+                    row.append(unicode(item).encode('iso8859-7', 'ignore'))
+            
+            writer.writerow(row)
+            row = []
         self.add_response_headers()
         self.response.close()
         self.response.flush()

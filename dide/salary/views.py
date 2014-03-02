@@ -175,7 +175,6 @@ def print_mass_pay(request, year):
             newlist.append([key] + output[key])
         newlist.sort(key=lambda x: x[0], reverse=True)
         r_list = [hd] + newlist + ft
-        
         report = {}
         report['report_type'] = '1'
         report['type'] = ''
