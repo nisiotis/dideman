@@ -64,15 +64,18 @@ def calc_reports(emp_reports):
 
     headers = list(headers)
     headers.sort()
-    headers.remove(types[2])
-    headers.append(types[2])
-    headers.remove(u'Φορολογητέο Ποσό')
-    headers.append(u'Φορολογητέο Ποσό')
-    headers.remove(types[1])
-    headers.append(types[1])
-    headers.remove(u'Φόρος που παρακρατήθηκε')
-    headers.append(u'Φόρος που παρακρατήθηκε')
+    try:
+        headers.remove(types[2])
+        headers.append(types[2])
+        headers.remove(u'Φορολογητέο Ποσό')
+        headers.append(u'Φορολογητέο Ποσό')
+        headers.remove(types[1])
+        headers.append(types[1])
+        headers.remove(u'Φόρος που παρακρατήθηκε')
+        headers.append(u'Φόρος που παρακρατήθηκε')
 
+    except:
+        pass
     rows = []
 
     for (cat_id, cat_title), d in groups.items():

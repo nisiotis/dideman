@@ -290,9 +290,10 @@ class CSVEconomicsReport(TemplateAction):
         for obj in queryset:
             emp_payments = rprts_from_user(obj.id, datetime.date.today().year - 1)            
             u = set([x['employee_id'] for x in emp_payments])
-            y = {x['employee_id']: x['year'] for x in emp_payments}
-            dict_emp = {c.id: [c.lastname, c.firstname,
-                               c.vat_number] for c in Employee.objects.filter(id__in=u)}
+            #y = {x['employee_id']: x['year'] for x in emp_payments}
+            #dict_emp = {c.id: [c.lastname, c.firstname,
+            #                   c.vat_number] for c in Employee.objects.filter(id__in=u)}
+            dict_emp = {obj.id: [obj.lastname, obj.firstname, obj.vat_number]}
             
             elements = []
             reports = []
