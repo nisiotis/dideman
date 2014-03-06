@@ -167,7 +167,7 @@ leave_docx_reports = [
 
     LeaveDocxReport(u'Ανατροφής (__ου πολύδυμου)', 'polidimou.xml',
                     custom_context={'subject':
-                                        u'Χορήγηση άδειας ανατροφής τέκνου (τρίμηνη __ου πολύδυμου)'}),
+                                        u'Χορήγηση άδειας ανατροφής τέκνου (6άμηνη __ου πολύδυμου)'}),
     LeaveDocxReport(u'Υιοθεσίας (Τρίμηνη)', 'trimini_yiothesias.xml',
                     custom_context={'subject':
                                         u'Χορήγηση τρίμηνης άδειας υιοθεσίας'}),
