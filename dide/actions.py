@@ -12,7 +12,7 @@ from django.contrib.admin import helpers
 from django.contrib.admin.util import get_deleted_objects, model_ngettext
 from django.core.exceptions import PermissionDenied
 from django.db import router
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render
 from django.template import Context, loader, Template
 from django.template.response import TemplateResponse
@@ -279,10 +279,10 @@ class CSVEconomicsReport(TemplateAction):
         super(CSVEconomicsReport, self).__init__(short_description, None, 'csv')
 
     def __call__(self, modeladmin, request, queryset, *args, **kwargs):
-        self.response = HttpResponse()
-        self.merge_fields(modeladmin, self.add, self.exclude)
-        writer = csv.writer(self.response, delimiter=';', quotechar='"',
-                            quoting=csv.QUOTE_NONNUMERIC)
+        #self.response = HttpResponse()
+        #self.merge_fields(modeladmin, self.add, self.exclude)
+        #writer = csv.writer(self.response, delimiter=';', quotechar='"',
+        #                    quoting=csv.QUOTE_NONNUMERIC)
         final = defaultdict(list)
         all_types = PaymentCategoryTitle.objects.all()
 
@@ -290,9 +290,6 @@ class CSVEconomicsReport(TemplateAction):
         for obj in queryset:
             emp_payments = rprts_from_user(obj.id, datetime.date.today().year - 1)            
             u = set([x['employee_id'] for x in emp_payments])
-            #y = {x['employee_id']: x['year'] for x in emp_payments}
-            #dict_emp = {c.id: [c.lastname, c.firstname,
-            #                   c.vat_number] for c in Employee.objects.filter(id__in=u)}
             dict_emp = {obj.id: [obj.lastname, obj.firstname, obj.vat_number]}
             
             elements = []
@@ -335,44 +332,60 @@ class CSVEconomicsReport(TemplateAction):
             for i in data_rows:
                 for head_item in data_rows[i]:
                     dtFrame.append([i, head_item, data_rows[i][head_item]])
-        worklist = []
-        finallist = [u'Εργαζόμενος', ]
+        #worklist = []
+        #finallist = [u'Εργαζόμενος', ]
+        import pandas as pd
+        dfA = pd.DataFrame(dtFrame)
+        dfA.columns = [u'Εργαζόμενος','field','data']
 
-        for e in dtFrame:
-            if e[1] == u'Είδος Αποδοχών ή Συντάξεων' or e[1] == u'1. Αποδοχές από μισθούς ή συντάξεις' \
-            or e[1] == u'9. Εισφορά αλληλεγγύης' or e[1] == u'Σύνολο Κρατήσεων' \
-            or e[1] == u'Φορολογητέο Ποσό' or e[1] == u'Φόρος που αναλογεί' or e[1] == u'7. Απεργία':
-                worklist.append(e)
-                if len(finallist) < 7:
-                    finallist.append(e[1])
-        finallist = [finallist]        
-        for k, g in groupby(worklist, lambda x: x[0]):
-            t=zip(*(i[-1] for i in g))
-            for i in t:
-                finallist.append([k]+list(i))
+        dfB = dfA.groupby(u'Εργαζόμενος').apply(
+            lambda grp: pd.DataFrame(zip(*grp['data']), columns=grp['field']))
+        dfB.index = dfB.index.droplevel(-1)
+#        import pdb; pdb.set_trace()
+#        for e in dtFrame:
+#            if e[1] == u'Είδος Αποδοχών ή Συντάξεων' or e[1] == u'1. Αποδοχές από μισθούς ή συντάξεις' \
+#            or e[1] == u'9. Εισφορά αλληλεγγύης' or e[1] == u'Σύνολο Κρατήσεων' \
+#            or e[1] == u'Φορολογητέο Ποσό' or e[1] == u'Φόρος που αναλογεί' or e[1] == u'7. Απεργία':
+#                worklist.append(e)
+#                if len(finallist) < 7:
+#                    finallist.append(e[1])
+#        finallist = [finallist]        
+#        for k, g in groupby(worklist, lambda x: x[0]):
+#            t=zip(*(i[-1] for i in g))
+#            for i in t:
+#                finallist.append([k]+list(i))
 
             
-        row = []
-        for item in finallist[0]:
-            if isinstance(item, unicode):
-                row.append(item.encode('iso8859-7', 'ignore'))
-            elif hasattr(item, '__unicode__'):
-                row.append(unicode(item).encode('iso8859-7', 'ignore'))
-            else:
-                row.append(str(item))
+#        row = []
+#        for item in finallist[0]:
+#            if isinstance(item, unicode):
+#                row.append(item.encode('iso8859-7', 'ignore'))
+#            elif hasattr(item, '__unicode__'):
+#                row.append(unicode(item).encode('iso8859-7', 'ignore'))
+#            else:
+#                row.append(str(item))
         
-        writer.writerow(row)
-        row = []
+#        writer.writerow(row)
+#        row = []
 
-        for eachrow in finallist[1:]:
-            for item in eachrow:
-                if type(item) is float or type(item) is long:
-                    row.append(item)
-                else:
-                    row.append(unicode(item).encode('iso8859-7', 'ignore'))
+#        for eachrow in finallist[1:]:
+#            for item in eachrow:
+#                if type(item) is float or type(item) is long:
+#                    row.append(item)
+#                else:
+#                    row.append(unicode(item).encode('iso8859-7', 'ignore'))
             
-            writer.writerow(row)
-            row = []
+#            writer.writerow(row)
+#            row = []
+        
+
+#        import pdb; pdb.set_trace()
+
+        data = StringIO()
+        dfB.to_csv(data, sep=';', encoding='utf-8')
+        
+        self.response = HttpResponse(data.getvalue(), mimetype='text/csv')
+        #import pdb; pdb.set_trace()
         self.add_response_headers()
         self.response.close()
         self.response.flush()
