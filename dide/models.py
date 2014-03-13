@@ -514,7 +514,7 @@ class Employee(models.Model):
     study_years = models.IntegerField(u'Έτη φοίτησης', max_length=1, null=True, blank=True, 
         choices=[(x, str(x)) for x in range(2, 7)])
     notes = models.TextField(u'Σημειώσεις', blank=True, default='')
-    show_mass_pay = models.BooleanField(u'Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', default=True)
+    show_mass_pay = models.NullBooleanField(u'Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', null=True, blank=True, default=True)
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
 
     def profession_description(self):
@@ -896,8 +896,9 @@ PROMOTION_CHOICES = [(x, x) for x in [u'ΣΤ0', u'Ε4', u'Ε3', u'Ε2', u'Ε1',
                                       u'Ε0', u'Δ4', u'Δ3', u'Δ2', u'Δ1',
                                       u'Δ0', u'Γ4', u'Γ3', u'Γ2', u'Γ1',
                                       u'Γ0', u'Β7', u'Β6', u'Β5', u'Β4',
-                                      u'Β3', u'Β2', u'Β1', u'Β0', u'Α5',
-                                      u'Α4', u'Α3', u'Α2', u'Α1', u'Α0']]
+                                      u'Β3', u'Β2', u'Β1', u'Β0', u'Α7',
+                                      u'Α6', u'Α5', u'Α4', u'Α3', u'Α2',
+                                      u'Α1', u'Α0']]
 
 
 class AdministrativeManager(models.Manager):
