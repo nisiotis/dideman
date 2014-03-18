@@ -542,10 +542,9 @@ class NonPermanentAdmin(EmployeeAdmin):
                    SubstituteOrderFilter, 'profession__unified_profession',
                    NonPermanentOrganizationServingFilter,
                    NonPermanentWithTotalExtraPosition]
-    actions = sorted([
-        CSVReport(add=['current_placement', 'organization_serving', 'profession__description']),
-       
-        ] + nonpermanent_docx_reports, key=lambda k: k.short_description)
+    actions = sorted([to_permanent, to_administrative, to_private_teacher,
+                    CSVReport(add=['current_placement', 'organization_serving', 'profession__description']),
+                  ] + nonpermanent_docx_reports, key=lambda k: k.short_description)
 
 
 class SchoolTypeAdmin(DideAdmin):
