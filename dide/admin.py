@@ -342,6 +342,7 @@ class PermanentAdmin(EmployeeAdmin):
                                                TemporaryPostFilter,
                                                ServingTypeFilter,
                                                ServesInDideSchoolFilter,
+                                               PaidFromDide,
                                                ServesInDideOrgFilter,
                                                OnServiceFilter,
                                                'has_permanent_post',
@@ -357,7 +358,7 @@ class PermanentAdmin(EmployeeAdmin):
     fieldsets = [
         ('Γενικά Στοιχεία', {
             'fields': [
-                    'transfer_area',
+                'transfer_area',
                     'lastname', 'firstname', 'fathername', 'notes',
                     'sex', 'registration_number', 'profession',
                     'profession_description', 'permanent_post',

@@ -479,7 +479,7 @@ class Employee(models.Model):
         ordering = ['lastname']
 
     objects = EmployeeManager()
-
+ 
     firstname = models.CharField(u'Όνομα', max_length=100)
     lastname = models.CharField(u'Επώνυμο', max_length=100)
     fathername = models.CharField(u'Όνομα Πατέρα', max_length=100)
@@ -560,13 +560,13 @@ class Employee(models.Model):
 
     def no_pay_in_years(self):
         """Returns a dict of {year: sum_of_no_pay_days } form"""
-        leaves = self.employeeleave_set.filter(leave__not_paying=True)  
-        today = datetime.date.today()  
+        leaves = self.employeeleave_set.filter(leave__not_paying=True)
+        today = datetime.date.today()
         sub = sum([(l.date_to - today).days for l in leaves if l.date_to > today])
         seq = reduce(concat, [l.split() for l in leaves], tuple())
         groups = [(k, sum(map(itemgetter(1), g)))
-                for k, g in groupby(sorted(seq), key=itemgetter(0))]
-        return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]        
+                  for k, g in groupby(sorted(seq), key=itemgetter(0))]
+        return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]
 
     def calculable_no_pay(self):
         return sum([max(days - 30, 0)
@@ -588,7 +588,6 @@ class Employee(models.Model):
         cursor.execute(query)
         transaction.commit_unless_managed()
 
-
     def subclass(self):
         for attr in ["administrative", "permanent", "nonnermanent", "privateteacher"]:
             try:
@@ -596,7 +595,6 @@ class Employee(models.Model):
             except:
                 continue
         return None
-
 
     def normal_leave_days(self):
         raise NotImplementedError

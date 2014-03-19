@@ -308,6 +308,23 @@ class ServesInDideSchoolFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
+class PaidFromDide(ModifierSimpleListFilter):
+    title = u'Μισθοδοτείται από την Δ.Δ.Ε.'
+    parameter_name = 'paid_from_dde'
+
+    def lookups(self, request, model_admin):
+        return(('1', _('Yes')), ('2', _('No')))
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            if val == '1':
+                return queryset.filter(organization_paying_id=178)
+            elif val == '2':
+                return queryset.exclude(organization_paying_id=178)
+        else:
+            return queryset
+
 
 class ServesInDideOrgFilter(ModifierSimpleListFilter):
     title = u'Υπηρετεί σε σχολείο/φορέα της Δ.Δ.Ε.'
