@@ -96,6 +96,15 @@ leave_docx_reports = [
                                     u'Χορήγηση άδειας χωρίς αποδοχές'
                                     u' για ανατροφή παιδιού'}),
 
+    LeaveDocxReport(u'Ανατροφής (4 μηνών - Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay_4_mines.xml',
+                    custom_context={'subject':
+                                    u'Χορήγηση άδειας χωρίς αποδοχές για ανατροφή παιδιού (4 μηνών).'}),
+
+    LeaveDocxReport(u'Ανατροφής (Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay_4_mines.xml',
+                    custom_context={'subject':
+                                    u'Χορήγηση άδειας χωρίς αποδοχές'
+                                    u' για ανατροφή παιδιού'}),
+
     LeaveDocxReport(u'Ειδική Άδεια αιρετών μελών Ο.Τ.Α. άνευ αποδοχών',
                     'adeia_eidiki_airetoi_no_pay.xml',
                     custom_context={'subject':

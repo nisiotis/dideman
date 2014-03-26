@@ -308,23 +308,6 @@ class ServesInDideSchoolFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
-class PaidFromDide(ModifierSimpleListFilter):
-    title = u'Μισθοδοτείται από την Δ.Δ.Ε.'
-    parameter_name = 'paid_from_dde'
-
-    def lookups(self, request, model_admin):
-        return(('1', _('Yes')), ('2', _('No')))
-
-    def filter_param(self, queryset, query_dict):
-        val = query_dict.get(self.parameter_name, None)
-        if val:
-            if val == '1':
-                return queryset.filter(organization_paying_id=178)
-            elif val == '2':
-                return queryset.exclude(organization_paying_id=178)
-        else:
-            return queryset
-
 
 class ServesInDideOrgFilter(ModifierSimpleListFilter):
     title = u'Υπηρετεί σε σχολείο/φορέα της Δ.Δ.Ε.'
@@ -355,6 +338,18 @@ class LeaveDateFromFilter(FreeDateFieldListFilter):
         else:
             return queryset.filter(date_from__gte=self.date_from,
                                    date_from__lte=self.date_to)
+
+
+class BirthdateFilter(FreeDateFieldListFilter):
+    title = u'Ημερομηνία Γέννησης'
+    parameter_name = 'bithdate'
+
+    def queryset(self, request, queryset):
+        if [self.date_from, self.date_to] == self.default_date_values():
+            return queryset
+        else:
+            return queryset.filter(birth_date__gte=self.date_from,
+                                   birth_date__lte=self.date_to)
 
 
 class NextPromotionInRangeFilter(FreeDateFieldListFilter):

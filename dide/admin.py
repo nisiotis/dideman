@@ -251,7 +251,6 @@ economic_fieldset = (u'Οικονομικά στοιχεία', {
                    'has_family_subsidy', 'other_social_security',
                    'organization_paying', 'show_mass_pay']})
 
-
 to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
 to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
 to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
@@ -342,13 +341,14 @@ class PermanentAdmin(EmployeeAdmin):
                                                TemporaryPostFilter,
                                                ServingTypeFilter,
                                                ServesInDideSchoolFilter,
-                                               PaidFromDide,
+                                               'organization_paying',
                                                ServesInDideOrgFilter,
                                                OnServiceFilter,
                                                'has_permanent_post',
                                                StudyFilter,
                                                TransferedFilter,
                                                CurrentlyServesFilter,
+                                               BirthdateFilter,
                                                DateHiredFilter,
                                                PaymentStartDateFilter,
                                                NextPromotionInRangeFilter,
