@@ -21,7 +21,7 @@ class PrivateTeacher(dide.Employee):
 
     parent = models.OneToOneField(dide.Employee, parent_link=True)
     school = models.ForeignKey('PrivateSchool', verbose_name=u'Σχολείο', blank=True, null=True)
-    no_pay_days = models.IntegerField(u'Μέρες άδειας άνευ αποδοχών', default=0)
+    not_service_days = models.IntegerField(u'Μέρες εκτός υπηρεσίας', default=0)
     series_number = models.CharField(u'Αρ. Επετηρίδας', max_length=20, blank=True, null=True)
     active = models.BooleanField(u'Ενεργός', default=True)
     current_hours = models.IntegerField(u'Τρέχον ωράριο', null=True, blank=True, default=18)
@@ -62,7 +62,7 @@ class PrivateTeacher(dide.Employee):
                                hours_weekly=self.current_hours, full_week=18)
             periods = list(self.workingperiod_set.all()) + [wp]
             total_experience = self.total_experience(periods)
-        return total_experience - DateInterval(self.no_pay_days)
+        return total_experience - DateInterval(self.not_service_days)
     total_service.short_description = u'Συνολική υπηρεσία'
 
     def rank(self):

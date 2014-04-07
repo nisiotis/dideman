@@ -396,6 +396,7 @@ class Leave(models.Model):
     name = models.CharField(max_length=200, verbose_name=u'Κατηγορία')
     type = models.CharField(max_length=15, verbose_name=u'Τύπος', choices=LEAVE_TYPES)
     not_paying = models.BooleanField(verbose_name=u'Χωρίς αποδοχές')
+    is_service = models.BooleanField(verbose_name=u'Χρόνος κανονικής υπηρεσίας')
     only_working_days = models.BooleanField(verbose_name=u'Μόνο εργάσιμες μέρες')
     orders = models.CharField(u'Διατάξεις', null=True, blank=True, max_length=300)
     description = models.CharField(null=True, blank=True, verbose_name=u'Περιγραφή', max_length=300)
@@ -558,9 +559,9 @@ class Employee(models.Model):
         return self.total_service() - DateInterval(self.non_educational_experience)
     educational_service.short_description = u'Εκπαιδευτική υπηρεσία (για μείωση ωραρίου)'
 
-    def no_pay_in_years(self):
-        """Returns a dict of {year: sum_of_no_pay_days } form"""
-        leaves = self.employeeleave_set.filter(leave__not_paying=True)
+    def not_service_in_years(self):
+        """Returns a dict of {year: sum_of_not_service_days } form"""
+        leaves = self.employeeleave_set.filter(leave__is_service=False)
         today = datetime.date.today()
         sub = sum([(l.date_to - today).days for l in leaves if l.date_to > today])
         seq = reduce(concat, [l.split() for l in leaves], tuple())
@@ -568,10 +569,10 @@ class Employee(models.Model):
                   for k, g in groupby(sorted(seq), key=itemgetter(0))]
         return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]
 
-    def calculable_no_pay(self):
+    def calculable_not_service(self):
         return sum([max(days - 30, 0)
-                    for year, days in self.no_pay_in_years()])
-    calculable_no_pay.short_description = u'Υπολογισμένες ημέρες άδειας άνευ αποδοχών'
+                    for year, days in self.not_service_in_years()])
+    calculable_not_service.short_description = u'Υπολογισμένες ημέρες άδειας εκτός υπηρεσίας'
 
     def totals_per_year(self, year):
         total_y = 0.00
@@ -752,7 +753,7 @@ class Permanent(Employee):
     payment_start_date_manual = models.DateField(u'Μισθολογική αφετηρία (μετά από άδεια)', null=True, blank=True)
     is_permanent = models.NullBooleanField(u'Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
     has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση',null=True, blank=True, default=False)
-    no_pay_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', default=0)
+    not_service_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', default=0)
     currently_serves = models.NullBooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
 
     def total_service(self):
@@ -830,15 +831,15 @@ class Permanent(Employee):
                                         date_from__gte=current_year_date_from()
                                         ).order_by('-date_from')
 
-    def total_no_pay(self):
-        return self.calculable_no_pay() + self.no_pay_existing
+    def total_not_service(self):
+        return self.calculable_not_service() + self.not_service_existing
 
     def payment_start_date_auto(self):
         if not self.date_hired:
             return Date(datetime.date.today())
         return (Date(self.date_hired) -
                 DateInterval(self.recognised_experience) +
-                DateInterval(days=self.total_no_pay()))
+                DateInterval(days=self.total_not_service()))
     payment_start_date_auto.short_description =  u'Μισθολογική αφετηρία (αυτόματη)'
 
     def organization_serving(self):
@@ -921,13 +922,13 @@ class Administrative(Employee):
     payment_start_date_manual = models.DateField(u'Μισθολογική αφετηρία (μετά από άδεια)', null=True, blank=True)
     is_permanent = models.NullBooleanField(u'Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
     has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση', null=True, blank=True, default=False)
-    no_pay_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', null=True, blank=True, default=0)
+    not_service_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', null=True, blank=True, default=0)
     currently_serves = models.NullBooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
 
     def normal_leave_days(self):
         return min(24 + self.total_service().years, 29)
 
-methods = ["total_service", "natural_key", "promotions", "permanent_post", "total_no_pay", "payment_start_date_auto",
+methods = ["total_service", "natural_key", "promotions", "permanent_post", "total_not_service", "payment_start_date_auto",
            "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "__unicode__"]
 
 for m in methods:

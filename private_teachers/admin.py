@@ -37,7 +37,7 @@ class PrivateTeacherAdmin(DideAdmin):
                     'total_experience', 'total_service', 'rank', 'next_rank_date',
                     'school', 'current_placement_date', 'current_hours',
                     'identity_number', 'telephone_number1',
-                    'telephone_number2', 'email', 'birth_date', 'no_pay_days',
+                    'telephone_number2', 'email', 'birth_date', 'not_service_days',
                     'active', 'date_created']}),
         (u'Οικονομικά στοιχεία', {
                 'fields': ['vat_number', 'tax_office', 'bank',

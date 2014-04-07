@@ -374,7 +374,7 @@ class PermanentAdmin(EmployeeAdmin):
                            'recognised_experience',
                            'formatted_recognised_experience',
                            'non_educational_experience',
-                           'calculable_no_pay', 'no_pay_existing',
+                           'calculable_not_service', 'not_service_existing',
                            'total_service',
                            'payment_start_date_auto',
                            'payment_start_date_manual',
@@ -386,7 +386,7 @@ class PermanentAdmin(EmployeeAdmin):
     readonly_fields = EmployeeAdmin.readonly_fields + \
         ['permanent_post', 'temporary_position', 'hours', 'total_service',
          'formatted_recognised_experience', 'payment_start_date_auto',
-         'rank', 'profession_description', 'calculable_no_pay',
+         'rank', 'profession_description', 'calculable_not_service',
          'date_created', 'educational_service']
 
     actions = sorted([to_private_teacher, to_administrative,
@@ -438,7 +438,7 @@ class AdministrativeAdmin(PermanentAdmin):
                     'fields': ['currently_serves',
                                'recognised_experience',
                                'formatted_recognised_experience',
-                               'calculable_no_pay', 'no_pay_existing',
+                               'calculable_not_service', 'not_service_existing',
                                'total_service',
                                'payment_start_date_auto',
                                'payment_start_date_manual',
@@ -449,7 +449,7 @@ class AdministrativeAdmin(PermanentAdmin):
     readonly_fields = EmployeeAdmin.readonly_fields + \
             ['permanent_post', 'total_service',
              'formatted_recognised_experience', 'payment_start_date_auto',
-             'rank', 'profession_description', 'calculable_no_pay',
+             'rank', 'profession_description', 'calculable_not_service',
              'date_created']
 
     actions = sorted([to_permanent, to_private_teacher,
