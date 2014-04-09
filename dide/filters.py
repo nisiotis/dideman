@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from overrides.admin import ModifierSimpleListFilter
 from overrides.admin import DideAdmin
-from django.contrib.admin.filters import SimpleListFilter
+from django.contrib.admin.filters import SimpleListFilter, FieldListFilter
 from models import (Organization, School, Permanent, DegreeCategory,
                     NonPermanent, EmployeeLeave, TransferArea, Island,
                     SubstituteMinistryOrder)
 import django.contrib.admin.views.main as views
 import datetime
 import re
-from dideman.lib.date import current_year_date_to
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -141,6 +140,14 @@ class StudyFilter(ModifierSimpleListFilter):
         else:
             return queryset
 
+class OrganizationPayingFilter(ModifierSimpleListFilter):
+    title = u'Οργανισμός Μισθοδοσίας'
+    parameter_name = 'organization_paying'
+    list_view = False
+
+    def lookups(self, request, model_admin):
+        return [(o.id, o.name) for o in Organization.objects.only('id', 'name').filter(id__in=Permanent.objects.values('organization_paying_id'))]
+
 
 class OrganizationServingFilter(ModifierSimpleListFilter):
     title = u'Σχολείο υπηρεσίας'
@@ -175,8 +182,6 @@ class IslandServingFilter(ModifierSimpleListFilter):
                 Permanent.objects.serving_in_island(int(val))
         else:
             return queryset
-
-
 
 class FreeDateFieldListFilter(SimpleListFilter):
     template_name = 'free_date_filter'

@@ -267,7 +267,7 @@ class EmployeeAdmin(DideAdmin):
     list_display = ['lastname', 'firstname', 'fathername', 'profession',
                     'notes', 'transfer_area', 'organization_serving']
     list_filter = ('profession__unified_profession', 'transfer_area')
-    search_fields = ('lastname', 'identity_number')
+    search_fields = ('lastname', 'identity_number', 'vat_number')
     inlines = [DegreeInline, ChildInline, LoanInline]
     fieldsets = [
         (u'Βασικά στοιχεία', {
@@ -341,7 +341,7 @@ class PermanentAdmin(EmployeeAdmin):
                                                TemporaryPostFilter,
                                                ServingTypeFilter,
                                                ServesInDideSchoolFilter,
-                                               'organization_paying',
+                                               OrganizationPayingFilter,
                                                ServesInDideOrgFilter,
                                                OnServiceFilter,
                                                'has_permanent_post',
