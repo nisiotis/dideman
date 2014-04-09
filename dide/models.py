@@ -138,7 +138,7 @@ class Payment(models.Model):
     info = models.CharField('Σχετικές πληοροφορίες', max_length=255, null=True, blank=True)
 
 
-CALC_TYPES = [(1, u'Φόρος'), (2,u'Ταμείο'), (3,u'Απεργία'), (4,u'Σύνταξη'), (0,u'Άλλο')]
+CALC_TYPES = [(1, u'Φόρος'), (2,u'Ταμείο'), (3,u'Απεργία'), (4,u'Σύνταξη'),  (5,u'Εισφορά'), (0,u'Άλλο')]
 
 
 class PaymentCode(models.Model):

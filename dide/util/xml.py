@@ -29,7 +29,6 @@ def read(file, filerec):
     objects = PaymentCode.objects.all()
     paycodesdic = {o.id for o in objects}
     try:
-        #print 'XML Reading started...'
         start = time()
         element = etree.parse(file)
         sql = ''
@@ -64,7 +63,6 @@ def read(file, filerec):
             el = i.xpath('./xs:identification/xs:amm', namespaces={'xs': ns})
             payemp = p_dic.get(el[0].text)
             if not payemp:
-                #print "Registration not found. Trying vat number. "
                 el = i.xpath('./xs:identification/xs:tin',
                              namespaces={'xs': ns})
                 payemp = e_dic.get(el[0].text)

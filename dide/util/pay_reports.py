@@ -20,8 +20,7 @@ from collections import defaultdict
 
 
 def calc_reports(emp_reports): 
-    
-    types = {1: u'Φόρος που αναλογεί', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 0: 'Δάνειο', 4: ''}
+    types = {1: u'Φόρος που αναλογεί', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 4: u'Σύνταξη', 5:u'Εισφορά', 0: u'Άλλο'}
     groups = defaultdict(lambda : defaultdict(float))
     sums = defaultdict(float)
     d_fact = 0.00
@@ -32,6 +31,12 @@ def calc_reports(emp_reports):
         if r['group_name']:
             groups[key][r['group_name']] += amount
             sums[r['group_name']] += amount
+
+            if r['calc_type'] == 1: 
+                d_fact = (amount * float(SETTINGS['tax_reduction_factor']))
+                groups[key][types[r['calc_type']]] += d_fact
+                sums[types[r['calc_type']]] += d_fact
+
             if r['calc_type'] == 2: 
                 if r['info'] == None:
                     groups[key][types[r['calc_type']]] += amount
@@ -39,13 +44,11 @@ def calc_reports(emp_reports):
                     groups[key][u'Φορολογητέο Ποσό'] -= amount
                     sums[u'Φορολογητέο Ποσό'] -= amount
 
-            if r['calc_type'] == 1: 
-              #  if r['info'] == None:
-                d_fact = (amount * float(SETTINGS['tax_reduction_factor']))
-                groups[key][types[r['calc_type']]] += d_fact
-                sums[types[r['calc_type']]] += d_fact
-
             if r['calc_type'] == 3: 
+                groups[key][u'Φορολογητέο Ποσό'] -= amount
+                sums[u'Φορολογητέο Ποσό'] -= amount
+
+            if r['calc_type'] == 5: 
                 groups[key][u'Φορολογητέο Ποσό'] -= amount
                 sums[u'Φορολογητέο Ποσό'] -= amount
 
@@ -636,7 +639,6 @@ def generate_pdf_landscape_structure(reports):
         elements.append(table1)
 
         org = report.get('organization_serving', u'') or u''
-        #org = report['organization_serving'] if report['organization_serving'] is not None else u'')
 
         headdata = [[Paragraph(' '.join((u'%s' % (report['profession'] or  '-'), u'στο %s' % org)), report_normal_captions['Left'])],
                     [Paragraph('Είδος υπηρεσίας', report_small_captions['Left'])]]
@@ -688,12 +690,15 @@ def generate_pdf_landscape_structure(reports):
                      Paragraph(u'Καθαρό ποσό', report_normal_captions_9['Center']),
                      Paragraph(u'Φόρος που παρακρατήθηκε (για την αυτοτελή φορολογία)',
                                report_normal_captions_9['Center'])],
+
                     [Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
                      Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left'])]]
+                     Paragraph(u'-', report_normal_captions['Left'])]
+
+        ]
 
         table_1 = Table(somedata, style=ts, colWidths=[3 * cm, 4 * cm, 2 * cm, 4 * cm, 2 * cm, 3 * cm])
         del somedata
@@ -710,16 +715,21 @@ def generate_pdf_landscape_structure(reports):
         data = []
         
         del headdata
-        headdata = [] 
+        sign = os.path.join(settings.MEDIA_ROOT, "signature.png")
+        im = Image(sign)
+        im.drawHeight = 3.0 * cm
+        im.drawWidth = 6.5 * cm
+        #import pdb; pdb.set_trace()
+        
         headdata = [[[table_1,table_2], 
                      [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
-                      #Paragraph(u'%s %s' % (SETTINGS.get_desc('manager'), SETTINGS['dide_place']), signature['Center']),
+                      Paragraph(' ', heading_style['Spacer']),
+                      #im
                       Paragraph('Ο/Η Βεβαιών/ούσα ', signature['Center']),
                       Paragraph(' ', heading_style['Spacer']),
                       Paragraph(' ', heading_style['Spacer']),
                       Paragraph(' ', heading_style['Spacer'])
-                      #Paragraph(SETTINGS['manager'], signature['Center'])
-                      ]]]
+                      ],]]
         
         table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])
         elements.append(table0)

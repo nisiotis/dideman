@@ -34,14 +34,15 @@ from reportlab.platypus.flowables import PageBreak
 from itertools import chain
 from collections import defaultdict
 from itertools import groupby
+from dideman.dide.models import Employee, PaymentCode, PaymentCategoryTitle
+from dideman.lib.common import try_many
+import pandas as pd
 import operator
 import csv
 import datetime
 import inspect
 import os
 import zipfile
-from dideman.dide.models import Employee, PaymentCode, PaymentCategoryTitle
-from dideman.lib.common import try_many
 
 
 def timestamp():
@@ -279,10 +280,6 @@ class CSVEconomicsReport(TemplateAction):
         super(CSVEconomicsReport, self).__init__(short_description, None, 'csv')
 
     def __call__(self, modeladmin, request, queryset, *args, **kwargs):
-        #self.response = HttpResponse()
-        #self.merge_fields(modeladmin, self.add, self.exclude)
-        #writer = csv.writer(self.response, delimiter=';', quotechar='"',
-        #                    quoting=csv.QUOTE_NONNUMERIC)
         final = defaultdict(list)
         all_types = PaymentCategoryTitle.objects.all()
 
@@ -294,9 +291,11 @@ class CSVEconomicsReport(TemplateAction):
             
             elements = []
             reports = []
+            r_list = []
             for empx in u:
                 r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, emp_payments))
-
+            print empx
+            import pdb; pdb.set_trace()
             hd = r_list[0]
             ft = [r_list[-2]] + [r_list[-1]]
             dt = r_list
@@ -325,6 +324,7 @@ class CSVEconomicsReport(TemplateAction):
             fin = defaultdict(list)
             for row in values[1:]:
                 for i in r:
+                    print row[i]
                     fin[localhd[i]].append(unicode(row[i]))
             data.append({emp: fin})
 
@@ -332,60 +332,15 @@ class CSVEconomicsReport(TemplateAction):
             for i in data_rows:
                 for head_item in data_rows[i]:
                     dtFrame.append([i, head_item, data_rows[i][head_item]])
-        #worklist = []
-        #finallist = [u'Εργαζόμενος', ]
-        import pandas as pd
         dfA = pd.DataFrame(dtFrame)
         dfA.columns = [u'Εργαζόμενος','field','data']
-
         dfB = dfA.groupby(u'Εργαζόμενος').apply(
             lambda grp: pd.DataFrame(zip(*grp['data']), columns=grp['field']))
         dfB.index = dfB.index.droplevel(-1)
-#        import pdb; pdb.set_trace()
-#        for e in dtFrame:
-#            if e[1] == u'Είδος Αποδοχών ή Συντάξεων' or e[1] == u'1. Αποδοχές από μισθούς ή συντάξεις' \
-#            or e[1] == u'9. Εισφορά αλληλεγγύης' or e[1] == u'Σύνολο Κρατήσεων' \
-#            or e[1] == u'Φορολογητέο Ποσό' or e[1] == u'Φόρος που αναλογεί' or e[1] == u'7. Απεργία':
-#                worklist.append(e)
-#                if len(finallist) < 7:
-#                    finallist.append(e[1])
-#        finallist = [finallist]        
-#        for k, g in groupby(worklist, lambda x: x[0]):
-#            t=zip(*(i[-1] for i in g))
-#            for i in t:
-#                finallist.append([k]+list(i))
-
-            
-#        row = []
-#        for item in finallist[0]:
-#            if isinstance(item, unicode):
-#                row.append(item.encode('iso8859-7', 'ignore'))
-#            elif hasattr(item, '__unicode__'):
-#                row.append(unicode(item).encode('iso8859-7', 'ignore'))
-#            else:
-#                row.append(str(item))
-        
-#        writer.writerow(row)
-#        row = []
-
-#        for eachrow in finallist[1:]:
-#            for item in eachrow:
-#                if type(item) is float or type(item) is long:
-#                    row.append(item)
-#                else:
-#                    row.append(unicode(item).encode('iso8859-7', 'ignore'))
-            
-#            writer.writerow(row)
-#            row = []
-        
-
-#        import pdb; pdb.set_trace()
-
         data = StringIO()
         dfB.to_csv(data, sep=';', encoding='utf-8')
         
         self.response = HttpResponse(data.getvalue(), mimetype='text/csv')
-        #import pdb; pdb.set_trace()
         self.add_response_headers()
         self.response.close()
         self.response.flush()
