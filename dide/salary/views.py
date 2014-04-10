@@ -30,6 +30,11 @@ import os
 
 
 @match_required
+def help(request):
+    return render_to_response('salary/help.html',
+                              RequestContext(request, {}))
+
+@match_required
 def print_pay(request, id):
     non_p = 1
     rpt = PaymentReport.objects.get(pk=id)

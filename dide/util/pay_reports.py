@@ -463,12 +463,11 @@ def generate_pdf_structure(reports):
 
 # mass pay report
 def to_float(s):
-
     if len(s) > 0:
-        if re.match("^\d+?\.\d+?$", s) is None:
-            return None
-        else:
+        try:
             return float(s)
+        except ValueError:
+            return None
     else:
         return None
 
@@ -573,6 +572,7 @@ def generate_pdf_landscape_structure(reports):
         tbl_style.add(ParagraphStyle(name='BoldLeft', alignment=TA_LEFT,
                                      fontName='DroidSans-Bold', fontSize=12))
         tsl = [('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+               ('VALIGN',(0, 0), (-1, -1), 'TOP'),
                ('FONT', (0, 0), (-1, 0), 'DroidSans'),
                ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
                ('TOPPADDING', (0, 0), (-1, -1), 0),
@@ -584,6 +584,7 @@ def generate_pdf_landscape_structure(reports):
                ('TOPPADDING', (0, 0), (-1, -1), 0)]
 
         ts = [('ALIGN', (1, 1), (-1, -1), 'LEFT'),
+              ('VALIGN', (1, 1), (-1, -1), 'MIDDLE'),
               ('FONT', (0, 0), (-1, 0), 'DroidSans'),
               ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
               ('GRID', (0, 0), (-1, -1), 0.5, colors.black)]
@@ -666,14 +667,14 @@ def generate_pdf_landscape_structure(reports):
             d = [w * cm for x in range(len(line))]
             l = []
             for i in line:
-                
                 if to_float(unicode(i)) is None:
-                    if i == 0:
+                    l.append(Paragraph('%s' % i, report_content['Center']))
+                else:
+                    if float(i) == 0:
                         l.append(Paragraph('-', report_content['Center']))
                     else:
-                        l.append(Paragraph('%s' % i, report_content['Center']))
-                else:
-                    l.append(Paragraph('%.2f' % round(float(i), 2), report_content['Center']))
+                        l.append(Paragraph('%.2f' % round(float(i), 2), report_content['Center']))
+            
             headdata.append(l)
 
         table1 = Table(headdata, style=ts, colWidths=d)
@@ -724,18 +725,18 @@ def generate_pdf_landscape_structure(reports):
         del headdata
         sign = os.path.join(settings.MEDIA_ROOT, "signature.png")
         im = Image(sign)
-        im.drawHeight = 3.0 * cm
+        im.drawHeight = 3.2 * cm
         im.drawWidth = 6.5 * cm
         #import pdb; pdb.set_trace()
         
         headdata = [[[table_1,table_2], 
                      [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
                       Paragraph(' ', heading_style['Spacer']),
-                      #im
-                      Paragraph('Ο/Η Βεβαιών/ούσα ', signature['Center']),
-                      Paragraph(' ', heading_style['Spacer']),
-                      Paragraph(' ', heading_style['Spacer']),
-                      Paragraph(' ', heading_style['Spacer'])
+                      im
+                      #Paragraph('Ο/Η Βεβαιών/ούσα ', signature['Center']),
+                      #Paragraph(' ', heading_style['Spacer']),
+                      #Paragraph(' ', heading_style['Spacer']),
+                      #Paragraph(' ', heading_style['Spacer'])
                       ],]]
         
         table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])

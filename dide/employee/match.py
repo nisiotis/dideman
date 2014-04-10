@@ -4,6 +4,10 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import  HttpResponseRedirect
 
+def help(request):
+    return render_to_response('employee/help.html',
+                              RequestContext(request, {}))
+
 
 def match(request):
     if request.method == 'POST':

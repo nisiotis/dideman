@@ -6,6 +6,10 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^employee/help/',
+        'dideman.dide.employee.match.help'),
+    url(r'^salary/help/',
+        'dideman.dide.salary.views.help'),
     url(r'^employee/match/$',
         'dideman.dide.employee.match.match'),
     url(r'^applications/edit/(?P<set_id>\d+)/$',
