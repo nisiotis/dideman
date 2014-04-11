@@ -32,34 +32,41 @@ def calc_reports(emp_reports):
             groups[key][r['group_name']] += amount
             sums[r['group_name']] += amount
 
-            if r['calc_type'] == 1: 
-                d_fact = (amount * float(SETTINGS['tax_reduction_factor']))
-                groups[key][types[r['calc_type']]] += d_fact
-                sums[types[r['calc_type']]] += d_fact
-
-            if r['calc_type'] == 2: 
-                if r['info'] == None:
-                    groups[key][types[r['calc_type']]] += amount
-                    sums[types[r['calc_type']]] += amount
-                    groups[key][u'Φορολογητέο Ποσό'] -= amount
-                    sums[u'Φορολογητέο Ποσό'] -= amount
-
-            if r['calc_type'] == 3: 
-                groups[key][u'Φορολογητέο Ποσό'] -= amount
-                sums[u'Φορολογητέο Ποσό'] -= amount
-
-            if r['calc_type'] == 5: 
-                groups[key][u'Φορολογητέο Ποσό'] -= amount
-                sums[u'Φορολογητέο Ποσό'] -= amount
-
-
-
-        if r['type'] == 'gr': 
+        if r['type'] == 'gr':
             groups[key][u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
             sums[u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
 
             groups[key][u'Φορολογητέο Ποσό'] += amount
             sums[u'Φορολογητέο Ποσό'] += amount
+
+        if r['calc_type'] == 1: 
+            d_fact = (amount * float(SETTINGS['tax_reduction_factor']))
+            groups[key][types[r['calc_type']]] += d_fact
+            sums[types[r['calc_type']]] += d_fact
+
+        if r['calc_type'] == 2: 
+            if r['info'] == None:
+                groups[key][types[r['calc_type']]] += amount
+                sums[types[r['calc_type']]] += amount
+                groups[key][u'Φορολογητέο Ποσό'] -= amount
+                sums[u'Φορολογητέο Ποσό'] -= amount
+
+        if r['calc_type'] == 3: 
+            groups[key][u'Φορολογητέο Ποσό'] -= amount
+            sums[u'Φορολογητέο Ποσό'] -= amount
+
+        if r['calc_type'] == 5: 
+            groups[key][u'Φορολογητέο Ποσό'] -= amount
+            sums[u'Φορολογητέο Ποσό'] -= amount
+
+
+
+#        if r['type'] == 'gr': 
+#            groups[key][u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
+#            sums[u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
+
+#            groups[key][u'Φορολογητέο Ποσό'] += amount
+#            sums[u'Φορολογητέο Ποσό'] += amount
 
     headers = set()
     for cat, d in groups.items():
