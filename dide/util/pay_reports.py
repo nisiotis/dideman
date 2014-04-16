@@ -56,8 +56,9 @@ def calc_reports(emp_reports):
             sums[u'Φορολογητέο Ποσό'] -= amount
 
         if r['calc_type'] == 5: 
-            groups[key][u'Φορολογητέο Ποσό'] -= amount
-            sums[u'Φορολογητέο Ποσό'] -= amount
+            pass
+            #groups[key][u'Φορολογητέο Ποσό'] += amount
+            #sums[u'Φορολογητέο Ποσό'] += amount
 
 
 
