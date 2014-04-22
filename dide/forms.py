@@ -24,7 +24,10 @@ class PaymentFileNameMassForm(forms.Form):
     
     xml_file =  forms.FileField(label=u'Αρχείο ZIP', required=True)
     description = forms.CharField(label=u'Εμφανιζόμενο όνομα',
-                                        required=True)
+                                  required=True)
+    taxed = forms.BooleanField(label=u'Συμπεριλαμβάνεται την φορολογία',
+                               initial=True, required=False)
+
 
 class SchoolCommissionForm(forms.ModelForm):
 

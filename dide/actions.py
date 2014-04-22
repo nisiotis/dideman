@@ -270,8 +270,16 @@ class CSVReport(TemplateAction):
         return self.response
 
 
+# the following class will be deleted in the near future as is not well written
+# and is not working as expected. Needs to be redesigned. 
 class CSVEconomicsReport(TemplateAction):
-
+    """
+    This class contains the required methods to create a CSV
+    KEPYO List. It will be merged with the salary app some time 
+    later.
+    
+    To be deleted.
+    """
     def __init__(self, short_description=u'Εξαγωγή λίστας ΚΕΠΥΟ %s' % str(datetime.date.today().year - 1),
                  fields=None, add=None, exclude=None):
         self.fields = fields
@@ -346,13 +354,15 @@ class CSVEconomicsReport(TemplateAction):
         self.response.flush()
         return self.response
 
-
-
+# the following class will be deleted in the near future as is not well written
+# and is not working as expected. Needs to be redesigned. 
 class CreatePDF(object):
     """
     This class contains the required methods to create a PDF
     report. It will be merged with the salary app some time 
     later.
+    
+    To be deleted.
     """
 
     def __init__(self, short_description):
@@ -649,12 +659,12 @@ class XMLReadAction(object):
                 success, recs_affected, elapsed, recs_missed = xml.read(os.path.join(settings.MEDIA_ROOT,
                                                 str(o.xml_file).split('/', 1)[0],
                                                 str(o.xml_file).split('/', 1)[1]),
-                                                o.id)
+                                                                        o.id, o.taxed)
                 o.status = success
                 o.imported_records = recs_affected
                 o.save()
 
-                total_elapsed = total_elapsed + elapsed
+                total_elapsed += elapsed
                 rows_updated += 1
                 for (key), val in recs_missed.items():
                     read_results.append([o.description, key, val])
@@ -678,10 +688,7 @@ class XMLReadAction(object):
             "app_label": app_label,
             'action_title': self.short_description,
             'read_results': read_results,
-            'action_time_elapsed': total_elapsed,
-            'read_files': rows_updated,
-            'read_results': read_results,
-            'action_time_elapsed': elapsed,
+            'action_time_elapsed': round(total_elapsed, 1),
             'read_files': rows_updated,
         }
 

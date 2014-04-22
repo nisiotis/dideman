@@ -52,6 +52,7 @@ class PaymentFileName(models.Model):
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση', blank=True)
     imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', null=True, blank=True)
+    taxed = models.BooleanField(u'Συμπεριλαμβάνεται την φορολογία;', blank=True, default=True)
 
     def __unicode__(self):
         return self.description
@@ -97,6 +98,7 @@ class PaymentReport(models.Model):
     iban = models.CharField('iban', max_length=50, null=True, blank=True)
     net_amount1 = models.CharField(u"Α' Δεκαπενθήμερο", max_length=50, null=True, blank=True)
     net_amount2 = models.CharField(u"Β' Δεκαπενθήμερο", max_length=50, null=True, blank=True)
+    taxed = models.BooleanField(u'Συμπεριλαμβάνεται την φορολογία;', blank=True, default=True)
 
     def netab_amount(self):
         return float(self.net_amount1) + float(self.net_amount2)

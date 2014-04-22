@@ -41,14 +41,17 @@ import zipfile, os
 
 class PaymentFileNameAdmin(DideAdmin):
     readonly_fields = ['status', 'imported_records']
-    list_display = ('description', 'status', 'imported_records')
+    list_display = ('description', 'status', 'imported_records', 'taxed')
     search_fields = ('description',)
 
-    actions = [XMLReadAction(u'Ανάγνωση XML'), CreatePDF(u'Εξαγωγή συγκεντρωτικών καταστάσεων')]
+    actions = [XMLReadAction(u'Ανάγνωση XML')]
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ['xml_file', ] + self.readonly_fields
+            if obj.status:
+                return ['xml_file', 'taxed', ] + self.readonly_fields
+            else:
+                return ['xml_file', ] + self.readonly_fields                
         return self.readonly_fields
 
     def admin_add_zip(self, request):
@@ -63,13 +66,16 @@ class PaymentFileNameAdmin(DideAdmin):
                     zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
                     xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
                     for file in xml_li:
+                        taxedfound = 0
                         t = timestamp()
                         f = open(os.path.join(settings.MEDIA_ROOT,'xmlfiles','fromzipfile%s.xml' % t),"wb")
                         f.write(zf.read(file))
                         f.close()
+                        if request.POST.get('taxed'):
+                            taxedfound = 1
                         pf = PaymentFileName(xml_file='xmlfiles/fromzipfile%s.xml' % t,
                                              description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]),
-                                             status=0)
+                                             status=0, taxed=taxedfound)
                         pf.save()
 
                     msg = u'Το αρχείο %s περιείχε %s xml αρχεία.' % (request.FILES['xml_file'], len(xml_li))

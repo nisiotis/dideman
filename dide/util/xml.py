@@ -16,7 +16,9 @@ def query_value(field, value):
         return value
 
 
-def read(file, filerec):
+def read(file, filerec, istaxed):
+    elapsed = 0
+    start = time()
     recs_missed = {}
     payment_category_fields = ['type', 'startDate', 'endDate',
                                'month', 'year']
@@ -28,8 +30,7 @@ def read(file, filerec):
     rankdic = {o.id for o in objects}
     objects = PaymentCode.objects.all()
     paycodesdic = {o.id for o in objects}
-    try:
-        start = time()
+    try:        
         element = etree.parse(file)
         sql = ''
         el = element.getroot()
@@ -90,16 +91,17 @@ def read(file, filerec):
                 sql += "insert into dide_paymentreport ("
                 sql += "id, paymentfilename_id, employee_id, "
                 sql += "type_id, year, pay_type, rank_id, iban,"
-                sql += "net_amount1, net_amount2) values (NULL, "
+                sql += "net_amount1, net_amount2, taxed) values (NULL, "
                 sql += "%s, %s, %s, %s, %s, %s, " % (filerec,
                                                      employeeID,
                                                      month,
                                                      year,
                                                      paytype,
                                                      rank)
-                sql += "'%s', '%s', '%s');" % (iban,
+                sql += "'%s', '%s', '%s', %s);" % (iban,
                                                netAmount1,
-                                               netAmount2)
+                                               netAmount2,
+                                               istaxed)
                 sql += '\n'
                 sql += 'set @lastrep = last_insert_id();' + '\n'
                 el = i.xpath('./xs:payment/xs:income', namespaces={'xs': ns})
@@ -160,17 +162,13 @@ def read(file, filerec):
 
         transaction.commit_unless_managed()
         cursor.close()
-        #print 'The XML file contained %s records.' % cntr1
-        #print '%s records found in database. Difference %d' % (cntr2,
-        #                                                       (cntr1 - cntr2))
         recs_affected = cntr2
-        elapsed = (time() - start)
-        #print 'Time reading file %.2f seconds.' % elapsed
         success = 1
+        elapsed = time() - start
     except:
         recs_missed = {}
-        elapsed = 0
         recs_affected = 0
         success = 0
+        elapsed = 0
         raise
     return success, recs_affected, elapsed, recs_missed

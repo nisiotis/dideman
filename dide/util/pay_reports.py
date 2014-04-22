@@ -57,17 +57,7 @@ def calc_reports(emp_reports):
 
         if r['calc_type'] == 5: 
             pass
-            #groups[key][u'Φορολογητέο Ποσό'] += amount
-            #sums[u'Φορολογητέο Ποσό'] += amount
 
-
-
-#        if r['type'] == 'gr': 
-#            groups[key][u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
-#            sums[u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
-
-#            groups[key][u'Φορολογητέο Ποσό'] += amount
-#            sums[u'Φορολογητέο Ποσό'] += amount
 
     headers = set()
     for cat, d in groups.items():
@@ -95,37 +85,6 @@ def calc_reports(emp_reports):
     rows.append([u'Σύνολα'] + [sums[h] for h in headers])
     headers.insert(0, u'Είδος Αποδοχών ή Συντάξεων') 
     return [headers] + rows
-            
-
-def reports_calc_amount(dict_list, group_codes):
-    """
-    Returns the totals for an employee from a set of paymentreports
-    Accepts a list of dicts of payments and a list of taxed codes
-    """
-    dic_lst = sorted(dict_list, key=lambda x: x['type'])
-    de_l = filter(lambda x: x['type'] == 'de', dic_lst)
-    gr_l = filter(lambda x: x['type'] == 'gr', dic_lst)
-    et_l = filter(lambda x: x['type'] == 'et', dic_lst)
-
-    de_ca = [[x['code_id'], x['amount']] for x in de_l if x['code_id'] in group_codes] if len(de_l) > 0 else []
-    gr_ca = [[x['code_id'], x['amount']] for x in gr_l] if len(gr_l) > 0 else []
-    et_ca = [[x['code_id'], x['amount']] for x in et_l] if len(et_l) > 0 else []
-    de_ca_ex = []
-
-    sde_ca = sorted(de_ca, key=lambda x: x[0])
-    sgr_ca = sorted(gr_ca, key=lambda x: x[0])
-    set_ca = sorted(et_ca, key=lambda x: x[0])
-
-    de = []
-    for k, g in groupby(sde_ca, key=lambda x: x[0]):
- 	de.append([k,sum([float(i[1]) for i in g])])
-    gr = []
-    for k, g in groupby(sgr_ca, key=lambda x: x[0]):
- 	gr.append([k,sum([float(i[1]) for i in g])])
-    et = []
-    for k, g in groupby(set_ca, key=lambda x: x[0]):
- 	et.append([k,sum([float(i[1]) for i in g])])
-    return gr, de, et
 
 
 def dict_fetch_all(cursor):
@@ -159,7 +118,8 @@ def rprts_from_user(emp_id, year):
             INNER JOIN dide_paymentcategorytitle ON dide_paymentcategory.title_id = dide_paymentcategorytitle.id
             WHERE dide_paymentreport.year = {0}
             AND dide_paymentreport.employee_id = {1}             
-            AND dide_payment.type IN ('de', 'gr') 
+            AND dide_payment.type IN ('de', 'gr')
+            AND dide_paymentreport.taxed <> 0
             ORDER BY dide_payment.type DESC;"""
 
     s_emp_id = ''.join('%s' % emp_id)
@@ -190,7 +150,9 @@ def rprts_from_file(queryset):
             INNER JOIN dide_paymentcategorytitle ON dide_paymentcategory.title_id = dide_paymentcategorytitle.id
             
             WHERE dide_paymentfilename.id
-            IN ({0}) AND dide_payment.type IN ('de', 'gr') ORDER BY dide_payment.type DESC;"""
+            IN ({0}) AND dide_payment.type IN ('de', 'gr') 
+            AND dide_paymentreport.taxed <> 0
+            ORDER BY dide_payment.type DESC;"""
 
     qry = ','.join(['%s' % x.id for x in queryset])
 
