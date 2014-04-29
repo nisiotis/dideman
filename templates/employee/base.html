@@ -3,7 +3,8 @@
 <html lang="" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=1;"/>
-<title>{% block title %}{% endblock %}</title>
+<title>{% block title %}Δ.Δ.Ε. {% get_setting 'dide_place'  %}
+{% endblock %}</title>
 <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
 {% block extrastyle %}{% endblock %}
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
@@ -13,7 +14,6 @@
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 </head>
 {% load i18n %}
-
 <body class="{% block bodyclass %}{% endblock %}">
 
 <!-- Container -->
