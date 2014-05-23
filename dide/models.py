@@ -1314,6 +1314,8 @@ class EmployeeLeave(models.Model):
     profession.short_description = u'Ειδικότητα'
 
     def clean(self):
+        if hasattr(self.employee, "nonpermanent"):
+            return
         from django.core.exceptions import ValidationError
         if hasattr(self, 'leave') and hasattr(self, 'employee'):
             if hasattr(self.employee, 'permanent'):
