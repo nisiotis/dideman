@@ -21,22 +21,30 @@ class NonPermanentDocxReport(DocxReport):
                                             body_template_path),
             fields, context, model_fields, include_header, include_footer)
 
+
+def protocol_number(order):
+    try:
+        return order.split("/")[0]
+    except:
+        return ''
+    
+
 nonpermanent_docx_reports = [
     NonPermanentDocxReport(u'Ανακοίνωση Τοποθέτησης', 'temporary_post.xml',
                            ['firstname', 'lastname', 'profession', 'order',
                             'fathername', 'current_placement', 'current_transfer_area'],
                            {'subject': u'Ανακοίνωση Τοποθέτησης'},
                            {'recipient': '{{lastname}} {{firstname}}',
-                            'protocol_number': lambda d: d['order'].order_star1t_manager,
+                            'protocol_number': lambda d: d['order'].order_start_manager,
                             'cc': ['{{current_placement}}']}),
 
     NonPermanentDocxReport(u'Αυτοδίκαιη Απόλυση', 'apolisi-proypiresia.xml',
-                           ['profession__description', 'firstname', 'current_placement__date_from',
-                            'lastname', 'profession', 'current_placement__date_to',
+                           ['profession__description', 'firstname', 'current_placement',
+                            'lastname', 'profession', 'current_placement',
                             'order__order_end_manager', 'experience', 'current_placement', 'fathername',
                             'order__order_start_manager', 'type', 'order', 'order__order', 'order__date'],
                            {'subject': u'Αυτοδίκαιη Απόλυση'},
                            {'recipient': '{{lastname}} {{firstname}}',
-                            'protocol_number': lambda d: d['order'].order_end_manager,
+                            'protocol_number': lambda d: protocol_number(d['order'].order_end_manager),
                             'cc': ['{{current_placement}}', 'Α.Φ.']})
 ]

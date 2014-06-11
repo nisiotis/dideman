@@ -8,7 +8,7 @@
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση του Διευθυντή Δευτεροβάθμιας Εκπαίδευσης Δωδεκανήσου που εκδόθηκε την {{rec.current_placement__date_to}}, απολυθήκατε αυτοδίκαια από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την {{rec.current_placement__date_to}} </w:t>
+        <w:t>Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση του Διευθυντή Δευτεροβάθμιας Εκπαίδευσης Δωδεκανήσου που εκδόθηκε την {{rec.current_placement.date_from}}, απολυθήκατε αυτοδίκαια από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την {{rec.current_placement.date_to}}. </w:t>
       </w:r>
     </w:p>
 
@@ -24,7 +24,7 @@
         </w:numPr>
       </w:pPr>
       <w:r>
-        <w:t>ΘΕΜΑ: Βεβαίωση υπηρεσίας</w:t>
+        <w:t>ΘΕΜΑ: Βεβαίωση Υπηρεσίας</w:t>
       </w:r>
     </w:p>
 
@@ -39,7 +39,7 @@
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.current_placement}} ως {{rec.type}} και υπηρέτησε από {{rec.current_placement__date_from}} έως {{rec.current_placement__date_to}}.</w:t>
+        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.current_placement}} ως {{rec.type}} και υπηρέτησε από {{rec.current_placement.date_from}} έως {{rec.current_placement.date_to}}.</w:t>
       </w:r>
     </w:p>
     <w:p>
@@ -75,7 +75,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος υπηρεσίας έως {{end_date}}: {{rec.experience}}.</w:t>
+        <w:t>Χρόνος υπηρεσίας: {{rec.experience}}.</w:t>
       </w:r>
     </w:p>
         <w:p>
