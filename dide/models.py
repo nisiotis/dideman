@@ -658,7 +658,7 @@ class PermanentManager(models.Manager):
         cursor = connection.cursor()
         cursor.execute(sql.serves_in_dide_school.format(datetime.date.today()))
         ids = [row[0] for row in cursor.fetchall()]
-        return self.filter(parentid__in=ids)
+        return self.filter(parent_id__in=ids)
 
     def not_serves_in_dide_school(self):
         cursor = connection.cursor()
