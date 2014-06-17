@@ -1306,7 +1306,7 @@ class EmployeeLeave(models.Model):
     permanent_post.short_description = u'Οργανική θέση'
 
     def organization_serving(self):
-        return self.subclass().organization_serving()
+        return self.employee.subclass().organization_serving()
     organization_serving.short_description = u'Θέση υπηρεσίας'
 
     def profession(self):
