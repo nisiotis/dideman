@@ -868,7 +868,7 @@ class Permanent(Employee):
     def rank_date(self):
         rankdate = first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date'))
-        return rankdate.date
+        return rankdate.date if rankdate else ''
     rank_date.short_description = u'Ημερομηνία τελευταίου βαθμού'
 
     def next_rank_date(self):
