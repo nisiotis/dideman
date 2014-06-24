@@ -5,7 +5,7 @@ from dideman.dide.overrides.admin import DideAdmin
 from dideman.private_teachers.models import *
 from dideman.dide.admin import DegreeInline
 from dideman.dide.actions import EmployeeBecome
-from dideman.dide.models import Permanent, NonPermanent, Administrative
+from dideman.dide.models import Permanent, NonPermanent, Administrative, Promotion
 
 to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
 to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
@@ -16,6 +16,9 @@ class WorkingPeriodInline(admin.TabularInline):
     model = WorkingPeriod
     extra = 0
 
+class PromotionInline(admin.TabularInline):
+    model = Promotion
+    extra = 0
 
 class PrivateTeacherAdmin(DideAdmin):
     class Media:
@@ -47,7 +50,7 @@ class PrivateTeacherAdmin(DideAdmin):
     readonly_fields = ['organization_serving', 'total_experience',
                        'total_service', 'date_created',
                        'profession_description', 'rank', 'next_rank_date']
-    inlines = [DegreeInline, WorkingPeriodInline]
+    inlines = [DegreeInline, WorkingPeriodInline, PromotionInline]
 
 admin.site.register(PrivateTeacher, PrivateTeacherAdmin)
 admin.site.register(PrivateSchool)
