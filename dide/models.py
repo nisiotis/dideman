@@ -1012,6 +1012,7 @@ class NonPermanentManager(models.Manager):
 
     def choices(self):
         cursor = connection.cursor()
+        print sql.current_year_non_permanents.format(current_year_date_from())
         cursor.execute(sql.current_year_non_permanents.format(current_year_date_from()))
         choices = [(row[0], "%s %s (%s)" % (row[1], row[2], row[3])) for row in cursor.fetchall()]
         return [(None, u'---------')] + choices

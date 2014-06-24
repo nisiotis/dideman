@@ -140,6 +140,6 @@ SELECT dide_employee.id, dide_employee.lastname, dide_employee.firstname, dide_e
 FROM `dide_nonpermanent`
 INNER JOIN dide_placement ON dide_nonpermanent.parent_id = dide_placement.employee_id
 INNER JOIN dide_employee ON dide_nonpermanent.parent_id = dide_employee.id
-WHERE dide_placement.date_from >= DATE( '{}' )
+WHERE dide_placement.date_from >= DATE( '{0}' )
 ORDER BY lastname, firstname
 """
