@@ -475,12 +475,12 @@ class EmployeeLeaveForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EmployeeLeaveForm, self).__init__(*args, **kwargs)
-        self.fields['employee'] = EmployeeChoiceField()
+        self.fields['employee'] = EmployeeChoiceField(label=u'Υπάλληλος')
 
 
 class EmployeeChoiceField(ModelChoiceField):
     def __init__(self, *args, **kwargs):
-        self.choices = Permanent.objects.choices() + Administrative.objects.choices()
+        self.choices = Permanent.objects.choices() + Administrative.objects.choices() + NonPermanent.objects.choices()
         return super(EmployeeChoiceField, self).__init__(Employee.objects, *args, **kwargs)
 
 

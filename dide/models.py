@@ -1010,6 +1010,12 @@ class NonPermanentManager(models.Manager):
         else:
             return self.filter(id__in=ids)
 
+    def choices(self):
+        cursor = connection.cursor()
+        cursor.execute(sql.current_year_non_permanents.format(current_year_date_from()))
+        choices = [(row[0], "%s %s (%s)" % (row[1], row[2], row[3])) for row in cursor.fetchall()]
+        return [(None, u'---------')] + choices
+
 
 class NonPermanent(Employee):
 

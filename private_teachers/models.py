@@ -69,7 +69,7 @@ class PrivateTeacher(dide.Employee):
         r, mk = RANKS[min(
                 self.total_service().years + self.postgrad_extra().years, 40)]
         return u"%s%s" % (r, mk)
-    rank.short_description = u'Βαθμός'
+    rank.short_description = u'Βαθμός (εκτίμηση)'
 
     def postgrad_extra(self):
         degrees = self.employeedegree_set.all().select_related('degree')

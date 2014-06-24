@@ -134,3 +134,12 @@ INNER JOIN dide_organization ON dide_organization.id = dide_placement.organizati
 WHERE (DATE('{0}') BETWEEN dide_placement.date_from AND dide_placement.date_to)
 AND dide_organization.belongs = 0
 """
+
+current_year_non_permanents = """
+SELECT dide_employee.id, dide_employee.lastname, dide_employee.firstname, dide_employee.vat_number
+FROM `dide_nonpermanent`
+INNER JOIN dide_placement ON dide_nonpermanent.parent_id = dide_placement.employee_id
+INNER JOIN dide_employee ON dide_nonpermanent.parent_id = dide_employee.id
+WHERE dide_placement.date_from >= DATE( '{}' )
+ORDER BY lastname, firstname
+"""
