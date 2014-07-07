@@ -4,7 +4,7 @@ from overrides.admin import DideAdmin
 from django.contrib.admin.filters import SimpleListFilter, FieldListFilter
 from models import (Organization, School, Permanent, DegreeCategory,
                     NonPermanent, EmployeeLeave, TransferArea, Island,
-                    SubstituteMinistryOrder, Leave)
+                    SubstituteMinistryOrder, Leave, NonPermanentLeave)
 import django.contrib.admin.views.main as views
 import datetime
 import re
@@ -59,7 +59,7 @@ class NonPermanentLeaveFilter(ModifierSimpleListFilter):
         val = query_dict.get(self.parameter_name, None)
         if val:
             return queryset & \
-                EmployeeLeave.objects.filter(leave__id=int(val))
+                NonPermanentLeave.objects.filter(leave__id=int(val))
         else:
             return queryset
         
