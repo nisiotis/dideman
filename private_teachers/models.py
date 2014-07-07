@@ -100,6 +100,12 @@ class PrivateTeacher(dide.Employee):
     def save(self, *args, **kwargs):
         self.currently_serves = False
         super(PrivateTeacher, self).save(*args, **kwargs)
+        
+    def employee_type_text(self):
+        if self.sex == "Άνδρας":
+            return "ιδιωτικός"
+        else:
+            return "ιδιωτική" 
 
 
 class WorkingPeriod(models.Model):

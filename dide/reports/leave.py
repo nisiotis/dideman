@@ -19,7 +19,7 @@ def cc(obj):
         ret.append(u'ΑΛΛΟ Π.Υ.Σ.Δ.Ε.')
     if obj['leave__not_paying']:
         ret.append(u'Εκκαθαριστής')
-    if obj['employee__subclass__serving_type'].id == 1:
+    if obj['employee__subclass__serving_type__id'] == 1:
         ret.append(u'Α.Φ. (Δ.Δ.Ε. Δωδεκανήσου)')
     else:
         ret.append(u'Α.Φ.')

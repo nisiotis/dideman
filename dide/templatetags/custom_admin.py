@@ -25,7 +25,6 @@ def free_date_filter(cl, spec):
             'url_to_value': spec.url_to_value,
             'parameter_name': spec.parameter_name, 'cl': cl}
 
-
 @register.inclusion_tag('admin/dide/employeeleave/submit_line.html', takes_context=True)
 def submit_row(context):
     """
@@ -36,7 +35,14 @@ def submit_row(context):
     is_popup = context['is_popup']
     save_as = context['save_as']
 
+    if context['opts'].object_name == "NonPermanentLeave":
+    #if context['original'].__class__.__name__ == "NonPermanentLeave":
+        sub_url = "nonpermanentleave"
+    else:
+        sub_url = "employeeleave"
+    
     return {
+        'sub_url': sub_url,
         'onclick_attrib': (opts.get_ordered_objects() and change
                             and 'onclick="submitOrderForm();"' or ''),
         'show_delete_link': (not is_popup and context['has_delete_permission']
@@ -49,7 +55,7 @@ def submit_row(context):
         'show_save': True,
         'show_print': not context['add'],
         'object_id': context['object_id'] if 'object_id' in context else None,
-        'form_id': opts.module_name + '_form',
+        'form_id': opts.module_name + '_form'
     }
 
 

@@ -108,6 +108,11 @@ def administrative(request):
     return render_template(request, Administrative, AdministrativeAdmin)
 
 
+def nonpermanentleave(request):
+  from dideman.dide.admin import NonPermanentLeaveAdmin
+  from dideman.dide.models import NonPermanentLeave
+  return render_template(request, NonPermanentLeave, NonPermanentLeaveAdmin)
+
 
 def employeeleave(request):
     from dideman.dide.admin import EmployeeLeaveAdmin

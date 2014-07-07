@@ -4,7 +4,7 @@ from overrides.admin import DideAdmin
 from django.contrib.admin.filters import SimpleListFilter, FieldListFilter
 from models import (Organization, School, Permanent, DegreeCategory,
                     NonPermanent, EmployeeLeave, TransferArea, Island,
-                    SubstituteMinistryOrder)
+                    SubstituteMinistryOrder, Leave)
 import django.contrib.admin.views.main as views
 import datetime
 import re
@@ -27,7 +27,42 @@ class PermanentPostFilter(ModifierSimpleListFilter):
                 Permanent.objects.permanent_post_in_organization(int(val))
         else:
             return queryset
+        
+        
+class PermanentLeaveFilter(ModifierSimpleListFilter):
+    title = u'Κατηγορία άδειας'
+    parameter_name = 'leave__id'
+    list_view = True
+    
+    def lookups(self, request, model_admin):
+        leaves = Leave.objects.filter(for_non_permanents=False)
+        return ((l.id, l.name) for l in leaves)
 
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            return queryset & \
+                EmployeeLeave.objects.filter(leave__id=int(val))
+        else:
+            return queryset
+    
+class NonPermanentLeaveFilter(ModifierSimpleListFilter):
+    title = u'Κατηγορία άδειας'
+    parameter_name = 'leave__id'
+    list_view = True
+    
+    def lookups(self, request, model_admin):
+        leaves = Leave.objects.filter(for_non_permanents=True)
+        return ((l.id, l.name) for l in leaves)
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val:
+            return queryset & \
+                EmployeeLeave.objects.filter(leave__id=int(val))
+        else:
+            return queryset
+        
 class PermanentPostInIslandFilter(ModifierSimpleListFilter):
     title = u'Νησί Οργανικής'
     parameter_name = 'island__id'

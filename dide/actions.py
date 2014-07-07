@@ -302,8 +302,6 @@ class CSVEconomicsReport(TemplateAction):
             r_list = []
             for empx in u:
                 r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, emp_payments))
-            print empx
-            import pdb; pdb.set_trace()
             hd = r_list[0]
             ft = [r_list[-2]] + [r_list[-1]]
             dt = r_list
@@ -331,8 +329,7 @@ class CSVEconomicsReport(TemplateAction):
         
             fin = defaultdict(list)
             for row in values[1:]:
-                for i in r:
-                    print row[i]
+                for i in r:                    
                     fin[localhd[i]].append(unicode(row[i]))
             data.append({emp: fin})
 

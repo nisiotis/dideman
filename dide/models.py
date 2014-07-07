@@ -379,7 +379,13 @@ class PlacementType(models.Model):
 class LeaveManager(models.Manager):
 
     def get_by_natural_key(self, name):
-        return self.get(name=name)
+        return self.get(name=name)    
+    
+    def choices(self, for_non_permanents=False):
+        qs = self.filter(for_non_permanents=for_non_permanents).only('id', 'name')            
+        choices = [(obj.id, obj.name) for obj in qs]
+        return choices
+            
 
 LEAVE_TYPES = ((u'Κανονική', u'Κανονική'),
                (u'Αναρρωτική', u'Αναρρωτική'),
@@ -402,14 +408,15 @@ class Leave(models.Model):
     only_working_days = models.BooleanField(verbose_name=u'Μόνο εργάσιμες μέρες')
     orders = models.CharField(u'Διατάξεις', null=True, blank=True, max_length=300)
     description = models.CharField(null=True, blank=True, verbose_name=u'Περιγραφή', max_length=300)
+    for_non_permanents = models.BooleanField(null=False, blank=False, verbose_name=u'Μη μόνιμων', default=False)
 
     def __unicode__(self):
         return self.name
 
     def natural_key(self):
         return (self.name, )
-
-
+      
+      
 class Responsibility(models.Model):
 
     class Meta:
@@ -597,11 +604,22 @@ class Employee(models.Model):
                 return getattr(self, attr)
             except:
                 continue
-        return None
+        return self
 
     def normal_leave_days(self):
         raise NotImplementedError
-
+      
+      
+    def to_text(self):
+        if self.sex == "Άνδρας":
+             return "στον"
+        else:
+             return "στην"
+           
+    def employment_text(self):
+        return "υπάλληλος"                 
+          
+        
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
             return u'%s %s (%s)' % (self.lastname, self.firstname,
@@ -887,6 +905,12 @@ class Permanent(Employee):
             return rank.id if rank else None
 
     rank_id.short_description = u'ID Βαθμού'
+    
+    def employment_type_text(self):
+        if self.sex == "Άνδρας":
+            return "μόνιμος"
+        else:
+            return "μόνιμη"
 
     def __unicode__(self):
         return '%s %s  (%s)' % (self.lastname, self.firstname,
@@ -929,6 +953,12 @@ class Administrative(Employee):
 
     def normal_leave_days(self):
         return min(24 + self.total_service().years, 29)
+    
+    def employee_type_text(self):
+        if self.sex == "Άνδρας":
+            return "διοικητικός"
+        else:
+            return "διοικητική" 
 
 methods = ["total_service", "natural_key", "promotions", "permanent_post", "total_not_service", "payment_start_date_auto",
            "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "__unicode__"]
@@ -1012,7 +1042,6 @@ class NonPermanentManager(models.Manager):
 
     def choices(self):
         cursor = connection.cursor()
-        print sql.current_year_non_permanents.format(current_year_date_from())
         cursor.execute(sql.current_year_non_permanents.format(current_year_date_from()))
         choices = [(row[0], "%s %s (%s)" % (row[1], row[2], row[3])) for row in cursor.fetchall()]
         return [(None, u'---------')] + choices
@@ -1065,6 +1094,23 @@ class NonPermanent(Employee):
             return Date(p.date_to) - Date(p.date_from) + DateInterval(days=1)
         else:
             return DateInterval()
+        
+    def employment_type_text(self):
+        t = self.type()
+        if t is not None:
+            if t.name == "Ωρομίσθιος":
+                if self.sex == "Άνδρας":
+                    return "ωρομίσθιος"
+                else:
+                    return "ωρομίσθιας"   
+            else:
+                if self.sex == "Άνδρας":
+                    return "αναπληρωτής"
+                else:
+                    return "αναπληρώτρια" 
+                
+    def normal_leave_days(self):
+        return 7
 
     def __unicode__(self):
         return u'%s %s του %s' % (self.lastname, self.firstname,
@@ -1275,6 +1321,108 @@ class SubstitutePlacement(Placement):
     ministry_order = models.ForeignKey(SubstituteMinistryOrder, verbose_name=u'Υπουργική Απόφαση')
 
 
+class NonPermanentLeave(models.Model):
+ 
+    class Meta:
+        verbose_name = u'Άδεια Αναπληρωτή/Ωρoμίσθιου'
+        verbose_name_plural = u'Άδειες Αναπληρωτή/Ωρoμίσθιου'
+        ordering = ['-date_to']
+
+    non_permanent = models.ForeignKey(NonPermanent, verbose_name=u'Υπάλληλος')
+    leave = models.ForeignKey(Leave, verbose_name=u'Κατηγορία Άδειας')
+    date_issued = models.DateField(u'Χορήγηση', null=True, blank=True)
+    date_from = models.DateField(u'Έναρξη')
+    date_to = models.DateField(u'Λήξη')
+    order = models.CharField(u'Απόφαση', max_length=300, null=True, blank=True)
+    authority = models.CharField(u'Αρχή έγκρισης', max_length=200, null=True, blank=True)
+    protocol_number = models.CharField(u'Αρ. πρωτ.', max_length=10, null=True, blank=True)
+    description = models.CharField(u'Σημειώσεις', null=True, blank=True, max_length=300)
+    duration = models.IntegerField(max_length=3, verbose_name=u'Διάρκεια')
+    
+    @shorted(15)
+    def category(self):
+        return self.leave.name
+    category.short_description = u'Κατηγορία'
+    
+    def affects_payment(self):
+        return self.leave.not_paying or self.leaveperiod_set.exclude(payment='yes').count() > 0
+
+    def organization_serving(self):
+        return self.employee.subclass().organization_serving()
+    organization_serving.short_description = u'Θέση υπηρεσίας'
+
+    def profession(self):
+        return self.non_permanent.profession
+    profession.short_description = u'Ειδικότητα'    
+
+    
+    def period_description(self):
+        periods = self.leaveperiod_set.all()
+        if len(periods) > 0:
+            if len(periods) > 1:
+                desc = u"%s ημερών για τα διαστήματα %s " %(self.duration, u", ".join(map(unicode, periods)))
+            else:
+                desc = u", ".join(map(unicode, periods))
+        else:
+            if self.leave.not_paying:
+                s = u"χωρίς αποδοχές"
+            else:
+                s = u"με αποδοχές"
+            if self.duration == 1:
+                dur_desc = u"ημέρα"
+            else:
+                dur_desc = u"ημέρες"
+            
+            desc = u"από %s έως %s (%s %s %s)" % (self.date_from, self.date_to, self.duration, dur_desc, s)
+        return desc
+    
+    
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if hasattr(self, 'leave') and hasattr(self, 'non_permanent'):           
+            limit = self.non_permanent.normal_leave_days()
+
+            if self.leave.name == u'Κανονική':
+                y = self.date_from.year             
+                dur = EmployeeLeave.objects.filter(
+                    employee=self.non_permanent, leave=self.leave, date_from__gte=current_year_date_from(),
+                    date_to__lte=current_year_date_to()
+                ).exclude(id=self.id).aggregate(Sum('duration'))['duration__sum'] or 0
+
+                msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις {0}. Μέρες χωρίς την τρέχουσα άδεια: {1}'
+                if dur + self.duration > limit:
+                    raise ValidationError(msg.format(limit, dur))
+                
+    
+    def __unicode__(self):
+        return unicode(self.non_permanent) + '-' + unicode(self.date_from)
+
+
+    
+LEAVE_PERIOD_CHOICES = (('no', u'Χωρίς Αποδοχές'),
+                        ('yes', u'Με Αποδοχές'),
+                        ('half', u'Μισές Αποδοχές'))
+
+class LeavePeriod(models.Model):
+  
+    class Meta:
+      verbose_name = u'Χρονικό Διάστημα'
+      verbose_name_plural = u'Χρονικά Διαστήματα'
+      
+    date_from = models.DateField(u'Έναρξη')
+    date_to = models.DateField(u'Λήξη')
+    duration = models.IntegerField(max_length=3, verbose_name=u'Διάρκεια')
+    payment = models.CharField(u'Καθεστώς Πληρωμής', max_length=10, choices=LEAVE_PERIOD_CHOICES)
+    leave = models.ForeignKey(NonPermanentLeave, verbose_name=u'Άδεια')
+
+    def __unicode__(self):
+        if self.duration == 1:
+            dur_desc = u"ημέρα"
+        else:
+            dur_desc = u"ημέρες"
+        return u"από %s έως %s (%s %s, %s)" % (self.date_from, self.date_to, self.duration, dur_desc, dict(LEAVE_PERIOD_CHOICES)[self.payment].lower())
+    
+
 class EmployeeLeaveManager(models.Manager):
 
     def date_range_intersect(self, ds, de):
@@ -1321,8 +1469,6 @@ class EmployeeLeave(models.Model):
     profession.short_description = u'Ειδικότητα'
 
     def clean(self):
-        if hasattr(self.employee, "nonpermanent"):
-            return
         from django.core.exceptions import ValidationError
         if hasattr(self, 'leave') and hasattr(self, 'employee'):
             if hasattr(self.employee, 'permanent'):

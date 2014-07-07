@@ -19,6 +19,7 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
                     NonPermanent, Permanent, Employee, DegreeCategory,
                     SchoolType, School, OtherOrganization, PlacementType,
                     Placement, EmployeeLeave, EmployeeResponsibility,
+                    NonPermanentLeave, LeavePeriod,
                     EmployeeDegree, Child, Loan, SocialSecurity,
                     LoanCategory, Service, Settings, ApplicationSet,
                     MoveInside, TemporaryPosition,
@@ -184,6 +185,14 @@ class LeaveInline(admin.TabularInline):
     extra = 0
 
 
+
+class LeavePeriodInline(admin.TabularInline):
+    model = LeavePeriod
+    extra = 0
+    
+
+
+
 class DegreeInline(admin.TabularInline):
     model = EmployeeDegree
     extra = 0
@@ -338,6 +347,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'permanent_post', 'organization_serving']
     inlines = EmployeeAdmin.inlines + [PromotionInline, PlacementInline,
                                        ServiceInline, LeaveInline,
+                                       LeavePeriodInline,
                                        ResponsibilityInline]
 
     list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
@@ -468,6 +478,7 @@ class AdministrativeAdmin(PermanentAdmin):
                                     'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
         permanent_docx_reports, key=lambda k: k.short_description)   
 
+
 class EmployeeLeaveForm(ModelForm):
 
     class Meta:
@@ -476,12 +487,57 @@ class EmployeeLeaveForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(EmployeeLeaveForm, self).__init__(*args, **kwargs)
         self.fields['employee'] = EmployeeChoiceField(label=u'Υπάλληλος')
+        self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=False)
 
 
 class EmployeeChoiceField(ModelChoiceField):
     def __init__(self, *args, **kwargs):
         self.choices = Permanent.objects.choices() + Administrative.objects.choices() + NonPermanent.objects.choices()
         return super(EmployeeChoiceField, self).__init__(Employee.objects, *args, **kwargs)
+    
+class LeaveChoiceField(ModelChoiceField):
+    def __init__(self, *args, **kwargs):
+        self.choices = Leave.objects.choices(for_non_permanents=kwargs['for_non_permanents'])
+        del kwargs['for_non_permanents']
+        super(LeaveChoiceField, self).__init__(Leave.objects, *args, **kwargs)    
+    
+
+class NonPermanentLeaveForm(ModelForm):
+    
+    class Meta:
+        model = NonPermanentLeave
+        
+    def __init__(self, *args, **kwargs):
+        super(NonPermanentLeaveForm, self).__init__(*args, **kwargs)
+        self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=True)
+
+class NonPermanentLeaveAdmin(DideAdmin):
+    inlines = [LeavePeriodInline]
+    search_fields = ('non_permanent__lastname',
+                     'non_permanent__vat_number')
+    list_display = ('non_permanent', 'leave', 'date_from', 'date_to', 'duration')
+    list_filter = (NonPermanentLeaveFilter, 'non_permanent__profession__unified_profession',
+                   LeaveDateToFilter, LeaveDateFromFilter)
+    actions = [CSVReport(add=['non_permanent__profession__id', 'non_permanent__organization_serving'])]
+    form = NonPermanentLeaveForm
+    
+    def print_leave(self, request, employeeleave_id):
+        from django.http import HttpResponse
+        from reports.non_permanent_leave import non_permanent_leave_docx_reports
+        leave_qs = NonPermanentLeave.objects.filter(pk=employeeleave_id)
+        if len(leave_qs) != 1:
+            return HttpResponse(u'Η άδεια δεν βρέθηκε')
+        leave = leave_qs[0]
+        for r in non_permanent_leave_docx_reports:
+            if r.short_description == leave.leave.name:
+                return r(self, request, leave_qs)
+        return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
+    
+    def get_urls(self):
+        from django.conf.urls import patterns, url      
+        return patterns('', url(r'^print/([0-9]+)/$',
+                          self.admin_site.admin_view(self.print_leave))) + super(NonPermanentLeaveAdmin, self).get_urls();
+            
 
 
 class EmployeeLeaveAdmin(DideAdmin):
@@ -495,7 +551,7 @@ class EmployeeLeaveAdmin(DideAdmin):
                      'employee__permanent__registration_number')
     list_display = ('employee', 'profession', 'category', 'date_from',
                     'date_to', 'duration')
-    list_filter = ('leave', 'employee__profession__unified_profession',
+    list_filter = (PermanentLeaveFilter, 'employee__profession__unified_profession',
                    LeaveDateToFilter, LeaveDateFromFilter)
     actions = [CSVReport(add=['employee__profession__id',
                               'organization_serving', 'permanent_post'])] + \
@@ -507,6 +563,7 @@ class EmployeeLeaveAdmin(DideAdmin):
         if (len(leave_qs) != 1):
             return HttpResponse(u'Η άδεια δεν βρέθηκε')
         leave = leave_qs[0]
+       
         for r in leave_docx_reports:
             if r.short_description == leave.leave.name:
                 return r(self, request, leave_qs)
@@ -525,6 +582,7 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'profession', 'current_placement']
     search_fields = ('lastname', 'identity_number', 'vat_number')
     list_per_page = 50
+
     fieldsets = [
         ('Στοιχεία μη-μόνιμου', {
             'fields': [
@@ -569,6 +627,7 @@ map(lambda t: admin.site.register(*t), (
     (NonPermanent, NonPermanentAdmin),
     (PlacementType, PlacementTypeAdmin),
     (EmployeeLeave, EmployeeLeaveAdmin),
+    (NonPermanentLeave, NonPermanentLeaveAdmin),
     (MoveInside, MoveInsideAdmin),
     (TemporaryPosition, TemporaryPositionAdmin),
     (TemporaryPositionAllAreas, TemporaryPositionAllAreasAdmin),
