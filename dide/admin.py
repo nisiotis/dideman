@@ -316,6 +316,10 @@ class SubstituteMinistryOrderAdmin(DideAdmin):
 class OtherOrganizationAdmin(DideAdmin):
     search_fields = ('name', )
     list_display = ('name', 'belongs')
+    
+class LeaveAdmin(DideAdmin):
+    search_fields = ('name', )
+    list_display = ('name', 'type', 'for_non_permanents')
 
 
 class SchoolCommissionAdmin(DideAdmin):
@@ -617,6 +621,7 @@ class SchoolTypeAdmin(DideAdmin):
 
 
 map(lambda t: admin.site.register(*t), (
+    (Leave, LeaveAdmin),
     (Permanent, PermanentAdmin),
     (Administrative, AdministrativeAdmin),
     (Profession, ProfessionAdmin),
@@ -640,7 +645,7 @@ map(lambda t: admin.site.register(*t), (
     (SchoolCommission, SchoolCommissionAdmin),
 ))
 
-admin.site.register((TransferArea, Island, Leave, Responsibility, NonPermanentType,
+admin.site.register((TransferArea, Island, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,
                      ApplicationType))
 admin.site.disable_action('delete_selected')

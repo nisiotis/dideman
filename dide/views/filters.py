@@ -197,3 +197,10 @@ def schoolcommission(request):
     from dideman.dide.models import SchoolCommission
     return render_template(request, SchoolCommission,
                            SchoolCommissionAdmin)
+
+def leave(request):
+    from dideman.dide.admin import LeaveAdmin
+    from dideman.dide.models import Leave
+    return render_template(request, Leave,
+                           LeaveAdmin)
+
