@@ -570,10 +570,11 @@ class Employee(models.Model):
 
     def not_service_in_years(self):
         """Returns a dict of {year: sum_of_not_service_days } form"""
-        leaves = self.employeeleave_set.filter(leave__is_service=False)
         today = datetime.date.today()
+        leaves = self.employeeleave_set.filter(leave__is_service=False, date_from__lt=today)
         sub = sum([(l.date_to - today).days for l in leaves if l.date_to > today])
         seq = reduce(concat, [l.split() for l in leaves], tuple())
+        seq = [s for s in seq if s[0] <= today.year]
         groups = [(k, sum(map(itemgetter(1), g)))
                   for k, g in groupby(sorted(seq), key=itemgetter(0))]
         return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]
