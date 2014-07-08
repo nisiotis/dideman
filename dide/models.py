@@ -1552,6 +1552,20 @@ class EmployeeResponsibility(models.Model):
         return self.date_from.strftime('%d-%m-%Y') + '-' + self.order
 
 
+
+class DegreeOrganization(models.Model):
+    
+    class Meta:
+        verbose_name = u'Φορέας Πιστοποίησης'
+        verbose_name_plural = u'Φορείς Πιστοποίησης'
+        
+    name = models.CharField(u'Τίτλος', max_length=200)
+    
+    def __unicode__(self):
+        return self.name
+
+
+
 class EmployeeDegree(models.Model):
 
     class Meta:
@@ -1562,11 +1576,15 @@ class EmployeeDegree(models.Model):
     degree = models.ForeignKey(DegreeCategory, verbose_name=u'Κατηγορία')
     date = models.DateField(u'Ημερομηνία Λήψης', null=True, blank=True)
     employee = models.ForeignKey(Employee)
+    score = models.CharField(u'Βαθμός', max_length=20, null=True, blank=True)
+    degree_number = models.CharField(u'Αρ. πιστοποιητικού', max_length=20, null=True, blank=True)
+    organization = models.ForeignKey(DegreeOrganization, verbose_name=u'Φορέας Πιστοποίησης', null=True)
+    checked = models.BooleanField(u'Ελεγμένο', default=False)
 
     def __unicode__(self):
         return self.name
-
-
+    
+    
 class Child(models.Model):
 
     class Meta:

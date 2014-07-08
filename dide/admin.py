@@ -25,7 +25,8 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
                     MoveInside, TemporaryPosition,
                     TemporaryPositionAllAreas, SubstitutePlacement,
                     SubstituteMinistryOrder, OrderedSubstitution,
-                    ApplicationChoice, ApplicationType, SchoolCommission)
+                    ApplicationChoice, ApplicationType, SchoolCommission,
+                    DegreeOrganization)
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode)
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
@@ -645,6 +646,6 @@ map(lambda t: admin.site.register(*t), (
 
 admin.site.register((TransferArea, Island, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,
-                     ApplicationType))
+                     ApplicationType, DegreeOrganization))
 admin.site.disable_action('delete_selected')
 admin.site.add_action(DeleteAction(ugettext_lazy("Delete selected %(verbose_name_plural)s")))
