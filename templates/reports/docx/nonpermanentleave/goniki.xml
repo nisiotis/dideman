@@ -1,0 +1,39 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>     
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Το άρ.9 του Ν.1983/84</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Το αρ.6 του Π.Δ. 193/88 και τις διατάξεις του Κεφ. Α΄του Ν. 1483/84 (Απ. 1-9)</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Την αίτηση του/της  ενδιαφερόμενου/ης.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε {{ rec.to_text }} {{ rec.recipient }} του {{ rec.non_permanent__fathername }}, αναπληρωτή εκπαιδευτικό του κλάδου {{ rec.non_permanent__profession }} του {{ rec.non_permanent__organization_serving }} γονική άδεια με αποδοχές, 1 ημέρας στις {{ rec.date_from }}.</w:t>
+            </w:r>
+        </w:p>

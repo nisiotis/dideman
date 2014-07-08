@@ -1,0 +1,49 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>     
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τη με αρ.Φ.353.1/324/105657/Δ1/8-10-2002 (ΦΕΚ 1340/16-10-2002) Υ.Α. «Μεταβίβαση Δικαιώματος Υπογραφής με εντολή Υπουργού».</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Την παρ. 3 του άρθρου 106 του Π.Δ. 96/2007.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Το υπ’ αριθμ. Φ.351.5/43/67822/Δ1/05-05-2014 έγγραφο του Υ.ΠΑΙ.Θ.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>4. Τη βεβαίωση του Εκλογικού Τμήματος ότι ο/η ενδιαφερόμενος/η ψήφισε.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>5. Την αίτηση του /της ενδιαφερόμενου/ης.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε {{ rec.to_text }} {{ rec.recipient }} του {{ rec.non_permanent__fathername }}, αναπληρωτή εκπαιδευτικό του κλάδου {{ rec.non_permanent__profession }} του {{ rec.non_permanent__organization_serving }} ειδική άδεια με αποδοχές {{ rec.duration }} εργάσιμων ημερών από {{ rec.date_from }} έως {{ rec.date_to }} λόγω εκλογών.</w:t>
+            </w:r>
+        </w:p>

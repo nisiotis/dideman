@@ -1,0 +1,39 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>     
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις διατάξεις: α) του άρθρου  2 παρ.  5 του Ν.1346/83 (ΦΕΚ 46 τ.Α΄), β) του άρθρου 16 παρ. 19 του Ν.1586/86 (ΦΕΚ 37 τ. Α΄).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Το άρθρο 26 του Π.Δ. 410/1988.</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Την αίτηση του/της  ενδιαφερόμενου/ης</w:t>
+            </w:r>
+        </w:p>       
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε {{ rec.to_text }} {{ rec.recipient }} του {{ rec.non_permanent__fathername }}, αναπληρωτή εκπαιδευτικό του κλάδου {{ rec.non_permanent__profession }} του {{ rec.non_permanent__organization_serving }} ειδική άδεια με αποδοχές {{rec.period_description}}.</w:t>
+            </w:r>
+        </w:p>

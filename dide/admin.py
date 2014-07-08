@@ -350,9 +350,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'registration_number', 'profession', 'date_hired',
                     'permanent_post', 'organization_serving']
     inlines = EmployeeAdmin.inlines + [PromotionInline, PlacementInline,
-                                       ServiceInline, LeaveInline,
-                                       LeavePeriodInline,
-                                       ResponsibilityInline]
+                                       ServiceInline, LeaveInline, ResponsibilityInline]
 
     list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
                                                IslandServingFilter,
