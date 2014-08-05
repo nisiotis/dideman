@@ -13,7 +13,7 @@ _template_path = 'menu' + os.path.sep
 
 def menu(request):
     today = datetime.date.today()
-    set = ApplicationSet.objects.filter(end_date__gte=today)
+    set = ApplicationSet.objects.filter(end_date__gte=today, start_date__lte=today)
     if 'logout' in request.GET:
         request.session.clear()
         messages.info(request, 'Αποσυνδεθήκατε με επιτυχία. Σε περίπτωση που χρησιμοποιήσατε έναν δημόσιο ηλεκτρονικό υπολογιστή, παρακαλούμε κλείστε το πρόγραμμα περιήγησης (browser).')
