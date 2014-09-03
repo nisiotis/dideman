@@ -1,0 +1,34 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Το άρθρο 93, παρ. 1 και 2 του Ν. 3852/2010 (ΦΕΚ Α' 87/07-06-2010).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Το Ν. 4071/2012 (ΦΕΚ Α' 85/11-04-2012).</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε ειδική άδεια διευκόλυνσης με αντιμισθία στον/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, υπάλληλο κλάδου {{ rec.profession }} του {{ rec.employee__subclass__organization_serving }}, από {{ rec.date_from }} έως {{ rec.date_to }}, μετά την εκλογή του ώς ... στην εκλογική αναμέτρηση της ... .</w:t>
+            </w:r>
+        </w:p>
