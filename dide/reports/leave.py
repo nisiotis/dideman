@@ -93,7 +93,7 @@ leave_docx_reports = [
 
     LeaveDocxReport(u'Ειδική άδεια αιρετών Ο.Τ.Α.', 'adeia_airetwn_ota.xml',
                     custom_context={'subject': u'Χορήγηση ειδικής άδειας'
-                                    u' αιρετών Ο.Τ.Α.'}),
+                                    u' διευκόλυνσης με αντιμισθία.'}),
 
     LeaveDocxReport(u'Ανατροφής (Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay.xml',
                     custom_context={'subject':
