@@ -561,8 +561,7 @@ class Employee(models.Model):
 
     def formatted_recognised_experience(self):
         return DateInterval(self.recognised_experience)
-    formatted_recognised_experience.short_description = \
-        u'Μορφοποιημένη προϋπηρεσία'
+    formatted_recognised_experience.short_description = u'Μορφοποιημένη προϋπηρεσία'
 
     def educational_service(self):
         return self.total_service() - DateInterval(self.non_educational_experience)
@@ -571,10 +570,14 @@ class Employee(models.Model):
     def not_service_in_years(self):
         """Returns a dict of {year: sum_of_not_service_days } form"""
         today = datetime.date.today()
+        last_day = datetime.date(day=31, month=12, year=today.year)
         leaves = self.employeeleave_set.filter(leave__is_service=False, date_from__lt=today)
-        sub = sum([(l.date_to - today).days for l in leaves if l.date_to > today])
         seq = reduce(concat, [l.split() for l in leaves], tuple())
         seq = [s for s in seq if s[0] <= today.year]
+        # Για τις αδειες που δεν εχουν ληξει ακομη μην υπολογισεις στις αφαιρουμενες μερες 
+        # το διαστημα απο την ληξη της αδειας η το τελος του ετους μεχρι σημερα
+        sub = sum([(min(l.date_to, last_day) - today).days
+                   for l in leaves if l.date_to > today and l.date_from < today])
         groups = [(k, sum(map(itemgetter(1), g)))
                   for k, g in groupby(sorted(seq), key=itemgetter(0))]
         return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]
