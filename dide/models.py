@@ -1474,10 +1474,12 @@ class EmployeeLeave(models.Model):
         if hasattr(self, 'leave') and hasattr(self, 'employee'):
             if hasattr(self.employee, 'permanent'):
                 limit = self.employee.permanent.normal_leave_days()
-            else:
+            elif hasattr(self.employee, 'administrative'):
                 limit = self.employee.administrative.normal_leave_days()
+            else:
+                limit = 0
 
-            if self.leave.name == u'Κανονική':
+            if self.leave.name == u'Κανονική' and limit:
                 y = self.date_from.year
 
                 # Οι διοικητικοί έχουν έξτρα 5 μέρες αν πάρουν την άδειά τους από 1/1 έως 14/5
