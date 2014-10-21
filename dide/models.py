@@ -41,6 +41,24 @@ class RankCode(models.Model):
         return self.rank
 
 
+class PaymentFilePDF(models.Model):
+
+    class Meta:
+        verbose_name = u'Οικονομικά: Αρχείο Πληρωμής σε PDF'
+        verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών σε PDF'
+
+    id = models.AutoField(primary_key=True)
+    pdf_file = models.FileField(upload_to="pdffiles")
+    csv_file = models.FileField(upload_to="pdffiles")
+    description = models.CharField(u'Περιγραφή', max_length=255)
+    status = models.BooleanField(u'Κατάσταση', blank=True)
+    extracted_files = models.IntegerField(u'Αρχεία που \
+    δημιουργίθηκαν', null=True, blank=True)
+
+    def __unicode__(self):
+        return self.description
+
+
 class PaymentFileName(models.Model):
 
     class Meta:

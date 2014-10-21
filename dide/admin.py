@@ -28,7 +28,7 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
                     ApplicationChoice, ApplicationType, SchoolCommission,
                     DegreeOrganization)
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
-                    PaymentReportType, PaymentCode)
+                    PaymentReportType, PaymentCode, PaymentFilePDF)
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
                      CreatePDF, DeleteAction, timestamp, EmployeeBecome,
                      HideMassReports, ShowMassReports)
@@ -39,6 +39,12 @@ from django.utils.translation import ugettext_lazy
 from dideman import settings
 from django.utils.encoding import force_unicode
 import zipfile, os
+
+
+class PaymentFilePDFAdmin(DideAdmin):
+    readonly_fields = ['status', 'extracted_files']
+    list_display = ('description', 'status', 'extracted_files')
+    search_fields = ('description',)
 
 
 class PaymentFileNameAdmin(DideAdmin):
@@ -636,13 +642,15 @@ map(lambda t: admin.site.register(*t), (
     (TemporaryPosition, TemporaryPositionAdmin),
     (TemporaryPositionAllAreas, TemporaryPositionAllAreasAdmin),
     (ApplicationSet, ApplicationSetAdmin),
+    (SchoolCommission, SchoolCommissionAdmin),
     (PaymentCategoryTitle, PaymentCategoryTitleAdmin),
     (PaymentReportType, PaymentReportTypeAdmin),
+    (PaymentFilePDF, PaymentFilePDFAdmin),
     (PaymentFileName, PaymentFileNameAdmin),
     (RankCode, RankCodeAdmin),
-    (PaymentCode, PaymentCodeAdmin),
-    (SchoolCommission, SchoolCommissionAdmin),
+    (PaymentCode, PaymentCodeAdmin)
 ))
+
 
 admin.site.register((TransferArea, Island, Responsibility, NonPermanentType,
                      SocialSecurity, LoanCategory, DegreeCategory, Settings,

@@ -167,6 +167,13 @@ def paymentfilename(request):
                            PaymentFileNameAdmin)
 
 
+def paymentfilepdf(request):
+    from dideman.dide.admin import PaymentFilePDFAdmin
+    from dideman.dide.models import PaymentFilePDF
+    return render_template(request, PaymentFilePDF,
+                           PaymentFilePDFAdmin)
+
+
 def rankcode(request):
     from dideman.dide.admin import RankCodeAdmin
     from dideman.dide.models import RankCode
