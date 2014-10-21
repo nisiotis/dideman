@@ -8,12 +8,10 @@ def cc(obj):
     if hasattr(obj['employee__subclass__organization_serving'], 'organization'):
         ret.append(obj['employee__subclass__organization_serving'].organization.name)
     if hasattr(obj['employee__subclass__permanent_post'], 'organization'):
-        if obj['employee__subclass__permanent_post'].organization.name \
-                not in [obj['employee__subclass__organization_serving'].organization.name, '-']:
-            ret.append(obj['employee__subclass__permanent_post'].\
-                           organization.name)
+        if obj['employee__subclass__permanent_post'].organization.name not in [obj['employee__subclass__organization_serving'].organization.name, '-']:
+            ret.append(obj['employee__subclass__permanent_post'].organization.name)
     elif hasattr(obj['employee__subclass__temporary_position'], 'organization'):
-        if obj['employee__subclass__temporary_position'].organization.name != obj['employee__subclass__organization_serving']:
+        if obj['employee__subclass__temporary_position'] != obj['employee__subclass__organization_serving']:
             ret.append(obj['employee__subclass__temporary_position'].organization.name)
     if obj['employee__subclass__serving_type__id'] != 1:
         ret.append(u'ΑΛΛΟ Π.Υ.Σ.Δ.Ε.')
@@ -176,7 +174,7 @@ leave_docx_reports = [
 
     LeaveDocxReport(u'Εκπαιδευτική Επιμορφώσεων', 'ekpaideftiki_epimorfoseon.xml',
                     custom_context={'subject':
-                                        u'Χορήγηση ειδικής άδειας απουσίας σε εκπαιδευτικό για επιμορφωτικούς ή επιστημονικούς λόγους.'}), 
+                                        u'Χορήγηση ειδικής άδειας απουσίας σε εκπαιδευτικό για επιμορφωτικούς ή επιστημονικούς λόγους.'}),
 
     LeaveDocxReport(u'Ανατροφής (__ου πολύδυμου)', 'polidimou.xml',
                     custom_context={'subject':

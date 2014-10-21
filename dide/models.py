@@ -397,13 +397,13 @@ class PlacementType(models.Model):
 class LeaveManager(models.Manager):
 
     def get_by_natural_key(self, name):
-        return self.get(name=name)    
-    
+        return self.get(name=name)
+
     def choices(self, for_non_permanents=False):
-        qs = self.filter(for_non_permanents=for_non_permanents).only('id', 'name')            
+        qs = self.filter(for_non_permanents=for_non_permanents).only('id', 'name')
         choices = [(obj.id, obj.name) for obj in qs]
         return choices
-            
+
 
 LEAVE_TYPES = ((u'Κανονική', u'Κανονική'),
                (u'Αναρρωτική', u'Αναρρωτική'),
@@ -433,8 +433,8 @@ class Leave(models.Model):
 
     def natural_key(self):
         return (self.name, )
-      
-      
+
+
 class Responsibility(models.Model):
 
     class Meta:
@@ -507,7 +507,7 @@ class Employee(models.Model):
         ordering = ['lastname']
 
     objects = EmployeeManager()
- 
+
     firstname = models.CharField(u'Όνομα', max_length=100)
     lastname = models.CharField(u'Επώνυμο', max_length=100)
     fathername = models.CharField(u'Όνομα Πατέρα', max_length=100)
@@ -539,7 +539,7 @@ class Employee(models.Model):
     extra_professions = models.ManyToManyField(Profession, through='EmployeeProfession')
     responsibilities = models.ManyToManyField(Responsibility, through='EmployeeResponsibility')
     studies = models.ManyToManyField(DegreeCategory, through='EmployeeDegree')
-    study_years = models.IntegerField(u'Έτη φοίτησης', max_length=1, null=True, blank=True, 
+    study_years = models.IntegerField(u'Έτη φοίτησης', max_length=1, null=True, blank=True,
         choices=[(x, str(x)) for x in range(2, 7)])
     notes = models.TextField(u'Σημειώσεις', blank=True, default='')
     show_mass_pay = models.NullBooleanField(u'Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', null=True, blank=True, default=True)
@@ -592,7 +592,7 @@ class Employee(models.Model):
         leaves = self.employeeleave_set.filter(leave__is_service=False, date_from__lt=today)
         seq = reduce(concat, [l.split() for l in leaves], tuple())
         seq = [s for s in seq if s[0] <= today.year]
-        # Για τις αδειες που δεν εχουν ληξει ακομη μην υπολογισεις στις αφαιρουμενες μερες 
+        # Για τις αδειες που δεν εχουν ληξει ακομη μην υπολογισεις στις αφαιρουμενες μερες
         # το διαστημα απο την ληξη της αδειας η το τελος του ετους μεχρι σημερα
         sub = sum([(min(l.date_to, last_day) - today).days
                    for l in leaves if l.date_to > today and l.date_from < today])
@@ -621,27 +621,34 @@ class Employee(models.Model):
         transaction.commit_unless_managed()
 
     def subclass(self):
-        for attr in ["administrative", "permanent", "nonnermanent", "privateteacher"]:
+        for attr in ["administrative", "permanent", "nonnermanent", "privateteacher"]:            
             try:
-                return getattr(self, attr)
+                m = getattr(self, attr)
+                if hasattr(m, "currently_serves"):
+                    if getattr(m, "currently_serves") == 1:
+                        return m
+                else:
+                    return m                        
             except:
                 continue
+        if m:
+            return m
         return self
 
     def normal_leave_days(self):
         raise NotImplementedError
-      
-      
+
+
     def to_text(self):
         if self.sex == "Άνδρας":
              return "στον"
         else:
              return "στην"
-           
+
     def employment_text(self):
-        return "υπάλληλος"                 
-          
-        
+        return "υπάλληλος"
+
+
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
             return u'%s %s (%s)' % (self.lastname, self.firstname,
@@ -693,7 +700,7 @@ class PermanentManager(models.Manager):
             return self.exclude(id__in=ids)
         else:
             return self.filter(id__in=ids)
-        
+
     def serves_in_dide_school(self):
         cursor = connection.cursor()
         cursor.execute(sql.serves_in_dide_school.format(datetime.date.today()))
@@ -729,7 +736,7 @@ class PermanentManager(models.Manager):
         cursor.execute(sql.permanent_post_in_island.format(island_id))
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
-        
+
     def permanent_post_in_organization(self, org_id):
         cursor = connection.cursor()
         cursor.execute(sql.permanent_post_in_organization.format(org_id))
@@ -927,7 +934,7 @@ class Permanent(Employee):
             return rank.id if rank else None
 
     rank_id.short_description = u'ID Βαθμού'
-    
+
     def employment_type_text(self):
         if self.sex == "Άνδρας":
             return "μόνιμος"
@@ -975,12 +982,12 @@ class Administrative(Employee):
 
     def normal_leave_days(self):
         return min(24 + self.total_service().years, 29)
-    
+
     def employee_type_text(self):
         if self.sex == "Άνδρας":
             return "διοικητικός"
         else:
-            return "διοικητική" 
+            return "διοικητική"
 
 methods = ["total_service", "natural_key", "promotions", "permanent_post", "total_not_service", "payment_start_date_auto",
            "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "__unicode__"]
@@ -1116,7 +1123,7 @@ class NonPermanent(Employee):
             return Date(p.date_to) - Date(p.date_from) + DateInterval(days=1)
         else:
             return DateInterval()
-        
+
     def employment_type_text(self):
         t = self.type()
         if t is not None:
@@ -1124,13 +1131,13 @@ class NonPermanent(Employee):
                 if self.sex == "Άνδρας":
                     return "ωρομίσθιος"
                 else:
-                    return "ωρομίσθιας"   
+                    return "ωρομίσθιας"
             else:
                 if self.sex == "Άνδρας":
                     return "αναπληρωτής"
                 else:
-                    return "αναπληρώτρια" 
-                
+                    return "αναπληρώτρια"
+
     def normal_leave_days(self):
         return 7
 
@@ -1181,12 +1188,12 @@ class SchoolManager(models.Manager):
         return self.get(code=code)
 
 
-MUNICIPALITIES = (u"Αγαθονησίου", u"Αστυπάλαιας", u"Καλυμνίων", u"Καρπάθου", u"Κάσου", u"Κω", u"Λειψών", u"Λέρου", 
+MUNICIPALITIES = (u"Αγαθονησίου", u"Αστυπάλαιας", u"Καλυμνίων", u"Καρπάθου", u"Κάσου", u"Κω", u"Λειψών", u"Λέρου",
                   u"Μεγίστης",  u"Νισύρου", u"Πάτμου", u"Ρόδου", u"Σύμης", u"Τήλου", u"Χάλκης")
 MUNICIPALITIES_CHOICES = [(x, x) for x in MUNICIPALITIES]
 
 class SchoolCommission(models.Model):
-    
+
     class Meta:
         verbose_name = u'Σχολική επιτροπή'
         verbose_name_plural = u'Σχολικές επιτροπές'
@@ -1344,7 +1351,7 @@ class SubstitutePlacement(Placement):
 
 
 class NonPermanentLeave(models.Model):
- 
+
     class Meta:
         verbose_name = u'Άδεια Αναπληρωτή/Ωρoμίσθιου'
         verbose_name_plural = u'Άδειες Αναπληρωτή/Ωρoμίσθιου'
@@ -1360,12 +1367,12 @@ class NonPermanentLeave(models.Model):
     protocol_number = models.CharField(u'Αρ. πρωτ.', max_length=10, null=True, blank=True)
     description = models.CharField(u'Σημειώσεις', null=True, blank=True, max_length=300)
     duration = models.IntegerField(max_length=3, verbose_name=u'Διάρκεια')
-    
+
     @shorted(15)
     def category(self):
         return self.leave.name
     category.short_description = u'Κατηγορία'
-    
+
     def affects_payment(self):
         return self.leave.not_paying or self.leaveperiod_set.exclude(payment='yes').count() > 0
 
@@ -1375,9 +1382,9 @@ class NonPermanentLeave(models.Model):
 
     def profession(self):
         return self.non_permanent.profession
-    profession.short_description = u'Ειδικότητα'    
+    profession.short_description = u'Ειδικότητα'
 
-    
+
     def period_description(self):
         periods = self.leaveperiod_set.all()
         if len(periods) > 0:
@@ -1394,18 +1401,18 @@ class NonPermanentLeave(models.Model):
                 dur_desc = u"ημέρα"
             else:
                 dur_desc = u"ημέρες"
-            
+
             desc = u"από %s έως %s (%s %s %s)" % (self.date_from, self.date_to, self.duration, dur_desc, s)
         return desc
-    
-    
+
+
     def clean(self):
         from django.core.exceptions import ValidationError
-        if hasattr(self, 'leave') and hasattr(self, 'non_permanent'):           
+        if hasattr(self, 'leave') and hasattr(self, 'non_permanent'):
             limit = self.non_permanent.normal_leave_days()
 
             if self.leave.name == u'Κανονική':
-                y = self.date_from.year             
+                y = self.date_from.year
                 dur = EmployeeLeave.objects.filter(
                     employee=self.non_permanent, leave=self.leave, date_from__gte=current_year_date_from(),
                     date_to__lte=current_year_date_to()
@@ -1414,23 +1421,23 @@ class NonPermanentLeave(models.Model):
                 msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις {0}. Μέρες χωρίς την τρέχουσα άδεια: {1}'
                 if dur + self.duration > limit:
                     raise ValidationError(msg.format(limit, dur))
-                
-    
+
+
     def __unicode__(self):
         return unicode(self.non_permanent) + '-' + unicode(self.date_from)
 
 
-    
+
 LEAVE_PERIOD_CHOICES = (('no', u'Χωρίς Αποδοχές'),
                         ('yes', u'Με Αποδοχές'),
                         ('half', u'Μισές Αποδοχές'))
 
 class LeavePeriod(models.Model):
-  
+
     class Meta:
       verbose_name = u'Χρονικό Διάστημα'
       verbose_name_plural = u'Χρονικά Διαστήματα'
-      
+
     date_from = models.DateField(u'Έναρξη')
     date_to = models.DateField(u'Λήξη')
     duration = models.IntegerField(max_length=3, verbose_name=u'Διάρκεια')
@@ -1443,7 +1450,7 @@ class LeavePeriod(models.Model):
         else:
             dur_desc = u"ημέρες"
         return u"από %s έως %s (%s %s, %s)" % (self.date_from, self.date_to, self.duration, dur_desc, dict(LEAVE_PERIOD_CHOICES)[self.payment].lower())
-    
+
 
 class EmployeeLeaveManager(models.Manager):
 
@@ -1518,7 +1525,7 @@ class EmployeeLeave(models.Model):
                     dur = EmployeeLeave.objects.filter(
                         employee=self.employee, leave=self.leave, date_from__gte=datetime.date(y, 1, 1),
                         date_to__lte=datetime.date(y, 12, 31)
-                    ).exclude(id=self.id).aggregate(Sum('duration'))['duration__sum'] or 0                
+                    ).exclude(id=self.id).aggregate(Sum('duration'))['duration__sum'] or 0
 
 
                 msg = u'Οι ημέρες κανονικής άδειας ξεπερνούν τις {0}. Μέρες χωρίς την τρέχουσα άδεια: {1}'
@@ -1578,13 +1585,13 @@ class EmployeeResponsibility(models.Model):
 
 
 class DegreeOrganization(models.Model):
-    
+
     class Meta:
         verbose_name = u'Φορέας Πιστοποίησης'
         verbose_name_plural = u'Φορείς Πιστοποίησης'
-        
+
     name = models.CharField(u'Τίτλος', max_length=200)
-    
+
     def __unicode__(self):
         return self.name
 
@@ -1607,8 +1614,8 @@ class EmployeeDegree(models.Model):
 
     def __unicode__(self):
         return self.name
-    
-    
+
+
 class Child(models.Model):
 
     class Meta:
