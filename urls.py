@@ -6,6 +6,7 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^api/permanent/', 'dideman.api.views.permanent'),
     url(r'^employee/help/',
         'dideman.dide.employee.match.help'),
     url(r'^salary/help/',

@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     #'django.contrib.admindocs',
     'dideman.dide',
+    'dideman.api',
     'dideman.private_teachers',
     'south',
     #'debug_toolbar',
