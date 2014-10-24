@@ -45,7 +45,13 @@ class PaymentFilePDFAdmin(DideAdmin):
     readonly_fields = ['status', 'extracted_files']
     list_display = ('description', 'status', 'extracted_files')
     search_fields = ('description',)
-
+    def save_model(self, request, obj, form, change):
+        pf = force_unicode(obj.pdf_file.name, 'cp737', 'ignore')
+        cf = force_unicode(obj.csv_file.name, 'cp737', 'ignore')
+        if pf[-4:] == ".pdf" and cf[-4:] == ".csv":
+            
+            import pdb;pdb.set_trace()
+            obj.save()
 
 class PaymentFileNameAdmin(DideAdmin):
     readonly_fields = ['status', 'imported_records']
