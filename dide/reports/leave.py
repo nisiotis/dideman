@@ -95,8 +95,7 @@ leave_docx_reports = [
 
     LeaveDocxReport(u'Ανατροφής (Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay.xml',
                     custom_context={'subject':
-                                    u'Χορήγηση άδειας χωρίς αποδοχές'
-                                    u' για ανατροφή παιδιού'}),
+                                    u'Χορήγηση άδειας χωρίς αποδοχές για ανατροφή παιδιού'}),
 
     LeaveDocxReport(u'Ανατροφής (4 μηνών - Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay_4_mines.xml',
                     custom_context={'subject':
