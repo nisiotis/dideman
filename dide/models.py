@@ -13,7 +13,6 @@ import datetime
 from dideman import settings
 from operator import itemgetter, concat
 from itertools import groupby
-from datetime import datetime
 
 
 class NullableCharField(models.CharField):
@@ -50,7 +49,7 @@ class PaymentFilePDF(models.Model):
         verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών σε PDF'
 
     def timestampedfiles(instance, filename):
-        ts = datetime.now().strftime("%Y%m%d%H%m")
+        ts = datetime.datetime.now().strftime("%Y%m%d%H%m")
         filename = "%s%s" % (ts, filename[-4:])
         return "%s/pdffiles/%s" %  (settings.MEDIA_ROOT, filename)
     
