@@ -28,6 +28,8 @@ import operator
 import datetime
 import os
 
+pay_pdf = {}
+
 
 @match_required
 def help(request):
@@ -232,6 +234,10 @@ def print_mass_pay(request, year):
 @csrf_protect
 @match_required
 def view(request):
+                                                    
+    f_path = '%s/pdffiles/extfiles' % settings.STATIC_URL
+    #import pdb; pdb.set_trace()                      
+    
     if 'logout' in request.GET:
         request.session.clear()
         return HttpResponseRedirect('/?logout=True')
@@ -255,6 +261,7 @@ def view(request):
         except Permanent.DoesNotExist:
             try:
                 emptype = NonPermanent.objects.get(parent_id=emp.id)
+                mayhavepdf = 1
             except NonPermanent.DoesNotExist:
                 try:
                     emptype = Administrative.objects.get(parent_id=emp.id)
@@ -264,6 +271,10 @@ def view(request):
             raise
 
         pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year','-type')
+        if mayhavepdf == 1:
+            if emp.vat_number != "":
+                pay_pdf = ["%s/pdffiles/extfiles/%s" % (settings.MEDIA_URL, f) for f in os.listdir ("%s/pdffiles/extfiles" %settings.MEDIA_ROOT) if f.split('-')[1] == "%s.pdf" % emp.vat_number]
+                show_pdf = 1
         
         current_year = datetime.date.today().year
         per_year = {p.year: p for p in pay if p.year < current_year}
@@ -273,7 +284,7 @@ def view(request):
 
         o_year_t = [(k, v) for k, v in year_t.iteritems()]
         o_year_t.sort(reverse=True)
-                                           
+        #import pdb; pdb.set_trace()                      
         paginator = Paginator(pay, 15)
 
         page = request.GET.get('page')
@@ -283,9 +294,11 @@ def view(request):
             pay_page = paginator.page(1)
         except EmptyPage:
             pay_page = paginator.page(paginator.num_pages)
-        print emptype.show_mass_pay, SETTINGS['show_mass_reports']
+
         return render_to_response('salary/salary.html',
                                   RequestContext(request, {'emp': emptype,
                                                            'yearly_reports': per_year,
                                                            'total_per_year': o_year_t,
-                                                           'payments': pay_page}))
+                                                           'payments': pay_page,
+                                                           'paypdf': pay_pdf,
+                                                           'showpdf': show_pdf }))

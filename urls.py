@@ -21,4 +21,6 @@ urlpatterns = patterns(
         'dideman.dide.myinfo.views.edit'),
     url(r'^$',
         'dideman.dide.menu.views.menu'),
+    url(r'^salary/view/(?P<file>\d+)/$',
+        'dideman.dide.salary.views.showpdf'),
 )

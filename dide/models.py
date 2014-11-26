@@ -14,6 +14,9 @@ from dideman import settings
 from operator import itemgetter, concat
 from itertools import groupby
 
+from django.db.models.signals import pre_delete
+from django.dispatch.dispatcher import receiver
+
 
 class NullableCharField(models.CharField):
     description = 'CharField that obeys null=True'
@@ -49,7 +52,7 @@ class PaymentFilePDF(models.Model):
         verbose_name_plural = u'Οικονομικά: Αρχεία Πληρωμών σε PDF'
 
     def timestampedfiles(instance, filename):
-        ts = datetime.datetime.now().strftime("%Y%m%d%H%m")
+        ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         filename = "%s%s" % (ts, filename[-4:])
         return "%s/pdffiles/%s" %  (settings.MEDIA_ROOT, filename)
     
@@ -63,6 +66,14 @@ class PaymentFilePDF(models.Model):
 
     def __unicode__(self):
         return self.description
+
+
+@receiver(pre_delete, sender=PaymentFilePDF)
+def mymodel_delete(sender, instance, **kwargs):
+    if instance.pdf_file:
+        instance.pdf_file.delete(False)
+    if instance.csv_file:
+        instance.csv_file.delete(False)
 
 
 class PaymentFileName(models.Model):

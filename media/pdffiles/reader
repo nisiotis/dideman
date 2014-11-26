@@ -1,0 +1,28 @@
+#!/bin/bash
+FILE1="$1"
+FILE2="$2"
+fi=$(basename "$FILE2")
+fname="${fi%.*}"
+ffolder="../../dide/static/extfiles/"
+if [[ "$FILE1" && "$FILE2" ]]
+then
+    OIFS=$IFS
+    IFS=";"
+    COUNTER=1
+    while read line
+    do
+	ARRAY=()
+	for i in $line 
+	do
+	    ARRAY+=("$i")
+	done
+	echo "pdftk A=$FILE2 cat A${ARRAY[0]} output $ffolder$fname-${ARRAY[3]}.pdf"
+	
+	pdftk A=$FILE2 cat A$COUNTER output $ffolder$fname-${ARRAY[3]}.pdf
+	COUNTER=$((COUNTER+1))
+    done < "$FILE1"
+    IFS=$OIFS
+else
+    echo "No input files or files not found!"
+fi
+

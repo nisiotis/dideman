@@ -45,13 +45,18 @@ class PaymentFilePDFAdmin(DideAdmin):
     readonly_fields = ['status', 'extracted_files']
     list_display = ('description', 'status', 'extracted_files')
     search_fields = ('description',)
+
     def save_model(self, request, obj, form, change):
         pf = force_unicode(obj.pdf_file.name, 'cp737', 'ignore')
         cf = force_unicode(obj.csv_file.name, 'cp737', 'ignore')
         if pf[-4:] == ".pdf" and cf[-4:] == ".csv":
-            
-            import pdb;pdb.set_trace()
             obj.save()
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['pdf_file', 'csv_file', ] + self.readonly_fields                
+        return self.readonly_fields
+
+
 
 class PaymentFileNameAdmin(DideAdmin):
     readonly_fields = ['status', 'imported_records']
@@ -399,7 +404,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'has_permanent_post', 'rank', 'address', 'identity_number',
                     'inaccessible_school', 'telephone_number1',
                     'telephone_number2', 'email',
-                    'birth_date', 'hours_current', 'date_created']}),
+                    'birth_date', 'date_created']}), #Removed 'hours_current',
         ('Στοιχεία Προϋπηρεσίας', {
                 'fields': ['currently_serves',
                            'recognised_experience',
