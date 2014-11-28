@@ -236,7 +236,6 @@ def print_mass_pay(request, year):
 def view(request):
                                                     
     f_path = '%s/pdffiles/extfiles' % settings.STATIC_URL
-    #import pdb; pdb.set_trace()                      
     
     if 'logout' in request.GET:
         request.session.clear()
@@ -273,7 +272,7 @@ def view(request):
         pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year','-type')
         if mayhavepdf == 1:
             if emp.vat_number != "":
-                pay_pdf = ["%s/pdffiles/extfiles/%s" % (settings.MEDIA_URL, f) for f in os.listdir ("%s/pdffiles/extfiles" %settings.MEDIA_ROOT) if f.split('-')[1] == "%s.pdf" % emp.vat_number]
+                pay_pdf = ["%s" % f for f in os.listdir ("%s/pdffiles/extfiles" %settings.MEDIA_ROOT) if f.split('-')[1] == "%s.pdf" % emp.vat_number]
                 show_pdf = 1
         
         current_year = datetime.date.today().year
@@ -284,7 +283,6 @@ def view(request):
 
         o_year_t = [(k, v) for k, v in year_t.iteritems()]
         o_year_t.sort(reverse=True)
-        #import pdb; pdb.set_trace()                      
         paginator = Paginator(pay, 15)
 
         page = request.GET.get('page')
@@ -302,3 +300,18 @@ def view(request):
                                                            'payments': pay_page,
                                                            'paypdf': pay_pdf,
                                                            'showpdf': show_pdf }))
+
+@csrf_protect
+@match_required
+def showpdf(request):
+    import os.path
+    import mimetypes
+    mimetypes.init()
+    response = None
+    if 'f' in request.GET:
+        
+        fr = open("%s/pdffiles/extfiles/%s" % (settings.MEDIA_ROOT, request.GET['f']), "r")
+        response = HttpResponse(fr, mimetype='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=%s' % request.GET['f']
+    return response
+    

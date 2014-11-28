@@ -3,7 +3,7 @@ FILE1="$1"
 FILE2="$2"
 fi=$(basename "$FILE2")
 fname="${fi%.*}"
-ffolder="../../dide/static/extfiles/"
+ffolder="extfiles/"
 if [[ "$FILE1" && "$FILE2" ]]
 then
     OIFS=$IFS
@@ -18,7 +18,7 @@ then
 	done
 	echo "pdftk A=$FILE2 cat A${ARRAY[0]} output $ffolder$fname-${ARRAY[3]}.pdf"
 	
-	pdftk A=$FILE2 cat A$COUNTER output $ffolder$fname-${ARRAY[3]}.pdf
+	pdftk A=$FILE2 cat A$COUNTER output "$ffolder$fname-${ARRAY[3]}.pdf"
 	COUNTER=$((COUNTER+1))
     done < "$FILE1"
     IFS=$OIFS
