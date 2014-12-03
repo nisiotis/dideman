@@ -236,7 +236,9 @@ def print_mass_pay(request, year):
 def view(request):
                                                     
     f_path = '%s/pdffiles/extfiles' % settings.STATIC_URL
-    
+    mayhavepdf = 0
+    pay_pdf = []
+    show_pdf = 0
     if 'logout' in request.GET:
         request.session.clear()
         return HttpResponseRedirect('/?logout=True')

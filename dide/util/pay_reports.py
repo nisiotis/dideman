@@ -405,20 +405,29 @@ def generate_pdf_structure(reports):
                      Paragraph(u'Ρόδος, %s / %s / %s' %
                                (today.day, today.month, today.year),
                                signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u'Ο Διευθυντής', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u' ', signature['Center'])])
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(SETTINGS['manager'], signature['Center'])])
+
+        sign = os.path.join(settings.MEDIA_ROOT, "signature.png")
+        im = Image(sign)
+        im.drawHeight = 3.2 * cm
+        im.drawWidth = 6.5 * cm
+
+        data.append([Paragraph(u' ', signature['Center']) ,im])
+
+#        data.append([Paragraph(u' ', signature['Center']),
+#                     Paragraph(u' ', signature['Center'])])
+#        data.append([Paragraph(u' ', signature['Center']),
+#                     Paragraph(u'Ο Διευθυντής', signature['Center'])])
+#        data.append([Paragraph(u' ', signature['Center']),
+#                     Paragraph(u' ', signature['Center'])])
+#        data.append([Paragraph(u' ', signature['Center']),
+#                     Paragraph(u' ', signature['Center'])])
+#        data.append([Paragraph(u' ', signature['Center']),
+#                     Paragraph(u' ', signature['Center'])])
+#        data.append([Paragraph(u' ', signature['Center']),
+#                     Paragraph(u' ', signature['Center'])])
+#        data.append([Paragraph(u' ', signature['Center']),
+#                     Paragraph(SETTINGS['manager'], signature['Center'])])
+
         table6 = Table(data, style=tsf, colWidths=[11.0 * cm, 6.0 * cm])
         elements.append(table6)
         elements.append(PageBreak())
@@ -690,17 +699,11 @@ def generate_pdf_landscape_structure(reports):
         im = Image(sign)
         im.drawHeight = 3.2 * cm
         im.drawWidth = 6.5 * cm
-        #import pdb; pdb.set_trace()
         
         headdata = [[[table_1,table_2], 
                      [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
                       Paragraph(' ', heading_style['Spacer']),
-                      im
-                      #Paragraph('Ο/Η Βεβαιών/ούσα ', signature['Center']),
-                      #Paragraph(' ', heading_style['Spacer']),
-                      #Paragraph(' ', heading_style['Spacer']),
-                      #Paragraph(' ', heading_style['Spacer'])
-                      ],]]
+                      im],]]
         
         table0 = Table(headdata, style=tsl, colWidths=[18 * cm, 10 * cm])
         elements.append(table0)

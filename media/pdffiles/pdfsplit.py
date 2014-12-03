@@ -33,6 +33,7 @@ now = time.localtime(time.time())
 timeStr = str(time.strftime("%y/%m/%d %H:%M:%S",now))
 print "will call loopedFunction, every %s second" % asec
 
+
 loopObj = LoopingCall(loopedFunction)
 loopObj.start(asec, now=True)
  
