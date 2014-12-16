@@ -5,7 +5,7 @@ from dideman.lib.common import *
 from dideman.lib.date import *
 from dideman.dide.decorators import shorted
 from django.db.models import Max
-import sql
+import sql, os
 from django.db import connection, transaction
 from south.modelsinspector import add_introspection_rules
 from django.db.models import Sum
@@ -54,11 +54,10 @@ class PaymentFilePDF(models.Model):
     def timestampedfiles(instance, filename):
         ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         filename = "%s%s" % (ts, filename[-4:])
-        return "%s/pdffiles/%s" %  (settings.MEDIA_ROOT, filename)
+        return os.path.join(settings.MEDIA_ROOT, "pdffiles", filename)
     
     id = models.AutoField(primary_key=True)
     pdf_file = models.FileField(upload_to=timestampedfiles)
-    csv_file = models.FileField(upload_to=timestampedfiles)
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση', blank=True)
     extracted_files = models.IntegerField(u'Αρχεία που \
@@ -67,13 +66,29 @@ class PaymentFilePDF(models.Model):
     def __unicode__(self):
         return self.description
 
+class PaymentEmployeePDF(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    employee_vat = models.CharField(u'Αριθμός φορολογικού μητρώου υπαλλήλου', max_length=255)
+    paymentfilepdf = models.ForeignKey('PaymentFilePDF', verbose_name=u'Αρχείο')
+    employeefile = models.CharField(u'Αρχείο υπαλλήλου', max_length=255)
+
+    def __unicode__(self):
+        return self.employeefile
+
 
 @receiver(pre_delete, sender=PaymentFilePDF)
-def mymodel_delete(sender, instance, **kwargs):
+def pdffile_delete(sender, instance, **kwargs):
     if instance.pdf_file:
+        l = os.listdir(os.path.join(settings.MEDIA_ROOT, "pdffiles", "extracted"))
+        f = instance.pdf_file.name.replace(os.path.join(settings.MEDIA_ROOT,'pdffiles'),'')[1:-4]
+        
+        for itm in l:
+            if itm.startswith("%s" % f):
+                os.remove(os.path.join(settings.MEDIA_ROOT,
+                                       "pdffiles",
+                                       "extracted", itm))
         instance.pdf_file.delete(False)
-    if instance.csv_file:
-        instance.csv_file.delete(False)
 
 
 class PaymentFileName(models.Model):
@@ -91,6 +106,11 @@ class PaymentFileName(models.Model):
 
     def __unicode__(self):
         return self.description
+
+@receiver(pre_delete, sender=PaymentFileName)
+def xmlfile_delete(sender, instance, **kwargs):
+    if instance.xml_file:
+        instance.xml_file.delete(False)
 
 
 class PaymentReportType(models.Model):

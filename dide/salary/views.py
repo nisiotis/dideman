@@ -3,7 +3,7 @@ from dideman import settings
 from dideman.dide.employee.decorators import match_required
 from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
                                  NonPermanent, Employee, Payment, PaymentCode,
-                                 Administrative, PaymentCategoryTitle)
+                                 Administrative, PaymentCategoryTitle, PaymentEmployeePDF)
 from dideman.dide.util.settings import SETTINGS
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            generate_pdf_landscape_structure,
@@ -262,7 +262,7 @@ def view(request):
         except Permanent.DoesNotExist:
             try:
                 emptype = NonPermanent.objects.get(parent_id=emp.id)
-                mayhavepdf = 1
+                
             except NonPermanent.DoesNotExist:
                 try:
                     emptype = Administrative.objects.get(parent_id=emp.id)
@@ -272,10 +272,10 @@ def view(request):
             raise
 
         pay = PaymentReport.objects.filter(employee=emp.id).order_by('-year','-type')
-        if mayhavepdf == 1:
-            if emp.vat_number != "":
-                pay_pdf = ["%s" % f for f in os.listdir ("%s/pdffiles/extfiles" %settings.MEDIA_ROOT) if f.split('-')[1] == "%s.pdf" % emp.vat_number]
-                show_pdf = 1
+        
+        if emp.vat_number != "":
+            
+            pdf = PaymentEmployeePDF.objects.filter(employee_vat=emp.vat_number).order_by('-id')
         
         current_year = datetime.date.today().year
         per_year = {p.year: p for p in pay if p.year < current_year}
@@ -300,8 +300,8 @@ def view(request):
                                                            'yearly_reports': per_year,
                                                            'total_per_year': o_year_t,
                                                            'payments': pay_page,
-                                                           'paypdf': pay_pdf,
-                                                           'showpdf': show_pdf }))
+                                                           'paypdf': pdf
+                                                            }))
 
 @csrf_protect
 @match_required
@@ -312,7 +312,7 @@ def showpdf(request):
     response = None
     if 'f' in request.GET:
         
-        fr = open("%s/pdffiles/extfiles/%s" % (settings.MEDIA_ROOT, request.GET['f']), "r")
+        fr = open(os.path.join(settings.MEDIA_ROOT,'pdffiles','extracted','%s' % request.GET['f']), "r")
         response = HttpResponse(fr, mimetype='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=%s' % request.GET['f']
     return response

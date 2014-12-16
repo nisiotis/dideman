@@ -132,16 +132,12 @@ $(function() {
                 </tr>
 		{% endfor %}
 	    </table>
-	{% if showpdf == 1 %}
+	{% if paypdf %}
       <h2>Πληρωμές ΕΣΠΑ</h2>
 	<p>Οι πληρωμές αναπληρωτών ΕΣΠΑ εμφανίζονται παρακάτω και δεν περιλαμβάνονται στα ετήσια σύνολα.</p>
-	    <table style="width:100%">
-                {% for t in paypdf %}
-		<tr>
-		 <td><a href="/salary/view/showpdf/?f={{ t }}">αρχείο</a></td>
-                </tr>
+	        {% for t in paypdf %}
+		<p><a href="/salary/view/showpdf/?f={{ t.employeefile }}">{{ t.paymentfilepdf }}</a></p>
 		{% endfor %}
-	    </table>
 	    
 	{% endif %}
 

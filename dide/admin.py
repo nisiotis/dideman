@@ -30,14 +30,15 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode, PaymentFilePDF)
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
-                     CreatePDF, DeleteAction, timestamp, EmployeeBecome,
-                     HideMassReports, ShowMassReports)
+                     CreatePDF, PDFReadAction, DeleteAction, timestamp, 
+                     EmployeeBecome, HideMassReports, ShowMassReports)
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
 from django.utils.translation import ugettext_lazy
 from dideman import settings
 from django.utils.encoding import force_unicode
+
 import zipfile, os
 
 
@@ -45,15 +46,20 @@ class PaymentFilePDFAdmin(DideAdmin):
     readonly_fields = ['status', 'extracted_files']
     list_display = ('description', 'status', 'extracted_files')
     search_fields = ('description',)
+    actions = [PDFReadAction(u'Δημιουργία PDF')]
+
+
+    def read_pdf(pdf_file, desc):
+        pass
 
     def save_model(self, request, obj, form, change):
         pf = force_unicode(obj.pdf_file.name, 'cp737', 'ignore')
-        cf = force_unicode(obj.csv_file.name, 'cp737', 'ignore')
-        if pf[-4:] == ".pdf" and cf[-4:] == ".csv":
+        if pf[-4:] == ".pdf":
             obj.save()
+
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ['pdf_file', 'csv_file', ] + self.readonly_fields                
+            return ['pdf_file' ] + self.readonly_fields                
         return self.readonly_fields
 
 

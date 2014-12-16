@@ -6,6 +6,8 @@ from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            rprts_from_user)
 from dideman import settings
 from dideman.dide.util import xml
+from dideman.dide.util import pdfreader
+
 from dideman.dide.util.settings import SETTINGS
 from dideman.settings import TEMPLATE_DIRS
 from django.contrib.admin import helpers
@@ -629,6 +631,37 @@ class DeleteAction(object):
             "admin/delete_selected_confirmation.html"
         ], context, current_app=modeladmin.admin_site.name)
 
+
+class PDFReadAction(object):
+    def __init__(self, short_description):
+        self.short_description = short_description
+        self.__name__ = 'read_pdf_file'
+
+    def __call__(self, modeladmin, request, queryset):
+        opts = modeladmin.model._meta
+        app_label = opts.app_label
+        if not modeladmin.has_change_permission(request):
+            raise PermissionDenied
+        using = router.db_for_write(modeladmin.model)
+        changeable_objects, perms_needed, protected = get_deleted_objects(
+            queryset, opts, request.user, modeladmin.admin_site, using)
+        status = 0
+        records = 0
+        rows_updated = 0
+        for o in queryset:
+            if o.status == 0:
+                status, records = pdfreader.read(o.pdf_file, o.id)
+                o.extracted_files = records
+                o.status = status
+                o.save()
+                rows_updated += 1
+
+        if rows_updated == 1:
+            msg = u'%s αρχείο αναγνώστηκε'
+        else:
+            msg = u'%s αρχεία αναγνώστηκαν'
+        modeladmin.message_user(request, msg % rows_updated)
+        
 
 class XMLReadAction(object):
 
