@@ -12,6 +12,11 @@ to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή'
 to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
 to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
 
+
+class LeaveWithoutPayInline(admin.TabularInline):
+    model = LeaveWithoutPay
+    extra = 0
+
 class WorkingPeriodInline(admin.TabularInline):
     model = WorkingPeriod
     extra = 0
@@ -50,7 +55,7 @@ class PrivateTeacherAdmin(DideAdmin):
     readonly_fields = ['organization_serving', 'total_experience',
                        'total_service', 'date_created',
                        'profession_description', 'rank', 'next_rank_date']
-    inlines = [DegreeInline, WorkingPeriodInline, PromotionInline]
+    inlines = [DegreeInline, WorkingPeriodInline, PromotionInline, LeaveWithoutPayInline]
 
 admin.site.register(PrivateTeacher, PrivateTeacherAdmin)
 admin.site.register(PrivateSchool)
