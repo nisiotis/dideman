@@ -146,6 +146,7 @@ INSTALLED_APPS = (
     'dideman.dide',
     'dideman.api',
     'dideman.private_teachers',
+    'django_extensions',
     'south',
     #'debug_toolbar',
 )
