@@ -841,6 +841,7 @@ class Permanent(Employee):
     has_permanent_post = models.NullBooleanField(u'Έχει οργανική θέση',null=True, blank=True, default=False)
     not_service_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', default=0)
     currently_serves = models.NullBooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
+    educated = models.NullBooleanField(u'Έχει περάσει Π.Ε.Κ.', null=False, default=False)
 
     def total_service(self):
         if self.payment_start_date_manual:
