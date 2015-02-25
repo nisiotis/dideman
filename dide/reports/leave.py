@@ -183,5 +183,10 @@ leave_docx_reports = [
                                         u'Χορήγηση τρίμηνης άδειας υιοθεσίας'}),
     LeaveDocxReport(u'Ανατροφής (Υπόλοιπο)', 'anatrofis_ypoloipo.xml',
                     custom_context={'subject':
-                                        u'Χορήγηση άδειας ανατροφής τέκνου (υπόλοιπο)'})
+                                        u'Χορήγηση άδειας ανατροφής τέκνου (υπόλοιπο)'}),
+
+    LeaveDocxReport(u'Αναρρωτική άνευ αποδοχών', 'anarrotiki_xoris_apodoxes.xml',
+                    custom_context={'subject':
+                                    u'Χορήγηση αναρρωτικής άδειας χωρίς αποδοχές'})
+
     ]

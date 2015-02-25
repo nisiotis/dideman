@@ -14,6 +14,7 @@ def permanent(request):
                       "firstname": r.firstname,
                       "fathername": r.fathername,
                       "payment_start_date": unicode(r.payment_start_date_auto()),
+                      "total_service": str(r.total_service()),
                       "fek": r.order_hired} for r in qs],
                     "error": ""}
             return HttpResponse(json.dumps(data), mimetype='application/json')

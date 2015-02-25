@@ -410,7 +410,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'has_permanent_post', 'rank', 'address', 'identity_number',
                     'inaccessible_school', 'telephone_number1',
                     'telephone_number2', 'email',
-                    'birth_date', 'date_created']}), #Removed 'hours_current',
+                    'birth_date', 'date_created', 'educated']}), #Removed 'hours_current',
         ('Στοιχεία Προϋπηρεσίας', {
                 'fields': ['currently_serves',
                            'recognised_experience',
@@ -441,6 +441,7 @@ class PermanentAdmin(EmployeeAdmin):
                                      'formatted_recognised_experience',
                                      'non_educational_experience',
                                      'educational_service',
+                                     'educated',
                                      'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
 

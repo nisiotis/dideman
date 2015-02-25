@@ -6,6 +6,7 @@ from django.db import models
 from dideman.dide import models as dide
 from dideman.lib.ranking import RANKS, next_index
 import datetime
+import operator
 
 
 def int300(days):
@@ -62,7 +63,11 @@ class PrivateTeacher(dide.Employee):
                                hours_weekly=self.current_hours, full_week=18)
             periods = list(self.workingperiod_set.all()) + [wp]
             total_experience = self.total_experience(periods)
-        return total_experience - DateInterval(self.not_service_days)
+        dli = reduce(operator.add,
+                     [DateInterval(l.recognised_experience)
+                      for l in self.leavewithoutpay_set.all()],
+                     DateInterval("000000"))
+        return total_experience - DateInterval(self.not_service_days) + dli
     total_service.short_description = u'Συνολική υπηρεσία'
 
     def rank(self):
@@ -100,12 +105,12 @@ class PrivateTeacher(dide.Employee):
     def save(self, *args, **kwargs):
         self.currently_serves = False
         super(PrivateTeacher, self).save(*args, **kwargs)
-        
+
     def employee_type_text(self):
         if self.sex == "Άνδρας":
             return "ιδιωτικός"
         else:
-            return "ιδιωτική" 
+            return "ιδιωτική"
 
 
 class WorkingPeriod(models.Model):
@@ -143,6 +148,25 @@ class WorkingPeriod(models.Model):
 
     def __unicode__(self):
         return "<WorkingPeriod %s - %s>" % (self.date_from, self.date_to)
+
+
+class LeaveWithoutPay(models.Model):
+
+    class Meta:
+        verbose_name = u'Άδεια άνευ αποδοχών'
+        verbose_name_plural = u'Άδειες άνευ αποδοχών'
+
+    teacher = models.ForeignKey(dide.Employee)
+    date_from = models.DateField(u'Από')
+    date_to = models.DateField(u'Μέχρι')
+    recognised_experience = models.CharField(u'Αναγνωρίσιμη Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True, default='000000', max_length=8)
+
+    def __repr__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return "<Leave %s - %s>" % (self.date_from, self.date_to)
+
 
 
 class PrivateSchool(dide.Organization):
