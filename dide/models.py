@@ -1357,6 +1357,7 @@ class SubstituteMinistryOrder(models.Model):
     order_start_manager = models.CharField(u'Απόφαση τοποθέτησης Διεθυντή Δ.Ε.', max_length=300, null=True, blank=True)
     order_end_manager = models.CharField(u'Απόφαση απόλυσης Διευθυντή Δ.Ε.', max_length=300, null=True, blank=True)
     order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
+    order_type = models.IntegerField(max_length=1, verbose_name=u'Μισθοδοσία', choices=((1, u'Τακτικός Προυπολογισμός'), (2, u'Πρόγραμμα Δημοσίων Επενδύσεων'), (3, u'Ε.Σ.Π.Α.')))
     substitutes = models.ManyToManyField(NonPermanent, through=u'OrderedSubstitution', verbose_name=u'Αναπηρωτές')
 
     def __unicode__(self):

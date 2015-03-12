@@ -331,7 +331,7 @@ class EmployeeAdmin(DideAdmin):
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
-    list_display = ['order', 'date', 'web_code']
+    list_display = ['order', 'date', 'web_code', 'order_type']
     search_fields = ['order', 'date', 'web_code']
     inlines = [OrderedSubstitutionInline]
     extra = 0
