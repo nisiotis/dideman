@@ -580,6 +580,7 @@ class Employee(models.Model):
         choices=[(x, str(x)) for x in range(2, 7)])
     notes = models.TextField(u'Σημειώσεις', blank=True, default='')
     show_mass_pay = models.NullBooleanField(u'Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', null=True, blank=True, default=True)
+    ama = models.CharField(u'ΑΜΑ ΙΚΑ ΕΤΑΜ', max_length=10, null=True, blank=True)
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
 
     def profession_description(self):

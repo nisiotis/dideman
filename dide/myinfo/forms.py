@@ -19,6 +19,7 @@ class MyInfoForm(forms.Form):
     mothername = forms.CharField(label=u'Όνομα Μητέρας', required=False)
     social_security_registration_number = forms.CharField(label=u'Α.Μ.Κ.Α.',
                                                           required=False)
+    ama = forms.CharField(label=u'ΑΜΑ ΙΚΑ ΕΤΑΜ', required=False)
     address = forms.CharField(label=u'Διεύθυνση Κατοικίας',
                               widget=forms.Textarea(attrs={'rows':3, 'cols':35}), required=False)
     tax_office = forms.CharField(label=u'Δ.Ο.Υ.', required=False)

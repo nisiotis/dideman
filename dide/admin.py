@@ -286,7 +286,7 @@ class TemporaryPositionAllAreasAdmin(ApplicationAdmin):
 
 economic_fieldset = (u'Οικονομικά στοιχεία', {
         'fields': ['vat_number', 'tax_office', 'bank', 'bank_account_number',
-                   'iban', 'social_security_registration_number', 'before_93',
+                   'iban', 'social_security_registration_number', 'ama', 'before_93',
                    'has_family_subsidy', 'other_social_security',
                    'organization_paying', 'show_mass_pay']})
 
