@@ -90,6 +90,8 @@
                 {{ field.errors }}
                 <label  style="width:220px;" for="id_{{ field.html_name }}" {% if field.field.required %}class="required"{% endif %}>{{field.label}} : </label>
                 {{ field  }}{% if field.label == "Email" %}<div>Πανελλήνιο Σχολικό Δίκτυο - <a target="_blank" href="http://register.sch.gr/teachers/">Εγγραφή</a></div>{% endif %}
+{% if field.label == "ΑΜΑ ΙΚΑ ΕΤΑΜ" %}<div>Θα τον βρείτε στον ιστότοπο του ΙΚΑ - <a target="_blank" href="http://www.ika.gr/">www.ika.gr</a></div>{% endif %}
+{% if field.label == "Α.Μ.Κ.Α." %}<div>Θα τον βρείτε στον ιστότοπο <a target="_blank" href="http://www.amka.gr/">www.amka.gr</a></div>{% endif %}
               </div>
            </div>
          {% endfor %}
