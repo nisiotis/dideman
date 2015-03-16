@@ -91,6 +91,13 @@ def pdffile_delete(sender, instance, **kwargs):
         instance.pdf_file.delete(False)
 
 
+TAXED_TYPES = [(11, u'Τακτικές Μονίμων'), 
+               (12, u'Τακτικές Αναπληρωτών'), 
+               (21, u'Έκτακτες που φορολογούνται'), 
+               (22, u'Έκτακτες που δεν φορολογούνται'),  
+               (23, u'Έκτακες με αυτοτελή φόρο'), 
+               (24, u'Έκτακες προς εμφάνιση μόνο')]
+
 class PaymentFileName(models.Model):
 
     class Meta:
@@ -102,7 +109,7 @@ class PaymentFileName(models.Model):
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση', blank=True)
     imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', null=True, blank=True)
-    taxed = models.BooleanField(u'Συμπεριλαμβάνεται την φορολογία;', blank=True, default=True)
+    taxed = models.IntegerField(u'Τύπος αποδοχών', choices=TAXED_TYPES, blank=True, default=11)
 
     def __unicode__(self):
         return self.description
@@ -153,7 +160,7 @@ class PaymentReport(models.Model):
     iban = models.CharField('iban', max_length=50, null=True, blank=True)
     net_amount1 = models.CharField(u"Α' Δεκαπενθήμερο", max_length=50, null=True, blank=True)
     net_amount2 = models.CharField(u"Β' Δεκαπενθήμερο", max_length=50, null=True, blank=True)
-    taxed = models.BooleanField(u'Συμπεριλαμβάνεται την φορολογία;', blank=True, default=True)
+    taxed = models.IntegerField(u'Τύπος αποδοχών', choices=TAXED_TYPES, blank=True, default=11)
 
     def netab_amount(self):
         return float(self.net_amount1) + float(self.net_amount2)
