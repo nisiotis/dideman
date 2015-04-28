@@ -73,10 +73,11 @@ class PaymentFileNameAdmin(DideAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            if obj.status:
-                return ['xml_file', 'taxed', ] + self.readonly_fields
-            else:
-                return ['xml_file', ] + self.readonly_fields                
+            return ['xml_file', ] + self.readonly_fields
+            #if obj.status:
+            #    return ['xml_file', 'taxed', ] + self.readonly_fields
+            #else:
+            #    return ['xml_file', ] + self.readonly_fields                
         return self.readonly_fields
 
     def admin_add_zip(self, request):

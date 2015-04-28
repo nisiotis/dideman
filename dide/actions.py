@@ -304,12 +304,16 @@ class CSVEconomicsReport(TemplateAction):
             r_list = []
             for empx in u:
                 r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, emp_payments))
-            hd = r_list[0]
-            ft = [r_list[-2]] + [r_list[-1]]
+            hd = []
+            ft = []
+            if len(r_list) > 0:
+                hd = r_list[0]
+                ft = [r_list[-2]] + [r_list[-1]]
             dt = r_list
-            del dt[0]
-            del dt[-2]
-            del dt[-1]
+            if len(dt) > 0:
+                del dt[0]
+                del dt[-2]
+                del dt[-1]
             newlist = []
             output = dict()
             for sublist in dt:
