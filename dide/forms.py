@@ -18,6 +18,14 @@ class SubstitutePlacementForm(ModelForm):
             self.instance.date_to = current_year_date_to_half()
         self.instance.type = SubstitutePlacementForm.pltype
 
+TAXED_TYPES = [(11, u'Τακτικές Μονίμων'), 
+               (12, u'Τακτικές Αναπληρωτών'), 
+               (21, u'Έκτακτες που φορολογούνται'), 
+               (22, u'Έκτακτες που δεν φορολογούνται'),  
+               (23, u'Έκτακες με αυτοτελή φόρο')]
+ 
+#               (24, u'Έκτακες προς εμφάνιση μόνο')]
+
 
 class PaymentFileNameMassForm(forms.Form):
     is_bound = 0
@@ -25,9 +33,8 @@ class PaymentFileNameMassForm(forms.Form):
     xml_file =  forms.FileField(label=u'Αρχείο ZIP', required=True)
     description = forms.CharField(label=u'Εμφανιζόμενο όνομα',
                                   required=True)
-    taxed = forms.BooleanField(label=u'Συμπεριλαμβάνεται την φορολογία',
-                               initial=True, required=False)
-
+    taxed = forms.TypedChoiceField(label=u'Τύπος αποδοχών', choices=TAXED_TYPES, coerce=int)
+    
 
 class SchoolCommissionForm(forms.ModelForm):
 

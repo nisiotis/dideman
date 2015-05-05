@@ -90,7 +90,8 @@ class PaymentFileNameAdmin(DideAdmin):
             if form.is_valid():
                 if zipfile.is_zipfile(request.FILES['xml_file']):
                     zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
-                    xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
+                    #import pdb; pdb.set_trace()
+                    xml_li = [f for f in zf.namelist() if unicode(f, "cp437").encode('cp737','ignore').decode('utf8').lower().endswith('.xml')]
                     for file in xml_li:
                         taxedfound = 0
                         t = timestamp()
@@ -98,7 +99,7 @@ class PaymentFileNameAdmin(DideAdmin):
                         f.write(zf.read(file))
                         f.close()
                         if request.POST.get('taxed'):
-                            taxedfound = 1
+                            taxedfound = request.POST.get('taxed')
                         pf = PaymentFileName(xml_file='xmlfiles/fromzipfile%s.xml' % t,
                                              description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]),
                                              status=0, taxed=taxedfound)
