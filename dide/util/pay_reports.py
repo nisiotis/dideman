@@ -98,7 +98,7 @@ def dict_fetch_all(cursor):
         for row in cursor.fetchall()
     ]
 
-def rprts_from_user(emp_id, year):
+def rprts_from_user(emp_id, year, types):
     """ Returns a list of dicts of employee's payments
     defined in paymentreports from a set of paymentreports 
     filtered by year and employee.
@@ -119,13 +119,13 @@ def rprts_from_user(emp_id, year):
             WHERE dide_paymentreport.year = {0}
             AND dide_paymentreport.employee_id = {1}             
             AND dide_payment.type IN ('de', 'gr')
-            AND dide_paymentreport.taxed <> 0
+            AND dide_paymentreport.taxed IN ({2})
             ORDER BY dide_payment.type DESC;"""
 
     s_emp_id = ''.join('%s' % emp_id)
     s_year = ''.join('%s' % year)
-
-    result = cursor.execute(sql.format(s_year, s_emp_id))
+    
+    result = cursor.execute(sql.format(s_year, s_emp_id, types))
     return dict_fetch_all(cursor)
 
 

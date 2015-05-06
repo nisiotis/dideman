@@ -144,7 +144,7 @@ def print_mass_pay(request, year):
     except:
         raise
 
-    emp_payments = rprts_from_user(emp.id, year)
+    emp_payments = rprts_from_user(emp.id, year, '11,12,21')
 
         
 

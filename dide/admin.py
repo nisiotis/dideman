@@ -74,10 +74,6 @@ class PaymentFileNameAdmin(DideAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return ['xml_file', ] + self.readonly_fields
-            #if obj.status:
-            #    return ['xml_file', 'taxed', ] + self.readonly_fields
-            #else:
-            #    return ['xml_file', ] + self.readonly_fields                
         return self.readonly_fields
 
     def admin_add_zip(self, request):
@@ -90,8 +86,11 @@ class PaymentFileNameAdmin(DideAdmin):
             if form.is_valid():
                 if zipfile.is_zipfile(request.FILES['xml_file']):
                     zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
-                    #import pdb; pdb.set_trace()
-                    xml_li = [f for f in zf.namelist() if unicode(f, "cp437").encode('cp737','ignore').decode('utf8').lower().endswith('.xml')]
+                    try:
+                        xml_li = [f for f in zf.namelist() if unicode(f, "cp437").encode('cp737','ignore').decode('utf8').lower().endswith('.xml')]
+                    except:
+                        xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
+
                     for file in xml_li:
                         taxedfound = 0
                         t = timestamp()
@@ -329,7 +328,8 @@ class EmployeeAdmin(DideAdmin):
     actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
                ShowMassReports(u'Εμφάνιση Μισθοδοτιών Καταστάσεων'),               
                HideMassReports(u'Απόκρυψη Μισθοδοτιών Καταστάσεων'),
-               CSVEconomicsReport(add=[])]
+               CSVEconomicsReport(short_description = u'Εξαγωγή λίστας ΚΕΠΥΟ τακτικών %s' % str(datetime.date.today().year - 1), types=u'11,12'), 
+               CSVEconomicsReport(short_description = u'Εξαγωγή λίστας ΚΕΠΥΟ έκτακτων %s' % str(datetime.date.today().year - 1), types=u'21,23')]
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):

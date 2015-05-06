@@ -283,19 +283,21 @@ class CSVEconomicsReport(TemplateAction):
     To be deleted.
     """
     def __init__(self, short_description=u'Εξαγωγή λίστας ΚΕΠΥΟ %s' % str(datetime.date.today().year - 1),
-                 fields=None, add=None, exclude=None):
+                 fields=None, add=None, exclude=None, types=None):
         self.fields = fields
         self.add = add
         self.exclude = exclude
+        self.types = types
         super(CSVEconomicsReport, self).__init__(short_description, None, 'csv')
 
     def __call__(self, modeladmin, request, queryset, *args, **kwargs):
+        rpt_types = self.types
         final = defaultdict(list)
         all_types = PaymentCategoryTitle.objects.all()
 
         emp_dict = {}
         for obj in queryset:
-            emp_payments = rprts_from_user(obj.id, datetime.date.today().year - 1)            
+            emp_payments = rprts_from_user(obj.id, datetime.date.today().year - 1, rpt_types)            
             u = set([x['employee_id'] for x in emp_payments])
             dict_emp = {obj.id: [obj.lastname, obj.firstname, obj.vat_number]}
             
