@@ -656,7 +656,7 @@ class PDFReadAction(object):
         rows_updated = 0
         for o in queryset:
             if o.status == 0:
-                status, records = pdfreader.read(o.pdf_file, o.id)
+                status, records = pdfreader.read(o.pdf_file, o.pdf_file_type, o.id)
                 o.extracted_files = records
                 o.status = status
                 o.save()

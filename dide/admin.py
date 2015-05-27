@@ -44,7 +44,7 @@ import zipfile, os
 
 class PaymentFilePDFAdmin(DideAdmin):
     readonly_fields = ['status', 'extracted_files']
-    list_display = ('description', 'status', 'extracted_files')
+    list_display = ('description', 'status', 'extracted_files', 'pdf_file_type')
     search_fields = ('description',)
     actions = [PDFReadAction(u'Δημιουργία PDF')]
 

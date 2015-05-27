@@ -44,6 +44,9 @@ class RankCode(models.Model):
     def __unicode__(self):
         return self.rank
 
+PDF_FILE_TYPES = [(1, u'Μήνιαίες Βεβαιώσεις'), 
+                  (2, u'Έτήσιες Βεβαιώσεις')]
+
 
 class PaymentFilePDF(models.Model):
 
@@ -62,6 +65,7 @@ class PaymentFilePDF(models.Model):
     status = models.BooleanField(u'Κατάσταση', blank=True)
     extracted_files = models.IntegerField(u'Αρχεία που \
     δημιουργίθηκαν', null=True, blank=True)
+    pdf_file_type = models.IntegerField(u'Τύπος αποδοχών', choices=PDF_FILE_TYPES, blank=True, default=1)
 
     def __unicode__(self):
         return self.description
@@ -72,6 +76,7 @@ class PaymentEmployeePDF(models.Model):
     employee_vat = models.CharField(u'Αριθμός φορολογικού μητρώου υπαλλήλου', max_length=255)
     paymentfilepdf = models.ForeignKey('PaymentFilePDF', verbose_name=u'Αρχείο')
     employeefile = models.CharField(u'Αρχείο υπαλλήλου', max_length=255)
+    pdf_file_type = models.IntegerField(u'Τύπος αποδοχών', choices=PDF_FILE_TYPES, blank=True, default=1)
 
     def __unicode__(self):
         return self.employeefile

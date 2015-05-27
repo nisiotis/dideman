@@ -13,8 +13,9 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.layout import LAParams
 from cStringIO import StringIO
 from django.db import connection, transaction
+from dideman.dide.util.settings import SETTINGS
 
-def read(pdffile, obj_id):
+def read(pdffile, pdffiletype, obj_id):
     nl = []
     sqlstr = ""
     f = file(pdffile.name, "rb") 
@@ -42,16 +43,17 @@ def read(pdffile, obj_id):
         lst = lines.split('\n')
         for l in lst:
             if l[:6] == 'ΑΦΜ':
-                new_file = '%s.%s.%s.pdf' % (pdffile.name.replace(os.path.join(settings.MEDIA_ROOT,'pdffiles'),'')[1:-4],l[7:],datetime.datetime.now().strftime('%H%M%S%f'))
+                if l[8:] != SETTINGS['afm_dide']:
+                    new_file = '%s.%s.%s.pdf' % (pdffile.name.replace(os.path.join(settings.MEDIA_ROOT,'pdffiles'),'')[1:-4],l[8:],datetime.datetime.now().strftime('%H%M%S%f'))
 
                 
-                out_file = open(os.path.join(settings.MEDIA_ROOT,'pdffiles', 'extracted', new_file), 'wb')
-                pdf_out.write(out_file)
-                out_file.close()
-                strsql = "insert into dide_paymentemployeepdf (id, employee_vat, paymentfilepdf_id, employeefile) values (NULL,'%s',%s,'%s');" % (l[7:], obj_id, new_file)
-                cursor.execute(strsql)
+                    out_file = open(os.path.join(settings.MEDIA_ROOT,'pdffiles', 'extracted', new_file), 'wb')
+                    pdf_out.write(out_file)
+                    out_file.close()
+                    strsql = "insert into dide_paymentemployeepdf (id, employee_vat, paymentfilepdf_id, employeefile, pdf_file_type) values (NULL,'%s',%s,'%s', %s);" % (l[8:], obj_id, new_file, pdffiletype)
+                    cursor.execute(strsql)
 
-                nl.append(l[7:])
+                    nl.append(l[8:])
     
     transaction.commit_unless_managed()
     cursor.close()

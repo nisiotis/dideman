@@ -132,10 +132,19 @@ $(function() {
                 </tr>
 		{% endfor %}
 	    </table>
-	{% if paypdf %}
+	{% if paypdf_month %}
       <h2>Πληρωμές ΕΣΠΑ και ΠΔΕ</h2>
-	<p>Οι πληρωμές αναπληρωτών ΕΣΠΑ εμφανίζονται παρακάτω και δεν περιλαμβάνονται στα ετήσια σύνολα.</p>
-	        {% for t in paypdf %}
+	<p>Οι πληρωμές αναπληρωτών ΕΣΠΑ και ΠΔΕ εμφανίζονται παρακάτω και δεν περιλαμβάνονται στα ετήσια σύνολα.</p>
+	        {% for t in paypdf_month %}
+		<p><a href="/salary/view/showpdf/?f={{ t.employeefile }}">{{ t.paymentfilepdf }}</a></p>
+		{% endfor %}
+	    
+	{% endif %}
+	{% if paypdf_year %}
+
+      <h2>Ετήσιες βεβαιώσεις αποδοχών ΕΣΠΑ και ΠΔΕ</h2>
+	<p>Ετήσιες βεβαιώσεις αποδοχών ΕΣΠΑ και ΠΔΕ</p>
+	        {% for t in paypdf_year %}
 		<p><a href="/salary/view/showpdf/?f={{ t.employeefile }}">{{ t.paymentfilepdf }}</a></p>
 		{% endfor %}
 	    

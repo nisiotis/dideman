@@ -275,8 +275,8 @@ def view(request):
         
         if emp.vat_number != "":
             
-            pdf = PaymentEmployeePDF.objects.filter(employee_vat=emp.vat_number).order_by('-id')
-        
+            pdf_month = PaymentEmployeePDF.objects.filter(employee_vat=emp.vat_number,pdf_file_type=1).order_by('-id')
+            pdf_year = PaymentEmployeePDF.objects.filter(employee_vat=emp.vat_number,pdf_file_type=2).order_by('-id')
         current_year = datetime.date.today().year
         per_year = {p.year: p for p in pay if p.year < current_year}
         all_year = set(p.year for p in pay)
@@ -300,7 +300,8 @@ def view(request):
                                                            'yearly_reports': per_year,
                                                            'total_per_year': o_year_t,
                                                            'payments': pay_page,
-                                                           'paypdf': pdf
+                                                           'paypdf_year': pdf_year,
+                                                           'paypdf_month': pdf_month
                                                             }))
 
 @csrf_protect
