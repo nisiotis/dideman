@@ -5,6 +5,7 @@ from dideman.dide.models import (Permanent, PaymentReport, PaymentCategory,
                                  NonPermanent, Employee, Payment, PaymentCode,
                                  Administrative, PaymentCategoryTitle, PaymentEmployeePDF)
 from dideman.dide.util.settings import SETTINGS
+
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            generate_pdf_landscape_structure,
                                            calc_reports, rprts_from_user)
@@ -23,10 +24,19 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, Image, Table
 from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
+import pyPdf
+
+from pyPdf import PdfFileWriter, PdfFileReader
+
+from reportlab.pdfgen import canvas
+
 from itertools import chain
 import operator
 import datetime
 import os
+import os.path
+import mimetypes
+from cStringIO import StringIO
 
 pay_pdf = {}
 
@@ -307,14 +317,33 @@ def view(request):
 @csrf_protect
 @match_required
 def showpdf(request):
-    import os.path
-    import mimetypes
+    sign = os.path.join(settings.MEDIA_ROOT, "signature.png")
     mimetypes.init()
     response = None
     if 'f' in request.GET:
         
-        fr = open(os.path.join(settings.MEDIA_ROOT,'pdffiles','extracted','%s' % request.GET['f']), "r")
-        response = HttpResponse(fr, mimetype='application/pdf')
+        fr = open(os.path.join(settings.MEDIA_ROOT,'pdffiles','extracted','%s' % request.GET['f']), "rb")
+        imgTemp = StringIO()
+        imgDoc = canvas.Canvas(imgTemp)
+        if request.GET['o'] == 'l':
+            imgDoc.drawImage(sign, 529, 40, 290/2, 154/2)
+        else:
+            imgDoc.drawImage(sign, 70, 40, 290/2, 154/2)
+
+        imgDoc.save()
+        overlay = PdfFileReader(StringIO(imgTemp.getvalue())).getPage(0)
+        page = PdfFileReader(fr).getPage(0)
+                            
+        page.mergePage(overlay)
+        #out_stream = StringIO()
+        pdf_out = PdfFileWriter()
+        pdf_out.addPage(page)
+        response = HttpResponse(mimetype='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=%s' % request.GET['f']
+
+        pdf_out.write(response)
+            
+        #response = HttpResponse(out_stream(), mimetype='application/pdf')
+        #response['Content-Disposition'] = 'attachment; filename=%s' % request.GET['f']
     return response
     

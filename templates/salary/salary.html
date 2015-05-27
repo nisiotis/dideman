@@ -136,16 +136,18 @@ $(function() {
       <h2>Πληρωμές ΕΣΠΑ και ΠΔΕ</h2>
 	<p>Οι πληρωμές αναπληρωτών ΕΣΠΑ και ΠΔΕ εμφανίζονται παρακάτω και δεν περιλαμβάνονται στα ετήσια σύνολα.</p>
 	        {% for t in paypdf_month %}
-		<p><a href="/salary/view/showpdf/?f={{ t.employeefile }}">{{ t.paymentfilepdf }}</a></p>
+		<p><a href="/salary/view/showpdf/?f={{ t.employeefile }}&o=p">{{ t.paymentfilepdf }}</a></p>
 		{% endfor %}
 	    
 	{% endif %}
 	{% if paypdf_year %}
 
       <h2>Ετήσιες βεβαιώσεις αποδοχών ΕΣΠΑ και ΠΔΕ</h2>
-	<p>Ετήσιες βεβαιώσεις αποδοχών ΕΣΠΑ και ΠΔΕ</p>
+	<p>Ετήσιες βεβαιώσεις αποδοχών ΕΣΠΑ και ΠΔΕ. <br />
+	
+	</p>
 	        {% for t in paypdf_year %}
-		<p><a href="/salary/view/showpdf/?f={{ t.employeefile }}">{{ t.paymentfilepdf }}</a></p>
+		<p><a href="/salary/view/showpdf/?f={{ t.employeefile }}&o=l">{{ t.paymentfilepdf }}</a></p>
 		{% endfor %}
 	    
 	{% endif %}
