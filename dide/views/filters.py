@@ -173,6 +173,12 @@ def paymentfilepdf(request):
     return render_template(request, PaymentFilePDF,
                            PaymentFilePDFAdmin)
 
+def nonpermanenttimeservedfile(request):
+    from dideman.dide.admin import NonPermanentTimeServedFileAdmin
+    from dideman.dide.models import NonPermanentTimeServedFile
+    return render_template(request, NonPermanentTimeServedFile,
+                           NonPermanentTimeServedFileAdmin)
+
 
 def rankcode(request):
     from dideman.dide.admin import RankCodeAdmin

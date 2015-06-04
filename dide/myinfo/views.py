@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, NonPermanent, Employee, Placement,
                                  EmployeeLeave, Application, EmployeeResponsibility,
-                                 Administrative)
+                                 Administrative, NonPermanentTimeServed)
 from dideman.dide.employee.decorators import match_required
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
@@ -54,6 +54,7 @@ def MailSender(name, email):
 @csrf_protect
 @match_required
 def edit(request):
+    forms = {}
     if 'logout' in request.GET:
         request.session.clear()
         return HttpResponseRedirect('/?logout=True')
@@ -67,6 +68,7 @@ def edit(request):
         except Permanent.DoesNotExist:
             try:
                 emptype = NonPermanent.objects.get(parent_id=emp.id)
+                forms = NonPermanentTimeServed.objects.filter(employee=emp.id)
             except NonPermanent.DoesNotExist:
                 try:
                     emptype = Administrative.objects.get(parent_id=emp.id)
@@ -98,4 +100,7 @@ def edit(request):
                                                            'positions': p,
                                                            'responsibilities': r,
                                                            'applications': a,
-                                                           'form': emp_form}))
+                                                           'form': emp_form,
+                                                           'forms': forms
+                                                       }
+                                        ))

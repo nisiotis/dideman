@@ -102,7 +102,6 @@ TAXED_TYPES = [(11, u'Τακτικές Μονίμων'),
                (22, u'Έκτακτες που δεν φορολογούνται'),  
                (23, u'Έκτακτες με αυτοτελή φόρο')]
  
-#               (24, u'Έκτακες προς εμφάνιση μόνο')]
 
 class PaymentFileName(models.Model):
 
@@ -1126,6 +1125,48 @@ class NonPermanentManager(models.Manager):
         cursor.execute(sql.current_year_non_permanents.format(current_year_date_from()))
         choices = [(row[0], "%s %s (%s)" % (row[1], row[2], row[3])) for row in cursor.fetchall()]
         return [(None, u'---------')] + choices
+
+class NonPermanentTimeServedFile(models.Model):
+
+    class Meta:
+        verbose_name = u'ρχείο Βεβαιωμένης προϋπηρεσίας'
+        verbose_name_plural = u'Αρχεία Βεβαιωμένων προϋπηρεσιών'
+
+    id = models.AutoField(primary_key=True)
+    year_earned = models.IntegerField(max_length=4, verbose_name=u'Προυπηρεσία έτους')
+    xls_file = models.FileField(upload_to="xlsfiles")
+    description = models.CharField(u'Περιγραφή', max_length=255)
+    status = models.BooleanField(u'Κατάσταση', blank=True)
+    affected_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', null=True, blank=True)
+    order_no = models.IntegerField(u'Αριθμός Προτωκόλλου', null=True, blank=True)
+    
+    def __unicode__(self):
+        return self.description
+
+
+@receiver(pre_delete, sender=NonPermanentTimeServedFile)
+def xlsfile_delete(sender, instance, **kwargs):
+    if instance.xls_file:
+        instance.xls_file.delete(False)
+
+
+class NonPermanentTimeServed(models.Model):
+
+    class Meta:
+        verbose_name = u'Βεβαιωμένη προϋπηρεσία'
+        verbose_name_plural = u'Βεβαιωμένες προϋπηρεσίες'
+
+    year_earned = models.IntegerField(max_length=4, verbose_name=u'Προυπηρεσία έτους')
+    employee = models.ForeignKey(Employee)
+    years = models.IntegerField(max_length=4, verbose_name=u'Έτη')
+    months = models.IntegerField(max_length=4, verbose_name=u'Μήνες')
+    days = models.IntegerField(max_length=4, verbose_name=u'Ημέρες')
+    order_no = models.IntegerField(u'Αριθμός Προτωκόλλου', null=True, blank=True)
+
+
+    def __unicode__(self):
+        return self.employee
+
 
 
 class NonPermanent(Employee):

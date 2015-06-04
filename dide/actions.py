@@ -5,8 +5,10 @@ from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            calc_reports, rprts_from_file, 
                                            rprts_from_user)
 from dideman import settings
+
 from dideman.dide.util import xml
 from dideman.dide.util import pdfreader
+from dideman.dide.util import xlsreader
 
 from dideman.dide.util.settings import SETTINGS
 from dideman.settings import TEMPLATE_DIRS
@@ -659,6 +661,28 @@ class PDFReadAction(object):
                 status, records = pdfreader.read(o.pdf_file, o.pdf_file_type, o.id)
                 o.extracted_files = records
                 o.status = status
+                o.save()
+                rows_updated += 1
+
+        if rows_updated == 1:
+            msg = u'%s αρχείο αναγνώστηκε'
+        else:
+            msg = u'%s αρχεία αναγνώστηκαν'
+        modeladmin.message_user(request, msg % rows_updated)
+
+
+class XLSReadAction(object):
+    def __init__(self, short_description):
+        self.short_description = short_description
+        self.__name__ = 'read_pdf_file'
+
+    def __call__(self, modeladmin, request, queryset):
+        opts = modeladmin.model._meta
+        app_label = opts.app_label
+        rows_updated = 0
+        for o in queryset:
+            if o.status == 0:
+                o.status, o.extracted_files = xlsreader.read(o.xls_file)
                 o.save()
                 rows_updated += 1
 

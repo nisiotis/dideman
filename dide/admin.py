@@ -26,9 +26,10 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
                     TemporaryPositionAllAreas, SubstitutePlacement,
                     SubstituteMinistryOrder, OrderedSubstitution,
                     ApplicationChoice, ApplicationType, SchoolCommission,
-                    DegreeOrganization)
+                    DegreeOrganization, NonPermanentTimeServed)
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
-                    PaymentReportType, PaymentCode, PaymentFilePDF)
+                    PaymentReportType, PaymentCode, PaymentFilePDF, 
+                    NonPermanentTimeServedFile)
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
                      CreatePDF, PDFReadAction, DeleteAction, timestamp, 
                      EmployeeBecome, HideMassReports, ShowMassReports)
@@ -40,6 +41,18 @@ from dideman import settings
 from django.utils.encoding import force_unicode
 
 import zipfile, os
+
+class NonPermanentTimeServedFileAdmin(DideAdmin):
+    readonly_fields = ['status', 'affected_records']
+    list_display = ('description', 'status', 'affected_records')
+    search_fields = ('description',)
+    #actions = [XLSReadAction(u'Ενημέρωση βάσης από αρχείο')]
+
+    def save_model(self, request, obj, form, change):
+        pf = force_unicode(obj.xls_file.name, 'cp737', 'ignore')
+        if pf[-4:] == ".xls":
+            obj.save()
+
 
 
 class PaymentFilePDFAdmin(DideAdmin):
@@ -204,6 +217,9 @@ class OrderedSubstitutionInline(admin.TabularInline):
     model = OrderedSubstitution
     extra = 0
 
+class NonPermanentTimeServedInline(admin.TabularInline):
+    model = NonPermanentTimeServed
+    extra = 0
 
 class LeaveInline(admin.TabularInline):
     model = EmployeeLeave
@@ -631,7 +647,8 @@ class NonPermanentAdmin(EmployeeAdmin):
                        'current_transfer_area']
     inlines = EmployeeAdmin.inlines + [SubstitutePlacementInline,
                                        ServiceInline, LeaveInline,
-                                       ResponsibilityInline]
+                                       ResponsibilityInline,
+                                       NonPermanentTimeServedInline]
     list_filter = [SubstituteDateRangeFilter, SubstituteAreaFilter,
                    SubstituteOrderFilter, 'profession__unified_profession',
                    NonPermanentOrganizationServingFilter,
@@ -667,6 +684,7 @@ map(lambda t: admin.site.register(*t), (
     (PaymentReportType, PaymentReportTypeAdmin),
     (PaymentFilePDF, PaymentFilePDFAdmin),
     (PaymentFileName, PaymentFileNameAdmin),
+    (NonPermanentTimeServedFile, NonPermanentTimeServedFileAdmin),
     (RankCode, RankCodeAdmin),
     (PaymentCode, PaymentCodeAdmin)
 ))

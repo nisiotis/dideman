@@ -143,7 +143,17 @@
             <li>Δεν βρέθηκαν ηλεκτρονικές αιτήσεις</li>  
             {% endfor %}
             </ul>
-            
+	    {% if servedforms %}
+        <h2>Βεβαιώσεις προϋπηρεσίας και απόλυσης</h2>
+            <ul class="actionlist">
+            {% for entry in servedforms %}
+            <li>{{entry.year}}: <a id="formsprint" href="?print=1&id={{entry.id}}">{{entry.description}}</a></li>
+            {% empty %}
+            <li>Δεν βρέθηκαν βεβαιώσεις</li>  
+            {% endfor %}
+
+            </ul>
+	    {% endif %}
             </div>
 </div>
 {% endblock %}
