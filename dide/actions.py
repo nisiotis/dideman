@@ -682,7 +682,7 @@ class XLSReadAction(object):
         rows_updated = 0
         for o in queryset:
             if o.status == 0:
-                o.status, o.extracted_files = xlsreader.read(o.xls_file)
+                o.status, o.extracted_files = xlsreader.read(o.xls_file. o.year_earned)
                 o.save()
                 rows_updated += 1
 

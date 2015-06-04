@@ -31,7 +31,7 @@ from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode, PaymentFilePDF, 
                     NonPermanentTimeServedFile)
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
-                     CreatePDF, PDFReadAction, DeleteAction, timestamp, 
+                     CreatePDF, XLSReadAction, PDFReadAction, DeleteAction, timestamp, 
                      EmployeeBecome, HideMassReports, ShowMassReports)
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
@@ -46,7 +46,7 @@ class NonPermanentTimeServedFileAdmin(DideAdmin):
     readonly_fields = ['status', 'affected_records']
     list_display = ('description', 'status', 'affected_records')
     search_fields = ('description',)
-    #actions = [XLSReadAction(u'Ενημέρωση βάσης από αρχείο')]
+    actions = [XLSReadAction(u'Ενημέρωση βάσης από αρχείο')]
 
     def save_model(self, request, obj, form, change):
         pf = force_unicode(obj.xls_file.name, 'cp737', 'ignore')
