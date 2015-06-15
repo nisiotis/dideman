@@ -594,6 +594,7 @@ class Employee(models.Model):
     show_mass_pay = models.NullBooleanField(u'Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', null=True, blank=True, default=True)
     ama = models.CharField(u'ΑΜΑ ΙΚΑ ΕΤΑΜ', max_length=10, null=True, blank=True)
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
+    checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=False)
 
     def profession_description(self):
         return self.profession.description

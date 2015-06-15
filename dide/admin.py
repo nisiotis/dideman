@@ -433,6 +433,7 @@ class PermanentAdmin(EmployeeAdmin):
                 'fields': ['currently_serves',
                            'recognised_experience',
                            'formatted_recognised_experience',
+                           'checked_service',
                            'non_educational_experience',
                            'calculable_not_service', 'not_service_existing',
                            'total_service',
@@ -459,6 +460,7 @@ class PermanentAdmin(EmployeeAdmin):
                                      'formatted_recognised_experience',
                                      'non_educational_experience',
                                      'educational_service',
+                                     'checked_service',
                                      'educated',
                                      'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
@@ -501,6 +503,7 @@ class AdministrativeAdmin(PermanentAdmin):
                                'formatted_recognised_experience',
                                'calculable_not_service', 'not_service_existing',
                                'total_service',
+                               'checked_service',
                                'payment_start_date_auto',
                                'payment_start_date_manual',
                                'date_end']}),
@@ -520,6 +523,7 @@ class AdministrativeAdmin(PermanentAdmin):
                                     'profession__description',
                                     'payment_start_date_auto',
                                     'formatted_recognised_experience',
+                                    'checked_service',
                                     'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
         permanent_docx_reports, key=lambda k: k.short_description)   
 
