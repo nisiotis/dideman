@@ -65,7 +65,9 @@ class PaymentFilePDF(models.Model):
     status = models.BooleanField(u'Κατάσταση', blank=True)
     extracted_files = models.IntegerField(u'Αρχεία που \
     δημιουργίθηκαν', null=True, blank=True)
-    pdf_file_type = models.IntegerField(u'Τύπος αποδοχών', choices=PDF_FILE_TYPES, blank=True, default=1)
+    pdf_file_type = models.IntegerField(u'Τύπος αποδοχών', 
+                                        choices=PDF_FILE_TYPES, blank=True, 
+                                        default=1)
 
     def __unicode__(self):
         return self.description
@@ -73,10 +75,15 @@ class PaymentFilePDF(models.Model):
 class PaymentEmployeePDF(models.Model):
 
     id = models.AutoField(primary_key=True)
-    employee_vat = models.CharField(u'Αριθμός φορολογικού μητρώου υπαλλήλου', max_length=255)
-    paymentfilepdf = models.ForeignKey('PaymentFilePDF', verbose_name=u'Αρχείο')
-    employeefile = models.CharField(u'Αρχείο υπαλλήλου', max_length=255)
-    pdf_file_type = models.IntegerField(u'Τύπος αποδοχών', choices=PDF_FILE_TYPES, blank=True, default=1)
+    employee_vat = models.CharField(u'Αριθμός φορολογικού μητρώου υπαλλήλου', 
+                                    max_length=255)
+    paymentfilepdf = models.ForeignKey('PaymentFilePDF', 
+                                       verbose_name=u'Αρχείο')
+    employeefile = models.CharField(u'Αρχείο υπαλλήλου',
+                                    max_length=255)
+    pdf_file_type = models.IntegerField(u'Τύπος αποδοχών', 
+                                        choices=PDF_FILE_TYPES, 
+                                        blank=True, default=1)
 
     def __unicode__(self):
         return self.employeefile
@@ -86,7 +93,8 @@ class PaymentEmployeePDF(models.Model):
 def pdffile_delete(sender, instance, **kwargs):
     if instance.pdf_file:
         l = os.listdir(os.path.join(settings.MEDIA_ROOT, "pdffiles", "extracted"))
-        f = instance.pdf_file.name.replace(os.path.join(settings.MEDIA_ROOT,'pdffiles'),'')[1:-4]
+        f = instance.pdf_file.name.replace(os.path.join(settings.MEDIA_ROOT,
+                                                        'pdffiles'),'')[1:-4]
         
         for itm in l:
             if itm.startswith("%s" % f):
@@ -113,8 +121,10 @@ class PaymentFileName(models.Model):
     xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση', blank=True)
-    imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', null=True, blank=True)
-    taxed = models.IntegerField(u'Τύπος αποδοχών', choices=TAXED_TYPES, blank=True, default=11)
+    imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', 
+                                           null=True, blank=True)
+    taxed = models.IntegerField(u'Τύπος αποδοχών', choices=TAXED_TYPES, 
+                                blank=True, default=11)
 
     def __unicode__(self):
         return self.description
@@ -1126,48 +1136,6 @@ class NonPermanentManager(models.Manager):
         choices = [(row[0], "%s %s (%s)" % (row[1], row[2], row[3])) for row in cursor.fetchall()]
         return [(None, u'---------')] + choices
 
-class NonPermanentTimeServedFile(models.Model):
-
-    class Meta:
-        verbose_name = u'ρχείο Βεβαιωμένης προϋπηρεσίας'
-        verbose_name_plural = u'Αρχεία Βεβαιωμένων προϋπηρεσιών'
-
-    id = models.AutoField(primary_key=True)
-    year_earned = models.IntegerField(max_length=4, verbose_name=u'Προυπηρεσία έτους')
-    xls_file = models.FileField(upload_to="xlsfiles")
-    description = models.CharField(u'Περιγραφή', max_length=255)
-    status = models.BooleanField(u'Κατάσταση', blank=True)
-    affected_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', null=True, blank=True)
-    order_no = models.IntegerField(u'Αριθμός Προτωκόλλου', null=True, blank=True)
-    
-    def __unicode__(self):
-        return self.description
-
-
-@receiver(pre_delete, sender=NonPermanentTimeServedFile)
-def xlsfile_delete(sender, instance, **kwargs):
-    if instance.xls_file:
-        instance.xls_file.delete(False)
-
-
-class NonPermanentTimeServed(models.Model):
-
-    class Meta:
-        verbose_name = u'Βεβαιωμένη προϋπηρεσία'
-        verbose_name_plural = u'Βεβαιωμένες προϋπηρεσίες'
-
-    year_earned = models.IntegerField(max_length=4, verbose_name=u'Προυπηρεσία έτους')
-    employee = models.ForeignKey(Employee)
-    years = models.IntegerField(max_length=4, verbose_name=u'Έτη')
-    months = models.IntegerField(max_length=4, verbose_name=u'Μήνες')
-    days = models.IntegerField(max_length=4, verbose_name=u'Ημέρες')
-    order_no = models.IntegerField(u'Αριθμός Προτωκόλλου', null=True, blank=True)
-
-
-    def __unicode__(self):
-        return self.employee
-
-
 
 class NonPermanent(Employee):
 
@@ -1184,6 +1152,14 @@ class NonPermanent(Employee):
     def order(self, d=current_year_date_from()):
         return first_or_none(self.substituteministryorder_set.filter(date__gte=d))
     order.short_description = u'Υπουργική απόφαση τρέχουσας τοποθέτησης'
+
+    def order_no(self, d=current_year_date_from()):
+        return first_or_none(self.substituteministryorder_set.values('order_end_manager').filter(date__gte=d))
+    order_no.short_description = u'Α/Π Απόλυσης Υπουργικής απόφασης τρέχουσας τοποθέτησης'
+
+    def funding(self, d=current_year_date_from()):
+        return first_or_none(self.substituteministryorder_set.values('order_type').filter(date__gte=d))
+    funding.short_description = u'Χρηματοδότηση τρέχουσας τοποθέτησης'
 
     def substitution(self, d=current_year_date_from()):
         return first_or_none(self.orderedsubstitution_set.filter(order__date__gte=d))
@@ -1418,6 +1394,8 @@ class SubstituteMinistryOrder(models.Model):
     def __unicode__(self):
         return '%s - %s' % (self.order, str(self.date))
 
+    def order_no(self):
+        return '%s' % self.order_pysde
 
 class OrderedSubstitution(models.Model):
 
@@ -1756,6 +1734,46 @@ class Loan(models.Model):
 
     def __unicode__(self):
         return self.date_start.strftime('%d-%m-%Y')
+
+
+class NonPermanentInsuranceFile(models.Model):
+
+    class Meta:
+        verbose_name = u'Aρχείο στοιχείων βεβαίωσης προϋπηρεσίας'
+        verbose_name_plural = u'Αρχεία στοιχείων βεβαιώσεων προϋπηρεσίας'
+
+    id = models.AutoField(primary_key=True)
+    year_earned = models.IntegerField(max_length=4, verbose_name=u'Προυπηρεσία έτους')
+    xls_file = models.FileField(upload_to="xlsfiles")
+    description = models.CharField(u'Περιγραφή', max_length=255)
+    status = models.BooleanField(u'Κατάσταση', blank=True)
+    affected_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', null=True, blank=True)
+    
+    def __unicode__(self):
+        return self.description
+
+
+@receiver(pre_delete, sender=NonPermanentInsuranceFile)
+def xlsfile_delete(sender, instance, **kwargs):
+    if instance.xls_file:
+        instance.xls_file.delete(False)
+
+
+class NonPermanentUnemploymentMonth(models.Model):
+
+    class Meta:
+        verbose_name = u'Στοιχεία ανεργίας μηνός'
+        verbose_name_plural = u'Στοιχεία ανεργίας μηνών'
+
+    year_earned = models.IntegerField(max_length=4, verbose_name=u'Προυπηρεσία έτους')
+    employee = models.ForeignKey(Employee)
+    years = models.IntegerField(max_length=4, verbose_name=u'Έτη')
+    months = models.IntegerField(max_length=4, verbose_name=u'Μήνες')
+    days = models.IntegerField(max_length=4, verbose_name=u'Ημέρες')
+
+
+    def __unicode__(self):
+        return self.employee
 
 
 class Settings(models.Model):

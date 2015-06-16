@@ -32,7 +32,7 @@ def xlsread(xlsfile, year_earned):
             cell_type = worksheet.cell_type(curr_row, curr_cell)
             cell_value = worksheet.cell_value(curr_row, curr_cell)
             if cell_type != 0 and cell_type != 6:		
-                strsql = "insert into nonpermanenttimeserved (id, employee_id, year_earned, years, months, days) values (NULL,%s,%s,%s,%s,%s);" % (l[8:], obj_id, new_file, pdffiletype)
+                strsql = "update nonpermanenttimeserved employee_id = , year_earned = , years = , months = , days = ) values (NULL,%s,%s,%s,%s,%s) WHERE year_earned = ;" % (l[8:], obj_id, new_file, pdffiletype)
 
             cursor.execute(strsql)
     

@@ -40,12 +40,14 @@ from cStringIO import StringIO
 
 pay_pdf = {}
 
-
+@csrf_protect
 @match_required
 def help(request):
     return render_to_response('salary/help.html',
                               RequestContext(request, {}))
 
+
+@csrf_protect
 @match_required
 def print_pay(request, id):
     non_p = 1
@@ -124,6 +126,7 @@ def print_pay(request, id):
     return response
 
 
+@csrf_protect
 @match_required
 def print_mass_pay(request, year):
     """
