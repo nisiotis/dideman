@@ -29,6 +29,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, Image, Table
 from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
+from dideman.lib.date import current_year_date_from, current_year_date_to
 
 import smtplib
 import datetime
@@ -138,7 +139,7 @@ def print_exp_report(request):
     data.append([Paragraph(' ', heading_style['Spacer'])])
     data.append([Paragraph(' ', heading_style['Spacer'])])
 
-    data.append([Paragraph(u'Αρ. Προτ.: %s' % emptype.order_no()['order_end_manager'], tbl_style['Left'])])
+    data.append([Paragraph(u'Αρ. Προτ.: %s' % protocol_number(emptype.order().order_end_manager), tbl_style['Left'])])
     tableh = Table(data, style=tsl, colWidths=[6.0 * cm])
     data = []
     data.append([im, '', tableh])
@@ -165,25 +166,25 @@ def print_exp_report(request):
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u'ΘΕΜΑ: Αυτοδίκαιη Απόλυση', tbl_style['BoldLeft']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση του Διευθυντή Δευτεροβάθμιας Εκπαίδευσης Δωδεκανήσου απολύεστε αυτοδίκαια από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την %s.' % emptype.current_placement(), tbl_style['Justify']))
+    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση του Διευθυντή Δευτεροβάθμιας Εκπαίδευσης Δωδεκανήσου απολύεστε αυτοδίκαια από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την %s/%s/%s.' % (emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Justify']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
     elements.append(Paragraph(u'ΘΕΜΑ: Βεβαίωση Προϋπηρεσίας', tbl_style['BoldLeft']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s και υπηρέτησε από %s έως %s.' % (emptype.lastname, emptype.firstname, emptype.fathername, '', '', emptype.current_placement(), emptype.type(), '', ''), tbl_style['Justify']))
+    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s και υπηρέτησε από %s/%s/%s έως %s/%s/%s.' % (emptype.lastname, emptype.firstname, emptype.fathername, emptype.profession, emptype.profession.description, emptype.current_placement(), emptype.type(), emptype.current_placement().date_from.day,emptype.current_placement().date_from.month,emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month,emptype.current_placement().date_to.year), tbl_style['Justify']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'Απόφαση διορισμού %s: %s' % (SETTINGS['ministry_title'], emptype.order()), tbl_style['Left']))
+    elements.append(Paragraph(u'Απόφαση διορισμού %s: %s %s/%s/%s' % (SETTINGS['ministry_title'], emptype.order().order, emptype.order().date.day, emptype.order().date.month, emptype.order().date.year), tbl_style['Left']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'Απόφαση τοποθέτησης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.experience(), tbl_style['Left']))
+    elements.append(Paragraph(u'Απόφαση τοποθέτησης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_start_manager, tbl_style['Left']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-
-    elements.append(Paragraph(u'Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.experience(), tbl_style['Left']))
+    
+    elements.append(Paragraph(u'Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_end_manager, tbl_style['Left']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
@@ -212,7 +213,7 @@ def print_exp_report(request):
     elements.append(Paragraph(u'ΚΟΙΝΟΠΟΙΗΣΗ', tbl_style['BoldLeft']))
     elements.append(Paragraph(u'1. %s' % emptype.current_placement(), tbl_style['Left']))
     elements.append(Paragraph(u'2. Α.Φ.', tbl_style['Left']))
-    if emptype.funding()['order_type'] == 3:
+    if emptype.order().order_type == 3:
 
         logo = os.path.join(settings.MEDIA_ROOT, "espa.png")
         im = Image(logo)
@@ -246,7 +247,7 @@ def edit(request):
         except Permanent.DoesNotExist:
             try:
                 emptype = NonPermanent.objects.get(parent_id=emp.id)
-                if emptype.order_no()['order_end_manager'] != u'':
+                if emptype.order().order_end_manager != u'':
                     exp = True
                 
                 #import pdb; pdb.set_trace()

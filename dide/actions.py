@@ -533,6 +533,33 @@ class HideMassReports(object):
         modeladmin.message_user(request, msg)
 
 
+class ShowOption(object):
+    def __init__(self, short_description, field):
+        self.short_description = short_description
+        self.field = field
+        self.__name__ = 'show_option'
+
+    def __call__(self, modeladmin, request, queryset):
+        queryset.update(setattr(self, self.field, True))
+
+        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+        modeladmin.message_user(request, msg)
+
+
+class HideOption(object):
+    def __init__(self, short_description, field):
+        self.short_description = short_description
+        self.field = field
+        self.__name__ = 'hide_option'
+
+    def __call__(self, modeladmin, request, queryset):
+        queryset.update(setattr(self, self.field, False))
+
+        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+        modeladmin.message_user(request, msg)
+
+
+
 class EmployeeBecome(object):
     def __init__(self, short_description, to_model):
         self.short_description = short_description

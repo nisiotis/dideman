@@ -1154,14 +1154,6 @@ class NonPermanent(Employee):
         return first_or_none(self.substituteministryorder_set.filter(date__gte=d))
     order.short_description = u'Υπουργική απόφαση τρέχουσας τοποθέτησης'
 
-    def order_no(self, d=current_year_date_from()):
-        return first_or_none(self.substituteministryorder_set.values('order_end_manager').filter(date__gte=d))
-    order_no.short_description = u'Α/Π Απόλυσης Υπουργικής απόφασης τρέχουσας τοποθέτησης'
-
-    def funding(self, d=current_year_date_from()):
-        return first_or_none(self.substituteministryorder_set.values('order_type').filter(date__gte=d))
-    funding.short_description = u'Χρηματοδότηση τρέχουσας τοποθέτησης'
-
     def substitution(self, d=current_year_date_from()):
         return first_or_none(self.orderedsubstitution_set.filter(order__date__gte=d))
 

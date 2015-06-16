@@ -32,7 +32,7 @@ from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     NonPermanentInsuranceFile)
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
                      CreatePDF, XLSReadAction, PDFReadAction, DeleteAction, timestamp, 
-                     EmployeeBecome, HideMassReports, ShowMassReports)
+                     EmployeeBecome, HideOption, ShowOption)
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
@@ -336,8 +336,8 @@ class EmployeeAdmin(DideAdmin):
     list_max_show_all = 10000
     list_per_page = 50
     actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
-               ShowMassReports(u'Εμφάνιση Μισθοδοτιών Καταστάσεων'),               
-               HideMassReports(u'Απόκρυψη Μισθοδοτιών Καταστάσεων'),
+               #FieldAction(u'Εμφάνιση Μισθοδοτιών Καταστάσεων', 'show_mass_pay', lambda: True),               
+               FieldAction(u'Emφάνιση / Απόκρυψη Μισθοδοτιών Καταστάσεων', 'show_mass_pay', lambda: False),
                CSVEconomicsReport(short_description = u'Εξαγωγή λίστας ΚΕΠΥΟ τακτικών %s' % str(datetime.date.today().year - 1), types=u'11,12'), 
                CSVEconomicsReport(short_description = u'Εξαγωγή λίστας ΚΕΠΥΟ έκτακτων %s' % str(datetime.date.today().year - 1), types=u'21,23')]
 
