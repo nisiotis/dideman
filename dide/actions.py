@@ -509,28 +509,28 @@ class FieldAction(object):
                                 current_app=modeladmin.admin_site.name)
 
 
-class ShowMassReports(object):
-    def __init__(self, short_description):
-        self.short_description = short_description
-        self.__name__ = 'show_mass_reports'
+#class ShowMassReports(object):
+#    def __init__(self, short_description):
+#        self.short_description = short_description
+#        self.__name__ = 'show_mass_reports'
 
-    def __call__(self, modeladmin, request, queryset):
-        queryset.update(show_mass_pay=True)
+#    def __call__(self, modeladmin, request, queryset):
+#        queryset.update(show_mass_pay=True)
 
-        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
-        modeladmin.message_user(request, msg)
+#        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+#        modeladmin.message_user(request, msg)
 
 
-class HideMassReports(object):
-    def __init__(self, short_description):
-        self.short_description = short_description
-        self.__name__ = 'hide_mass_reports'
+#class HideMassReports(object):
+#    def __init__(self, short_description):
+#        self.short_description = short_description
+#        self.__name__ = 'hide_mass_reports'
 
-    def __call__(self, modeladmin, request, queryset):
-        queryset.update(show_mass_pay=False)
+#    def __call__(self, modeladmin, request, queryset):
+#        queryset.update(show_mass_pay=False)
 
-        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
-        modeladmin.message_user(request, msg)
+#        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+#        modeladmin.message_user(request, msg)
 
 
 class ShowOption(object):
@@ -540,9 +540,15 @@ class ShowOption(object):
         self.__name__ = 'show_option'
 
     def __call__(self, modeladmin, request, queryset):
-        queryset.update(setattr(self, self.field, True))
+        f = modeladmin.model._meta.get_field(self.field)
+        for o in queryset:
+            setattr(o, self.field, True)
+            o.save()
 
-        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+        if len(queryset) == 1:
+            msg = u'%s αντικείμενo τροποποιήθηκε.' % str(len(queryset))
+        else:
+            msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
         modeladmin.message_user(request, msg)
 
 
@@ -553,9 +559,15 @@ class HideOption(object):
         self.__name__ = 'hide_option'
 
     def __call__(self, modeladmin, request, queryset):
-        queryset.update(setattr(self, self.field, False))
+        f = modeladmin.model._meta.get_field(self.field)
+        for o in queryset:
+            setattr(o, self.field, False)
+            o.save()
 
-        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+        if len(queryset) == 1:
+            msg = u'%s αντικείμενo τροποποιήθηκε.' % str(len(queryset))
+        else:
+            msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
         modeladmin.message_user(request, msg)
 
 

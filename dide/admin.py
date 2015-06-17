@@ -336,8 +336,9 @@ class EmployeeAdmin(DideAdmin):
     list_max_show_all = 10000
     list_per_page = 50
     actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
-               #FieldAction(u'Εμφάνιση Μισθοδοτιών Καταστάσεων', 'show_mass_pay', lambda: True),               
-               FieldAction(u'Emφάνιση / Απόκρυψη Μισθοδοτιών Καταστάσεων', 'show_mass_pay', lambda: False),
+               ShowOption(u'Emφάνιση Μισθοδοτιών Καταστάσεων', 'show_mass_pay'),
+               HideOption(u'Απόκρυψη Μισθοδοτιών Καταστάσεων', 'show_mass_pay'),
+
                CSVEconomicsReport(short_description = u'Εξαγωγή λίστας ΚΕΠΥΟ τακτικών %s' % str(datetime.date.today().year - 1), types=u'11,12'), 
                CSVEconomicsReport(short_description = u'Εξαγωγή λίστας ΚΕΠΥΟ έκτακτων %s' % str(datetime.date.today().year - 1), types=u'21,23')]
 
@@ -347,6 +348,8 @@ class SubstituteMinistryOrderAdmin(DideAdmin):
     search_fields = ['order', 'date', 'web_code']
     inlines = [OrderedSubstitutionInline]
     extra = 0
+    actions = [ShowOption(u'Εμφάνιση στον χρήστη', 'show_online_order'),
+               HideOption(u'Απόκρυψη στον χρήστη', 'show_online_order')]               
 
 
 class OtherOrganizationAdmin(DideAdmin):
