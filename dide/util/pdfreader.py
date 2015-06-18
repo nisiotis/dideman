@@ -41,19 +41,21 @@ def read(pdffile, pdffiletype, obj_id):
             if len(rstr.strip()) > 0:
                 lines+="".join(rstr)
         lst = lines.split('\n')
-        for l in lst:
-            if l[:6] == 'ΑΦΜ':
-                if l[8:] != SETTINGS['afm_dide']:
-                    new_file = '%s.%s.%s.pdf' % (pdffile.name.replace(os.path.join(settings.MEDIA_ROOT,'pdffiles'),'')[1:-4],l[8:],datetime.datetime.now().strftime('%H%M%S%f'))
+        for li in lst:
+            if li[:6] == 'ΑΦΜ':
+                
+                if li[8:] != SETTINGS['afm_dide']:
+                    new_file = '%s.%s.%s.pdf' % (pdffile.name.replace(os.path.join(settings.MEDIA_ROOT,'pdffiles'),'')[1:-4],li[7:].strip(),datetime.datetime.now().strftime('%H%M%S%f'))
 
                 
                     out_file = open(os.path.join(settings.MEDIA_ROOT,'pdffiles', 'extracted', new_file), 'wb')
                     pdf_out.write(out_file)
                     out_file.close()
-                    strsql = "insert into dide_paymentemployeepdf (id, employee_vat, paymentfilepdf_id, employeefile, pdf_file_type) values (NULL,'%s',%s,'%s', %s);" % (l[8:], obj_id, new_file, pdffiletype)
+                    strsql = "insert into dide_paymentemployeepdf (id, employee_vat, paymentfilepdf_id, employeefile, pdf_file_type) values (NULL,'%s',%s,'%s', %s);" % (li[7:].strip(), obj_id, new_file, pdffiletype)
+                    #import pdb; pdb.set_trace()
                     cursor.execute(strsql)
 
-                    nl.append(l[8:])
+                    nl.append(li[8:])
     
     transaction.commit_unless_managed()
     cursor.close()

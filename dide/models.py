@@ -60,7 +60,7 @@ class PaymentFilePDF(models.Model):
         return os.path.join(settings.MEDIA_ROOT, "pdffiles", filename)
     
     id = models.AutoField(primary_key=True)
-    pdf_file = models.FileField(upload_to=timestampedfiles)
+    pdf_file = models.FileField(u'Αρχείο', upload_to=timestampedfiles)
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση', blank=True)
     extracted_files = models.IntegerField(u'Αρχεία που \
@@ -1737,11 +1737,11 @@ class NonPermanentInsuranceFile(models.Model):
         verbose_name_plural = u'Αρχεία στοιχείων βεβαιώσεων προϋπηρεσίας'
 
     id = models.AutoField(primary_key=True)
-    year_earned = models.IntegerField(max_length=4, verbose_name=u'Προυπηρεσία έτους')
-    xls_file = models.FileField(upload_to="xlsfiles")
+    xls_file1 = models.FileField(u'Αρχείο 1ου μήνα', upload_to="xlsfiles")
+    xls_file2 = models.FileField(u'Αρχείο 2ου μήνα',upload_to="xlsfiles")
+    xls_file3 = models.FileField(u'Αρχείο 3ου μήνα',upload_to="xlsfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση', blank=True)
-    affected_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', null=True, blank=True)
     
     def __unicode__(self):
         return self.description
@@ -1759,11 +1759,17 @@ class NonPermanentUnemploymentMonth(models.Model):
         verbose_name = u'Στοιχεία ανεργίας μηνός'
         verbose_name_plural = u'Στοιχεία ανεργίας μηνών'
 
-    year_earned = models.IntegerField(max_length=4, verbose_name=u'Προυπηρεσία έτους')
     employee = models.ForeignKey(Employee)
-    years = models.IntegerField(max_length=4, verbose_name=u'Έτη')
-    months = models.IntegerField(max_length=4, verbose_name=u'Μήνες')
-    days = models.IntegerField(max_length=4, verbose_name=u'Ημέρες')
+    pay_type = models.CharField(u'Τύπος μισθοδοσίας', max_length=200)
+    days_insured = models.IntegerField(max_length=4, verbose_name=u'Ημέρες ασφάλισης')
+    month = models.IntegerField(max_length=4, verbose_name=u'Μήνας')
+    year = models.IntegerField(max_length=4, verbose_name=u'Έτος')
+    insured_from = models.CharField(max_length=50, verbose_name=u'Ασφάλιση από')
+    insured_to = models.CharField(max_length=50, verbose_name=u'Ασφάλιση μέχρι')
+    total_earned = models.CharField(u"Σύνολο αποδοχών", max_length=50, null=True, blank=True) 
+    employee_contributions = models.CharField(u"Εισφορές εργαζομένου", max_length=50, null=True, blank=True)
+    employer_contributions = models.CharField(u"Εισφορές εργοδότη", max_length=50, null=True, blank=True)
+    total_contributions = models.CharField(u"Σύνολο Εισφορών", max_length=50, null=True, blank=True)
 
 
     def __unicode__(self):
