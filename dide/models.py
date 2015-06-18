@@ -1733,8 +1733,8 @@ class Loan(models.Model):
 class NonPermanentInsuranceFile(models.Model):
 
     class Meta:
-        verbose_name = u'Aρχείο στοιχείων βεβαίωσης προϋπηρεσίας'
-        verbose_name_plural = u'Αρχεία στοιχείων βεβαιώσεων προϋπηρεσίας'
+        verbose_name = u'Aρχείο στοιχείων ασφάλισης'
+        verbose_name_plural = u'Αρχεία στοιχείων ασφάλισης'
 
     id = models.AutoField(primary_key=True)
     xls_file1 = models.FileField(u'Αρχείο 1ου μήνα', upload_to="xlsfiles")
@@ -1748,9 +1748,17 @@ class NonPermanentInsuranceFile(models.Model):
 
 
 @receiver(pre_delete, sender=NonPermanentInsuranceFile)
-def xlsfile_delete(sender, instance, **kwargs):
-    if instance.xls_file:
-        instance.xls_file.delete(False)
+def xls_file1_delete(sender, instance, **kwargs):
+    if instance.xls_file1:
+        instance.xls_file1.delete(False)
+@receiver(pre_delete, sender=NonPermanentInsuranceFile)
+def xls_file2_delete(sender, instance, **kwargs):
+    if instance.xls_file2:
+        instance.xls_file2.delete(False)
+@receiver(pre_delete, sender=NonPermanentInsuranceFile)
+def xls_file3_delete(sender, instance, **kwargs):
+    if instance.xls_file3:
+        instance.xls_file3.delete(False)
 
 
 class NonPermanentUnemploymentMonth(models.Model):
@@ -1770,7 +1778,6 @@ class NonPermanentUnemploymentMonth(models.Model):
     employee_contributions = models.CharField(u"Εισφορές εργαζομένου", max_length=50, null=True, blank=True)
     employer_contributions = models.CharField(u"Εισφορές εργοδότη", max_length=50, null=True, blank=True)
     total_contributions = models.CharField(u"Σύνολο Εισφορών", max_length=50, null=True, blank=True)
-
 
     def __unicode__(self):
         return self.employee
