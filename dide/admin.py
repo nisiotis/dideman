@@ -52,25 +52,26 @@ class NonPermanentInsuranceFileAdmin(DideAdmin):
         pf1 = force_unicode(obj.xls_file1.name, 'cp737', 'ignore')
         pf2 = force_unicode(obj.xls_file2.name, 'cp737', 'ignore')
         pf3 = force_unicode(obj.xls_file3.name, 'cp737', 'ignore')
-        
+
         if pf1[-4:] == ".xls" and pf2[-4:] == ".xls" and pf3[-4:] == ".xls":
             obj.save()
-
-
+        else:
+            msg = u'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής xls.'
+            self.message_user(request, msg, level=messages.ERROR)
+            
 class PaymentFilePDFAdmin(DideAdmin):
     readonly_fields = ['status', 'extracted_files']
     list_display = ('description', 'status', 'extracted_files', 'pdf_file_type')
     search_fields = ('description',)
     actions = [PDFReadAction(u'Δημιουργία PDF')]
 
-
-    def read_pdf(pdf_file, desc):
-        pass
-
     def save_model(self, request, obj, form, change):
         pf = force_unicode(obj.pdf_file.name, 'cp737', 'ignore')
         if pf[-4:] == ".pdf":
             obj.save()
+        else:
+            msg = u'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής pdf.'
+            self.message_user(request, msg, level=messages.ERROR)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
@@ -85,6 +86,15 @@ class PaymentFileNameAdmin(DideAdmin):
     search_fields = ('description',)
 
     actions = [XMLReadAction(u'Ανάγνωση XML')]
+
+    def save_model(self, request, obj, form, change):
+        pf = force_unicode(obj.xml_file.name, 'cp737', 'ignore')
+        if pf[-4:] == ".xml":
+            obj.save()
+        else:
+            msg = u'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής xml.'
+            self.message_user(request, msg, level=messages.ERROR)
+
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

@@ -38,7 +38,7 @@ from reportlab.platypus.flowables import PageBreak
 from itertools import chain
 from collections import defaultdict
 from itertools import groupby
-from dideman.dide.models import Employee, PaymentCode, PaymentCategoryTitle
+from dideman.dide.models import Employee, PaymentCode, PaymentCategoryTitle 
 from dideman.lib.common import try_many
 import pandas as pd
 import operator
