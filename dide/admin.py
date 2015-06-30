@@ -174,6 +174,11 @@ class RankCodeAdmin(DideAdmin):
     list_display = ('id', 'rank')
 
 
+class SocialSecurityAdmin(DideAdmin):
+    
+    list_display = ('name', 'code')
+
+
 class PaymentCodeAdmin(DideAdmin):
     list_display = ('id', 'description', 'group_name', 'calc_type')
     # add search field
@@ -698,12 +703,14 @@ map(lambda t: admin.site.register(*t), (
     (PaymentFileName, PaymentFileNameAdmin),
     (NonPermanentInsuranceFile, NonPermanentInsuranceFileAdmin),
     (RankCode, RankCodeAdmin),
-    (PaymentCode, PaymentCodeAdmin)
+    (PaymentCode, PaymentCodeAdmin),
+    (SocialSecurity, SocialSecurityAdmin)
+
 ))
 
 
 admin.site.register((TransferArea, Island, Responsibility, NonPermanentType,
-                     SocialSecurity, LoanCategory, DegreeCategory, Settings,
+                     LoanCategory, DegreeCategory, Settings,
                      ApplicationType, DegreeOrganization))
 admin.site.disable_action('delete_selected')
 admin.site.add_action(DeleteAction(ugettext_lazy("Delete selected %(verbose_name_plural)s")))

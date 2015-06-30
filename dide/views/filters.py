@@ -186,6 +186,12 @@ def rankcode(request):
     return render_template(request, RankCode, RankCodeAdmin)
 
 
+def socialsecurity(request):
+    from dideman.dide.admin import SocialSecurityAdmin
+    from dideman.dide.models import SocialSecurity
+    return render_template(request, SocialSecurity, SocialSecurityAdmin)
+
+
 def paymentcode(request):
     from dideman.dide.admin import PaymentCodeAdmin
     from dideman.dide.models import PaymentCode

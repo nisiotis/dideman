@@ -726,6 +726,7 @@ class SocialSecurity(models.Model):
         verbose_name_plural = u'Ταμεία ασφάλισης'
 
     name = models.CharField(u'Όνομα', max_length=100)
+    code = models.CharField(u'Κωδικός', max_length=100)
 
     def __unicode__(self):
         return self.name
@@ -1766,7 +1767,8 @@ class NonPermanentUnemploymentMonth(models.Model):
     class Meta:
         verbose_name = u'Στοιχεία ανεργίας μηνός'
         verbose_name_plural = u'Στοιχεία ανεργίας μηνών'
-
+    
+    insurance_file = models.ForeignKey(NonPermanentInsuranceFile, on_delete=models.CASCADE)
     employee = models.ForeignKey(Employee)
     pay_type = models.CharField(u'Τύπος μισθοδοσίας', max_length=200)
     days_insured = models.IntegerField(max_length=4, verbose_name=u'Ημέρες ασφάλισης')

@@ -694,18 +694,68 @@ class XLSReadAction(object):
     def __call__(self, modeladmin, request, queryset):
         opts = modeladmin.model._meta
         app_label = opts.app_label
+
+        if not modeladmin.has_change_permission(request):
+            raise PermissionDenied
+
+        using = router.db_for_write(modeladmin.model)
+        changeable_objects, perms_needed, protected = get_deleted_objects(
+            queryset, opts, request.user, modeladmin.admin_site, using)
+
+        read_results = []
         rows_updated = 0
         for o in queryset:
             if o.status == 0:
-                o.status, o.extracted_files = xlsreader.read(o.xls_file. o.year_earned)
+                recs_missed = xlsreader.xlsread(o.id, os.path.join(settings.MEDIA_ROOT,
+                                                          str(o.xls_file1).split('/', 1)[0],
+                                                          str(o.xls_file1).split('/', 1)[1]))
+                for (key), val in recs_missed.items():
+                    read_results.append([o.description, key, val])
+
+                recs_missed = xlsreader.xlsread(o.id, os.path.join(settings.MEDIA_ROOT,
+                                                          str(o.xls_file2).split('/', 1)[0],
+                                                          str(o.xls_file2).split('/', 1)[1]))
+                for (key), val in recs_missed.items():
+                    read_results.append([o.description, key, val])
+
+                recs_missed = xlsreader.xlsread(o.id, os.path.join(settings.MEDIA_ROOT,
+                                                          str(o.xls_file3).split('/', 1)[0],
+                                                          str(o.xls_file3).split('/', 1)[1]))
+                for (key), val in recs_missed.items():
+                    read_results.append([o.description, key, val])
+                o.status = 1
                 o.save()
                 rows_updated += 1
-
         if rows_updated == 1:
             msg = u'%s αρχείο αναγνώστηκε'
         else:
             msg = u'%s αρχεία αναγνώστηκαν'
         modeladmin.message_user(request, msg % rows_updated)
+
+        if len(queryset) == 1:
+            objects_name = force_unicode(opts.verbose_name)
+            title = u"Αποτελέσματα ανάγνωσης αρχείου XLS"
+
+        else:
+            objects_name = force_unicode(opts.verbose_name_plural)
+            title = u"Αποτελέσματα ανάγνωσης αρχείων XLS"
+
+        context = {
+            "title": title,
+            "objects_name": objects_name,
+            "opts": opts,
+            "app_label": app_label,
+            'action_title': self.short_description,
+            'read_results': read_results,
+            'read_files': rows_updated,
+            
+        }
+
+        # Display the results page
+        return TemplateResponse(request,
+                                'admin/xlsread_selected_result.html',
+                                context,
+                                current_app=modeladmin.admin_site.name)
         
 
 class XMLReadAction(object):
