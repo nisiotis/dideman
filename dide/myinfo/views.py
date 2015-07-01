@@ -3,7 +3,8 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, NonPermanent, Employee, Placement,
                                  EmployeeLeave, Application, EmployeeResponsibility,
-                                 Administrative)
+                                 Administrative, NonPermanentUnemploymentMonth,
+                                 NonPermanentInsuranceFile)
 from dideman.dide.employee.decorators import match_required
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
@@ -30,6 +31,7 @@ from reportlab.platypus import Paragraph, Image, Table
 from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
 from dideman.lib.date import current_year_date_from, current_year_date_to
+from django.db.models.query import QuerySet
 
 import smtplib
 import datetime
@@ -68,6 +70,164 @@ def MailSender(name, email):
     s.ehlo()
     s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
     s.sendmail(SETTINGS['email_dide'], email, str_io.getvalue())
+
+
+@csrf_protect
+@match_required
+def print_emp_report(request, fid):
+    emp = NonPermanent.objects.select_related().get(parent_id=request.session['matched_employee_id'])
+    reports = NonPermanentUnemploymentMonth.objects.select_related().filter(employee_id=request.session['matched_employee_id'],insurance_file=fid)
+    response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=exp_report.pdf'
+    registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
+                                                  'DroidSans.ttf')))
+    registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
+                                                       'DroidSans-Bold.ttf')))
+
+
+    doc = SimpleDocTemplate(response, pagesize=A4)
+    doc.topMargin = 1.0 * cm
+    doc.leftMargin = 1.5 * cm
+    doc.rightMargin = 1.5 * cm
+
+    elements = []
+    head_logo = getSampleStyleSheet()
+    head_logo.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                 fontName='DroidSans', fontSize=8))
+    heading_style = getSampleStyleSheet()
+    heading_style.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                     fontName='DroidSans-Bold',
+                                     fontSize=12))
+    heading_style.add(ParagraphStyle(name='Spacer', spaceBefore=5,
+                                     spaceAfter=5,
+                                     fontName='DroidSans-Bold',
+                                     fontSize=12))
+    signature = getSampleStyleSheet()
+    signature.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
+                                 fontName='DroidSans', fontSize=10))
+    tbl_style = getSampleStyleSheet()
+
+    tbl_style.add(ParagraphStyle(name='Left', alignment=TA_LEFT,
+                                 fontName='DroidSans', fontSize=10))
+    tbl_style.add(ParagraphStyle(name='Right', alignment=TA_RIGHT,
+                                 fontName='DroidSans', fontSize=10))
+    tbl_style.add(ParagraphStyle(name='Justify', alignment=TA_JUSTIFY,
+                                 fontName='DroidSans', fontSize=10))
+
+    tbl_style.add(ParagraphStyle(name='BoldLeft', alignment=TA_LEFT,
+                                 fontName='DroidSans-Bold', fontSize=10))
+
+    tsl = [('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+           ('FONT', (0, 0), (-1, 0), 'DroidSans'),
+           ('FONTSIZE', (0, 0), (-1, 0), 8),
+           ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+           ('TOPPADDING', (0, 0), (-1, -1), 0)]
+    tsh = [('ALIGN', (1, 1), (-1, -1), 'LEFT'),
+           ('BOX', (0, 0), (-1, -1), 0.25, colors.black)]
+    ts = [('ALIGN', (1, 1), (-1, -1), 'LEFT'),
+          ('FONT', (0, 0), (-1, 0), 'DroidSans'),
+          ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+          ('GRID', (0, 0), (-1, -1), 0.5, colors.black)]
+    tsf = [('ALIGN', (1, 1), (-1, -1), 'CENTER')]
+
+    for r in reports:
+        data = []
+        elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΕΡΓΟΔΟΤΗ', heading_style['Center']))
+        elements.append(Paragraph(u' ', heading_style['Spacer']))
+
+        data.append([Paragraph(u'ΕΠΩΝΥΜΙΑ ΕΡΓΟΔΟΤΗ ', tbl_style['Left']) , Paragraph(u'Διεύθυνση ΔΕ %s' % SETTINGS['dide_place'], tbl_style['Left'])])
+
+        data.append([Paragraph(u'ΑΡΙΘΜΟΣ ΜΗΤΡΩΟΥ: %s' %  SETTINGS['ika_code_dde'], tbl_style['Left']), Paragraph(u'Α.Φ.Μ. ΕΡΓΟΔΟΤΗ: %s' % SETTINGS['afm_dide'], tbl_style['Left'])])
+
+        data.append([Paragraph(u'ΑΡΜΟΔΙΟ ΥΠΟΚΑΤΑΣΤΗΜΑ ΙΚΑ ΕΛΕΓΧΟΥ ', tbl_style['Left']), Paragraph(u' ', tbl_style['Left'])])
+        data.append([Paragraph(u'ΚΩΔΙΚΟΣ - ΟΝΟΜΑΣΙΑ ', tbl_style['Left']), Paragraph(u'%s' % SETTINGS['ika_code'] , tbl_style['Left'])])
+
+        
+        table = Table(data, style=tsf, colWidths=[7.0 * cm, 11.0 * cm])
+        elements.append(table)
+        elements.append(Paragraph(u' ', heading_style['Spacer']))
+
+        data = []
+
+
+        elements.append(Paragraph(u'Βεβαιώνουμε ότι:' , tbl_style['Left']))
+        elements.append(Paragraph(u'Ο/Η ασφαλισμένος με τα κάτωθι ασφαλιστικά στοιχεία απασχολήθηκε στην επιχείρησή μας κατά τις μισθολογικές περιόδους που ακολουθούν:' , tbl_style['Left']))
+
+        elements.append(Paragraph(u' ', heading_style['Spacer']))
+
+        elements.append(Paragraph(u'ΣΤΟΙΧΕΙΑ ΥΠΑΛΛΗΛΟΥ', tbl_style['BoldLeft']))
+
+        data.append([Paragraph(u'ΑΡ. ΠΑΡΑΡΤ. / Κ.Α.Δ. ', tbl_style['Left']), Paragraph(u'%s' % SETTINGS['subject_kad'], tbl_style['Right'])])
+        data.append([Paragraph(u'ΑΜΑ: ', tbl_style['Left']), Paragraph(u'%s' % emp.ama, tbl_style['Right'])])
+        data.append([Paragraph(u'Α.Μ.Κ.Α.: ', tbl_style['Left']), Paragraph(u'%s' % emp.social_security_registration_number, tbl_style['Right'])])
+
+        data.append([Paragraph(u'ΕΠΩΝΥΜΟ: ', tbl_style['Left']), Paragraph(u'%s' % emp.lastname, tbl_style['Right'])])
+        data.append([Paragraph(u'ΟΝΟΜΑ: ', tbl_style['Left']), Paragraph(u'%s' % emp.firstname, tbl_style['Right'])])
+        data.append([Paragraph(u'ΟΝΟΜΑ ΠΑΤΡΟΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.fathername, tbl_style['Right'])])
+        data.append([Paragraph(u'ΟΝΟΜΑ ΜΗΤΡΟΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.mothername, tbl_style['Right'])])
+        data.append([Paragraph(u'ΗΜΕΡΟΜΗΝΙΑ ΓΝΝΕΣΕΩΣ: ', tbl_style['Left']), Paragraph(u'%s / %s / %s' % (emp.birth_date.day, emp.birth_date.month, emp.birth_date.year), tbl_style['Right'])])
+        data.append([Paragraph(u'Α.Φ.Μ.: ', tbl_style['Left']), Paragraph(u'%s' % emp.vat_number, tbl_style['Right'])])
+        data.append([Paragraph(u'ΚΩΔΙΚΟΣ ΕΙΔΙΚΟΤΗΤΑΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.type(), tbl_style['Right'])])
+        if emp.other_social_security:
+            ec = emp.other_social_security.code
+        else:
+            ec = '101'
+            
+        data.append([Paragraph(u'ΠΑΚΕΤΟ ΚΑΛΥΨΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % ec, tbl_style['Right'])])
+        data.append([Paragraph(u'ΜΙΣΘΟΛΟΓΙΚΗ ΠΕΡΙΟΔΟΣ: ', tbl_style['Left']), Paragraph(u'%s / %s' % (r.month, r.year), tbl_style['Right'])])
+        data.append([Paragraph(u'ΑΠΟ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΙΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % r.insured_from, tbl_style['Right'])])
+        data.append([Paragraph(u'ΕΩΣ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % r.insured_to, tbl_style['Right'])])
+        data.append([Paragraph(u'ΤΥΠΟΣ ΑΠΟΔΟΧΩΝ: ', tbl_style['Left']), Paragraph(u'%s' % r.pay_type, tbl_style['Right'])])
+        data.append([Paragraph(u'ΗΜΕΡΕΣ ΑΣΦΑΛΙΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % r.days_insured, tbl_style['Right'])])
+        lpam = r.total_earned.split('.')[0]
+        rpam = r.total_earned.split('.')[1]
+        if len(rpam) == 1:
+            rpam = rpam + '0'
+
+        data.append([Paragraph(u'ΑΠΟΔΟΧΕΣ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
+        data.append([Paragraph(u'ΕΙΣΦΟΡΕΣ ΑΣΦΑΛΙΣΜΕΝΟΥ: ', tbl_style['Left']), Paragraph(u'%s' % r.employee_contributions, tbl_style['Right'])])
+        data.append([Paragraph(u'ΕΙΣΦΟΡΕΣ ΕΡΓΟΔΟΤΗ: ', tbl_style['Left']), Paragraph(u'%s' % r.employer_contributions, tbl_style['Right'])])
+        data.append([Paragraph(u'ΣΥΝΟΛΙΚΕΣ ΕΙΣΦΟΡΕΣ: ', tbl_style['Left']), Paragraph(u'%s' % r.total_contributions, tbl_style['Right'])])
+        data.append([Paragraph(u'ΚΑΤΑΒΛ. ΕΙΣΦΟΡΕΣ: ', tbl_style['Left']), Paragraph(u'%s' % r.total_contributions, tbl_style['Right'])])
+
+
+        table = Table(data, style=tsf, colWidths=[12.0 * cm, 6.0 * cm])
+        elements.append(table)
+
+        data = []
+
+        elements.append(Paragraph(u'Η παραπάνω βεβαίωση χορηγείται για απόδειξη της ασφάλισης στις πεοαναφερθείσες περιόδους.', tbl_style['Left']))
+        elements.append(Paragraph(u'ΠΑΡΑΤΗΡΗΣΗ', tbl_style['Left']))
+
+        elements.append(Paragraph(u'Τα αναγραφόμενα στην παρούσα Βεβαίωση ασφαλιστικά στοιχεία λαμβάνονται υπόψη μέχρι την επεξεργασία της Α.Π.Δ. των συγκεκριμένων μισθολογικών περιόδων και την υποβολή και έκδοση από το ΙΚΑ του αντίστοιχου Αποσπάσματος Ατομικού Λογαριασμού Ασφάλισης.', tbl_style['Justify']))
+        
+        
+        today = datetime.date.today()
+        
+        data.append([Paragraph(u' ', signature['Center']) ,Paragraph(u'Ρόδος, %s / %s / %s' %
+                               (today.day, today.month, today.year), signature['Center'])])
+        
+        table = Table(data, style=tsf, colWidths=[10.0 * cm, 7.0 * cm])
+        elements.append(table)
+        elements.append(Paragraph(u' ', heading_style['Spacer']))
+
+        data = []
+
+        sign = os.path.join(settings.MEDIA_ROOT, "signature.png")
+        im = Image(sign)
+        im.drawHeight = 3.2 * cm
+        im.drawWidth = 6.5 * cm
+        
+        data.append([Paragraph(u' ', signature['Center']) ,im])
+        
+        table = Table(data, style=tsf, colWidths=[10.0 * cm, 7.0 * cm])
+        elements.append(table)
+        elements.append(PageBreak())
+        
+    doc.build(elements)
+    return response
+
+
 
 @csrf_protect
 @match_required
@@ -240,6 +400,9 @@ def edit(request):
         return print_app(request, request.GET['app'])
     elif 'print_exp' in request.GET:
         return print_exp_report(request)
+    elif 'print_emp' in request.GET:
+        return print_emp_report(request, request.GET['f'])
+
     else:
         emp = Employee.objects.get(id=request.session['matched_employee_id'])
         try:
@@ -248,9 +411,10 @@ def edit(request):
             try:
                 emptype = NonPermanent.objects.get(parent_id=emp.id)
                 if emptype.order().order_end_manager != u'' and emptype.order().show_online_order == True:
+                    f = set(f.insurance_file for f in NonPermanentUnemploymentMonth.objects.filter(employee=emp.id))
                     exp = True
+
                 
-                #import pdb; pdb.set_trace()
             except NonPermanent.DoesNotExist:
                 try:
                     emptype = Administrative.objects.get(parent_id=emp.id)
@@ -263,6 +427,10 @@ def edit(request):
         l = EmployeeLeave.objects.filter(employee=emp.id).order_by('-date_from')
         r = EmployeeResponsibility.objects.filter(employee=emp.id).order_by('date_to')
         a = Application.objects.filter(employee=emp.id).exclude(datetime_finalised=None).order_by('-datetime_finalised')
+         
+
+        import pdb; pdb.set_trace()
+
         emp_form = MyInfoForm(emp.__dict__)
         if request.POST:
             emp_form = MyInfoForm(request.POST)
@@ -283,6 +451,7 @@ def edit(request):
                                                            'responsibilities': r,
                                                            'applications': a,
                                                            'form': emp_form,
-                                                           'service': exp
+                                                           'service': exp,
+                                                           'insurance': f
                                                        }
                                         ))

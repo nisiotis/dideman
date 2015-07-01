@@ -1782,7 +1782,7 @@ class NonPermanentUnemploymentMonth(models.Model):
     total_contributions = models.CharField(u"Σύνολο Εισφορών", max_length=50, null=True, blank=True)
 
     def __unicode__(self):
-        return self.employee
+        return u'%s %s' % (self.month, self.year)
 
 
 class Settings(models.Model):

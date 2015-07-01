@@ -152,6 +152,15 @@
            
 
             </ul>
+        <h2>Βεβαιώσεις εργοδότη</h2>
+            <ul class="actionlist">
+            {% for entry in insurance %}
+            <li><a id="insuranceprint" href="?print_emp=1&f={{entry.id}}">{{entry.description}}</a></li>
+            {% empty %}
+            <li>Δεν βρέθηκαν βεβαιώσεις εργοδότη</li>  
+            {% endfor %}
+            </ul>
+
 	    {% endif %}
             </div>
 </div>
