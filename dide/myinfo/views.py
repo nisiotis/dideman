@@ -78,7 +78,7 @@ def print_emp_report(request, fid):
     emp = NonPermanent.objects.select_related().get(parent_id=request.session['matched_employee_id'])
     reports = NonPermanentUnemploymentMonth.objects.select_related().filter(employee_id=request.session['matched_employee_id'],insurance_file=fid)
     response = HttpResponse(mimetype='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=exp_report.pdf'
+    response['Content-Disposition'] = 'attachment; filename=emp_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                   'DroidSans.ttf')))
     registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
@@ -391,6 +391,7 @@ def print_exp_report(request):
 @csrf_protect
 @match_required
 def edit(request):
+    f = []
     exp = False
     if 'logout' in request.GET:
         request.session.clear()
