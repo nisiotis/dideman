@@ -166,7 +166,13 @@ def print_emp_report(request, fid):
         data.append([Paragraph(u'ΟΝΟΜΑ: ', tbl_style['Left']), Paragraph(u'%s' % emp.firstname, tbl_style['Right'])])
         data.append([Paragraph(u'ΟΝΟΜΑ ΠΑΤΡΟΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.fathername, tbl_style['Right'])])
         data.append([Paragraph(u'ΟΝΟΜΑ ΜΗΤΡΟΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.mothername, tbl_style['Right'])])
-        data.append([Paragraph(u'ΗΜΕΡΟΜΗΝΙΑ ΓΕΝΝΗΣΕΩΣ: ', tbl_style['Left']), Paragraph(u'%s / %s / %s' % (emp.birth_date.day, emp.birth_date.month, emp.birth_date.year), tbl_style['Right'])])
+        
+        if emp.birth_date == None:
+            data.append([Paragraph(u'ΗΜΕΡΟΜΗΝΙΑ ΓΕΝΝΗΣΕΩΣ: ', tbl_style['Left']), Paragraph(u' ', tbl_style['Right'])])
+
+        else:
+            data.append([Paragraph(u'ΗΜΕΡΟΜΗΝΙΑ ΓΕΝΝΗΣΕΩΣ: ', tbl_style['Left']), Paragraph(u'%s / %s / %s' % (emp.birth_date.day, emp.birth_date.month, emp.birth_date.year), tbl_style['Right'])])
+
         data.append([Paragraph(u'Α.Φ.Μ.: ', tbl_style['Left']), Paragraph(u'%s' % emp.vat_number, tbl_style['Right'])])
         data.append([Paragraph(u'ΚΩΔΙΚΟΣ ΕΙΔΙΚΟΤΗΤΑΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.type(), tbl_style['Right'])])
         if emp.other_social_security:
@@ -214,7 +220,7 @@ def print_emp_report(request, fid):
         data.append([Paragraph(u'ΚΑΤΑΒΛ. ΕΙΣΦΟΡΕΣ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
 
 
-        table = Table(data, style=tsf, colWidths=[12.0 * cm, 6.0 * cm])
+        table = Table(data, style=tsf, colWidths=[10.0 * cm, 8.0 * cm])
         elements.append(table)
 
         data = []
@@ -230,7 +236,7 @@ def print_emp_report(request, fid):
         data.append([Paragraph(u' ', signature['Center']) ,Paragraph(u'Ρόδος, %s / %s / %s' %
                                (today.day, today.month, today.year), signature['Center'])])
         
-        table = Table(data, style=tsf, colWidths=[10.0 * cm, 7.0 * cm])
+        table = Table(data, style=tsf, colWidths=[9.0 * cm, 8.0 * cm])
         elements.append(table)
         elements.append(Paragraph(u' ', heading_style['Spacer']))
 
@@ -322,7 +328,7 @@ def print_exp_report(request):
     data.append([Paragraph(' ', heading_style['Spacer'])])
     data.append([Paragraph(' ', heading_style['Spacer'])])
 
-    data.append([Paragraph(u'Αρ. Προτ.: %s' % protocol_number(emptype.order().order_end_manager), tbl_style['Left'])])
+    data.append([Paragraph(u'Αρ. Πρωτ.: %s' % protocol_number(emptype.order().order_end_manager), tbl_style['Left'])])
     tableh = Table(data, style=tsl, colWidths=[6.0 * cm])
     data = []
     data.append([im, '', tableh])
