@@ -152,7 +152,7 @@ def print_emp_report(request, fid):
 
 
         elements.append(Paragraph(u'Βεβαιώνουμε ότι:' , tbl_style['Left']))
-        elements.append(Paragraph(u'Ο/Η ασφαλισμένος με τα κάτωθι ασφαλιστικά στοιχεία απασχολήθηκε στην επιχείρησή μας κατά τις μισθολογικές περιόδους που ακολουθούν:' , tbl_style['Left']))
+        elements.append(Paragraph(u'Ο/Η ασφαλισμένος με τα κάτωθι ασφαλιστικά στοιχεία απασχολήθηκε στην υπηρεσία μας κατά τις μισθολογικές περιόδους που ακολουθούν:' , tbl_style['Left']))
 
         elements.append(Paragraph(u' ', heading_style['Spacer']))
 
@@ -189,7 +189,7 @@ def print_emp_report(request, fid):
             dtf = r.insured_from
             dtt = r.insured_to
         
-        data.append([Paragraph(u'ΑΠΟ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΙΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % dtf, tbl_style['Right'])])
+        data.append([Paragraph(u'ΑΠΟ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % dtf, tbl_style['Right'])])
         data.append([Paragraph(u'ΕΩΣ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % dtt, tbl_style['Right'])])
         data.append([Paragraph(u'ΤΥΠΟΣ ΑΠΟΔΟΧΩΝ: ', tbl_style['Left']), Paragraph(u'%s' % r.pay_type, tbl_style['Right'])])
         data.append([Paragraph(u'ΗΜΕΡΕΣ ΑΣΦΑΛΙΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % r.days_insured, tbl_style['Right'])])
@@ -225,7 +225,7 @@ def print_emp_report(request, fid):
 
         data = []
 
-        elements.append(Paragraph(u'Η παραπάνω βεβαίωση χορηγείται για απόδειξη της ασφάλισης στις πεοαναφερθείσες περιόδους.', tbl_style['Left']))
+        elements.append(Paragraph(u'Η παραπάνω βεβαίωση χορηγείται για απόδειξη της ασφάλισης στις προαναφερθείσες περιόδους.', tbl_style['Left']))
         elements.append(Paragraph(u'ΠΑΡΑΤΗΡΗΣΗ', tbl_style['Left']))
 
         elements.append(Paragraph(u'Τα αναγραφόμενα στην παρούσα Βεβαίωση ασφαλιστικά στοιχεία λαμβάνονται υπόψη μέχρι την επεξεργασία της Α.Π.Δ. των συγκεκριμένων μισθολογικών περιόδων και την υποβολή και έκδοση από το ΙΚΑ του αντίστοιχου Αποσπάσματος Ατομικού Λογαριασμού Ασφάλισης.', tbl_style['Justify']))
@@ -271,7 +271,7 @@ def print_exp_report(request):
 
 
     doc = SimpleDocTemplate(response, pagesize=A4)
-    doc.topMargin = 1.5 * cm
+    doc.topMargin = 1.0 * cm
     doc.leftMargin = 1.5 * cm
     doc.rightMargin = 1.5 * cm
 
