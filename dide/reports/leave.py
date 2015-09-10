@@ -90,8 +90,8 @@ leave_docx_reports = [
                                     u' εκλογών'}),
 
     LeaveDocxReport(u'Ειδική άδεια αιρετών Ο.Τ.Α.', 'adeia_airetwn_ota.xml',
-                    custom_context={'subject': u'Χορήγηση ειδικής άδειας'
-                                    u' διευκόλυνσης με αντιμισθία.'}),
+                    custom_context={'subject': u'Χορήγηση άδειας άσκησης καθηκόντων'
+                                    u' αιρετών μελών ΟΤΑ Α\' & Β\' βαθμού.'}),
 
     LeaveDocxReport(u'Ανατροφής (Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay.xml',
                     custom_context={'subject':
