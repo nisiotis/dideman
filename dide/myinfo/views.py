@@ -440,9 +440,10 @@ def edit(request):
         except Permanent.DoesNotExist:
             try:
                 emptype = NonPermanent.objects.get(parent_id=emp.id)
-                if emptype.order().order_end_manager != u'' and emptype.order().show_online_order == True:
-                    f = set(f.insurance_file for f in NonPermanentUnemploymentMonth.objects.filter(employee=emp.id))
-                    exp = True
+                if emptype.order() is not None:
+                    if emptype.order().order_end_manager != u'' and emptype.order().show_online_order == True:
+                        f = set(f.insurance_file for f in NonPermanentUnemploymentMonth.objects.filter(employee=emp.id))
+                        exp = True
 
                 
             except NonPermanent.DoesNotExist:

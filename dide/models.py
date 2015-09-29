@@ -1150,7 +1150,12 @@ class NonPermanent(Employee):
     parent = models.OneToOneField(Employee, parent_link=True)
     pedagogical_sufficiency = models.BooleanField(u'Παιδαγωγική κατάρτιση', default=False)
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10, null=True, blank=True)
+    
+    def orders(self):
+        return set(self.substituteministryorder_set.filter())
+    orders.short_description = u'Όλες οι υπουργικές αποφάσεις'
 
+    
     def order(self, d=current_year_date_from()):
         return first_or_none(self.substituteministryorder_set.filter(date__gte=d))
     order.short_description = u'Υπουργική απόφαση τρέχουσας τοποθέτησης'
