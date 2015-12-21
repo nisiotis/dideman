@@ -476,6 +476,7 @@ class PermanentAdmin(EmployeeAdmin):
                                      'educational_service',
                                      'checked_service',
                                      'educated',
+                                     'calculable_not_service',
                                      'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
 

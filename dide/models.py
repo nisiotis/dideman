@@ -486,6 +486,7 @@ class Leave(models.Model):
     orders = models.CharField(u'Διατάξεις', null=True, blank=True, max_length=300)
     description = models.CharField(null=True, blank=True, verbose_name=u'Περιγραφή', max_length=300)
     for_non_permanents = models.BooleanField(null=False, blank=False, verbose_name=u'Μη μόνιμων', default=False)
+    service_days_count = models.IntegerField(null=True, blank=True, max_length=3, verbose_name=u'Μέρες μετρήσιμης προϋπηρεσίας', default=0)
 
     def __unicode__(self):
         return self.name
@@ -652,6 +653,7 @@ class Employee(models.Model):
         last_day = datetime.date(day=31, month=12, year=today.year)
         leaves = self.employeeleave_set.filter(leave__is_service=False, date_from__lt=today)
         seq = reduce(concat, [l.split() for l in leaves], tuple())
+        # import pdb; pdb.set_trace()
         seq = [s for s in seq if s[0] <= today.year]
         # Για τις αδειες που δεν εχουν ληξει ακομη μην υπολογισεις στις αφαιρουμενες μερες
         # το διαστημα απο την ληξη της αδειας η το τελος του ετους μεχρι σημερα
@@ -662,7 +664,8 @@ class Employee(models.Model):
         return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]
 
     def calculable_not_service(self):
-        return sum([max(days - 30, 0)
+        return sum([max(days, 0)
+        #return sum([max(days - 30, 0)
                     for year, days in self.not_service_in_years()])
     calculable_not_service.short_description = u'Υπολογισμένες ημέρες άδειας εκτός υπηρεσίας'
 
