@@ -664,8 +664,8 @@ class Employee(models.Model):
         return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]
 
     def calculable_not_service(self):
-        return sum([max(days, 0)
-        #return sum([max(days - 30, 0)
+        #return sum([max(days, 0)
+        return sum([max(days - 30, 0)
                     for year, days in self.not_service_in_years()])
     calculable_not_service.short_description = u'Υπολογισμένες ημέρες άδειας εκτός υπηρεσίας'
 
