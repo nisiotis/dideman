@@ -338,7 +338,6 @@ def showpdf(request):
         page = PdfFileReader(fr).getPage(0)
                             
         page.mergePage(overlay)
-        #out_stream = StringIO()
         pdf_out = PdfFileWriter()
         pdf_out.addPage(page)
         response = HttpResponse(mimetype='application/pdf')
@@ -346,7 +345,5 @@ def showpdf(request):
 
         pdf_out.write(response)
             
-        #response = HttpResponse(out_stream(), mimetype='application/pdf')
-        #response['Content-Disposition'] = 'attachment; filename=%s' % request.GET['f']
     return response
     
