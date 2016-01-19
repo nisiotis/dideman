@@ -296,7 +296,7 @@ def view(request):
         
         year_t = {y: emptype.totals_per_year(y) for y in all_year}
 
-        o_year_t = [(k, v) for k, v in year_t.iteritems()]
+        o_year_t = [(k, "{:12.2f}".format(v)) for k, v in year_t.iteritems()]
         o_year_t.sort(reverse=True)
         paginator = Paginator(pay, 15)
 
