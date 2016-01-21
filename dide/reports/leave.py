@@ -187,6 +187,6 @@ leave_docx_reports = [
 
     LeaveDocxReport(u'Αναρρωτική άνευ αποδοχών', 'anarrotiki_xoris_apodoxes.xml',
                     custom_context={'subject':
-                                    u'Χορήγηση αναρρωτικής άδειας χωρίς αποδοχές'})
+                                    u'Χορήγηση αναρρωτικής άδειας'})
 
     ]
