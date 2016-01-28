@@ -1682,7 +1682,8 @@ class EmployeeDegree(models.Model):
     degree_number = models.CharField(u'Αρ. πιστοποιητικού', max_length=20, null=True, blank=True)
     organization = models.ForeignKey(DegreeOrganization, verbose_name=u'Φορέας Πιστοποίησης', null=True)
     checked = models.BooleanField(u'Ελεγμένο', default=False)
-
+    relevance = models.BooleanField(u'Συνάφεια', default=False)
+    
     def __unicode__(self):
         return self.name
 
