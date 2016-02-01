@@ -308,8 +308,11 @@ def generate_pdf_structure(reports):
                     s2 = "/".join(list(reversed(i['end_date'].split('-'))))
                     s += ' (%s - %s) ' % (s1, s2)
                 if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
-                #if int(i['month']) <= 12:
-                    s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
+                    if int(i['month']) <= 12:
+                    #import pdb; pdb.set_trace();
+                        s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
+                    else:
+                        s += u' Άλλο %s' % i['year']
                 data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
                 if data: 
                     table2 = Table(data, style=tsh, colWidths=[17 * cm])
