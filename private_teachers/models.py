@@ -70,6 +70,29 @@ class PrivateTeacher(dide.Employee):
         return total_experience - DateInterval(self.not_service_days) + dli
     total_service.short_description = u'Συνολική υπηρεσία'
 
+    def total_service_311215(self):
+        if not self.current_placement_date:
+            total_experience = self.total_experience()
+        else:
+            wp = WorkingPeriod(teacher=self, date_from=self.current_placement_date,
+                               date_to=datetime.date(2015, 12, 31),
+                               hours_weekly=self.current_hours, full_week=18)
+            periods = list(self.workingperiod_set.all()) + [wp]
+            periods.pop(0)
+        
+            total_experience = self.total_experience(periods)
+        
+        dli = reduce(operator.add,
+                     [DateInterval(l.recognised_experience)
+                      for l in self.leavewithoutpay_set.all()],
+                     DateInterval("000000"))
+        #import pdb; pdb.set_trace()
+        return total_experience - DateInterval(self.not_service_days) + dli
+        #tot_exp_formated = total_experience - DateInterval(self.not_service_days) + dli
+        #return "%s-%s-%s" % (tot_exp_formated.years, tot_exp_formated.months, tot_exp_formated.days)
+    total_service_311215.short_description = u'Υπηρεσία μέχρι 31/12/2015'
+
+
     def rank(self):
         r, mk = RANKS[min(
                 self.total_service().years + self.postgrad_extra().years, 40)]
