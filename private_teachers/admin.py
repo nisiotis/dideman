@@ -42,7 +42,7 @@ class PrivateTeacherAdmin(DideAdmin):
             'fields': [
                     'lastname', 'firstname', 'fathername', 'sex', 'profession',
                     'profession_description', 'series_number',
-                    'total_experience', 'total_service', 'total_service_311215', 'rank', 'next_rank_date',
+                    'total_experience', 'total_service', 'total_service_today', 'total_service_311215', 'rank', 'next_rank_date',
                     'school', 'current_placement_date', 'current_hours',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'birth_date', 'not_service_days',
@@ -53,7 +53,8 @@ class PrivateTeacherAdmin(DideAdmin):
                            'social_security_registration_number']})]
 
     readonly_fields = ['organization_serving', 'total_experience',
-                       'total_service', 'total_service_311215', 'date_created',
+                       'total_service', 'total_service_today', 'total_service_311215',
+                       'date_created',
                        'profession_description', 'rank', 'next_rank_date']
     inlines = [DegreeInline, WorkingPeriodInline, PromotionInline, LeaveWithoutPayInline]
 
