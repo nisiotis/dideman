@@ -96,13 +96,22 @@ class PrivateTeacher(dide.Employee):
         if not self.current_placement_date:
             total_experience = self.total_experience()
         else:
-            wp = WorkingPeriod(teacher=self, date_from=self.current_placement_date,
-                               date_to=datetime.date(2015, 12, 31),
-                               hours_weekly=self.current_hours, full_week=18)
-            periods = list(self.workingperiod_set.all()) + [wp]
-            periods.pop(0)
-        
-            total_experience = self.total_experience(periods)
+            if self.current_placement_date < datetime.date(2015, 12, 31):
+                wp = WorkingPeriod(teacher=self, date_from=self.current_placement_date,
+                                   date_to=datetime.date(2015, 12, 31),
+                                   hours_weekly=self.current_hours, full_week=18)
+                periods = list(self.workingperiod_set.all()) + [wp]
+                periods.pop(0)
+                total_experience = self.total_experience(periods)
+            else:
+                periods = list(self.workingperiod_set.all())
+                periods.pop(0)
+                if periods == []:
+                    total_experience = DateInterval("000000")
+                else:
+                    total_experience = self.total_experience(periods)
+            #import pdb; pdb.set_trace()
+            
         
         dli = reduce(operator.add,
                      [DateInterval(l.recognised_experience)
