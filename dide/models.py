@@ -576,8 +576,10 @@ class Employee(models.Model):
     address = models.CharField(u'Διεύθυνση', max_length=200, null=True, blank=True)
     identity_number = NullableCharField(u'Αρ. Δελτίου Ταυτότητας', max_length=8, null=True, unique=True, blank=True)
     transfer_area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης', null=True, blank=True)
-    recognised_experience = models.CharField(u'Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True, default='000000', max_length=8)
-    non_educational_experience = models.CharField(u'Εκτός Ωραρίου (ΕΕΜΜΗΜΗΜ)', null=True, blank=True, default='000000', max_length=8)
+    recognised_experience = models.CharField(u'Προϋπηρεσία (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
+    recognised_experience_n4354_2015 = models.CharField(u'Προϋπηρεσία Ν. 4354/2015-ΝΠΙΔ (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
+
+    non_educational_experience = models.CharField(u'Εκτός Ωραρίου (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     vat_number = NullableCharField(u'Α.Φ.Μ.', max_length=9, null=True, unique=True, blank=True)
     tax_office = models.CharField(u'Δ.Ο.Υ.', max_length=100, null=True, blank=True)
     bank = models.CharField(u'Τράπεζα', max_length=100, null=True, blank=True)
@@ -653,7 +655,6 @@ class Employee(models.Model):
         last_day = datetime.date(day=31, month=12, year=today.year)
         leaves = self.employeeleave_set.filter(leave__is_service=False, date_from__lt=today)
         seq = reduce(concat, [l.split() for l in leaves], tuple())
-        # import pdb; pdb.set_trace()
         seq = [s for s in seq if s[0] <= today.year]
         # Για τις αδειες που δεν εχουν ληξει ακομη μην υπολογισεις στις αφαιρουμενες μερες
         # το διαστημα απο την ληξη της αδειας η το τελος του ετους μεχρι σημερα
@@ -664,7 +665,6 @@ class Employee(models.Model):
         return [((y, d) if y != today.year else (y, max(0, d - sub))) for y, d in groups]
 
     def calculable_not_service(self):
-        #return sum([max(days, 0)
         return sum([max(days - 30, 0)
                     for year, days in self.not_service_in_years()])
     calculable_not_service.short_description = u'Υπολογισμένες ημέρες άδειας εκτός υπηρεσίας'
@@ -1001,6 +1001,38 @@ class Permanent(Employee):
 
     rank_id.short_description = u'ID Βαθμού'
 
+
+# Νέοι βαθμοί με τον Νόμο 4354/2015
+    def ranknew(self):
+        return first_or_none(
+            PromotionNew.objects.filter(employee=self).order_by('-date')) or \
+            PromotionNew(value=u'Χωρίς', date=datetime.date.today())
+    ranknew.short_description = u'Νέος Βαθμός'
+
+    def ranknew_date(self):
+        rankdate = first_or_none(
+            PromotionNew.objects.filter(employee=self).order_by('-date'))
+        return rankdate.date if rankdate else ''
+    ranknew_date.short_description = u'Ημερομηνία τελευταίου νέου βαθμού'
+
+    def next_ranknew_date(self):
+        rankdate = first_or_none(
+            PromotionNew.objects.filter(employee=self).order_by('-date'))
+        return rankdate.next_promotion_date
+    next_ranknew_date.short_description = u'Ημερομηνία επόμενου νέου βαθμού'
+
+    def ranknew_id(self):
+        promotion = first_or_none(
+            PromotionNew.objects.filter(employee=self).order_by('-date'))
+        if not promotion:
+            return None
+        else:
+            rank = RankCode.objects.get(rank=promotion.value)
+            return rank.id if rank else None
+    ranknew_id.short_description = u'ID Νέου Βαθμού'
+# --- Νέοι βαθμοί
+
+
     def employment_type_text(self):
         if self.sex == "Άνδρας":
             return "μόνιμος"
@@ -1065,8 +1097,8 @@ for m in methods:
 class Promotion(models.Model):
 
     class Meta:
-        verbose_name = u'Μεταβολή'
-        verbose_name_plural = u'Μεταβολές'
+        verbose_name = u'Μεταβολή Νόμου 4024 / 2011'
+        verbose_name_plural = u'Μεταβολές Νόμου 4024 / 2011'
 
     value = models.CharField(u'Μεταβολή', max_length=100, choices=PROMOTION_CHOICES)
     employee = models.ForeignKey(Employee)
@@ -1078,6 +1110,21 @@ class Promotion(models.Model):
     def __unicode__(self):
         return self.value
 
+class PromotionNew(models.Model):
+
+    class Meta:
+        verbose_name = u'Μεταβολή Νόμου 4354 / 2015'
+        verbose_name_plural = u'Μεταβολές Νόμου 4354 / 2015'
+
+    value = models.ForeignKey(RankCode)
+    employee = models.ForeignKey(Employee)
+    date = models.DateField(u'Ημερομηνία μεταβολής')
+    next_promotion_date = models.DateField(u'Ημερομηνία επόμενης μεταβολής', null=True, blank=True)
+    order = models.CharField(u'Απόφαση', max_length=300)
+    order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.value
 
 class NonPermanentTypeManager(models.Manager):
 

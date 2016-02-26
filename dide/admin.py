@@ -15,7 +15,7 @@ from overrides.admin import DideAdmin
 from filters import *
 from applications.filters import FinalisedFilter
 from models import (TransferArea, Island, Leave, Responsibility, Profession,
-                    Promotion, NonPermanentType, Administrative,
+                    Promotion, PromotionNew, NonPermanentType, Administrative,
                     NonPermanent, Permanent, Employee, DegreeCategory,
                     SchoolType, School, OtherOrganization, PlacementType,
                     Placement, EmployeeLeave, EmployeeResponsibility,
@@ -203,6 +203,9 @@ class PromotionInline(admin.TabularInline):
     model = Promotion
     extra = 0
 
+class PromotionNewInline(admin.TabularInline):
+    model = PromotionNew
+    extra = 0
 
 class PlacementInline(admin.TabularInline):
     model = Placement
@@ -405,7 +408,7 @@ class PermanentAdmin(EmployeeAdmin):
     list_display = ['lastname', 'firstname', 'fathername',
                     'registration_number', 'profession', 'date_hired',
                     'permanent_post', 'organization_serving']
-    inlines = EmployeeAdmin.inlines + [PromotionInline, PlacementInline,
+    inlines = EmployeeAdmin.inlines + [PromotionNewInline, PromotionInline, PlacementInline,
                                        ServiceInline, LeaveInline, ResponsibilityInline]
 
     list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
@@ -448,6 +451,7 @@ class PermanentAdmin(EmployeeAdmin):
                            'recognised_experience',
                            'formatted_recognised_experience',
                            'checked_service',
+                           'recognised_experience_n4354_2015',
                            'non_educational_experience',
                            'calculable_not_service', 'not_service_existing',
                            'total_service',
