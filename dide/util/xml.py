@@ -76,12 +76,13 @@ def read(file, filerec, istaxed):
                 el = i.xpath('./xs:identification/xs:bankAccount',
                              namespaces={'xs': ns})
                 iban = el[0].get('iban')
-                el = i.xpath('./xs:identification/xs:scale/xs:rank',
+                el = i.xpath('./xs:identification/xs:scale/xs:mk',
                              namespaces={'xs': ns})
                 if el:
                     rank = 'NULL' if int(el[0].text) not in rankdic else el[0].text
                 else:
                     rank = 'NULL'
+                
                 el = i.xpath('./xs:payment/xs:netAmount1',
                              namespaces={'xs': ns})
                 netAmount1 = el[0].get('value')
