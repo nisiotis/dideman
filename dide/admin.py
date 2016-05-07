@@ -442,7 +442,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'temporary_position', 'organization_serving',
                     'study_years', 'serving_type', 'date_hired',
                     'order_hired', 'is_permanent',
-                    'has_permanent_post', 'rank', 'address', 'identity_number',
+                    'has_permanent_post', 'rank', 'ranknew', 'address', 'identity_number',
                     'inaccessible_school', 'telephone_number1',
                     'telephone_number2', 'email',
                     'birth_date', 'date_created', 'educated']}), #Removed 'hours_current',
@@ -465,7 +465,7 @@ class PermanentAdmin(EmployeeAdmin):
     readonly_fields = EmployeeAdmin.readonly_fields + \
         ['permanent_post', 'temporary_position', 'hours', 'total_service',
          'formatted_recognised_experience', 'payment_start_date_auto',
-         'rank', 'profession_description', 'calculable_not_service',
+         'rank', 'ranknew', 'profession_description', 'calculable_not_service',
          'date_created', 'educational_service']
 
     actions = sorted([to_private_teacher, to_administrative,

@@ -838,10 +838,11 @@ class PermanentManager(models.Manager):
                .filter(type__name=u'Μετάθεση')]
         return self.all().exclude(pk__in=ids)
 
+# New Promotion Filter 
     def next_promotion_in_range(self, date_from, date_to):
         return Permanent.objects.filter(
             id__in=[o['employee']
-                    for o in [p for p in Promotion.objects
+                    for o in [p for p in PromotionNew.objects
                               .all()
                               .values('employee')
                               .annotate(
@@ -978,6 +979,7 @@ class Permanent(Employee):
             Promotion(value=u'Χωρίς', date=datetime.date.today())
     rank.short_description = u'Βαθμός'
 
+
     def rank_date(self):
         rankdate = first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date'))
@@ -1007,7 +1009,7 @@ class Permanent(Employee):
         return first_or_none(
             PromotionNew.objects.filter(employee=self).order_by('-date')) or \
             PromotionNew(value=u'Χωρίς', date=datetime.date.today())
-    ranknew.short_description = u'Νέος Βαθμός'
+    ranknew.short_description = u'Νέος Βαθμός / Κλιμάκιο'
 
     def ranknew_date(self):
         rankdate = first_or_none(
