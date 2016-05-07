@@ -1116,7 +1116,9 @@ class PromotionNew(models.Model):
         verbose_name = u'Μεταβολή Νόμου 4354 / 2015'
         verbose_name_plural = u'Μεταβολές Νόμου 4354 / 2015'
 
-    value = models.ForeignKey(RankCode)
+    rank = models.CharField(u'Βαθμός', max_length=5)
+    value = models.ForeignKey(RankCode, verbose_name=u'Κλιμάκιο')
+    
     employee = models.ForeignKey(Employee)
     date = models.DateField(u'Ημερομηνία μεταβολής')
     next_promotion_date = models.DateField(u'Ημερομηνία επόμενης μεταβολής', null=True, blank=True)
@@ -1124,7 +1126,7 @@ class PromotionNew(models.Model):
     order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
 
     def __unicode__(self):
-        return self.value
+        return u"%s %s" %(self.rank, self.value)
 
 class NonPermanentTypeManager(models.Manager):
 

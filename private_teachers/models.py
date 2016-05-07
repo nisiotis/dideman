@@ -88,6 +88,7 @@ class PrivateTeacher(dide.Employee):
                      [DateInterval(l.recognised_experience)
                       for l in self.leavewithoutpay_set.all()],
                      DateInterval("000000"))
+        #import pdb; pdb.set_trace() 
         return total_experience - DateInterval(self.not_service_days) + dli
     total_service_today.short_description = u'Συνολική υπηρεσία μέχρι σήμερα'
 
@@ -117,6 +118,7 @@ class PrivateTeacher(dide.Employee):
                      [DateInterval(l.recognised_experience)
                       for l in self.leavewithoutpay_set.all()],
                      DateInterval("000000"))
+        #import pdb; pdb.set_trace() 
         return total_experience - DateInterval(self.not_service_days) + dli
     total_service_311215.short_description = u'Υπηρεσία μέχρι 31/12/2015'
 # --
