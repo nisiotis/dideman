@@ -322,9 +322,10 @@ def print_exp_report(request):
     im.drawHeight = 1.25 * cm
     im.drawWidth = 1.25 * cm
     data = []
-    today = datetime.date.today()
-    data.append([Paragraph(u'Ρόδος, %s / %s / %s' %
-                               (today.day, today.month, today.year), tbl_style['Left'])])
+    #today = datetime.date.today()
+    date_plus1 = emptype.current_placement().date_to + datetime.timedelta(days=1)
+
+    data.append([Paragraph(u'Ρόδος, %s / %s / %s' % (date_plus1.day, date_plus1.month, date_plus1.year), tbl_style['Left'])])
     data.append([Paragraph(' ', heading_style['Spacer'])])
     data.append([Paragraph(' ', heading_style['Spacer'])])
 
@@ -333,11 +334,11 @@ def print_exp_report(request):
     data = []
     data.append([im, '', tableh])
     data.append([Paragraph(u'ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ', head_logo['Center']), '', ''])
-    data.append([Paragraph(u'ΥΠΟΥΡΓΕΙΟ ΠΟΛΙΤΙΣΜΟΥ, ΠΑΙΔΕΙΑΣ,',
+    data.append([Paragraph(u'ΥΠΟΥΡΓΕΙΟ ΠΟΛΙΤΙΣΜΟΥ, ΕΡΕΥΝΑΣ,',
                            head_logo['Center']), '', ''])
     data.append([Paragraph(u'ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ',
                            head_logo['Center']), '', ''])
-    data.append([Paragraph(u'ΠΕΡΙΦΕΡΙΑΚΗ ΔΙΕΥΘΥΝΣΗ ΠΡΩΤΟΒΑΘΜΙΑΣ',
+    data.append([Paragraph(u'ΠΕΡΙΦΕΡΕΙΑΚΗ ΔΙΕΥΘΥΝΣΗ ΠΡΩΤΟΒΑΘΜΙΑΣ',
                            head_logo['Center']), '', ''])
     data.append([Paragraph(u'ΚΑΙ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΝΟΤΙΟΥ ΑΙΓΑΙΟΥ',
                            head_logo['Center']), '', ''])
@@ -355,13 +356,13 @@ def print_exp_report(request):
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u'ΘΕΜΑ: Αυτοδίκαιη Απόλυση', tbl_style['BoldLeft']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση του Διευθυντή Δευτεροβάθμιας Εκπαίδευσης Δωδεκανήσου απολύεστε αυτοδίκαια από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την %s/%s/%s.' % (emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Justify']))
+    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση της Διεύθυνσης Δευτεροβάθμιας Εκπαίδευσης %s απολύεστε αυτοδίκαια και χωρίς καμία αποζημίωση από το Δημόσιο από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την %s/%s/%s.' % (SETTINGS['dide_place'], emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Justify']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
     elements.append(Paragraph(u'ΘΕΜΑ: Βεβαίωση Προϋπηρεσίας', tbl_style['BoldLeft']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s και υπηρέτησε από %s/%s/%s έως %s/%s/%s.' % (emptype.lastname, emptype.firstname, emptype.fathername, emptype.profession, emptype.profession.description, emptype.current_placement(), emptype.type(), emptype.current_placement().date_from.day,emptype.current_placement().date_from.month,emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month,emptype.current_placement().date_to.year), tbl_style['Justify']))
+    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s (23 ώρες) με σχέση εργασίας ιδιωτικού δικαίου, ορισμένου χρόνου και υπηρέτησε από %s/%s/%s έως %s/%s/%s.' % (emptype.lastname, emptype.firstname, emptype.fathername, emptype.profession, emptype.profession.description, emptype.current_placement(), emptype.type(), emptype.current_placement().date_from.day,emptype.current_placement().date_from.month,emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month,emptype.current_placement().date_to.year), tbl_style['Justify']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
@@ -376,8 +377,15 @@ def print_exp_report(request):
     elements.append(Paragraph(u'Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_end_manager, tbl_style['Left']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
+    #import pdb;pdb.set_trace()
+    if emptype.current_placement().substituteplacement.date_from_show:
+        elements.append(Paragraph(u'Ημερομηνία ανάληψης υπηρεσίας: %s/%s/%s' % (emptype.current_placement().substituteplacement.date_from_show.day, emptype.current_placement().substituteplacement.date_from_show.month, emptype.current_placement().substituteplacement.date_from_show.year), tbl_style['Left']))
+    else:
+        elements.append(Paragraph(u'Ημερομηνία ανάληψης υπηρεσίας: %s/%s/%s' % (emptype.current_placement().date_from.day, emptype.current_placement().date_from.month, emptype.current_placement().date_from.year), tbl_style['Left']))
 
-    elements.append(Paragraph(u'Χρόνος υπηρεσίας: %s' % emptype.experience(), tbl_style['Left']))
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
+
+    elements.append(Paragraph(u'Χρόνος υπηρεσίας με βάση την υπουργική απόφαση: %s' % emptype.experience(), tbl_style['Left']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
@@ -399,9 +407,9 @@ def print_exp_report(request):
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'ΚΟΙΝΟΠΟΙΗΣΗ', tbl_style['BoldLeft']))
-    elements.append(Paragraph(u'1. %s' % emptype.current_placement(), tbl_style['Left']))
-    elements.append(Paragraph(u'2. Α.Φ.', tbl_style['Left']))
+    #elements.append(Paragraph(u'ΚΟΙΝΟΠΟΙΗΣΗ', tbl_style['BoldLeft']))
+    #elements.append(Paragraph(u'1. %s' % emptype.current_placement(), tbl_style['Left']))
+    #elements.append(Paragraph(u'2. Α.Φ.', tbl_style['Left']))
     if emptype.order().order_type == 3:
 
         logo = os.path.join(settings.MEDIA_ROOT, "espa.png")

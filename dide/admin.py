@@ -32,7 +32,7 @@ from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     NonPermanentInsuranceFile)
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
                      CreatePDF, XLSReadAction, PDFReadAction, DeleteAction, timestamp, 
-                     EmployeeBecome, HideOption, ShowOption)
+                     EmployeeBecome, HideOption, ShowOption, XMLWriteE7Action)
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
@@ -58,6 +58,7 @@ class NonPermanentInsuranceFileAdmin(DideAdmin):
         else:
             msg = u'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής xls.'
             self.message_user(request, msg, level=messages.ERROR)
+
             
 class PaymentFilePDFAdmin(DideAdmin):
     readonly_fields = ['status', 'extracted_files']
@@ -77,7 +78,6 @@ class PaymentFilePDFAdmin(DideAdmin):
         if obj:
             return ['pdf_file' ] + self.readonly_fields                
         return self.readonly_fields
-
 
 
 class PaymentFileNameAdmin(DideAdmin):
@@ -228,8 +228,8 @@ class SubstitutePlacementInline(admin.TabularInline):
     def get_formset(self, request, obj=None, **kwargs):
         return inlineformset_factory(NonPermanent, SubstitutePlacement,
                                      form=SubstitutePlacementForm,
-                                     fields=['organization', 'ministry_order',
-                                             'date_from', 'date_to'],
+                                     fields=['organization', 'ministry_order', 'last_total_grosspay',
+                                             'date_from', 'date_from_show', 'date_to'],
                                      extra=SubstitutePlacementInline.extra)
 
 
@@ -347,7 +347,7 @@ class EmployeeAdmin(DideAdmin):
                            'date_end', 'address',
                            'profession_description',
                            'identity_number', 'telephone_number1',
-                           'telephone_number2', 'email',
+                           'telephone_number2', 'email', 'marital_status',
                            'birth_date', 'hours_current',
                            'organization_serving', 'date_created']}),
         economic_fieldset]
@@ -444,7 +444,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'order_hired', 'is_permanent',
                     'has_permanent_post', 'rank', 'ranknew', 'address', 'identity_number',
                     'inaccessible_school', 'telephone_number1',
-                    'telephone_number2', 'email',
+                    'telephone_number2', 'email', 'marital_status',
                     'birth_date', 'date_created', 'educated']}), #Removed 'hours_current',
         ('Στοιχεία Προϋπηρεσίας', {
                 'fields': ['currently_serves',
@@ -514,7 +514,7 @@ class AdministrativeAdmin(PermanentAdmin):
                         'order_hired', 'is_permanent',
                         'has_permanent_post', 'rank', 'address', 'identity_number',
                          'telephone_number1',
-                        'telephone_number2', 'email',
+                        'telephone_number2', 'email', 'marital_status',
                         'birth_date', 'hours_current', 'date_created']}),
             ('Στοιχεία Προϋπηρεσίας', {
                     'fields': ['currently_serves',
@@ -657,10 +657,11 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'lastname', 'firstname', 'fathername', 'mothername',
                     'sex', 'current_transfer_area',
                     'notes', 'type', 'profession', 'profession_description',
+                    'profession_code_oaed',
                     'current_placement', 'organization_serving',
                     'study_years',
                     'identity_number', 'telephone_number1',
-                    'telephone_number2', 'email', 'birth_date',
+                    'telephone_number2', 'email', 'marital_status', 'birth_date',
                     'date_created', 'pedagogical_sufficiency',
                     'social_security_number']}),
             economic_fieldset]
@@ -677,7 +678,7 @@ class NonPermanentAdmin(EmployeeAdmin):
                    NonPermanentWithTotalExtraPosition]
     actions = sorted([to_permanent, to_administrative, to_private_teacher,
                     CSVReport(add=['current_placement', 'organization_serving', 'profession__description']),
-                  ] + nonpermanent_docx_reports, key=lambda k: k.short_description)
+                  ] + nonpermanent_docx_reports + [XMLWriteE7Action(u'Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
 
 
 class SchoolTypeAdmin(DideAdmin):

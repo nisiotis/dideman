@@ -558,6 +558,11 @@ class EmployeeManager(models.Manager):
 SEX_TYPES = ((u'Άνδρας', u'Άνδρας'),
              (u'Γυναίκα', u'Γυναίκα'))
 
+MARITAL_TYPES = ((0, u'Άγαμος'),
+                 (1, u'Έγγαμος'),
+                 (2, u'Διαζευγμένος'),
+                 (3, u'Χήρος'))
+
 
 class Employee(models.Model):
 
@@ -587,6 +592,7 @@ class Employee(models.Model):
     iban = models.CharField(u'IBAN', max_length=27, null=True, blank=True)
     telephone_number1 = models.CharField(u'Αρ. Τηλεφώνου 1', max_length=14, null=True, blank=True)
     telephone_number2 = models.CharField(u'Αρ. Τηλεφώνου 2', max_length=14, null=True, blank=True)
+    marital_status = models.IntegerField(u'Οικογενειακή Κατάσταση', null=True, blank=True, choices=MARITAL_TYPES)
     social_security_registration_number = models.CharField(u'Α.Μ.Κ.Α.', max_length=11, null=True, blank=True)
     before_93 = models.BooleanField(u'Ασφαλισμένος πριν το 93', default=False)
     has_family_subsidy = models.BooleanField(u'Οικογενειακό επίδομα', default=False)
@@ -607,6 +613,7 @@ class Employee(models.Model):
     show_mass_pay = models.NullBooleanField(u'Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', null=True, blank=True, default=True)
     ama = models.CharField(u'ΑΜΑ ΙΚΑ ΕΤΑΜ', max_length=10, null=True, blank=True)
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
+    
     checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=False)
 
     def profession_description(self):
@@ -1204,8 +1211,8 @@ class NonPermanent(Employee):
     parent = models.OneToOneField(Employee, parent_link=True)
     pedagogical_sufficiency = models.BooleanField(u'Παιδαγωγική κατάρτιση', default=False)
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10, null=True, blank=True)
-    
-    
+    profession_code_oaed = models.CharField(u'Κωδικός ειδικότητας ΟΑΕΔ', max_length=10, null=True, blank=True)
+
     def order(self, d=current_year_date_from()):
         return first_or_none(self.substituteministryorder_set.filter(date__gte=d))
     order.short_description = u'Υπουργική απόφαση τρέχουσας τοποθέτησης'
@@ -1470,6 +1477,9 @@ class SubstitutePlacement(Placement):
 
     parent = models.OneToOneField(Placement, parent_link=True)
     ministry_order = models.ForeignKey(SubstituteMinistryOrder, verbose_name=u'Υπουργική Απόφαση')
+
+    last_total_grosspay = models.CharField(u'Σύνολο μεικτών αποδοχών κατά την απόλυση', max_length=10, null=True, blank=True)
+    date_from_show = models.DateField(u'Ημερομηνία ανάληψης υπηρεσίας', null=True, blank=True)
 
 
 class NonPermanentLeave(models.Model):

@@ -309,7 +309,7 @@ def generate_pdf_structure(reports):
                     s += ' (%s - %s) ' % (s1, s2)
                 if (i['month'] and i['month'] != 'NULL') and (i['year'] and i['year'] != 'NULL'):
                     if int(i['month']) <= 12:
-                    #import pdb; pdb.set_trace();
+                    
                         s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
                     else:
                         s += u' Άλλο %s' % i['year']
