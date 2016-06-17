@@ -804,7 +804,10 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t\t<f_eponymo_mitros/>\n")
             xml_file.write(u"\t\t<f_onoma_mitros>%s</f_onoma_mitros>\n" % manage_len(o.parent.mothername, 30))
             xml_file.write(u"\t\t<f_topos_gennhshs/>\n")
-            xml_file.write(u"\t\t<f_birthdate>%s/%s/%s</f_birthdate>\n" % ('{:02d}'.format(o.parent.birth_date.day), '{:02d}'.format(o.parent.birth_date.month), o.parent.birth_date.year))
+            if o.parent.birth_date:
+                xml_file.write(u"\t\t<f_birthdate>%s/%s/%s</f_birthdate>\n" % ('{:02d}'.format(o.parent.birth_date.day), '{:02d}'.format(o.parent.birth_date.month), o.parent.birth_date.year))
+            else:
+                xml_file.write(u"\t\t<f_birthdate>01/01/1901</f_birthdate>\n")
             if o.parent.sex == u"Άνδρας":
                 xml_file.write(u"\t\t<f_sex>0</f_sex>\n")
             else:
@@ -866,15 +869,15 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t\t<f_kathestosapasxolisis>0</f_kathestosapasxolisis>\n")
             xml_file.write(u"\t\t<f_oros>0</f_oros>\n")
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
-            if o.current_placement:
-                if o.current_placement().substituteplacement.last_total_grosspay:
+            try:
+                if o.current_placement().substituteplacement:
                     xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % o.current_placement().substituteplacement.last_total_grosspay)
                 else:
                     xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
-            else:
-                    xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
+            except:
+                xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
 
-            if o.current_placement:
+            try:
                 xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(o.current_placement().date_from.day),
                                                                                   '{:02d}'.format(o.current_placement().date_from.month),
                                                                                   o.current_placement().date_from.year))
@@ -887,7 +890,7 @@ class XMLWriteE7Action(object):
                 xml_file.write(u"\t\t<f_lastdaydate>%s/%s/%s</f_lastdaydate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
                                                                                   '{:02d}'.format(o.current_placement().date_to.month),
                                                                                   o.current_placement().date_to.year))
-            else:
+            except:
                 xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
                 xml_file.write(u"\t\t<f_lixisymbashdate>01/01/2001</f_lixisymbashdate>\n")
                 xml_file.write(u"\t\t<f_lastdaydate>01/01/2001</f_lastdaydate>\n")
