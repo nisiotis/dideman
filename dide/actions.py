@@ -871,19 +871,23 @@ class XMLWriteE7Action(object):
                 xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % o.current_placement().substituteplacement.last_total_grosspay)
             else:
                 xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
-            
-            xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(o.current_placement().date_from.day),
+            if o.current_placement:
+                xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(o.current_placement().date_from.day),
                                                                                   '{:02d}'.format(o.current_placement().date_from.month),
                                                                                   o.current_placement().date_from.year))
-            xml_file.write(u"\t\t<f_lixisymbashdate>%s/%s/%s</f_lixisymbashdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
+                xml_file.write(u"\t\t<f_lixisymbashdate>%s/%s/%s</f_lixisymbashdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
                                                                                   '{:02d}'.format(o.current_placement().date_to.month),
                                                                                   o.current_placement().date_to.year))
-            xml_file.write(u"\t\t<f_apolysisdate>%s/%s/%s</f_apolysisdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
+                xml_file.write(u"\t\t<f_apolysisdate>%s/%s/%s</f_apolysisdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
                                                                                   '{:02d}'.format(o.current_placement().date_to.month),
                                                                                   o.current_placement().date_to.year))
-            xml_file.write(u"\t\t<f_lastdaydate>%s/%s/%s</f_lastdaydate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
+                xml_file.write(u"\t\t<f_lastdaydate>%s/%s/%s</f_lastdaydate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
                                                                                   '{:02d}'.format(o.current_placement().date_to.month),
                                                                                   o.current_placement().date_to.year))
+            else:
+                xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
+                xml_file.write(u"\t\t<f_lixisymbashdate>01/01/2001</f_lixisymbashdate>\n")
+                xml_file.write(u"\t\t<f_lastdaydate>01/01/2001</f_lastdaydate>\n")
             xml_file.write(u"\t\t<f_comments/>\n")
             xml_file.write(u"\t\t<f_logosperatosis>0</f_logosperatosis>\n")
             xml_file.write(u"\t\t<f_logosperatosiscomments/>\n")
