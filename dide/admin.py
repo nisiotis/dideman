@@ -365,7 +365,7 @@ class EmployeeAdmin(DideAdmin):
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
     list_display = ['order', 'date', 'web_code', 'order_type']
-    search_fields = ['order', 'date', 'web_code']
+    search_fields = ['order', 'web_code']
     inlines = [OrderedSubstitutionInline]
     extra = 0
     actions = [ShowOption(u'Εμφάνιση στον χρήστη', 'show_online_order'),
