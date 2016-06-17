@@ -866,11 +866,14 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t\t<f_kathestosapasxolisis>0</f_kathestosapasxolisis>\n")
             xml_file.write(u"\t\t<f_oros>0</f_oros>\n")
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
-            
-            if o.current_placement().substituteplacement.last_total_grosspay:
-                xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % o.current_placement().substituteplacement.last_total_grosspay)
+            if o.current_placement:
+                if o.current_placement().substituteplacement.last_total_grosspay:
+                    xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % o.current_placement().substituteplacement.last_total_grosspay)
+                else:
+                    xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
             else:
-                xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
+                    xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
+
             if o.current_placement:
                 xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(o.current_placement().date_from.day),
                                                                                   '{:02d}'.format(o.current_placement().date_from.month),
