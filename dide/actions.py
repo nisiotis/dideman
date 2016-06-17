@@ -866,11 +866,13 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t\t<f_pc_other/>\n")
             xml_file.write(u"\t\t<f_xaraktirismos>1</f_xaraktirismos>\n")
             xml_file.write(u"\t\t<f_sxeshapasxolisis>1</f_sxeshapasxolisis>\n")
-            xml_file.write(u"\t\t<f_kathestosapasxolisis>0</f_kathestosapasxolisis>\n")
+#            import pdb; pdb.set_trace()
+            xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
+            
             xml_file.write(u"\t\t<f_oros>0</f_oros>\n")
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
             try:
-                if o.current_placement().substituteplacement:
+                if o.current_placement().substituteplacement.last_total_grosspay:
                     xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % o.current_placement().substituteplacement.last_total_grosspay)
                 else:
                     xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
@@ -878,9 +880,14 @@ class XMLWriteE7Action(object):
                 xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
 
             try:
-                xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(o.current_placement().date_from.day),
-                                                                                  '{:02d}'.format(o.current_placement().date_from.month),
-                                                                                  o.current_placement().date_from.year))
+                f_d = ""
+                if o.current_placement().substituteplacement.date_from_show:
+                    f_d = o.current_placement().substituteplacement.date_from_show
+                else:
+                    f_d = o.current_placement().substituteplacement.date_from
+                xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(f_d.day),
+                                                                                       '{:02d}'.format(f_d.month),
+                                                                                       f_d.year))
                 xml_file.write(u"\t\t<f_lixisymbashdate>%s/%s/%s</f_lixisymbashdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
                                                                                   '{:02d}'.format(o.current_placement().date_to.month),
                                                                                   o.current_placement().date_to.year))

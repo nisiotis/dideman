@@ -681,6 +681,11 @@ class NonPermanentAdmin(EmployeeAdmin):
                   ] + nonpermanent_docx_reports + [XMLWriteE7Action(u'Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
 
 
+class NonPermanentTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'work_mode')
+    
+
+
 class SchoolTypeAdmin(DideAdmin):
     list_display = ('name', 'shift', 'category', 'rank')
 
@@ -695,6 +700,7 @@ map(lambda t: admin.site.register(*t), (
     (OtherOrganization, OtherOrganizationAdmin),
     (School, SchoolAdmin),
     (NonPermanent, NonPermanentAdmin),
+    (NonPermanentType, NonPermanentTypeAdmin),
     (PlacementType, PlacementTypeAdmin),
     (EmployeeLeave, EmployeeLeaveAdmin),
     (NonPermanentLeave, NonPermanentLeaveAdmin),
@@ -715,7 +721,7 @@ map(lambda t: admin.site.register(*t), (
 ))
 
 
-admin.site.register((TransferArea, Island, Responsibility, NonPermanentType,
+admin.site.register((TransferArea, Island, Responsibility,
                      LoanCategory, DegreeCategory, Settings,
                      ApplicationType, DegreeOrganization))
 admin.site.disable_action('delete_selected')

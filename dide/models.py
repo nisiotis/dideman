@@ -1143,6 +1143,12 @@ class NonPermanentTypeManager(models.Manager):
         return self.get(name=name)
 
 
+WORK_TYPES = ((0, u'Πλήρης'),
+              (1, u'Μερική'),
+              (2, u'Εκ περιτροπής'))
+              
+
+
 class NonPermanentType(models.Model):
 
     class Meta:
@@ -1152,6 +1158,7 @@ class NonPermanentType(models.Model):
     objects = NonPermanentTypeManager()
 
     name = models.CharField(max_length=200, verbose_name=u'Κατηγορία')
+    work_mode = models.IntegerField(u'Καθεστός απασχόλησης (ΟΑΕΔ)', max_length=2, null=True, blank=True, choices=WORK_TYPES)
 
     def natural_key(self):
         return (self.name, )
