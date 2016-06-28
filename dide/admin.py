@@ -280,7 +280,7 @@ class EmployeeInline(admin.TabularInline):
 
 class ApplicationSetAdmin(DideAdmin):
     model = ApplicationSet
-
+    list_display = ['name', 'start_date', 'end_date']
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return ('klass',) + self.readonly_fields

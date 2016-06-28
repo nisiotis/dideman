@@ -39,8 +39,9 @@ nonpermanent_docx_reports = [
                             'cc': ['{{current_placement}}']}),
 
     NonPermanentDocxReport(u'Αυτοδίκαιη Απόλυση', 'apolisi-proypiresia.xml',
-                           ['profession__description', 'firstname', 'current_placement',
-                            'lastname', 'profession', 'current_placement',
+                           ['profession__description', 'firstname', 'current_placement', 
+                            'current_placement__date_from_show',
+                            'lastname', 'profession', 'current_placement', 'current_placement__date_from',
                             'order__order_end_manager', 'experience', 'current_placement', 'fathername',
                             'order__order_start_manager', 'type', 'order', 'order__order', 'order__date'],
                            {'subject': u'Αυτοδίκαιη Απόλυση'},

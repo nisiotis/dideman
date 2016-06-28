@@ -1,14 +1,14 @@
 ﻿    <w:p>
       <w:pPr>
-        <w:pStyle w:val="style18"/>
+        <w:jc w:val="both"/>
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t xml:space="preserve"> </w:t>
+        <w:t xml:space="preserve"></w:t>
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση του Διευθυντή Δευτεροβάθμιας Εκπαίδευσης Δωδεκανήσου απολύεστε αυτοδίκαια από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την {{rec.current_placement.date_to}}. </w:t>
+        <w:t>Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση της Διεύθυνσης Δευτεροβάθμιας Εκπαίδευσης {{settings.dide_place}} απολύεστε αυτοδίκαια και χωρίς καμία αποζημίωση από το Δημόσιο από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την {{rec.current_placement.date_to}}. </w:t>
       </w:r>
     </w:p>
 
@@ -31,15 +31,15 @@
 
     <w:p>
       <w:pPr>
-        <w:pStyle w:val="style18"/>
+        <w:jc w:val="both"/>
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t xml:space="preserve"> </w:t>
+        <w:t xml:space="preserve"></w:t>
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.current_placement}} ως {{rec.type}} και υπηρέτησε από {{rec.current_placement.date_from}} έως {{rec.current_placement.date_to}}.</w:t>
+        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.current_placement}} ως {{rec.type}} με σχέση εργασίας ιδιωτικού δικαίου, ορισμένου χρόνου και υπηρέτησε από {{rec.current_placement.date_from}} έως {{rec.current_placement.date_to}}.</w:t>
       </w:r>
     </w:p>
     <w:p>
@@ -75,12 +75,21 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος υπηρεσίας: {{rec.experience}}.</w:t>
+        <w:t>Ημερομηνία ανάληψης υπηρεσίας: {% if rec.current_placement__date_from_show %} {{ rec.current_placement__date_from_show }} {% else %} {{ rec.current_placement__date_from }} {% endif %}</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>Χρόνος προϋπηρεσίας με βάση την υπουργική απόφαση: {{rec.experience}}.</w:t>
       </w:r>
     </w:p>
         <w:p>
       <w:pPr>
-        <w:pStyle w:val="style18"/>
+        <w:jc w:val="both"/>
       </w:pPr>
       <w:r>
         <w:rPr/>

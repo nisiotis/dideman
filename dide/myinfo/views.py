@@ -382,7 +382,7 @@ def print_exp_report(request):
     elements.append(Paragraph(u'Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_end_manager, tbl_style['Left']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    #import pdb;pdb.set_trace()
+    
     if emptype.current_placement().substituteplacement.date_from_show:
         elements.append(Paragraph(u'Ημερομηνία ανάληψης υπηρεσίας: %s/%s/%s' % (emptype.current_placement().substituteplacement.date_from_show.day, emptype.current_placement().substituteplacement.date_from_show.month, emptype.current_placement().substituteplacement.date_from_show.year), tbl_style['Left']))
     else:
