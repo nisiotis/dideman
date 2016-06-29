@@ -659,7 +659,7 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'notes', 'type', 'profession', 'profession_description',
                     'profession_code_oaed',
                     'current_placement', 'organization_serving',
-                    'study_years',
+                    'study_years', 'show_exp_report',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'marital_status', 'birth_date',
                     'date_created', 'pedagogical_sufficiency',

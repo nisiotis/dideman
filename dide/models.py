@@ -1219,6 +1219,8 @@ class NonPermanent(Employee):
     pedagogical_sufficiency = models.BooleanField(u'Παιδαγωγική κατάρτιση', default=False)
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10, null=True, blank=True)
     profession_code_oaed = models.CharField(u'Κωδικός ειδικότητας ΟΑΕΔ', max_length=10, null=True, blank=True)
+    show_exp_report = models.NullBooleanField(u'Εμφάνιση Προϋπηρεσίας - Απόλυσης', null=True, blank=True, default=True)
+
 
     def order(self, d=current_year_date_from()):
         return first_or_none(self.substituteministryorder_set.filter(date__gte=d))
@@ -1763,6 +1765,7 @@ class Child(models.Model):
         verbose_name_plural = u'Παιδιά'
 
     employee = models.ForeignKey(Employee, verbose_name=u'Υπάλληλος')
+    first_name = models.CharField(u'Όνομα Τέκνου', max_length=250, null=True, blank=True)
     date_birth = models.DateField(u'Ημ. Γέννησης')
     date_university_registration = models.DateField(u'Ημ. Εγγραφής', null=True, blank=True)
     study_years = models.IntegerField(u'Έτη σπουδών', null=True, blank=True)
@@ -1770,9 +1773,11 @@ class Child(models.Model):
                                          choices=(('no', u'Όχι'),
                                                   ('died', u'Απεβίωσε'),
                                                   ('yes', u'Ναι')))
+    is_dependent = models.NullBooleanField(u'Είναι προστατευόμενο μέλος', null=True, blank=True, default=True)
 
-    def __unicode(self):
-        return self.date_birth.strftime('%d-%m-%Y')
+
+    def __unicode__(self):
+        return "%s %s" % (self.first_name, self.date_birth.strftime('%d-%m-%Y'))
 
 
 class LoanCategory(models.Model):

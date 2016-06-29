@@ -456,7 +456,7 @@ def edit(request):
                 f = set(f.insurance_file for f in NonPermanentUnemploymentMonth.objects.filter(employee=emp.id))
 
                 if emptype.order() is not None:
-                    if emptype.order().order_end_manager != u'' and emptype.order().show_online_order == True:
+                    if emptype.order().order_end_manager != u'' and emptype.order().show_online_order == True and emptype.show_exp_report == True:
                         exp = True
                 
             except NonPermanent.DoesNotExist:
