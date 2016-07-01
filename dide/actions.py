@@ -720,7 +720,7 @@ class XLSReadAction(object):
                 for (key), val in recs_missed.items():
                     read_results.append([o.description, key, val])
 
-                recs_missed = xlsreader.xlsread(o.id, os.path.join(settngs.MEDIA_ROOT,
+                recs_missed = xlsreader.xlsread(o.id, os.path.join(settings.MEDIA_ROOT,
                                                           str(o.xls_file3).split('/', 1)[0],
                                                           str(o.xls_file3).split('/', 1)[1]))
                 for (key), val in recs_missed.items():
