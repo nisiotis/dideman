@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from dideman.dide.models import Permanent, School, Profession
 from dideman.dide.util.settings import SETTINGS
 import json
+import datetime
 
 def permanent(request):
     try:
@@ -78,7 +79,8 @@ def schoolposts(request):
 
                     "total-professions-with-hours": total_prof_w_hrs, 
                     "total-hours": total_hrs_sch,
-                    "total-teachers": len(prm), 
+                    "total-teachers": len(prm),
+                    "year": datetime.datetime.today().year,
                     "error": "" }
 
                 return HttpResponse(json.dumps(data), mimetype='application/json')
