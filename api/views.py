@@ -30,6 +30,7 @@ def permanent(request):
 def schoolposts(request):
     try:
         if 'key' in request.GET and request.GET['key'] == SETTINGS['api_key']:
+            sch_sector = []
             school_found = []
             pos = set(u.unique_identity for u in Profession.objects\
                       .exclude(unique_identity__isnull=True).exclude(unique_identity__exact=''))
@@ -37,6 +38,8 @@ def schoolposts(request):
                 sch = School.objects.filter(email=request.GET['email'])
                 if len(sch) > 0:
                     school_found = int(sch[0].id)
+                    sch_sector = sch[0].transfer_area.name
+                    
                 else:
                     sch = None
             else:
@@ -81,6 +84,7 @@ def schoolposts(request):
                     "total-hours": total_hrs_sch,
                     "total-teachers": len(prm),
                     "year": datetime.datetime.today().year,
+                    "sector": sch_sector,
                     "error": "" }
 
                 return HttpResponse(json.dumps(data), mimetype='application/json')
