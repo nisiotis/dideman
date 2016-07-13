@@ -399,7 +399,7 @@ class SchoolAdmin(OtherOrganizationAdmin):
 
 
 class ProfessionAdmin(DideAdmin):
-    list_display = ('description', 'id', 'unified_profession')
+    list_display = ('description', 'id', 'unified_profession', 'unique_identity')
     list_filter = ('unified_profession',)
     search_fields = ('description', 'id')
 
