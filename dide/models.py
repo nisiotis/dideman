@@ -1137,7 +1137,7 @@ class PromotionNew(models.Model):
     employee = models.ForeignKey(Employee)
     date = models.DateField(u'Ημερομηνία μεταβολής')
     next_promotion_date = models.DateField(u'Ημερομηνία επόμενης μεταβολής', null=True, blank=True)
-    time_left = models.CharField(u'Πλεονάζων χρόνος στον βαθμό (ΕΕΜΜΗΗ)', max_length=10, null=True, blank=True)
+    time_left = models.CharField(u'Πλεονάζων χρόνος στον βαθμό μέχρι 31/12/2015 (ΕΕΜΜΗΗ)', max_length=10, null=True, blank=True)
     order = models.CharField(u'Απόφαση', max_length=300)
     order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
 

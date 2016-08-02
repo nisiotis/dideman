@@ -15,7 +15,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for item in args:
-            #try:
             permanents = Permanent.objects.all()
             workbook = xlrd.open_workbook(item)
             worksheet = workbook.sheet_by_index(0)
@@ -47,10 +46,7 @@ class Command(BaseCommand):
                     strsql = "insert into dide_promotionnew (Id, employee_id,rank,value_id,date,next_promotion_date,`order`,order_pysde) values (NULL, %s, '%s', %s, '2016-01-01', '%s', '%s','');" % (emp.parent_id, 'Δ/Υ', int(e_mk.split('.')[0]), e_date_formated, 'από μεταφορά')
                     ins_row +=1
                     print strsql
-                    #try:
                     cursor.execute(strsql)
-                    #except Exception as e:
-                    #    print '%s' % e.message
         
             print "Total %s" % curr_row
             print "Inserted %s" % ins_row
