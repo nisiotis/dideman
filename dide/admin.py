@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 from dideman.private_teachers.models import PrivateTeacher
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
+#from django.contrib.admin import AdminSite
+from django.views.decorators.cache import never_cache
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
@@ -41,6 +44,7 @@ from dideman import settings
 from django.utils.encoding import force_unicode
 
 import zipfile, os
+
 
 class NonPermanentInsuranceFileAdmin(DideAdmin):
     readonly_fields = ['status']
@@ -486,7 +490,7 @@ class PermanentAdmin(EmployeeAdmin):
 
 
 class AdministrativeAdmin(PermanentAdmin):
-    inlines = EmployeeAdmin.inlines + [PromotionInline, PlacementInline,
+    inlines = EmployeeAdmin.inlines + [PromotionInline, PromotionNewInline, PlacementInline,
                                        LeaveInline, ResponsibilityInline]
     list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
                                                IslandServingFilter,
@@ -690,6 +694,7 @@ class SchoolTypeAdmin(DideAdmin):
     list_display = ('name', 'shift', 'category', 'rank')
 
 
+
 map(lambda t: admin.site.register(*t), (
     (Leave, LeaveAdmin),
     (Permanent, PermanentAdmin),
@@ -719,7 +724,6 @@ map(lambda t: admin.site.register(*t), (
     (SocialSecurity, SocialSecurityAdmin)
 
 ))
-
 
 admin.site.register((TransferArea, Island, Responsibility,
                      LoanCategory, DegreeCategory, Settings,
