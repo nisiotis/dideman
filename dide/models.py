@@ -928,6 +928,11 @@ class Permanent(Employee):
     def promotions(self):
         return self.promotion_set.all()
 
+# Νέοι βαθμοί με τον Νόμο 4354/2015
+    def promotionsnew(self):
+        return self.promotionnew_set.all()
+
+
     def permanent_post(self):
         if self.has_permanent_post:
             permanent_posts = Placement.objects.filter(
@@ -1097,7 +1102,7 @@ class Administrative(Employee):
         else:
             return "διοικητική"
 
-methods = ["total_service", "natural_key", "promotions", "permanent_post", "total_not_service", "payment_start_date_auto",
+methods = ["total_service", "natural_key", "promotionsnew", "promotions", "permanent_post", "total_not_service", "payment_start_date_auto",
            "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "__unicode__"]
 
 for m in methods:
@@ -1132,6 +1137,7 @@ class PromotionNew(models.Model):
     employee = models.ForeignKey(Employee)
     date = models.DateField(u'Ημερομηνία μεταβολής')
     next_promotion_date = models.DateField(u'Ημερομηνία επόμενης μεταβολής', null=True, blank=True)
+    time_left = models.CharField(u'Πλεονάζων χρόνος στον βαθμό (ΕΕΜΜΗΗ)', max_length=10, null=True, blank=True)
     order = models.CharField(u'Απόφαση', max_length=300)
     order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
 

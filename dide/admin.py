@@ -486,7 +486,7 @@ class PermanentAdmin(EmployeeAdmin):
 
 
 class AdministrativeAdmin(PermanentAdmin):
-    inlines = EmployeeAdmin.inlines + [PromotionInline, PlacementInline,
+    inlines = EmployeeAdmin.inlines + [PromotionNewInline, PromotionInline, PlacementInline,
                                        LeaveInline, ResponsibilityInline]
     list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
                                                IslandServingFilter,
