@@ -56,10 +56,20 @@ $(function() {
         </div>
       </div>
 	{% endif %}
+
+        {% if emp.ranknew %}
+        <div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Νέος Βαθμός - Κλιμάκιο : </label>
+          <p>{{ emp.ranknew  }} (από {{ emp.ranknew_date  }}) </p>
+        </div>
+      </div>
+        {% endif %}
+
 	{% if emp.rank %}
 	<div class="form-row field-rank">
         <div>
-          <label style = "width:220px;">Βαθμός - Κλιμάκιο : </label>
+          <label style = "width:220px;">Παλιός Βαθμός - Κλιμάκιο : </label>
           <p>{{ emp.rank  }} (από {{ emp.rank_date  }}) </p>
         </div>
       </div>
