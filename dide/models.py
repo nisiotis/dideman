@@ -990,7 +990,7 @@ class Permanent(Employee):
         return first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date')) or \
             Promotion(value=u'Χωρίς', date=datetime.date.today())
-    rank.short_description = u'Βαθμός'
+    rank.short_description = u'Παλιός Βαθμός'
 
 
     def rank_date(self):
@@ -1020,7 +1020,7 @@ class Permanent(Employee):
 # Νέοι βαθμοί με τον Νόμο 4354/2015
     def ranknew(self):
         return first_or_none(
-            PromotionNew.objects.filter(employee=self).order_by('-date')) or \
+            PromotionNew.objects.filter(employee=self).order_by('-date').order_by('-id')) or \
             PromotionNew(value=u'Χωρίς', date=datetime.date.today())
     ranknew.short_description = u'Νέος Βαθμός / Κλιμάκιο'
 
