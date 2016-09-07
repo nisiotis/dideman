@@ -32,7 +32,7 @@ from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     NonPermanentInsuranceFile)
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
                      CreatePDF, XLSReadAction, PDFReadAction, DeleteAction, timestamp, 
-                     EmployeeBecome, HideOption, ShowOption, XMLWriteE7Action)
+                     EmployeeBecome, HideOption, ShowOption, XMLWriteE7Action, XMLWriteE3Action)
 from reports.permanent import permanent_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
@@ -481,6 +481,7 @@ class PermanentAdmin(EmployeeAdmin):
                                      'checked_service',
                                      'educated',
                                      'calculable_not_service',
+                                     'ranknew__rank', 'ranknew__value','ranknew_date','ranknew__next_promotion_date',
                                      'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
     permanent_docx_reports, key=lambda k: k.short_description)
 
@@ -678,7 +679,7 @@ class NonPermanentAdmin(EmployeeAdmin):
                    NonPermanentWithTotalExtraPosition]
     actions = sorted([to_permanent, to_administrative, to_private_teacher,
                     CSVReport(add=['current_placement', 'organization_serving', 'profession__description']),
-                  ] + nonpermanent_docx_reports + [XMLWriteE7Action(u'Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
+                  ] + nonpermanent_docx_reports + [XMLWriteE3Action(u'Δημιουργία Εργάνη XML E3')] + [XMLWriteE7Action(u'Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
 
 
 class NonPermanentTypeAdmin(admin.ModelAdmin):

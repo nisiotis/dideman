@@ -42,12 +42,6 @@
                 <w:t xml:space="preserve">Χορηγούμε στον/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, υπάλληλο κλάδου {{ rec.profession }} του {{ rec.employee__subclass__organization_serving }} άδεια χωρίς αποδοχές, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }} λόγω ανατροφής παιδιού.</w:t>
             </w:r>
         </w:p>
-        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
-            <w:r w:rsidRPr="004079CD">
-                <w:t xml:space="preserve">Στην περίπτωση όπου οι ημέρες της άδειας άνευ αποδοχων ξεπερνούν τις 30, ο εκπαιδευτικός θα πρέπει να επικοινωνήσει άμεσα με τον ΟΠΑΔ για να δηλώσει εγγράφως αν επιθυμεί ή όχι υγειονομική περίθαλψη κατά τον χρόνο της άδειας.</w:t>
-            </w:r>
-        </w:p>
-
         <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">            
             <w:r w:rsidRPr="004079CD">
                 <w:t xml:space="preserve">H χρονική διάρκεια της άδειας αυτής αποτελεί πραγματική υπηρεσία.</w:t>

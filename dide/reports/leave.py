@@ -17,6 +17,7 @@ def cc(obj):
         ret.append(u'ΑΛΛΟ Π.Υ.Σ.Δ.Ε.')
     if obj['leave__not_paying']:
         ret.append(u'Εκκαθαριστής')
+    
     if obj['employee__subclass__serving_type__id'] == 1:
         ret.append(u'Α.Φ. (Δ.Δ.Ε. Δωδεκανήσου)')
     else:
@@ -104,7 +105,7 @@ leave_docx_reports = [
     LeaveDocxReport(u'Ανατροφής (Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay_4_mines.xml',
                     custom_context={'subject':
                                     u'Χορήγηση άδειας χωρίς αποδοχές'
-                                    u' για ανατροφή παιδιού'}),
+                                    u' για ανατροφή παιδιού', 'cc':  ['ΟΠΑΔ'] }),
 
     LeaveDocxReport(u'Ειδική Άδεια αιρετών μελών Ο.Τ.Α. άνευ αποδοχών',
                     'adeia_eidiki_airetoi_no_pay.xml',
