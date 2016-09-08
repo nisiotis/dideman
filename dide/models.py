@@ -616,6 +616,8 @@ class Employee(models.Model):
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
     
     checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=False)
+    citizenship_code = models.CharField(u'Κωδικός Υπηκοότητας', max_length=3, null=True, blank=True)
+
 
     def profession_description(self):
         return self.profession.description
@@ -1214,6 +1216,24 @@ class NonPermanentManager(models.Manager):
         return [(None, u'---------')] + choices
 
 
+EDU_LEVEL = ((11, u'ΑΕΙ'),
+             (13, u'ΑΛΛΟ'),
+             (3, u'ΓΥΜΝΑΣΙΟ'),
+             (1, u'ΔΕΝ ΠΗΓΕ ΚΑΘΟΛΟΥ ΣΧΟΛΕΙΟ'),
+             (2, u'ΔΗΜΟΤΙΚΟ'),
+             (17, u'ΔΙΔΑΚΤΟΡΙΚΟ'),
+             (4, u'ΕΝΙΑΙΟ ΛΥΚΕΙΟ'),
+             (9, u'ΙΕΚ ΜΕ ΠΙΣΤΟΠΟΙΗΣΗ'),
+             (14, u'ΙΕΚ ΧΩΡΙΣ ΠΙΣΤΟΠΟΙΗΣΗ'),
+             (8, u'ΜΑΘΗΤΕΙΑ'),
+             (12, u'ΜΕΤΑΠΤΥΧΙΑΚΟ'),
+             (6, u'ΠΟΛΥΚΛΑΔΙΚΟ'),
+             (15, u'ΤΕΕ Α ΚΥΚΛΟΥ'),
+             (16, u'ΤΕΕ Β ΚΥΚΛΟΥ'),
+             (10, u'ΤΕΙ'),
+             (5, u'ΤΕΛ'),
+             (7, u'ΤΕΣ'))
+        
 class NonPermanent(Employee):
 
     class Meta:
@@ -1227,6 +1247,8 @@ class NonPermanent(Employee):
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10, null=True, blank=True)
     profession_code_oaed = models.CharField(u'Κωδικός ειδικότητας ΟΑΕΔ', max_length=10, null=True, blank=True)
     show_exp_report = models.NullBooleanField(u'Εμφάνιση Προϋπηρεσίας - Απόλυσης', null=True, blank=True, default=True)
+
+    educational_level = models.IntegerField(u'Επίπεδο μόρφωσης', null=True, blank=True, choices=EDU_LEVEL, default=11)
 
 
     def order(self, d=current_year_date_from()):
@@ -1495,8 +1517,12 @@ class SubstitutePlacement(Placement):
     ministry_order = models.ForeignKey(SubstituteMinistryOrder, verbose_name=u'Υπουργική Απόφαση')
 
     last_total_grosspay = models.CharField(u'Σύνολο μεικτών αποδοχών κατά την απόλυση', max_length=10, null=True, blank=True)
-    date_from_show = models.DateField(u'Ημερομηνία ανάληψης υπηρεσίας', null=True, blank=True)
+    last_hourspay = models.CharField(u'Ωρομίσθιο', max_length=10, null=True, blank=True)
+    week_hours = models.CharField(u'Ώρες εργασίας / εβδομάδα', max_length=10, null=True, blank=True)
+    work_exprience_years = models.CharField(u'Έτη προϋπηρεσίας', max_length=3, null=True, blank=True)
 
+    date_from_show = models.DateField(u'Ημερομηνία ανάληψης υπηρεσίας', null=True, blank=True)
+    oaed_nopay = models.NullBooleanField(u'Επίδομα ΟΑΕΔ', null=True, blank=True, default=True)
 
 class NonPermanentLeave(models.Model):
 

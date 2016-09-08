@@ -229,6 +229,8 @@ class SubstitutePlacementInline(admin.TabularInline):
         return inlineformset_factory(NonPermanent, SubstitutePlacement,
                                      form=SubstitutePlacementForm,
                                      fields=['organization', 'ministry_order', 'last_total_grosspay',
+                                             'last_hourspay', 'week_hours', 'work_exprience_years',
+                                             'oaed_nopay',
                                              'date_from', 'date_from_show', 'date_to'],
                                      extra=SubstitutePlacementInline.extra)
 
@@ -663,8 +665,8 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'study_years', 'show_exp_report',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'marital_status', 'birth_date',
-                    'date_created', 'pedagogical_sufficiency',
-                    'social_security_number']}),
+                    'date_created', 'pedagogical_sufficiency', 'educational_level',
+                    'social_security_number', 'citizenship_code']}),
             economic_fieldset]
     readonly_fields = ['type', 'profession_description',
                        'current_placement', 'organization_serving',

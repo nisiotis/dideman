@@ -772,7 +772,7 @@ class XMLWriteE3Action(object):
     def __call__(self, modeladmin, request, queryset):
         header = ""
         header += "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-        header += "<ns1:AnaggeliesE3 xmlns:ns1=\"http://www.yeka.gr/E7\">\n"
+        header += "<ns1:AnaggeliesE3 xmlns:ns1=\"http://www.yeka.gr/E3\">\n"
 
         footer = "</ns1:AnaggeliesE3>\n"
 
@@ -781,7 +781,7 @@ class XMLWriteE3Action(object):
 
         for o in queryset:
             c = Child.objects.filter(employee=o.parent.id).count()
-            xml_file.write(u"\t<AnaggeliaE7>\n")
+            xml_file.write(u"\t<AnaggeliaE3>\n")
             xml_file.write(u"\t\t<f_aa_pararthmatos>0</f_aa_pararthmatos>\n")
             xml_file.write(u"\t\t<f_rel_protocol/>\n")
             xml_file.write(u"\t\t<f_rel_date/>\n")
@@ -811,7 +811,7 @@ class XMLWriteE3Action(object):
                 xml_file.write(u"\t\t<f_sex>0</f_sex>\n")
             else:
                 xml_file.write(u"\t\t<f_sex>1</f_sex>\n")
-            xml_file.write(u"\t\t<f_yphkoothta>048</f_yphkoothta>\n")
+            xml_file.write(u"\t\t<f_yphkoothta>%s</f_yphkoothta>\n" % o.parent.citizenship_code)
             xml_file.write(u"\t\t<f_typos_taytothtas>ΔAT</f_typos_taytothtas>\n")
             xml_file.write(u"\t\t<f_ar_taytothtas>%s</f_ar_taytothtas>\n" % o.parent.identity_number)
             xml_file.write(u"\t\t<f_ekdousa_arxh/>\n")
@@ -847,7 +847,7 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_til/>\n")
             xml_file.write(u"\t\t<f_fax/>\n")
             xml_file.write(u"\t\t<f_email/>\n")
-            xml_file.write(u"\t\t<f_epipedo_morfosis>11</f_epipedo_morfosis>\n")
+            xml_file.write(u"\t\t<f_epipedo_morfosis>%s</f_epipedo_morfosis>\n" % o.educational_level)
             xml_file.write(u"\t\t<f_professional_education/>\n")
             xml_file.write(u"\t\t<f_expertise_field/>\n")
             xml_file.write(u"\t\t<f_subject_area/>\n")
@@ -865,62 +865,6 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_pc_other/>\n")
             # E3 SET
             # E3 Fields
-             
-            # FR : Field Required
-            # f_proslipsidate FR
-            # f_proslipsitime FR
-            # f_orario
-            # f_wresexternal
-            # f_week_hours 
-            # f_orariodialeima
-            # f_eidikothta FR
-            # f_proipiresia FR
-            # f_apodoxes FR
-            # f_hour_apodoxes FR
-            # f_protiergasia FR
-            # f_sxeshapasxolisis FR
-            # f_orismenou_apo FR
-            # f_orismenou_ews FR
-            # f_kathestosapasxolisis FR
-            # f_xaraktirismos FR
-            # f_special_case
-            # f_apoalliperioxi
-            # f_nationalityalli
-            # f_kallikratisalli
-            # f_topothetisiepistoli FR
-            # f_topothetisioaed FR
-            # f_programaoaed
-            # f_replaceprograma
-            # f_replaceprograma_afm
-            # f_replaceprograma_amka
-            # f_epidomaoaed
-            # f_epidoma_ypiresia_oaed
-            # f_sk_protocol
-            # f_sk_date 
-            # f_comments DD
-            # f_eponymo_idiotitas FR
-            # f_onoma_idiotitas FR
-            # f_idiotita_idiotitas FR
-            # f_dieythinsi_idiotitas FR
-            # f_afm_idiotitas FR
-
-            # E3 Fields End
-            
-
-            xml_file.write(u"\t\t<f_xaraktirismos>1</f_xaraktirismos>\n")
-            xml_file.write(u"\t\t<f_sxeshapasxolisis>1</f_sxeshapasxolisis>\n")
-
-            xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
-            
-            xml_file.write(u"\t\t<f_oros>0</f_oros>\n")
-            xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
-            try:
-                if o.current_placement().substituteplacement.last_total_grosspay:
-                    xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % o.current_placement().substituteplacement.last_total_grosspay)
-                else:
-                    xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
-            except:
-                xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
 
             try:
                 f_d = ""
@@ -931,23 +875,125 @@ class XMLWriteE3Action(object):
                 xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(f_d.day),
                                                                                        '{:02d}'.format(f_d.month),
                                                                                        f_d.year))
-                xml_file.write(u"\t\t<f_lixisymbashdate>%s/%s/%s</f_lixisymbashdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
-                                                                                  '{:02d}'.format(o.current_placement().date_to.month),
-                                                                                  o.current_placement().date_to.year))
-                xml_file.write(u"\t\t<f_apolysisdate>%s/%s/%s</f_apolysisdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
-                                                                                  '{:02d}'.format(o.current_placement().date_to.month),
-                                                                                  o.current_placement().date_to.year))
-                xml_file.write(u"\t\t<f_lastdaydate>%s/%s/%s</f_lastdaydate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
-                                                                                  '{:02d}'.format(o.current_placement().date_to.month),
-                                                                                  o.current_placement().date_to.year))
             except:
                 xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
-                xml_file.write(u"\t\t<f_lixisymbashdate>01/01/2001</f_lixisymbashdate>\n")
-                xml_file.write(u"\t\t<f_lastdaydate>01/01/2001</f_lastdaydate>\n")
-            xml_file.write(u"\t\t<f_comments/>\n")
-            xml_file.write(u"\t\t<f_logosperatosis>0</f_logosperatosis>\n")
-            xml_file.write(u"\t\t<f_logosperatosiscomments/>\n")
+            xml_file.write(u"\t\t<f_proslipsitime>09:00</f_proslipsitime>\n")
+            xml_file.write(u"\t\t<f_orario/>\n")
+            xml_file.write(u"\t\t<f_wresexternal/>\n")
+            xml_file.write(u"\t\t<f_week_hours>%s</f_week_hours>\n" % str('{:3.1f}'.format(float(o.current_placement().substituteplacement.week_hours))).replace('.',','))
+            xml_file.write(u"\t\t<f_orariodialeima/>\n")
+            xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
+            xml_file.write(u"\t\t<f_proipiresia>%s</f_proipiresia>\n" % o.current_placement().substituteplacement.work_exprience_years)
+            try:
+                if o.current_placement().substituteplacement.last_total_grosspay:
+                    xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % str(o.current_placement().substituteplacement.last_total_grosspay).replace('.',','))
+                else:
+                    xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
+            except:
+                xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
+
+            try:
+                if o.current_placement().substituteplacement.last_hourspay:
+                    xml_file.write(u"\t\t<f_hour_apodoxes>%s</f_hour_apodoxes>\n" % str(o.current_placement().substituteplacement.last_hourspay).replace('.',','))
+                else:
+                    xml_file.write(u"\t\t<f_hour_apodoxes>0,00</f_hour_apodoxes>\n")
+            except:
+                xml_file.write(u"\t\t<f_hour_apodoxes>0,00</f_hour_apodoxes>\n")
             
+            if o.parent.date_created.year == datetime.date.today().year:
+                xml_file.write(u"\t\t<f_protiergasia>1</f_protiergasia>\n")
+            else:
+                xml_file.write(u"\t\t<f_protiergasia>0</f_protiergasia>\n")
+            xml_file.write(u"\t\t<f_sxeshapasxolisis>1</f_sxeshapasxolisis>\n")
+
+            try:
+                f_d = ""
+                if o.current_placement().substituteplacement.date_from_show:
+                    f_d = o.current_placement().substituteplacement.date_from_show
+                else:
+                    f_d = o.current_placement().substituteplacement.date_from
+                xml_file.write(u"\t\t<f_orismenou_apo>%s/%s/%s</f_orismenou_apo>\n" % ('{:02d}'.format(f_d.day),
+                                                                                       '{:02d}'.format(f_d.month),
+                                                                                       f_d.year))
+                xml_file.write(u"\t\t<f_orismenou_ews>%s/%s/%s</f_orismenou_ews>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
+                                                                                       '{:02d}'.format(o.current_placement().date_to.month), o.current_placement().date_to.year))
+
+            except:
+                xml_file.write(u"\t\t<f_orismenou_apo>01/01/2001</f_orismenou_apo>\n")
+                xml_file.write(u"\t\t<f_orismenou_ews>01/01/2001</f_orismenou_ews>\n")
+
+            xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
+            xml_file.write(u"\t\t<f_xaraktirismos>1</f_xaraktirismos>\n")
+
+
+
+            xml_file.write(u"\t\t<f_special_case/>\n")
+            xml_file.write(u"\t\t<f_apoalliperioxi/>\n")
+            xml_file.write(u"\t\t<f_nationalityalli/>\n")
+            xml_file.write(u"\t\t<f_kallikratisalli/>\n")
+            xml_file.write(u"\t\t<f_topothetisiepistoli>0</f_topothetisiepistoli>\n")
+            xml_file.write(u"\t\t<f_topothetisioaed>0</f_topothetisioaed>\n")
+            xml_file.write(u"\t\t<f_programaoaed/>\n")
+            xml_file.write(u"\t\t<f_replaceprograma/>\n")
+            xml_file.write(u"\t\t<f_replaceprograma_afm/>\n")
+            xml_file.write(u"\t\t<f_replaceprograma_amka/>\n")
+            if o.current_placement().substituteplacement.oaed_nopay == True:
+                xml_file.write(u"\t\t<f_epidomaoaed>1</f_epidomaoaed>\n")
+            else:
+                xml_file.write(u"\t\t<f_epidomaoaed>0</f_epidomaoaed>\n")
+
+            xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed/>\n")
+            xml_file.write(u"\t\t<f_sk_protocol/>\n")
+            xml_file.write(u"\t\t<f_sk_date/>\n")
+            xml_file.write(u"\t\t<f_comments/>\n")
+            xml_file.write(u"\t\t<f_eponymo_idiotitas>%s</f_eponymo_idiotitas>\n" % manage_len(SETTINGS['ergani_lastname_proistamenou'], 100))
+            xml_file.write(u"\t\t<f_onoma_idiotitas>%s</f_onoma_idiotitas>\n" % manage_len(SETTINGS['ergani_firstname_proistamenou'], 50))
+            xml_file.write(u"\t\t<f_idiotita_idiotitas>%s</f_idiotita_idiotitas>\n" % manage_len(SETTINGS['ergani_idiotita_proistamenou'], 50))
+            xml_file.write(u"\t\t<f_dieythinsi_idiotitas>%s</f_dieythinsi_idiotitas>\n" % manage_len(SETTINGS['ergani_address_proistamenou'], 70))
+            xml_file.write(u"\t\t<f_afm_idiotitas>%s</f_afm_idiotitas>\n" % SETTINGS['ergani_afm_rep_oaed'])
+
+
+            # FR : Field Required
+            #xml_fields = {
+            #    'f_proslipsidate': #FR
+            #    'f_proslipsitime': #FR
+            #    'f_orario':
+            #    'f_wresexternal':
+            #    'f_week_hours': 
+            #    'f_orariodialeima':
+            #    'f_eidikothta':
+            #    'f_proipiresia': #FR
+            #    'f_apodoxes': #FR
+            #    'f_hour_apodoxes': #FR
+            #    'f_protiergasia': #FR
+            #    'f_sxeshapasxolisis': #FR
+            #    'f_orismenou_apo': #FR
+            #    'f_orismenou_ews': #FR
+            #    'f_kathestosapasxolisis': #FR
+            #    'f_xaraktirismos': #FR
+            #    'f_special_case': 
+            #    'f_apoalliperioxi':
+            #    'f_nationalityalli':
+            #    'f_kallikratisalli':
+            #    'f_topothetisiepistoli': #FR
+            #    'f_topothetisioaed': #FR
+            #    'f_programaoaed':
+            #    'f_replaceprograma':
+            #    'f_replaceprograma_afm':
+            #    'f_replaceprograma_amka':
+            #    'f_epidomaoaed': #FR
+            #    'f_epidoma_ypiresia_oaed':
+            #    'f_sk_protocol':
+            #    'f_sk_date':
+            #    'f_comments': #DD
+            #    'f_eponymo_idiotitas': #FR
+            #    'f_onoma_idiotitas': #FR
+            #    'f_idiotita_idiotitas': #FR
+            #    'f_dieythinsi_idiotitas': #FR
+            #    'f_afm_idiotitas': #FR
+            #    }
+            # E3 Fields End
+
 # -- E3
             xml_file.write(u"\t\t<f_afm_proswpoy>%s</f_afm_proswpoy>\n" % SETTINGS['ergani_afm_rep_oaed'])
             xml_file.write(u"\t\t<f_file/>\n")
@@ -960,7 +1006,7 @@ class XMLWriteE3Action(object):
         xml_file.close()
         self.response['Content-Type'] = 'text/xml'
         self.response['Content-Disposition'] = 'attachment; ' + \
-            'filename=ergani_list_of_%s.xml' % len(queryset)
+            'filename=ergani_e3_list_of_%s.xml' % len(queryset)
         add_never_cache_headers(self.response)
         self.response.close()
         self.response.flush()
@@ -1014,7 +1060,8 @@ class XMLWriteE7Action(object):
                 xml_file.write(u"\t\t<f_sex>0</f_sex>\n")
             else:
                 xml_file.write(u"\t\t<f_sex>1</f_sex>\n")
-            xml_file.write(u"\t\t<f_yphkoothta>048</f_yphkoothta>\n")
+            xml_file.write(u"\t\t<f_yphkoothta>%s</f_yphkoothta>\n" % o.parent.citizenship_code)
+
             xml_file.write(u"\t\t<f_typos_taytothtas>ΔAT</f_typos_taytothtas>\n")
             xml_file.write(u"\t\t<f_ar_taytothtas>%s</f_ar_taytothtas>\n" % o.parent.identity_number)
             xml_file.write(u"\t\t<f_ekdousa_arxh/>\n")
@@ -1050,7 +1097,7 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t\t<f_til/>\n")
             xml_file.write(u"\t\t<f_fax/>\n")
             xml_file.write(u"\t\t<f_email/>\n")
-            xml_file.write(u"\t\t<f_epipedo_morfosis>11</f_epipedo_morfosis>\n")
+            xml_file.write(u"\t\t<f_epipedo_morfosis>%s</f_epipedo_morfosis>\n" % o.educational_level)
             xml_file.write(u"\t\t<f_professional_education/>\n")
             xml_file.write(u"\t\t<f_expertise_field/>\n")
             xml_file.write(u"\t\t<f_subject_area/>\n")
@@ -1075,7 +1122,7 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
             try:
                 if o.current_placement().substituteplacement.last_total_grosspay:
-                    xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % o.current_placement().substituteplacement.last_total_grosspay)
+                    xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % str(o.current_placement().substituteplacement.last_total_grosspay).replace('.',','))
                 else:
                     xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
             except:
@@ -1117,7 +1164,7 @@ class XMLWriteE7Action(object):
         xml_file.close()
         self.response['Content-Type'] = 'text/xml'
         self.response['Content-Disposition'] = 'attachment; ' + \
-            'filename=ergani_list_of_%s.xml' % len(queryset)
+            'filename=ergani_e7_list_of_%s.xml' % len(queryset)
         add_never_cache_headers(self.response)
         self.response.close()
         self.response.flush()
