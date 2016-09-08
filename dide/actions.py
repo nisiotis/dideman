@@ -878,7 +878,7 @@ class XMLWriteE3Action(object):
             except:
                 xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
             xml_file.write(u"\t\t<f_proslipsitime>09:00</f_proslipsitime>\n")
-            xml_file.write(u"\t\t<f_orario/>\n")
+            xml_file.write(u"\t\t<f_orario>%s</f_orario>\n" % manage_len(' ', 100))
             xml_file.write(u"\t\t<f_wresexternal/>\n")
             if o.current_placement().substituteplacement.week_hours:
                 xml_file.write(u"\t\t<f_week_hours>%s</f_week_hours>\n" % str('{:3.1f}'.format(float(o.current_placement().substituteplacement.week_hours))).replace('.',','))
