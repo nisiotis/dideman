@@ -229,7 +229,7 @@ class SubstitutePlacementInline(admin.TabularInline):
         return inlineformset_factory(NonPermanent, SubstitutePlacement,
                                      form=SubstitutePlacementForm,
                                      fields=['organization', 'ministry_order', 'last_total_grosspay',
-                                             'last_hourspay', 'week_hours', 'work_exprience_years',
+                                             'last_hourspay', 'week_hours', 'work_experience_years',
                                              'oaed_nopay',
                                              'date_from', 'date_from_show', 'date_to'],
                                      extra=SubstitutePlacementInline.extra)
