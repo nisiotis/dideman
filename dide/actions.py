@@ -880,7 +880,10 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_proslipsitime>09:00</f_proslipsitime>\n")
             xml_file.write(u"\t\t<f_orario/>\n")
             xml_file.write(u"\t\t<f_wresexternal/>\n")
-            xml_file.write(u"\t\t<f_week_hours>%s</f_week_hours>\n" % str('{:3.1f}'.format(float(o.current_placement().substituteplacement.week_hours))).replace('.',','))
+            if o.current_placement().substituteplacement.week_hours:
+                xml_file.write(u"\t\t<f_week_hours>%s</f_week_hours>\n" % str('{:3.1f}'.format(float(o.current_placement().substituteplacement.week_hours))).replace('.',','))
+            else:
+                xml_file.write(u"\t\t<f_week_hours>23,0</f_week_hours>\n")
             xml_file.write(u"\t\t<f_orariodialeima/>\n")
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
             xml_file.write(u"\t\t<f_proipiresia>%s</f_proipiresia>\n" % o.current_placement().substituteplacement.work_experience_years)

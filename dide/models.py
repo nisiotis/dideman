@@ -1522,7 +1522,7 @@ class SubstitutePlacement(Placement):
     work_experience_years = models.CharField(u'Έτη προϋπηρεσίας', max_length=3, null=True, blank=True)
 
     date_from_show = models.DateField(u'Ημερομηνία ανάληψης υπηρεσίας', null=True, blank=True)
-    oaed_nopay = models.NullBooleanField(u'Επίδομα ΟΑΕΔ', null=True, blank=True, default=True)
+    oaed_nopay = models.NullBooleanField(u'Επίδομα ΟΑΕΔ', null=True, blank=True, default=False)
 
 class NonPermanentLeave(models.Model):
 
