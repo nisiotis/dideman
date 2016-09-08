@@ -1519,7 +1519,7 @@ class SubstitutePlacement(Placement):
     last_total_grosspay = models.CharField(u'Σύνολο μεικτών αποδοχών κατά την απόλυση', max_length=10, null=True, blank=True)
     last_hourspay = models.CharField(u'Ωρομίσθιο', max_length=10, null=True, blank=True)
     week_hours = models.CharField(u'Ώρες εργασίας / εβδομάδα', max_length=10, null=True, blank=True)
-    work_exprience_years = models.CharField(u'Έτη προϋπηρεσίας', max_length=3, null=True, blank=True)
+    work_experience_years = models.CharField(u'Έτη προϋπηρεσίας', max_length=3, null=True, blank=True)
 
     date_from_show = models.DateField(u'Ημερομηνία ανάληψης υπηρεσίας', null=True, blank=True)
     oaed_nopay = models.NullBooleanField(u'Επίδομα ΟΑΕΔ', null=True, blank=True, default=True)

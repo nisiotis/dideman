@@ -883,7 +883,7 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_week_hours>%s</f_week_hours>\n" % str('{:3.1f}'.format(float(o.current_placement().substituteplacement.week_hours))).replace('.',','))
             xml_file.write(u"\t\t<f_orariodialeima/>\n")
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
-            xml_file.write(u"\t\t<f_proipiresia>%s</f_proipiresia>\n" % o.current_placement().substituteplacement.work_exprience_years)
+            xml_file.write(u"\t\t<f_proipiresia>%s</f_proipiresia>\n" % o.current_placement().substituteplacement.work_experience_years)
             try:
                 if o.current_placement().substituteplacement.last_total_grosspay:
                     xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % str(o.current_placement().substituteplacement.last_total_grosspay).replace('.',','))
