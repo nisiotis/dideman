@@ -230,7 +230,7 @@ class SubstitutePlacementInline(admin.TabularInline):
                                      form=SubstitutePlacementForm,
                                      fields=['organization', 'ministry_order', 'last_total_grosspay',
                                              'last_hourspay', 'week_hours', 'work_experience_years',
-                                             'oaed_nopay',
+                                             'oaed_nopay', 'oaed_nopay_from',
                                              'date_from', 'date_from_show', 'date_to'],
                                      extra=SubstitutePlacementInline.extra)
 

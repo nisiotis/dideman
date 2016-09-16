@@ -42,6 +42,7 @@ from collections import defaultdict
 from itertools import groupby
 from dideman.dide.models import Employee, PaymentCode, PaymentCategoryTitle, Child 
 from dideman.lib.common import try_many
+from datetime import timedelta
 import pandas as pd
 import operator
 import csv
@@ -877,7 +878,7 @@ class XMLWriteE3Action(object):
                                                                                        f_d.year))
             except:
                 xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
-            xml_file.write(u"\t\t<f_proslipsitime>09:00</f_proslipsitime>\n")
+            xml_file.write(u"\t\t<f_proslipsitime>%s</f_proslipsitime>\n" % (datetime.datetime.now() + timedelta(hours=1)).strftime('%H:%m'))
             xml_file.write(u"\t\t<f_orario>%s</f_orario>\n" % manage_len(' ', 100))
             xml_file.write(u"\t\t<f_wresexternal/>\n")
             if o.current_placement().substituteplacement.week_hours:
@@ -940,12 +941,13 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_replaceprograma/>\n")
             xml_file.write(u"\t\t<f_replaceprograma_afm/>\n")
             xml_file.write(u"\t\t<f_replaceprograma_amka/>\n")
-            if o.current_placement().substituteplacement.oaed_nopay == True:
+            if o.current_placement().substituteplacement.oaed_nopay == False:
                 xml_file.write(u"\t\t<f_epidomaoaed>1</f_epidomaoaed>\n")
+                xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed/>\n")            
             else:
                 xml_file.write(u"\t\t<f_epidomaoaed>0</f_epidomaoaed>\n")
-
-            xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed/>\n")
+                xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed>%s</f_epidoma_ypiresia_oaed>\n" % o.current_placement().substituteplacement.oaed_nopay_from)
+            
             xml_file.write(u"\t\t<f_sk_protocol/>\n")
             xml_file.write(u"\t\t<f_sk_date/>\n")
             xml_file.write(u"\t\t<f_comments/>\n")
