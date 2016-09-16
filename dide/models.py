@@ -1267,6 +1267,7 @@ class NonPermanent(Employee):
     show_exp_report = models.NullBooleanField(u'Εμφάνιση Προϋπηρεσίας - Απόλυσης', null=True, blank=True, default=True)
 
     educational_level = models.IntegerField(u'Επίπεδο μόρφωσης', null=True, blank=True, choices=EDU_LEVEL, default=11)
+    ergani_new = models.NullBooleanField(u'Νέος Μισθοτός', null=True, blank=True, default=False)
 
 
     def order(self, d=current_year_date_from()):

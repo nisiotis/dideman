@@ -666,7 +666,8 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'marital_status', 'birth_date',
                     'date_created', 'pedagogical_sufficiency', 'educational_level',
-                    'social_security_number', 'citizenship_code']}),
+            'ergani_new',        
+            'social_security_number', 'citizenship_code']}),
             economic_fieldset]
     readonly_fields = ['type', 'profession_description',
                        'current_placement', 'organization_serving',

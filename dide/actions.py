@@ -908,10 +908,11 @@ class XMLWriteE3Action(object):
             except:
                 xml_file.write(u"\t\t<f_hour_apodoxes>0,00</f_hour_apodoxes>\n")
             
-            if o.parent.date_created.year == datetime.date.today().year:
+            if o.ergani_new == True:
                 xml_file.write(u"\t\t<f_protiergasia>1</f_protiergasia>\n")
             else:
                 xml_file.write(u"\t\t<f_protiergasia>0</f_protiergasia>\n")
+
             xml_file.write(u"\t\t<f_sxeshapasxolisis>1</f_sxeshapasxolisis>\n")
 
             try:
