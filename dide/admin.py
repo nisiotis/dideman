@@ -460,12 +460,12 @@ class PermanentAdmin(EmployeeAdmin):
                            'payment_start_date_auto',
                            'payment_start_date_manual',
                            'educational_service',
-                           'hours',
+                           'hours', 'hours_next',
                            'date_end']}),
             economic_fieldset]
     search_fields = EmployeeAdmin.search_fields + ('registration_number',)
     readonly_fields = EmployeeAdmin.readonly_fields + \
-        ['permanent_post', 'temporary_position', 'hours', 'total_service',
+        ['permanent_post', 'temporary_position', 'hours', 'hours_next', 'total_service',
          'formatted_recognised_experience', 'payment_start_date_auto',
          'rank', 'ranknew', 'profession_description', 'calculable_not_service',
          'date_created', 'educational_service']

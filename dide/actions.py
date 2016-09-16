@@ -878,7 +878,7 @@ class XMLWriteE3Action(object):
                                                                                        f_d.year))
             except:
                 xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
-            xml_file.write(u"\t\t<f_proslipsitime>%s</f_proslipsitime>\n" % (datetime.datetime.now() + timedelta(hours=1)).strftime('%H:%m'))
+            xml_file.write(u"\t\t<f_proslipsitime>%s</f_proslipsitime>\n" % (datetime.datetime.now() + timedelta(hours=2)).strftime('%H:%m'))
             xml_file.write(u"\t\t<f_orario>%s</f_orario>\n" % manage_len(' ', 100))
             xml_file.write(u"\t\t<f_wresexternal/>\n")
             if o.current_placement().substituteplacement.week_hours:
@@ -890,7 +890,11 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_proipiresia>%s</f_proipiresia>\n" % o.current_placement().substituteplacement.work_experience_years)
             try:
                 if o.current_placement().substituteplacement.last_total_grosspay:
-                    xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % str(o.current_placement().substituteplacement.last_total_grosspay).replace('.',','))
+                    fstr = str(o.current_placement().substituteplacement.last_total_grosspay).replace('.',',')
+                    if fstr.find(',') != -1:
+                        xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % fstr)
+                    else:
+                        xml_file.write(u"\t\t<f_apodoxes>%s,00</f_apodoxes>\n" % fstr)
                 else:
                     xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
             except:
