@@ -616,7 +616,7 @@ class Employee(models.Model):
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
     
     checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=False)
-    citizenship_code = models.CharField(u'Κωδικός Υπηκοότητας', max_length=3, null=True, blank=True)
+    citizenship_code = models.CharField(u'Κωδικός Υπηκοότητας', max_length=3, null=True, blank=True, default='048')
 
 
     def profession_description(self):
