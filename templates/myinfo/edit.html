@@ -75,6 +75,14 @@
         </div>
       </div>
 	{% endif %}
+	{% if emp.hours_next %}
+	<div class="form-row field-rank">
+        <div>
+          <label style = "width:220px;">Επόμενη αλλαγή ωραρίου σε : </label>
+          <p>{{ emp.hours_next }}</p>
+        </div>
+      </div>
+	{% endif %}
 
  	<h2>Περισσότερα στοιχεία</h2>
               {% for field in form %}

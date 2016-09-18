@@ -474,7 +474,7 @@ class PermanentAdmin(EmployeeAdmin):
       CSVReport(add=['permanent_post', 'organization_serving',
                                      'permanent_post_island',
                                      'temporary_position',
-                                     'hours',
+                                     'hours', 'hours_next',
                                      'profession__description',
                                      'payment_start_date_auto',
                                      'formatted_recognised_experience',

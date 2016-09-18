@@ -927,20 +927,25 @@ class Permanent(Employee):
     def hours_next(self):
         cat = self.profession.category()
         years = self.educational_service().years
+        months = self.educational_service().months
+        days = self.educational_service().days
         pe = [(5, 23), (11, 21), (19, 20), (50, 18)]
         te = [(6, 24), (12, 21), (19, 20), (50, 18)]
         get_hours = lambda sy, l: next((y, h) for y, h in l if sy <= y)[0]
         #import pdb; pdb.set_trace()
+        
+        if cat == u'ΠΕ':
+            dt = DateInterval(days=30-days, months=11-months, years=get_hours(years, pe)-years)
+        elif cat == u'ΤΕ':
+            dt = DateInterval(days=30-days, months=11-months, years=get_hours(years, te)-years)
+        else:
+            dt = DateInterval(days=0, months=0, years=0)
+        if self.hours() == 18:
+            return DateInterval(days=0, months=0, years=0)
+        else:
+            return dt
+    hours_next.short_description = u'Επόμενη αλλαγή ωραρίου'
 
-        #if cat == u'ΠΕ':
-        #    return get_hours(years, pe)-years
-        #elif cat == u'ΤΕ':
-        #    return get_hours(years, te)-years
-        #else:
-        #    return 0
-        return 0
-
-    hours_next.sort_description = u'Επόμενη αλλαγή ωραρίου'
 
     def natural_key(self):
         return (self.registration_number, )
