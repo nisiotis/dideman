@@ -404,6 +404,18 @@ class NextPromotionInRangeFilter(FreeDateFieldListFilter):
                                                              self.date_to)
 
 
+class NextHoursReductionFilter(FreeDateFieldListFilter):
+    title = u'Ημερομηνία επόμενης μείωσης ωραρίου'
+    parameter_name = 'next_hours_reduction_date'
+
+    def queryset(self, request, queryset):
+        if [self.date_from, self.date_to] == self.default_date_values():
+            return queryset
+        else:
+            return queryset.filter(id__in=Permanent.objects.next_hours_reduction_in_range(self.date_from,
+                                                                                          self.date_to))
+
+
 class PaymentStartDateFilter(FreeDateFieldListFilter):
     title = u'Ημερομηνία Μισθολογικής Αφετηρίας'
     parameter_name = 'payment_start'

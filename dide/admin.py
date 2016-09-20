@@ -26,7 +26,8 @@ from models import (TransferArea, Island, Leave, Responsibility, Profession,
                     TemporaryPositionAllAreas, SubstitutePlacement,
                     SubstituteMinistryOrder, OrderedSubstitution,
                     ApplicationChoice, ApplicationType, SchoolCommission,
-                    DegreeOrganization, NonPermanentUnemploymentMonth)
+                    DegreeOrganization, NonPermanentUnemploymentMonth,
+                    PartialService)
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode, PaymentFilePDF, 
                     NonPermanentInsuranceFile)
@@ -221,6 +222,11 @@ class ServiceInline(admin.TabularInline):
     extra = 0
 
 
+class PartialServiceInline(admin.TabularInline):
+    model = PartialService
+    extra = 0
+
+
 class SubstitutePlacementInline(admin.TabularInline):
     model = SubstitutePlacement
     extra = 0
@@ -411,7 +417,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'registration_number', 'profession', 'date_hired',
                     'permanent_post', 'organization_serving']
     inlines = EmployeeAdmin.inlines + [PromotionNewInline, PromotionInline, PlacementInline,
-                                       ServiceInline, LeaveInline, ResponsibilityInline]
+                                       ServiceInline, PartialServiceInline, LeaveInline, ResponsibilityInline]
 
     list_filter = EmployeeAdmin.list_filter + (OrganizationServingFilter,
                                                IslandServingFilter,
@@ -432,7 +438,8 @@ class PermanentAdmin(EmployeeAdmin):
                                                PaymentStartDateFilter,
                                                NextPromotionInRangeFilter,
                                                EmployeeWithLeaveFilter,
-                                               EmployeeWithOutLeaveFilter)
+                                               EmployeeWithOutLeaveFilter,
+                                               NextHoursReductionFilter)
     list_per_page = 50
     fieldsets = [
         ('Γενικά Στοιχεία', {

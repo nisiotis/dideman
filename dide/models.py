@@ -860,6 +860,20 @@ class PermanentManager(models.Manager):
                               .filter(next_promotion_date__gte=date_from,
                                       next_promotion_date__lte=date_to)]])
 
+# φίλτρο επόμενης μείωσης ωραρίου     
+    def next_hours_reduction_in_range(self, date_from, date_to):
+        d_i = DateInterval(date_to.year-date_from.year, date_to.month-date_from.month, date_to.day-date_from.day)
+        f = []
+        p = self.all()
+        for o in p:
+            if o.non_educational_experience != u'':
+                if o.hours_next():
+                    if o.hours_next() < d_i:
+                        print o.hours_next()
+                        f.append(o.id)
+        #return self.filter(id__in=f)
+        return f
+
 class Permanent(Employee):
 
     class Meta:
@@ -910,7 +924,6 @@ class Permanent(Employee):
         """
         cat = self.profession.category()
         years = self.educational_service().years
-
         pe = [(5, 23), (11, 21), (19, 20), (50, 18)]
         te = [(6, 24), (12, 21), (19, 20), (50, 18)]
 
@@ -924,6 +937,7 @@ class Permanent(Employee):
             return 30
     hours.short_description = u'Υποχρεωτικό ωράριο'
 
+# επόμενη μείωση ωραρίου σε διάστημα 
     def hours_next(self):
         cat = self.profession.category()
         years = self.educational_service().years
@@ -932,16 +946,15 @@ class Permanent(Employee):
         pe = [(5, 23), (11, 21), (19, 20), (50, 18)]
         te = [(6, 24), (12, 21), (19, 20), (50, 18)]
         get_hours = lambda sy, l: next((y, h) for y, h in l if sy <= y)[0]
-        #import pdb; pdb.set_trace()
         
         if cat == u'ΠΕ':
             dt = DateInterval(days=30-days, months=11-months, years=get_hours(years, pe)-years)
         elif cat == u'ΤΕ':
             dt = DateInterval(days=30-days, months=11-months, years=get_hours(years, te)-years)
         else:
-            dt = DateInterval(days=0, months=0, years=0)
+            dt = None # DateInterval(days=0, months=0, years=0)
         if self.hours() == 18:
-            return DateInterval(days=0, months=0, years=0)
+            return None #DateInterval(days=0, months=0, years=0)
         else:
             return dt
     hours_next.short_description = u'Επόμενη αλλαγή ωραρίου'
@@ -1491,6 +1504,32 @@ class Service(Placement):
 
     def __unicode__(self):
         return self.organization.name + self.date_from.strftime('%d-%m-%Y')
+
+
+# Μερικές διαθέσεις - δεν είναι τοποθετήσεις
+class PartialService(models.Model):
+
+    class Meta:
+        verbose_name = u'Μερική Διάθεση'
+        verbose_name_plural = u'Μερικές Διαθέσεις'
+        ordering = ['-date_from']
+
+    employee = models.ForeignKey(Employee)
+    organization = models.ForeignKey(Organization, verbose_name=u'Σχολείο/Φορέας')
+    date_from = models.DateField(u'Ημερομηνία Έναρξης')
+    date_to = models.DateField(u'Ημερομηνία Λήξης', null=True, blank=True)
+    type = models.ForeignKey(PlacementType, verbose_name=u'Είδος διάθεσης', default=None)
+    order_min = models.CharField(u'Απόφαση', max_length=300, null=True, blank=True, default=None)
+    order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
+    order_manager = models.CharField(u'Απόφαση Διευθυντή', max_length=300, null=True, blank=True, default=None)
+    hours = models.IntegerField(u'Ώρες Διάθεσης', max_length=2, null=True, blank=True)
+    hours_overtime = models.IntegerField(u'Ώρες Υπερωρίας', max_length=2, null=True, blank=True, default=0)
+
+    def natural_key(self):
+        return (self.employee, self.organization, self.date_from)
+
+    def __unicode__(self):
+        return self.organization.name
 
 
 class SubstituteMinistryOrder(models.Model):
