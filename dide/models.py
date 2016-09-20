@@ -863,14 +863,8 @@ class PermanentManager(models.Manager):
 # φίλτρο επόμενης μείωσης ωραρίου     
     def next_hours_reduction_in_range(self, date_from, date_to):
         d_i = DateInterval(date_to.year-date_from.year, date_to.month-date_from.month, date_to.day-date_from.day)
-        f = []
         p = self.filter(currently_serves=True).exclude(non_educational_experience__isnull=True).exclude(non_educational_experience__exact=u'')
-        for o in p:
-            if o.hours_next():
-                if o.hours_next() < d_i:
-                    f.append(o.id)
-        return f
-
+        return [o.id for o in p if o.hours_next() is not None and o.hours_next() < d_i]
 
 class Permanent(Employee):
 
