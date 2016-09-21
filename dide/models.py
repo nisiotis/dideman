@@ -1427,6 +1427,8 @@ class School(Organization):
     fax_number = models.CharField(u'Αρ. Fax', max_length=14, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     manager = models.ForeignKey(Permanent, null=True, blank=True, verbose_name=u'Διευθυντής')
+    google_maps_x = models.CharField(u'Γεωγραφικές συντεταγμένες Χ', max_length=14, null=True, blank=True)
+    google_maps_y = models.CharField(u'Γεωγραφικές συντεταγμένες Υ', max_length=14, null=True, blank=True)
 
     def commission_data(self):
         return u"ΑΦΜ: %s , ΔΟΥ: %s" % (self.commission.vat_number, self.commission.tax_office)
