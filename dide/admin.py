@@ -225,7 +225,8 @@ class ServiceInline(admin.TabularInline):
 class PartialServiceInline(admin.TabularInline):
     model = PartialService
     extra = 0
-
+    fields = ('organization', 'date_from', 'date_to', 
+              'type', 'hours', 'hours_overtime', 'order_min', 'order_pysde', 'order_manager')
 
 class SubstitutePlacementInline(admin.TabularInline):
     model = SubstitutePlacement
@@ -522,7 +523,7 @@ class AdministrativeAdmin(PermanentAdmin):
                         'organization_serving',
                         'study_years', 'serving_type', 'date_hired',
                         'order_hired', 'is_permanent',
-                        'has_permanent_post', 'rank', 'address', 'identity_number',
+                        'has_permanent_post', 'rank', 'ranknew', 'address', 'identity_number',
                          'telephone_number1',
                         'telephone_number2', 'email', 'marital_status',
                         'birth_date', 'hours_current', 'date_created']}),
@@ -542,7 +543,7 @@ class AdministrativeAdmin(PermanentAdmin):
     readonly_fields = EmployeeAdmin.readonly_fields + \
             ['permanent_post', 'total_service',
              'formatted_recognised_experience', 'payment_start_date_auto',
-             'rank', 'profession_description', 'calculable_not_service',
+             'rank', 'ranknew', 'profession_description', 'calculable_not_service',
              'date_created']
 
     actions = sorted([to_permanent, to_private_teacher,

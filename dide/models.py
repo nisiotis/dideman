@@ -1133,7 +1133,7 @@ class Administrative(Employee):
             return "διοικητική"
 
 methods = ["total_service", "natural_key", "promotionsnew", "promotions", "permanent_post", "total_not_service", "payment_start_date_auto",
-           "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "__unicode__"]
+           "organization_serving", "permanent_post_island", "rank", "rank_date", "next_rank_date", "rank_id", "ranknew", "ranknew_date", "next_ranknew_date", "ranknew_id", "__unicode__"]
 
 for m in methods:
     setattr(Administrative, m, getattr(Permanent, m).im_func)
