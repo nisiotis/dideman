@@ -2014,3 +2014,13 @@ class Settings(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class GeoSchool(School):
+
+    class Meta:
+        verbose_name = u'Σχολεία - Γεωγραφική Απεικόνιση'
+        verbose_name_plural = u'Σχολεία - Γεωγραφική Απεικόνιση'
+        proxy = True
+        #managed = False
+

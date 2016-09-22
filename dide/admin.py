@@ -14,7 +14,8 @@ from forms import SubstitutePlacementForm, PaymentFileNameMassForm, SchoolCommis
 from overrides.admin import DideAdmin
 from filters import *
 from applications.filters import FinalisedFilter
-from models import (TransferArea, Island, Leave, Responsibility, Profession,
+from models import (GeoSchool, 
+                    TransferArea, Island, Leave, Responsibility, Profession,
                     Promotion, PromotionNew, NonPermanentType, Administrative,
                     NonPermanent, Permanent, Employee, DegreeCategory,
                     SchoolType, School, OtherOrganization, PlacementType,
@@ -695,14 +696,23 @@ class NonPermanentAdmin(EmployeeAdmin):
 
 class NonPermanentTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'work_mode')
-    
 
 
 class SchoolTypeAdmin(DideAdmin):
     list_display = ('name', 'shift', 'category', 'rank')
 
 
+class SettingsAdmin(admin.ModelAdmin):
+    list_display = ('name', 'value', 'internal_name')
+
+
+class GeoSchoolAdmin(admin.ModelAdmin):
+    pass
+
+
 map(lambda t: admin.site.register(*t), (
+    (GeoSchool, GeoSchoolAdmin),
+    (Settings, SettingsAdmin),
     (Leave, LeaveAdmin),
     (Permanent, PermanentAdmin),
     (Administrative, AdministrativeAdmin),
@@ -734,7 +744,7 @@ map(lambda t: admin.site.register(*t), (
 
 
 admin.site.register((TransferArea, Island, Responsibility,
-                     LoanCategory, DegreeCategory, Settings,
+                     LoanCategory, DegreeCategory, 
                      ApplicationType, DegreeOrganization))
 admin.site.disable_action('delete_selected')
 admin.site.add_action(DeleteAction(ugettext_lazy("Delete selected %(verbose_name_plural)s")))
