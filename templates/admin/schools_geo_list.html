@@ -2,6 +2,28 @@
 {% load i18n admin_static admin_list %}
 {% load url from future %}
 {% load admin_urls %}
+{% block extrastyle %}
+    <style>
+
+      html, body {
+
+        height: 100%;
+
+        margin: 0;
+
+        padding: 0;
+
+      }
+
+      #map, #container, #content, #content-main {
+
+        height: 100%;
+
+      }
+
+    </style>
+
+{% endblock %}
 
 
 
@@ -11,7 +33,7 @@
     {% block object-tools %}
     {% endblock %}
 
-    <div id="map" style="height:700px;"></div>
+    <div id="map"></div>
     <script>
 
       var schoolmap = {
