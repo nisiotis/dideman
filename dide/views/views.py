@@ -16,14 +16,15 @@ def school_geo_view(request):
     sch_units = []
     for item in sch:
         #import pdb; pdb.set_trace()
-
+        c_npr = NonPermanent.objects.temporary_post_in_organization(item.id).count()
         c_prm = Permanent.objects.serving_in_organization(item.id).filter(currently_serves=True).count()
         unit = {
             'id': item.id,
             'title': item.name,
             'x': item.google_maps_x,
             'y': item.google_maps_y,
-            'pop': c_prm
+            'pop': c_prm,
+            'pop_np': c_npr,
         }
         sch_units.append(unit)
 

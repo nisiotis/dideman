@@ -19,7 +19,8 @@
         {{ item.id }}: {
           unitname: '{{ item.title }}',
           center: {lat: {{ item.y }}, lng: {{ item.x }} },
-          population: {{ item.pop }}
+          population: {{ item.pop }},
+          population_np: {{ item.pop_np }}
         },
       {% endfor %}
 
@@ -42,22 +43,42 @@
 
           var schCircle = new google.maps.Circle({
             strokeColor: '#0000FF',
-            strokeOpacity: 0.8,
+            strokeOpacity: 0.7,
             strokeWeight: 2,
             fillColor: '#0000FF',
-            fillOpacity: 0.35,
+            fillOpacity: 0.10,
             map: map,
             center: schoolmap[sch].center,
             title: schoolmap[sch].unitname,
             radius: Math.sqrt(schoolmap[sch].population * 50) * 50
           });
+
+          // Add the circle for this school to the map.
+
+          var schCircleNP = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.7,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.10,
+            map: map,
+            center: schoolmap[sch].center,
+            title: schoolmap[sch].unitname,
+            radius: Math.sqrt(schoolmap[sch].population_np * 50) * 50
+          });
+
         //circle is the google.maps.Circle-instance
 
         google.maps.event.addListener(schCircle,'mouseover',function(){
         this.getMap().getDiv().setAttribute('title',this.get('title'));});
 
-
         google.maps.event.addListener(schCircle,'mouseout',function(){
+        this.getMap().getDiv().removeAttribute('title');});
+
+        google.maps.event.addListener(schCircleNP,'mouseover',function(){
+        this.getMap().getDiv().setAttribute('title',this.get('title'));});
+
+        google.maps.event.addListener(schCircleNP,'mouseout',function(){
         this.getMap().getDiv().removeAttribute('title');});
 
         }
