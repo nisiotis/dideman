@@ -4,35 +4,35 @@
 {% load admin_urls %}
 {% block extrastyle %}
     <style>
-
       html, body {
-
         height: 100%;
-
         margin: 0;
-
         padding: 0;
-
       }
 
       #map, #container, #content, #content-main {
-
         height: 100%;
-
       }
-
+      #legend {  
+        width: 100%;
+        padding: 5px 0 5px 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        margin-top: 10px;
+        margin-bottom: 10px;      
+      }
     </style>
-
 {% endblock %}
-
-
 
 {% block coltype %}flex{% endblock %}
 {% block content %}
   <div id="content-main">
     {% block object-tools %}
     {% endblock %}
-
+    <div id="legend">
+      <p>Μπλε περιοχή : Μόνιμοι καθηγητές</p>
+      <p>Κόκκινη περιοχή : Αναπληρωτές καθηγητές</p>
+    </div>
     <div id="map"></div>
     <script>
 
@@ -54,7 +54,7 @@
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: {{ google_zoom }},
           center: { lat: {{ google_x }}, lng: {{ google_y }} },
-          mapTypeId: 'terrain'
+          mapTypeId: 'roadmap'
         });
 
         // Construct the circle for each value in schoolmap.
