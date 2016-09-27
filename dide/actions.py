@@ -14,6 +14,7 @@ from dideman.dide.util import xlsreader
 
 from dideman.dide.util.settings import SETTINGS
 from dideman.settings import TEMPLATE_DIRS
+from django.contrib import messages
 from django.contrib.admin import helpers
 from django.contrib.admin.util import get_deleted_objects, model_ngettext
 from django.core.exceptions import PermissionDenied
@@ -42,7 +43,9 @@ from collections import defaultdict
 from itertools import groupby
 from dideman.dide.models import Employee, PaymentCode, PaymentCategoryTitle, Child 
 from dideman.lib.common import try_many
+
 from datetime import timedelta
+from lxml import etree
 import pandas as pd
 import operator
 import csv
@@ -760,9 +763,20 @@ class XLSReadAction(object):
                                 context,
                                 current_app=modeladmin.admin_site.name)
 
+
 def manage_len(f, l):
     sl = len(unicode(f))
     return u"%s%s" % (f, (" " * (l-sl)))
+
+def validateXML(xmlparser, xmlfilename):
+    try:
+      
+        etree.fromstring(xmlfilename.getvalue().encode('utf-8'), xmlparser) 
+        return 0
+    except etree.XMLSchemaError as e:
+        return '%s' % e.message
+    except etree.XMLSyntaxError as e:
+        return '%s' % e.message
 
 
 class XMLWriteE3Action(object):
@@ -864,8 +878,6 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_fl4/>\n")
             xml_file.write(u"\t\t<f_pc/>\n")
             xml_file.write(u"\t\t<f_pc_other/>\n")
-            # E3 SET
-            # E3 Fields
 
             try:
                 f_d = ""
@@ -961,50 +973,6 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_idiotita_idiotitas>%s</f_idiotita_idiotitas>\n" % manage_len(SETTINGS['ergani_idiotita_proistamenou'], 50))
             xml_file.write(u"\t\t<f_dieythinsi_idiotitas>%s</f_dieythinsi_idiotitas>\n" % manage_len(SETTINGS['ergani_address_proistamenou'], 70))
             xml_file.write(u"\t\t<f_afm_idiotitas>%s</f_afm_idiotitas>\n" % SETTINGS['ergani_afm_rep_oaed'])
-
-
-            # FR : Field Required
-            #xml_fields = {
-            #    'f_proslipsidate': #FR
-            #    'f_proslipsitime': #FR
-            #    'f_orario':
-            #    'f_wresexternal':
-            #    'f_week_hours': 
-            #    'f_orariodialeima':
-            #    'f_eidikothta':
-            #    'f_proipiresia': #FR
-            #    'f_apodoxes': #FR
-            #    'f_hour_apodoxes': #FR
-            #    'f_protiergasia': #FR
-            #    'f_sxeshapasxolisis': #FR
-            #    'f_orismenou_apo': #FR
-            #    'f_orismenou_ews': #FR
-            #    'f_kathestosapasxolisis': #FR
-            #    'f_xaraktirismos': #FR
-            #    'f_special_case': 
-            #    'f_apoalliperioxi':
-            #    'f_nationalityalli':
-            #    'f_kallikratisalli':
-            #    'f_topothetisiepistoli': #FR
-            #    'f_topothetisioaed': #FR
-            #    'f_programaoaed':
-            #    'f_replaceprograma':
-            #    'f_replaceprograma_afm':
-            #    'f_replaceprograma_amka':
-            #    'f_epidomaoaed': #FR
-            #    'f_epidoma_ypiresia_oaed':
-            #    'f_sk_protocol':
-            #    'f_sk_date':
-            #    'f_comments': #DD
-            #    'f_eponymo_idiotitas': #FR
-            #    'f_onoma_idiotitas': #FR
-            #    'f_idiotita_idiotitas': #FR
-            #    'f_dieythinsi_idiotitas': #FR
-            #    'f_afm_idiotitas': #FR
-            #    }
-            # E3 Fields End
-
-# -- E3
             xml_file.write(u"\t\t<f_afm_proswpoy>%s</f_afm_proswpoy>\n" % SETTINGS['ergani_afm_rep_oaed'])
             xml_file.write(u"\t\t<f_file/>\n")
             xml_file.write(u"\t\t<f_foreign_file/>\n")
@@ -1012,15 +980,28 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t</AnaggeliaE3>\n")
 
         xml_file.write(footer)
-        self.response = HttpResponse(xml_file.getvalue())
+        with open(os.path.join(settings.MEDIA_ROOT, 'xsd', 'E3_v2.xsd'), 'r') as f:
+            schema_root = etree.XML(f.read())
+
+        schema = etree.XMLSchema(schema_root)
+        xmlparser = etree.XMLParser(schema=schema, encoding='utf-8')
+        res = validateXML(xmlparser, xml_file)
+        if res == 0:
+            self.response = HttpResponse(xml_file.getvalue())
+            self.response['Content-Type'] = 'text/xml'
+            self.response['Content-Disposition'] = 'attachment; ' + \
+                'filename=ergani_e3_list_of_%s.xml' % len(queryset)
+            add_never_cache_headers(self.response)
+            self.response.close()
+            self.response.flush()
+            return self.response
+
+        else:
+            messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)            
+            
         xml_file.close()
-        self.response['Content-Type'] = 'text/xml'
-        self.response['Content-Disposition'] = 'attachment; ' + \
-            'filename=ergani_e3_list_of_%s.xml' % len(queryset)
-        add_never_cache_headers(self.response)
-        self.response.close()
-        self.response.flush()
-        return self.response
+
+
 
 
 class XMLWriteE7Action(object):
@@ -1170,15 +1151,34 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t</AnaggeliaE7>\n")
 
         xml_file.write(footer)
-        self.response = HttpResponse(xml_file.getvalue())
+        with open(os.path.join(settings.MEDIA_ROOT, 'xsd', 'E7_v1.xsd'), 'r') as f:
+            schema_root = etree.XML(f.read())
+
+        schema = etree.XMLSchema(schema_root)
+        xmlparser = etree.XMLParser(schema=schema, encoding='utf-8')
+        res = validateXML(xmlparser, xml_file)
+        if res == 0:
+            self.response = HttpResponse(xml_file.getvalue())
+            self.response['Content-Type'] = 'text/xml'
+            self.response['Content-Disposition'] = 'attachment; ' + \
+                'filename=ergani_e7_list_of_%s.xml' % len(queryset)
+            add_never_cache_headers(self.response)
+            self.response.close()
+            self.response.flush()
+            return self.response
+
+        else:
+            messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)
+
+#        self.response = HttpResponse(xml_file.getvalue())
         xml_file.close()
-        self.response['Content-Type'] = 'text/xml'
-        self.response['Content-Disposition'] = 'attachment; ' + \
-            'filename=ergani_e7_list_of_%s.xml' % len(queryset)
-        add_never_cache_headers(self.response)
-        self.response.close()
-        self.response.flush()
-        return self.response
+#        self.response['Content-Type'] = 'text/xml'
+#        self.response['Content-Disposition'] = 'attachment; ' + \
+#            'filename=ergani_e7_list_of_%s.xml' % len(queryset)
+#        add_never_cache_headers(self.response)
+#        self.response.close()
+#        self.response.flush()
+#        return self.response
 
 
 
