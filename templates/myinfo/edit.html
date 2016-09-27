@@ -154,7 +154,7 @@
 
             </ul>
 	    {% endif %}
-
+	{% if insurance %}
         <h2>Βεβαιώσεις εργοδότη</h2>
             <ul class="actionlist">
             {% for entry in insurance %}
@@ -163,7 +163,7 @@
             <li>Δεν βρέθηκαν βεβαιώσεις εργοδότη</li>  
             {% endfor %}
             </ul>
-
+	 {% endif %}
             </div>
 </div>
 {% endblock %}

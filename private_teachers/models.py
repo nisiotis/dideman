@@ -106,7 +106,8 @@ class PrivateTeacher(dide.Employee):
                 total_experience = self.total_experience(periods)
             else:
                 periods = list(self.workingperiod_set.all())
-                periods.pop(0)
+                if len(periods) > 0:
+                    periods.pop(0)
                 if periods == []:
                     total_experience = DateInterval("000000")
                 else:
