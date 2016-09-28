@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n %}
+{% load url from future %}
+{% load admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=app_label %}">{{ app_label|capfirst|escape }}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; {{ action_title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+  <div>
+    <pre>
+{% for line in xml_file %}
+{{ forloop.counter }}.{{ line }}
+{% endfor %}
+    </pre>
+  </div>
+  <div>
+    <input type="hidden" name="action" value="{{ action_name }}" />
+    <input type="hidden" name="post" value="yes" />
+    <a href="{% url opts|admin_urlname:'changelist' %}">Επιστροφή στη λίστα.</a>
+  </div>
+</form>
+{% endblock %}
