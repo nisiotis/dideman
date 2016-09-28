@@ -768,16 +768,6 @@ def manage_len(f, l):
     sl = len(unicode(f))
     return u"%s%s" % (f, (" " * (l-sl)))
 
-def validateXML(xmlparser, xmlfilename):
-    try:
-      
-        etree.fromstring(xmlfilename.getvalue().encode('utf-8'), xmlparser) 
-        return 0
-    except etree.XMLSchemaError as e:
-        return '%s' % e.message
-    except etree.XMLSyntaxError as e:
-        return '%s' % e.message
-
 
 class XMLWriteE3Action(object):
     def __init__(self, short_description):
@@ -982,11 +972,13 @@ class XMLWriteE3Action(object):
         xml_file.write(footer)
         with open(os.path.join(settings.MEDIA_ROOT, 'xsd', 'E3_v2.xsd'), 'r') as f:
             schema_root = etree.XML(f.read())
-
+        res = ''
         schema = etree.XMLSchema(schema_root)
-        xmlparser = etree.XMLParser(schema=schema, encoding='utf-8')
-        res = validateXML(xmlparser, xml_file)
-        if res == 0:
+        
+        xml = bytes(bytearray(xml_file.getvalue(), encoding='utf-8'))
+        exml = etree.XML(xml)
+        
+        if schema.validate(exml): 
             self.response = HttpResponse(xml_file.getvalue())
             self.response['Content-Type'] = 'text/xml'
             self.response['Content-Disposition'] = 'attachment; ' + \
@@ -997,11 +989,11 @@ class XMLWriteE3Action(object):
             return self.response
 
         else:
+            for error in schema.error_log:
+                res += u'Γραμμή %s: %s' % (error.line, error.message)
             messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)            
             
         xml_file.close()
-
-
 
 
 class XMLWriteE7Action(object):
@@ -1153,11 +1145,13 @@ class XMLWriteE7Action(object):
         xml_file.write(footer)
         with open(os.path.join(settings.MEDIA_ROOT, 'xsd', 'E7_v1.xsd'), 'r') as f:
             schema_root = etree.XML(f.read())
-
+        res = ''
         schema = etree.XMLSchema(schema_root)
-        xmlparser = etree.XMLParser(schema=schema, encoding='utf-8')
-        res = validateXML(xmlparser, xml_file)
-        if res == 0:
+
+        xml = bytes(bytearray(xml_file.getvalue(), encoding='utf-8'))
+        exml = etree.XML(xml)
+
+        if schema.validate(exml):
             self.response = HttpResponse(xml_file.getvalue())
             self.response['Content-Type'] = 'text/xml'
             self.response['Content-Disposition'] = 'attachment; ' + \
@@ -1168,18 +1162,11 @@ class XMLWriteE7Action(object):
             return self.response
 
         else:
+            for error in schema.error_log:
+                res += u'Γραμμή %s: %s' % (error.line, error.message)
             messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)
 
-#        self.response = HttpResponse(xml_file.getvalue())
         xml_file.close()
-#        self.response['Content-Type'] = 'text/xml'
-#        self.response['Content-Disposition'] = 'attachment; ' + \
-#            'filename=ergani_e7_list_of_%s.xml' % len(queryset)
-#        add_never_cache_headers(self.response)
-#        self.response.close()
-#        self.response.flush()
-#        return self.response
-
 
 
 class XMLReadAction(object):
