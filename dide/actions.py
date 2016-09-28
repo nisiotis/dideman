@@ -26,6 +26,7 @@ from django.template.response import TemplateResponse
 from django.utils.cache import add_never_cache_headers
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 from dideman.lib.date import current_year_date_from, current_year_date_to
@@ -775,6 +776,13 @@ class XMLWriteE3Action(object):
         self.__name__ = 'create_xml_e3_for_erganh'
 
     def __call__(self, modeladmin, request, queryset):
+        opts = modeladmin.model._meta
+        app_label = opts.app_label
+
+        using = router.db_for_write(modeladmin.model)
+        changeable_objects, perms_needed, protected = get_deleted_objects(
+            queryset, opts, request.user, modeladmin.admin_site, using)
+
         header = ""
         header += "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
         header += "<ns1:AnaggeliesE3 xmlns:ns1=\"http://www.yeka.gr/E3\">\n"
@@ -883,13 +891,20 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_proslipsitime>%s</f_proslipsitime>\n" % (datetime.datetime.now() + timedelta(hours=2)).strftime('%H:%m'))
             xml_file.write(u"\t\t<f_orario>%s</f_orario>\n" % manage_len(' ', 100))
             xml_file.write(u"\t\t<f_wresexternal/>\n")
-            if o.current_placement().substituteplacement.week_hours:
-                xml_file.write(u"\t\t<f_week_hours>%s</f_week_hours>\n" % str('{:3.1f}'.format(float(o.current_placement().substituteplacement.week_hours))).replace('.',','))
-            else:
+            try:
+                if o.current_placement().substituteplacement.week_hours:
+                    xml_file.write(u"\t\t<f_week_hours>%s</f_week_hours>\n" % str('{:3.1f}'.format(float(o.current_placement().substituteplacement.week_hours))).replace('.',','))
+                else:
+                    xml_file.write(u"\t\t<f_week_hours>23,0</f_week_hours>\n")
+            except:
                 xml_file.write(u"\t\t<f_week_hours>23,0</f_week_hours>\n")
+
             xml_file.write(u"\t\t<f_orariodialeima/>\n")
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
-            xml_file.write(u"\t\t<f_proipiresia>%s</f_proipiresia>\n" % o.current_placement().substituteplacement.work_experience_years)
+            try:
+                xml_file.write(u"\t\t<f_proipiresia>%s</f_proipiresia>\n" % o.current_placement().substituteplacement.work_experience_years)
+            except:
+                xml_file.write(u"\t\t<f_proipiresia></f_proipiresia>\n")
             try:
                 if o.current_placement().substituteplacement.last_total_grosspay:
                     fstr = str(o.current_placement().substituteplacement.last_total_grosspay).replace('.',',')
@@ -932,12 +947,11 @@ class XMLWriteE3Action(object):
             except:
                 xml_file.write(u"\t\t<f_orismenou_apo>01/01/2001</f_orismenou_apo>\n")
                 xml_file.write(u"\t\t<f_orismenou_ews>01/01/2001</f_orismenou_ews>\n")
-
-            xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
+            try:
+                xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
+            except:
+                xml_file.write(u"\t\t<f_kathestosapasxolisis></f_kathestosapasxolisis>\n")
             xml_file.write(u"\t\t<f_xaraktirismos>1</f_xaraktirismos>\n")
-
-
-
             xml_file.write(u"\t\t<f_special_case/>\n")
             xml_file.write(u"\t\t<f_apoalliperioxi/>\n")
             xml_file.write(u"\t\t<f_nationalityalli/>\n")
@@ -948,12 +962,16 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_replaceprograma/>\n")
             xml_file.write(u"\t\t<f_replaceprograma_afm/>\n")
             xml_file.write(u"\t\t<f_replaceprograma_amka/>\n")
-            if o.current_placement().substituteplacement.oaed_nopay == False:
+            try:
+                if o.current_placement().substituteplacement.oaed_nopay == False:
+                    xml_file.write(u"\t\t<f_epidomaoaed>0</f_epidomaoaed>\n")
+                    xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed/>\n")            
+                else:
+                    xml_file.write(u"\t\t<f_epidomaoaed>1</f_epidomaoaed>\n")
+                    xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed>%s</f_epidoma_ypiresia_oaed>\n" % o.current_placement().substituteplacement.oaed_nopay_from)
+            except:
                 xml_file.write(u"\t\t<f_epidomaoaed>0</f_epidomaoaed>\n")
                 xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed/>\n")            
-            else:
-                xml_file.write(u"\t\t<f_epidomaoaed>1</f_epidomaoaed>\n")
-                xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed>%s</f_epidoma_ypiresia_oaed>\n" % o.current_placement().substituteplacement.oaed_nopay_from)
             
             xml_file.write(u"\t\t<f_sk_protocol/>\n")
             xml_file.write(u"\t\t<f_sk_date/>\n")
@@ -992,6 +1010,23 @@ class XMLWriteE3Action(object):
             for error in schema.error_log:
                 res += u'Γραμμή %s: %s' % (error.line, error.message)
             messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)            
+            context = {
+                "title": 'Σφάλμα εξαγωγής XML',
+                #"objects_name": objects_name,
+                'queryset': queryset,
+                "opts": opts,
+                "app_label": app_label,
+                'action_title': self.short_description,
+                'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+                'changeable_objects': [changeable_objects],
+                'action_name': self.__name__,
+                'xml_file': xml_file.getvalue().replace('\t','    ').split('\n'),
+            }
+            # Display the error page
+            return TemplateResponse(request,
+                                    'admin/ergani_xml_error_results.html',
+                                    context,
+                                    current_app=modeladmin.admin_site.name)
             
         xml_file.close()
 
@@ -1002,6 +1037,13 @@ class XMLWriteE7Action(object):
         self.__name__ = 'create_xml_e7_for_erganh'
 
     def __call__(self, modeladmin, request, queryset):
+        opts = modeladmin.model._meta
+        app_label = opts.app_label
+
+        using = router.db_for_write(modeladmin.model)
+        changeable_objects, perms_needed, protected = get_deleted_objects(
+            queryset, opts, request.user, modeladmin.admin_site, using)
+
         header = ""
         header += "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
         header += "<ns1:AnaggeliesE7 xmlns:ns1=\"http://www.yeka.gr/E7\">\n"
@@ -1098,9 +1140,10 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t\t<f_pc_other/>\n")
             xml_file.write(u"\t\t<f_xaraktirismos>1</f_xaraktirismos>\n")
             xml_file.write(u"\t\t<f_sxeshapasxolisis>1</f_sxeshapasxolisis>\n")
-
-            xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
-            
+            try:
+                xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
+            except:
+                xml_file.write(u"\t\t<f_kathestosapasxolisis></f_kathestosapasxolisis>\n")
             xml_file.write(u"\t\t<f_oros>0</f_oros>\n")
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
             try:
@@ -1164,8 +1207,24 @@ class XMLWriteE7Action(object):
         else:
             for error in schema.error_log:
                 res += u'Γραμμή %s: %s' % (error.line, error.message)
-            messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)
-
+            messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)            
+            context = {
+                "title": 'Σφάλμα εξαγωγής XML',
+                #"objects_name": objects_name,
+                'queryset': queryset,
+                "opts": opts,
+                "app_label": app_label,
+                'action_title': self.short_description,
+                'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+                'changeable_objects': [changeable_objects],
+                'action_name': self.__name__,
+                'xml_file': xml_file.getvalue().replace('\t','    ').split('\n'),
+            }
+            # Display the error page
+            return TemplateResponse(request,
+                                    'admin/ergani_xml_error_results.html',
+                                    context,
+                                    current_app=modeladmin.admin_site.name)            
         xml_file.close()
 
 

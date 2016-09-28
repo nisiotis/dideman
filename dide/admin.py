@@ -245,6 +245,7 @@ class SubstitutePlacementInline(admin.TabularInline):
 
 class OrderedSubstitutionInline(admin.TabularInline):
     model = OrderedSubstitution
+     
     extra = 0
 
 
