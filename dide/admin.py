@@ -242,10 +242,18 @@ class SubstitutePlacementInline(admin.TabularInline):
                                              'date_from', 'date_from_show', 'date_to'],
                                      extra=SubstitutePlacementInline.extra)
 
+from django.forms import Select
+class OrderedSubstitutionInlineForm(ModelForm):
+    class Meta:
+        model = OrderedSubstitution
+        widgets = {
+            'substitute': Select(attrs={'class': 'chozen-css'}),
+        }
+
 
 class OrderedSubstitutionInline(admin.TabularInline):
     model = OrderedSubstitution
-     
+    form = OrderedSubstitutionInlineForm 
     extra = 0
 
 

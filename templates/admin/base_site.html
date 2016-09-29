@@ -4,8 +4,19 @@
 
 {% block title %}{{ title }} | {% trans 'Django site admin' %}{% endblock %}
 {% block extrastyle %}
+<script type="text/javascript" src="/static/js/chosen.jquery.js"></script>
+<script type="text/javascript" src="/static/js/chosen.jquery_ready.js"></script>
+<script>
+
+</script>
+{% endblock %}
+
+{% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="/static/admin_change_form.css">
+<link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
+
 {{ form.media.css }}
+
 {% endblock %}
 {% block branding %}
 <h1 id="site-name">Δ.Δ.Ε. {% get_setting 'dide_place'  %} </h1>
