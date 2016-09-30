@@ -35,7 +35,7 @@ from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
 from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
                      CreatePDF, XLSReadAction, PDFReadAction, DeleteAction, timestamp, 
                      EmployeeBecome, HideOption, ShowOption, XMLWriteE7Action, XMLWriteE3Action)
-from reports.permanent import permanent_docx_reports
+from reports.permanent import permanent_docx_reports, proag_docx_reports
 from reports.leave import leave_docx_reports
 from reports.nonpermanent import nonpermanent_docx_reports
 from django.utils.translation import ugettext_lazy
@@ -503,7 +503,7 @@ class PermanentAdmin(EmployeeAdmin):
                                      'calculable_not_service',
                                      'ranknew__rank', 'ranknew__value','ranknew_date','ranknew__next_promotion_date',
                                      'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
-    permanent_docx_reports, key=lambda k: k.short_description)
+                     proag_docx_reports + permanent_docx_reports, key=lambda k: k.short_description)
 
 
 class AdministrativeAdmin(PermanentAdmin):

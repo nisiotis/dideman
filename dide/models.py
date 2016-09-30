@@ -1047,7 +1047,7 @@ class Permanent(Employee):
     rank_id.short_description = u'ID Βαθμού'
 
 
-# Νέοι βαθμοί με τον Νόμο 4354/2015
+    # Νέοι βαθμοί με τον Νόμο 4354/2015
     def ranknew(self):
         return first_or_none(
             PromotionNew.objects.filter(employee=self).order_by('-date').order_by('-id')) or \
@@ -1075,8 +1075,10 @@ class Permanent(Employee):
             rank = RankCode.objects.get(rank=promotion.value)
             return rank.id if rank else None
     ranknew_id.short_description = u'ID Νέου Βαθμού'
-# --- Νέοι βαθμοί
+    # --- Νέοι βαθμοί
 
+    def checked_qualifications(self):
+        return [u'%s, %s' % (d.name, d.degree) for d in EmployeeDegree.objects.filter(employee=self.parent).exclude(checked=False).order_by('-date')]
 
     def employment_type_text(self):
         if self.sex == "Άνδρας":

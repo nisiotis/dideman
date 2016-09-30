@@ -6,6 +6,21 @@ import datetime
 import os
 
 
+class ProagDocxReport(DocxReport):
+    def __init__(self, short_description, body_template_path, fields,
+                 custom_context=None, model_fields=None, include_header=True,
+                 include_footer=True):
+        context = {'telephone_number': SETTINGS['proagogon_contact_telephone_number'],
+                   'contact_person': SETTINGS['proagogon_contact_person'],
+                   'email': SETTINGS['proagogon_email_staff']}
+        context.update(custom_context)
+        model_fields = model_fields or {}
+        super(ProagDocxReport, self).__init__(
+            short_description, os.path.join('permanent',
+                                            body_template_path),
+            fields, context, model_fields, include_header, include_footer)
+
+
 class PermanentDocxReport(DocxReport):
     def __init__(self, short_description, body_template_path, fields,
                  custom_context=None, model_fields=None, include_header=True,
@@ -22,16 +37,17 @@ class PermanentDocxReport(DocxReport):
                                             body_template_path),
             fields, context, model_fields, include_header, include_footer)
 
+proag_docx_reports = [
+    ProagDocxReport(u'Βεβαίωση ελέγχου γνησιότητας δικαιολογητικών', 'permanent_docs_authenticity.xml',
+                    ['firstname', 'lastname', 'profession', 'profession__description',
+                     'fathername', 'checked_qualifications'],
+                    {'subject': u'Βεβαίωση ελέγχου γνησιότητας δικαιολογητικών προσωπικού μητρώου εκπαιδευτικού Δ.Ε.'},
+                    {'recipient': 'Υπουργείο Παιδείας, Έρευνας και Θρησκευμάτων, Γενική Διεύθυνση Προσωπικού Π.Ε. & Δ.Ε., Διεύθυνση Διοίκησης Προσωπικού Δ.Ε., Τμήμα Β΄, Α. Παπανδρέου 37, 151 80 Μαρούσι Αττικής',
+                     'cc': ['{{ lastname }} {{ firstname }}']}),
+]
+
+
 permanent_docx_reports = [
-    PermanentDocxReport(u'Οριστική τοποθέτηση', 'permanent_post.xml',
-               ['firstname', 'lastname', 'profession',
-                'fathername', 'permanent_post', 'permanent_post__order',
-                'permanent_post__order_pysde'],
-               {'subject': u'Ανακοίνωση οριστικής τοποθέτησης'},
-               {'recipient': '{{ lastname }} {{ firstname }}',
-                'order': '{{ permanent_post__order }}',
-                'order_pysde': '{{ permanent_post__order_pysde }}',
-                'cc': ['{{ permanent_post  }}']}),
 
     PermanentDocxReport(u'Προσωρινή τοποθέτηση', 'temporary_post.xml',
                ['firstname', 'lastname', 'profession',
