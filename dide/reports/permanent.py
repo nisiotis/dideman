@@ -40,7 +40,7 @@ class PermanentDocxReport(DocxReport):
 proag_docx_reports = [
     ProagDocxReport(u'Βεβαίωση ελέγχου γνησιότητας δικαιολογητικών', 'permanent_docs_authenticity.xml',
                     ['firstname', 'lastname', 'profession', 'profession__description',
-                     'fathername', 'checked_qualifications'],
+                     'fathername', 'registration_number', 'checked_qualifications'],
                     {'subject': u'Βεβαίωση ελέγχου γνησιότητας δικαιολογητικών προσωπικού μητρώου εκπαιδευτικού Δ.Ε.'},
                     {'recipient': 'Υπουργείο Παιδείας, Έρευνας και Θρησκευμάτων, Γενική Διεύθυνση Προσωπικού Π.Ε. & Δ.Ε., Διεύθυνση Διοίκησης Προσωπικού Δ.Ε., Τμήμα Β΄, Α. Παπανδρέου 37, 151 80 Μαρούσι Αττικής',
                      'cc': ['{{ lastname }} {{ firstname }}']}),
@@ -213,7 +213,7 @@ permanent_docx_reports = [
                 'cc': [u'Δ.Δ.Ε. Δωδεκανήσου', u'Π.Μ. Υπαλλήλου']}),
 
     PermanentDocxReport(u'Βεβαίωση Μόνιμου Υπαλλήλου', 'monimos.xml',
-               ['firstname', 'lastname', 'profession',
+               ['firstname', 'lastname', 'profession', 
                 'profession__description',
                 'fathername', 'registration_number', 'permanent_post'],
                {'subject': u'Βεβαίωση Μόνιμου Υπαλλήλου'},
@@ -231,7 +231,7 @@ permanent_docx_reports = [
 
     PermanentDocxReport(u'Βεβαίωση προϋπηρεσίας', 'proypiresia.xml',
                ['firstname', 'lastname', 'profession', 'date_hired',
-                'fathername',
+                'fathername', 'registration_number',
                 'permanent_post', 'order_hired', 'profession__description',
                 'formatted_recognised_experience', 'total_service', 'total_not_service'],
                {'subject': u'Βεβαίωση προϋπηρεσίας'},

@@ -8,7 +8,7 @@
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Βεβαιώνεται ότι ο/η {{rec.lastname}} {{rec.firstname}} του {{rec.fathername}}, καθηγητής/τρια του κλάδου {{rec.profession}} {{rec.profession__description}} είναι μόνιμος/η δημόσιος υπάλληλος και έχει οργανική θέση στο {{rec.permanent_post}}.</w:t>
+        <w:t>Βεβαιώνεται ότι ο/η {{rec.lastname}} {{rec.firstname}} του {{rec.fathername}} με Α.Μ. {{rec.registration_number}}, καθηγητής/τρια του κλάδου {{rec.profession}} {{rec.profession__description}} είναι μόνιμος/η δημόσιος υπάλληλος και έχει οργανική θέση στο {{rec.permanent_post}}.</w:t>
       </w:r>
     </w:p>
     <w:p>

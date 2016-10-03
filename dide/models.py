@@ -1078,7 +1078,7 @@ class Permanent(Employee):
     # --- Νέοι βαθμοί
 
     def checked_qualifications(self):
-        return [u'%s, %s' % (d.name, d.degree) for d in EmployeeDegree.objects.filter(employee=self.parent).exclude(checked=False).order_by('-date')]
+        return [u'%s, %s, %s' % (d.name, d.degree, d.organization) for d in EmployeeDegree.objects.filter(employee=self.parent).exclude(checked=False).order_by('-date')]
 
     def employment_type_text(self):
         if self.sex == "Άνδρας":
