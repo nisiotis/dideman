@@ -1268,7 +1268,7 @@ class NonPermanent(Employee):
 
     class Meta:
         verbose_name = u'Αναπληρωτής/Ωρομίσθιος'
-        verbose_name_plural = u'Αναπληρωτές/Ωρομίσθμιοι'
+        verbose_name_plural = u'Αναπληρωτές/Ωρομίσθιοι'
 
     objects = NonPermanentManager()
 
@@ -1279,7 +1279,7 @@ class NonPermanent(Employee):
     show_exp_report = models.NullBooleanField(u'Εμφάνιση Προϋπηρεσίας - Απόλυσης', null=True, blank=True, default=True)
 
     educational_level = models.IntegerField(u'Επίπεδο μόρφωσης', null=True, blank=True, choices=EDU_LEVEL, default=11)
-    ergani_new = models.NullBooleanField(u'Νέος Μισθοτός', null=True, blank=True, default=False)
+    ergani_new = models.NullBooleanField(u'Νέος Μισθωτός', null=True, blank=True, default=False)
 
 
     def order(self, d=current_year_date_from()):
