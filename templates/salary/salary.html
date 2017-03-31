@@ -104,7 +104,7 @@ $(function() {
 					{% if p.netab_amount == 0 %}
 						{{ p.calc_amount }} €
 					{% else %}
-						{{ p.netab_amount }} €
+						{{ p.netab_amount|floatformat:2 }} €
 					{% endif %}
 					</td>
 			      </tr>
