@@ -7,6 +7,7 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
     {% block extrastyle %}{% endblock %}
     <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}"admin/css/ie.css"{% endblock %}" /><![endif]-->
     {% if LANGUAGE_BIDI %}
@@ -66,6 +67,17 @@
             window.opener.location.href = window.opener.location.href.split("?")[0];
         }
     </script>
+    <style>
+      .fixed_header {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 10001;
+      background-color: white;
+      border-bottom: 1px solid rgb(204, 204, 204);
+      }
+    </style>
     {% block extrahead %}{% endblock %}
     {% block blockbots %}
     <meta name="robots" content="NONE,NOARCHIVE" />
@@ -76,9 +88,24 @@
 </head>
 {% load full_filters %}
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
-    <div id="container">
+
+
+<div id="container">
+  <div class="fixed_header">
+    <div id="header">
+        <div id="branding">
+        <h1 id="site-name">ΔΔΕ Δωδεκανήσου</h1>
+        </div>
+    </div>
+    <!-- END Header -->
+    <div class="breadcrumbs">
+      Αναλυτικά
+    </div>
+  </div>
+
         <div id="content">
-            <h1>Επιλέξτε φίλτρα</h1>
+          <div style="height:55px;"></div>  
+	  <h1>Επιλέξτε φίλτρα</h1>
             <form id="chosen-form">
             <div>
                 {% for select in selects %}
@@ -100,10 +127,19 @@
             </div>
             {% endfor %}
             </form>
-            <div style="padding-top:40px;margin-left:auto;margin-right:auto;width:500px">
-                <input type="button" value="{% trans 'Search' %}" onclick="submitParent();"/>
-                <input type="button" value="Καθαρισμός" onclick="reset();"/>
-            </div>
+	    <div style="height:30px;"></div>
+	    <div style="position: fixed; width: 100%; bottom: 0; left: 0; z-index: 10001; background-color: white;">
+	      <div style="margin-left: 10px; margin-right: 10px;">
+		<div class="submit-row" style="margin: 0 0 5px 0;">
+		  <!--<div style="padding-top:10px;margin-left:auto;margin-right:auto;width:500px">-->
+                    <input type="button" class="default" value="{% trans 'Search' %}" onclick="submitParent();"/>
+                    <input type="button" value="Καθαρισμός" onclick="reset();"/>
+		    <input type="button" value="Κλείσιμο Παραθύρου" onclick="window.close();"/>
+		 <!-- </div>-->
+		</div>
+	      </div>
+	    </div>
+
         </div>
         {% block footer %}
         <div id="footer"></div>
