@@ -368,7 +368,8 @@ def print_exp_report(request):
     elements.append(Paragraph(u'ΘΕΜΑ: Βεβαίωση Προϋπηρεσίας', tbl_style['BoldLeft']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
     hours_type = ''
-    if emptype.type() == u'Αναπληρωτής Πλήρους Ωραρίου':
+
+    if emptype.type().id == 1:
         hours_type = u'(23 ώρες την εβδομάδα)'
     elements.append(Paragraph(u'Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s %s με σχέση εργασίας ιδιωτικού δικαίου ορισμένου χρόνου και υπηρέτησε από %s/%s/%s έως %s/%s/%s.' % (emptype.lastname, emptype.firstname, emptype.fathername, emptype.profession, emptype.profession.description, emptype.current_placement(), emptype.type(), hours_type, emptype.current_placement().date_from.day,emptype.current_placement().date_from.month,emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month,emptype.current_placement().date_to.year), tbl_style['Justify']))
 
@@ -475,6 +476,7 @@ def edit(request):
             raise
 
         p = Placement.objects.filter(employee=emp.id).order_by('-date_from')
+        
         l = EmployeeLeave.objects.filter(employee=emp.id).order_by('-date_from')
         r = EmployeeResponsibility.objects.filter(employee=emp.id).order_by('date_to')
         a = Application.objects.filter(employee=emp.id).exclude(datetime_finalised=None).order_by('-datetime_finalised')

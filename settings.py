@@ -2,8 +2,8 @@
 import locale
 import os
 import secret_settings
-DEBUG = secret_settings.DEBUG
-TEMPLATE_DEBUG = secret_settings.DEBUG
+DEBUG = True #secret_settings.DEBUG
+TEMPLATE_DEBUG = DEBUG #secret_settings.DEBUG
 
 ADMINS = (
      ('Your Name', 'ictdep@dide.dod.sch.gr'),

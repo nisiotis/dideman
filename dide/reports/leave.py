@@ -128,6 +128,11 @@ leave_docx_reports = [
                     custom_context={'subject':
                                         u'Χορήγηση αναρρωτικής άδειας'}),
 
+    LeaveDocxReport(u'Αναρρωτική ασθένειας τέκνου',
+                    'adeia_anarrotiki_teknou.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας ασθένειας τέκνου'}),
+
     LeaveDocxReport(u'Αναρρωτική (Επέμβαση)',
                 'adeia_anarrotiki_epemvasi.xml',
                 custom_context={'subject':
