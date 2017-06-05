@@ -367,7 +367,10 @@ def print_exp_report(request):
 
     elements.append(Paragraph(u'ΘΕΜΑ: Βεβαίωση Προϋπηρεσίας', tbl_style['BoldLeft']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s με σχέση εργασίας ιδιωτικού δικαίου, ορισμένου χρόνου και υπηρέτησε από %s/%s/%s έως %s/%s/%s.' % (emptype.lastname, emptype.firstname, emptype.fathername, emptype.profession, emptype.profession.description, emptype.current_placement(), emptype.type(), emptype.current_placement().date_from.day,emptype.current_placement().date_from.month,emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month,emptype.current_placement().date_to.year), tbl_style['Justify']))
+    hours_type = ''
+    if emptype.type() == u'Αναπληρωτής Πλήρους Ωραρίου':
+        hours_type = u'(23 ώρες την εβδομάδα)'
+    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s %s με σχέση εργασίας ιδιωτικού δικαίου ορισμένου χρόνου και υπηρέτησε από %s/%s/%s έως %s/%s/%s.' % (emptype.lastname, emptype.firstname, emptype.fathername, emptype.profession, emptype.profession.description, emptype.current_placement(), emptype.type(), hours_type, emptype.current_placement().date_from.day,emptype.current_placement().date_from.month,emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month,emptype.current_placement().date_to.year), tbl_style['Justify']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
@@ -391,6 +394,10 @@ def print_exp_report(request):
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
     elements.append(Paragraph(u'Χρόνος προϋπηρεσίας με βάση την υπουργική απόφαση: %s' % emptype.experience(), tbl_style['Left']))
+
+    elements.append(Paragraph(u' ', heading_style['Spacer']))
+
+    elements.append(Paragraph(u'Το πλήρες ωράριο εβδομαδιαίας διδακτικής απασχόλησης των εκπαιδευτικών της Δευτεροβάθμιας Εκπαίδευσης κλάδων ΠΕ που ισχύει σύμφωνα με τον Ν.4152/2013 είναι 23 ώρες.', tbl_style['Justify']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 

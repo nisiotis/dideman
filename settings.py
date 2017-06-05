@@ -2,12 +2,13 @@
 import locale
 import os
 import secret_settings
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+DEBUG = secret_settings.DEBUG
+TEMPLATE_DEBUG = secret_settings.DEBUG
 
 ADMINS = (
      ('Your Name', 'ictdep@dide.dod.sch.gr'),
 )
+ALLOWED_HOSTS = ['its.dod.sch.gr','its.dide.dod.sch.gr','10.103.254.11']
 
 MANAGERS = ADMINS
 
