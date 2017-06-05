@@ -1,0 +1,51 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. το άρθρο 31. του Ν.4440/2016 (Φ.Ε.Κ. 224/02-12-2016 τ. Α΄)</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. την εφαρμοστική με αριθ. πρωτ. ΔΙΔΑΔ/Φ.49Κ/5/οικ.32342/19-12-2016 του Υπ. Διοικητικής Ανασυγκρότησης ( ΑΔΑ: ΩΝ46465ΦΘΕ-Ω93 )</w:t>
+            </w:r>
+        </w:p>
+
+	<w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+          <w:r>
+            <w:t>3. την παρ. 8 του άρθρου 53 του Υπαλληλικού Κώδικα</w:t>
+          </w:r>
+        </w:p>
+
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>4. Την αίτηση του/ης υπαλλήλου</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>5. Το δικ/κό του ιατρού</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε στον/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, υπάλληλο κλάδου {{ rec.profession }} του {{ rec.employee__subclass__organization_serving }} άδεια ασθένειας τέκνου με αποδοχές, {{ rec.duration }} ημερών από {{ rec.date_from }} έως {{ rec.date_to }}, για τους λόγους που αναφέρει στην αίτησή του/της.</w:t>
+            </w:r>
+        </w:p>
