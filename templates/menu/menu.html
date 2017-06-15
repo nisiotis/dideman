@@ -62,8 +62,8 @@
             <tr>
 
                 <th scope="row"><a title="{{ a.title }}" href="applications/edit/{{ a.id }}/">{{ a.name }}</a></th>
-                <td></td>
-                <td></td>
+                <td><span title="Από:">{{ a.start_date }}</span></td>
+                <td><span title="Εως:">{{ a.end_date }}</span></td>
 
             </tr>
         {% empty %}
