@@ -425,7 +425,7 @@ def print_exp_report(request):
     #elements.append(Paragraph(u'2. Α.Φ.', tbl_style['Left']))
     if emptype.order().order_type == 3:
 
-        logo = os.path.join(settings.MEDIA_ROOT, "espa2.png")
+        logo = os.path.join(settings.MEDIA_ROOT, "espa2.jpg")
         im = Image(logo)
         im.drawHeight = 3.2 * cm
         im.drawWidth = 16.5 * cm
