@@ -272,6 +272,7 @@ def print_exp_report(request):
 
     doc = SimpleDocTemplate(response, pagesize=A4)
     doc.topMargin = 1.0 * cm
+    doc.bottomMargin = 1.0 * cm
     doc.leftMargin = 1.5 * cm
     doc.rightMargin = 1.5 * cm
 
@@ -404,7 +405,7 @@ def print_exp_report(request):
 
     elements.append(Paragraph(u'Η βεβαίωση αυτή χορηγείται ύστερα από αίτηση του/της ενδιαφερόμενου/ης προκειμένου να τη χρησιμοποιήσει ως δικαιολογητικό για την αναγνώριση της προϋπηρεσίας του/της.', tbl_style['Justify']))
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    #elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
     data = []
@@ -427,8 +428,8 @@ def print_exp_report(request):
 
         logo = os.path.join(settings.MEDIA_ROOT, "espa2.jpg")
         im = Image(logo)
-        im.drawHeight = 3.2 * cm
-        im.drawWidth = 16.5 * cm
+        im.drawHeight = 3.0 * cm
+        im.drawWidth = 16.3 * cm
         elements.append(im)
 
 
