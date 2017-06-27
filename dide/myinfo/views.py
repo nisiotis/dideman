@@ -418,14 +418,14 @@ def print_exp_report(request):
     table6 = Table(data, style=tsf, colWidths=[10.0 * cm, 7.0 * cm])
     elements.append(table6)
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    #elements.append(Paragraph(u' ', heading_style['Spacer']))
+    #elements.append(Paragraph(u' ', heading_style['Spacer']))
     #elements.append(Paragraph(u'ΚΟΙΝΟΠΟΙΗΣΗ', tbl_style['BoldLeft']))
     #elements.append(Paragraph(u'1. %s' % emptype.current_placement(), tbl_style['Left']))
     #elements.append(Paragraph(u'2. Α.Φ.', tbl_style['Left']))
     if emptype.order().order_type == 3:
 
-        logo = os.path.join(settings.MEDIA_ROOT, "espa.png")
+        logo = os.path.join(settings.MEDIA_ROOT, "espa2.png")
         im = Image(logo)
         im.drawHeight = 3.2 * cm
         im.drawWidth = 16.5 * cm
