@@ -47,7 +47,7 @@ def read(pdffile, pdffiletype, obj_id):
                 if li[8:] != SETTINGS['afm_dide']:
                     new_file = '%s.%s.%s.pdf' % (pdffile.name.replace(os.path.join(settings.MEDIA_ROOT,'pdffiles'),'')[1:-4],li[7:].strip(),datetime.datetime.now().strftime('%H%M%S%f'))
 
-                
+                    print li
                     out_file = open(os.path.join(settings.MEDIA_ROOT,'pdffiles', 'extracted', new_file), 'wb')
                     pdf_out.write(out_file)
                     out_file.close()
