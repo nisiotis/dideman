@@ -583,8 +583,10 @@ class Employee(models.Model):
     identity_number = NullableCharField(u'Αρ. Δελτίου Ταυτότητας', max_length=8, null=True, unique=True, blank=True)
     transfer_area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης', null=True, blank=True)
     recognised_experience = models.CharField(u'Προϋπηρεσία (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
+    # the following field needs to be added to the recognised experience
     recognised_experience_n4354_2015 = models.CharField(u'Προϋπηρεσία Ν. 4354/2015-ΝΠΙΔ (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
-
+    # new field with filter
+    # recognised_experience_n4452_2017 = models.CharField(u'Προϋπηρεσία Ν. 4452/2017 Βαθμολογική (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     non_educational_experience = models.CharField(u'Εκτός Ωραρίου (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     vat_number = NullableCharField(u'Α.Φ.Μ.', max_length=9, null=True, unique=True, blank=True)
     tax_office = models.CharField(u'Δ.Ο.Υ.', max_length=100, null=True, blank=True)
@@ -847,6 +849,12 @@ class PermanentManager(models.Manager):
         ids = [p.employee.id for p in Placement.objects.only('employee')
                .filter(type__name=u'Μετάθεση')]
         return self.all().exclude(pk__in=ids)
+
+# New Extra Rank Previous Service 
+# Field is in Employee table
+    def extra_rank_service(self):
+        pass
+
 
 # New Promotion Filter 
     def next_promotion_in_range(self, date_from, date_to):
@@ -1478,6 +1486,8 @@ class Placement(models.Model):
     type = models.ForeignKey(PlacementType, verbose_name=u'Είδος τοποθέτησης', default=1)
     order = models.CharField(u'Απόφαση', max_length=300, null=True, blank=True, default=None)
     order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
+    # New field to add for the type of experience
+    # teaching_service = models.NullBooleanField(u'Είναι διδακτική προϋπηρεσία;', null=False, default=True)
 
     def natural_key(self):
         return (self.employee, self.organization, self.date_from)
