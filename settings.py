@@ -49,7 +49,7 @@ TIME_ZONE = 'Europe/Athens'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'el-gr'
 # not a default setting!
-#locale.setlocale(locale.LC_ALL, 'el_GR.utf8')
+locale.setlocale(locale.LC_ALL, 'el_GR.utf8')
 
 
 SITE_ID = 1
