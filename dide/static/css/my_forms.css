@@ -1,0 +1,9 @@
+
+/* ALIGNED FIELDSETS */
+
+.aligned label {
+    display: block;
+    padding: 3px 10px 0 0;
+    float: left;
+    width: 20em;
+}
