@@ -14,7 +14,8 @@ from forms import SubstitutePlacementForm, PaymentFileNameMassForm, SchoolCommis
 from overrides.admin import DideAdmin
 from filters import *
 from applications.filters import FinalisedFilter
-from models import (GeoSchool, 
+from models import (
+    #GeoSchool, 
                     TransferArea, Island, Leave, Responsibility, Profession,
                     Promotion, PromotionNew, NonPermanentType, Administrative,
                     NonPermanent, Permanent, Employee, DegreeCategory,
@@ -43,6 +44,7 @@ from dideman import settings
 from django.utils.encoding import force_unicode
 
 import zipfile, os
+
 
 class NonPermanentInsuranceFileAdmin(DideAdmin):
     readonly_fields = ['status']
@@ -424,6 +426,10 @@ class ProfessionAdmin(DideAdmin):
 
 
 class PermanentAdmin(EmployeeAdmin):
+    class Media:
+        css = {'all': ('css/no-addanother-button.css',
+                         '/static/admin/css/widgets.css', '/static/admin/css/my_forms.css')}
+    
     list_display = ['lastname', 'firstname', 'fathername',
                     'registration_number', 'profession', 'date_hired',
                     'permanent_post', 'organization_serving']
@@ -472,6 +478,7 @@ class PermanentAdmin(EmployeeAdmin):
                            'formatted_recognised_experience',
                            'checked_service',
                            'recognised_experience_n4354_2015',
+                           'recognised_experience_n4452_2017',
                            'non_educational_experience',
                            'calculable_not_service', 'not_service_existing',
                            'total_service',
@@ -720,8 +727,9 @@ class GeoSchoolAdmin(admin.ModelAdmin):
     pass
 
 
+
 map(lambda t: admin.site.register(*t), (
-    (GeoSchool, GeoSchoolAdmin),
+    #(GeoSchool, GeoSchoolAdmin),
     (Settings, SettingsAdmin),
     (Leave, LeaveAdmin),
     (Permanent, PermanentAdmin),
@@ -758,3 +766,90 @@ admin.site.register((TransferArea, Island, Responsibility,
                      ApplicationType, DegreeOrganization))
 admin.site.disable_action('delete_selected')
 admin.site.add_action(DeleteAction(ugettext_lazy("Delete selected %(verbose_name_plural)s")))
+
+from django import VERSION as djangoversion
+from django.utils.translation import ugettext as _
+from django.utils import six
+from django.utils.text import capfirst
+from django.contrib.admin.sites import AdminSite
+from django.views.decorators.cache import never_cache
+
+@never_cache
+def index(self, request, extra_context=None):
+    """
+    Displays the main admin index page, which lists all of the installed
+    apps that have been registered in this site.
+    """
+    app_dict = {}
+    user = request.user
+    for model, model_admin in self._registry.items():
+        app_label = model._meta.app_label
+        has_module_perms = user.has_module_perms(app_label)
+
+        if has_module_perms:
+            perms = model_admin.get_model_perms(request)
+
+            # Check whether user has any perm for this module.
+            # If so, add the module to the model_list.
+            if True in perms.values():
+                info = (app_label, model._meta.module_name)
+                model_dict = {
+                    'name': capfirst(model._meta.verbose_name_plural),
+                    'perms': perms,
+                }
+                if perms.get('change', False):
+                    try:
+                        model_dict['admin_url'] = reverse('admin:%s_%s_changelist' % info, current_app=self.name)
+                    except NoReverseMatch:
+                        pass
+                if perms.get('add', False):
+                    try:
+                        model_dict['add_url'] = reverse('admin:%s_%s_add' % info, current_app=self.name)
+                    except NoReverseMatch:
+                        pass
+                if app_label in app_dict:
+                    app_dict[app_label]['models'].append(model_dict)
+                else:
+                    app_dict[app_label] = {
+                        'name': app_label.title(),
+                        'app_url': reverse('admin:app_list', kwargs={'app_label': app_label}, current_app=self.name),
+                        'has_module_perms': has_module_perms,
+                        'models': [model_dict],
+                    }
+
+    # Sort the apps alphabetically.
+    app_list = list(six.itervalues(app_dict))
+    app_list.sort(key=lambda x: x['name'])
+
+    # Sort the models alphabetically within each app.
+    for app in app_list:
+        app['models'].sort(key=lambda x: x['name'])
+
+    tot_perm = Permanent.objects.filter(currently_serves=1).count() 
+    y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
+    y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
+    tot_non = NonPermanent.objects.substitutes_in_date_range(date_from='%d-09-01' % y1, date_to='%d-08-31' % y2).count() 
+
+    tot_priv = PrivateTeacher.objects.filter(active__exact=1).count()
+
+    tot_admin = Administrative.objects.filter(currently_serves=1).count()
+
+
+    context = {
+        'title': _('Site administration'),
+        'app_list': app_list,
+        'total_permanent': '%d' % tot_perm,
+        'total_nonpermanent': '%d' % tot_non,
+        'total_private': '%d' % tot_priv,
+        'total_administrative': '%d' % tot_admin,
+        'y_1': y1,
+        'y_2': y2, 
+        'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
+    }
+    context.update(extra_context or {})
+    return TemplateResponse(request, self.index_template or
+                            'admin/index.html', context,
+                            current_app=self.name)
+
+
+AdminSite.index = index

@@ -7,7 +7,45 @@
 {% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="/static/admin_change_form.css">
 <link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
+<style type="text/css">
+.fixed_header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10001;
+    background-color: white;
+/*    border-bottom: 1px solid rgb(204, 204, 204); */
+}
 
+.fixed_footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    z-index: 10001; 
+    background-color: white;
+    border-top: 1px solid rgb(204, 204, 204); 
+}
+
+.dashboard #content {
+    width: 50em;
+}
+
+#content-related {
+    float: right;
+    width: 20em;
+    position: relative;
+    margin-right: -21em;
+}
+
+#footer {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+
+</style>
 {{ form.media.css }}
 
 {% endblock %}

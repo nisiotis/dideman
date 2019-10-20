@@ -586,7 +586,7 @@ class Employee(models.Model):
     # the following field needs to be added to the recognised experience
     recognised_experience_n4354_2015 = models.CharField(u'Προϋπηρεσία Ν. 4354/2015-ΝΠΙΔ (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     # new field with filter
-    # recognised_experience_n4452_2017 = models.CharField(u'Προϋπηρεσία Ν. 4452/2017 Βαθμολογική (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
+    recognised_experience_n4452_2017 = models.CharField(u'Προϋπηρεσία Ν. 4452/2017 Βαθμολογική (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     non_educational_experience = models.CharField(u'Εκτός Ωραρίου (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     vat_number = NullableCharField(u'Α.Φ.Μ.', max_length=9, null=True, unique=True, blank=True)
     tax_office = models.CharField(u'Δ.Ο.Υ.', max_length=100, null=True, blank=True)
@@ -854,7 +854,8 @@ class PermanentManager(models.Manager):
 # Field is in Employee table
     def extra_rank_service(self):
         pass
-
+        #ids = p.employee_id for p in Employee.objects.only('recognised_experience_n4452_2017' not Null)
+        #return self.filter(pk__in=ids)
 
 # New Promotion Filter 
     def next_promotion_in_range(self, date_from, date_to):
@@ -1487,7 +1488,7 @@ class Placement(models.Model):
     order = models.CharField(u'Απόφαση', max_length=300, null=True, blank=True, default=None)
     order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
     # New field to add for the type of experience
-    # teaching_service = models.NullBooleanField(u'Είναι διδακτική προϋπηρεσία;', null=False, default=True)
+    teaching_service = models.NullBooleanField(u'Είναι διδακτική προϋπηρεσία;', null=True, default=True)
 
     def natural_key(self):
         return (self.employee, self.organization, self.date_from)
@@ -2028,11 +2029,11 @@ class Settings(models.Model):
         return self.name
 
 
-class GeoSchool(School):
+#class GeoSchool(School):
 
-    class Meta:
-        verbose_name = u'Σχολεία - Γεωγραφική Απεικόνιση'
-        verbose_name_plural = u'Σχολεία - Γεωγραφική Απεικόνιση'
-        proxy = True
-        #managed = False
+#    class Meta:
+#        verbose_name = u'Σχολεία - Γεωγραφική Απεικόνιση'
+#        verbose_name_plural = u'Σχολεία - Γεωγραφική Απεικόνιση'
+#        proxy = True
+#        #managed = False
 

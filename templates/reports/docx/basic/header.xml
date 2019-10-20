@@ -103,7 +103,7 @@
                 <w:bCs/>
               </w:rPr>
               <w:br/>
-              <w:t>ΥΠΟΥΡΓΕΙΟ ΠΑΙΔΕΙΑΣ ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ</w:t>
+              <w:t>{{settings.full_ministry_title}}</w:t>
             </w:r>
             <w:r>
               <w:rPr>
@@ -134,7 +134,7 @@
             <w:tcMar>
               <w:top w:w="0" w:type="dxa"/>
               <w:left w:w="10" w:type="dxa"/>
-              <w:bottom w:w="0" w:type="dxa"/>ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ ΥΠΟΥΡΓΕΙΟ ΠΑΙΔΕΙΑΣ, ΕΡΕΥΝΑΣ ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ 
+              <w:bottom w:w="0" w:type="dxa"/>ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ {{settings.full_ministry_title}} 
               <w:right w:w="10" w:type="dxa"/>
             </w:tcMar>
           </w:tcPr>

@@ -224,15 +224,13 @@ def generate_pdf_structure(reports):
         data = []
         data.append([im, ""])
         data.append([Paragraph(u'ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ', head_logo['Center']), ''])
-        data.append([Paragraph(u'ΥΠΟΥΡΓΕΙΟ ΠΑΙΔΕΙΑΣ ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ',
+        data.append([Paragraph(u'%s' % SETTINGS['full_ministry_title'],
                                head_logo['Center']), ''])
-        # data.append([Paragraph(u'ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ',
-        #                       head_logo['Center']), ''])
         data.append([Paragraph(u'ΠΕΡΙΦΕΡΕΙΑΚΗ ΔΙΕΥΘΥΝΣΗ ΠΡΩΤΟΒΑΘΜΙΑΣ',
                                head_logo['Center']), ''])
-        data.append([Paragraph(u'ΚΑΙ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΝΟΤΙΟΥ ΑΙΓΑΙΟΥ',
+        data.append([Paragraph(u'ΚΑΙ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_district'],
                                head_logo['Center']), ''])
-        data.append([Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΔΩΔΕΚΑΝΗΣΟΥ',
+        data.append([Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_place_caps'],
                                head_logo['Center']), ''])
         table0 = Table(data, style=tsl, colWidths=[8.0 * cm, 11.0 * cm])
         elements.append(table0)
@@ -575,7 +573,7 @@ def generate_pdf_landscape_structure(reports):
                        colWidths=[28 * cm]))
    
         data = []
-        somedata = [[Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_place'].upper(),
+        somedata = [[Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_place_caps'],
                                report_normal_captions['Left'])],
                     [Paragraph(u'Επωνυμία', report_small_captions['Left'])],
                     [Paragraph(u'ΔΗΜΟΣΙΑ ΥΠΗΡΕΣΙΑ', report_sub_title['Left'])], 
