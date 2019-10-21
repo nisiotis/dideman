@@ -135,6 +135,25 @@ class ServingTypeFilter(ModifierSimpleListFilter):
             return queryset
 
 
+class RecognisedExperienceN44522017Filter(ModifierSimpleListFilter):
+    title = u'Έχει προϋπηρεσία Ν.4452/2017 (Βαθμολογική);'
+    parameter_name = 'has_experience_n4452_2017'
+
+    def lookups(self, request, model_admin):
+        return(('1', _('Yes')), ('0', _('No')))
+
+    def filter_param(self, queryset, query_dict):
+        val = query_dict.get(self.parameter_name, None)
+        if val == '1':            
+            return queryset & Permanent.objects.extra_rank_service()
+        elif val == '0':
+            qs = Permanent.objects.extra_rank_service()
+            return queryset & Permanent.objects.exclude(pk__in=qs)
+        else:
+            return queryset
+
+
+
 class CurrentlyServesFilter(ModifierSimpleListFilter):
     title = u'Είναι ενεργός'
     parameter_name = 'currently_serves'

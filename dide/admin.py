@@ -457,7 +457,8 @@ class PermanentAdmin(EmployeeAdmin):
                                                NextPromotionInRangeFilter,
                                                EmployeeWithLeaveFilter,
                                                EmployeeWithOutLeaveFilter,
-                                               NextHoursReductionFilter)
+                                               NextHoursReductionFilter,
+                                               RecognisedExperienceN44522017Filter)
     list_per_page = 50
     fieldsets = [
         ('Γενικά Στοιχεία', {

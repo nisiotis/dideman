@@ -857,9 +857,9 @@ class PermanentManager(models.Manager):
 # New Extra Rank Previous Service 
 # Field is in Employee table
     def extra_rank_service(self):
-        pass
-        #ids = p.employee_id for p in Employee.objects.only('recognised_experience_n4452_2017' not Null)
-        #return self.filter(pk__in=ids)
+        ids = [p.id for p in Employee.objects.exclude(recognised_experience_n4452_2017__isnull=True).exclude(recognised_experience_n4452_2017__exact=u'').exclude(recognised_experience_n4452_2017__exact='000000')]
+        
+        return self.filter(pk__in=ids)
 
 # New Promotion Filter 
     def next_promotion_in_range(self, date_from, date_to):
