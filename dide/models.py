@@ -653,6 +653,10 @@ class Employee(models.Model):
         return (self.firstname, self.lastname, self.fathername,
                 self.profession)
 
+    def formatted_recognised_experience_n4452_2017(self):
+        return DateInterval(self.recognised_experience_n4452_2017)
+    formatted_recognised_experience_n4452_2017.short_description = u'Μορφοποιημένη Προϋπηρεσία Ν. 4452/2017 (Βαθμολογική)'
+
     def formatted_recognised_experience(self):
         return DateInterval(self.recognised_experience)
     formatted_recognised_experience.short_description = u'Μορφοποιημένη προϋπηρεσία'
