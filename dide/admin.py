@@ -861,3 +861,11 @@ def index(self, request, extra_context=None):
 
 
 AdminSite.index = index
+
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+
+UserAdmin.list_display = ('username', 'first_name', 'last_name', 'is_active', 'is_staff','is_superuser')
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
