@@ -1565,6 +1565,11 @@ class SubstituteMinistryOrder(models.Model):
     def order_no(self):
         return '%s' % self.order_pysde
 
+    def subs_in_order_count(self):
+        return self.substitutes.count()
+
+    subs_in_order_count.short_description = u'Αριθμός αναπληρωτών'
+
 class OrderedSubstitution(models.Model):
 
     class Meta:
