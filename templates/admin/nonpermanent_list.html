@@ -1,0 +1,88 @@
+﻿{% load url from future %}
+{% load admin_static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    {% load i18n %}
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
+    {% block extrastyle %}{% endblock %}
+    <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}"admin/css/ie.css"{% endblock %}" /><![endif]-->
+    {% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}"admin/css/rtl.css"{% endblock %}" />
+    {% endif %}
+    <script type="text/javascript" src="/static/admin/js/core.js"></script>
+    <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+    <script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/admin/jsi18n/"></script>
+
+    <script type="text/javascript">
+        const urlParams = new URLSearchParams(window.location.search);
+
+    </script>
+    <style>
+      .fixed_header {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 10001;
+      background-color: white;
+      border-bottom: 1px solid rgb(204, 204, 204);
+      }
+    </style>
+    {% block extrahead %}{% endblock %}
+    {% block blockbots %}
+    <meta name="robots" content="NONE,NOARCHIVE" />
+    {% endblock %}
+    <style>
+      table.valign td { vertical-align: middle }
+    </style>
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+
+
+<div id="container">
+  <div class="fixed_header">
+    <div id="header">
+        <div id="branding">
+        <h1 id="site-name">ΔΔΕ {{ dide_place }}</h1>
+        </div>
+    </div>
+    <!-- END Header -->
+    <div class="breadcrumbs">
+      Λίστα αναπληρωτών
+    </div>
+  </div>
+
+        <div id="content">
+
+          <div class="results">
+              {% for item in set %}
+              <h3><a href ="#" onclick="window.opener.django.jQuery('#'+urlParams.get('id').replace('link_', '')).val('{{ item.parent_id }}');window.opener.django.jQuery('#display_' + urlParams.get('id').replace('link_','')).val('{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }}');window.close();">{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }} ({{ item.vat_number }})</a></h3> 
+
+              {% endfor %}
+          </div>  
+	    <div style="height:30px;"></div>
+	    <div style="position: fixed; width: 100%; bottom: 0; left: 0; z-index: 10001; background-color: white;">
+	      <div style="margin-left: 10px; margin-right: 10px;">
+		<div class="submit-row" style="margin: 0 0 5px 0;">
+
+		    <input type="button" value="Κλείσιμο Παραθύρου" onclick="window.close();"/>
+		 
+		</div>
+	      </div>
+	    </div>
+
+        </div>
+        {% block footer %}
+        <div id="footer"></div>
+        {% endblock %}
+    </div>
+</body>
+</html>
+

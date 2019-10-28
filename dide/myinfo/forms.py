@@ -2,7 +2,8 @@
 from django import forms
 from dideman.dide.models import Permanent
 from django.utils.translation import ugettext as _
-from django.contrib.admin.widgets import AdminDateWidget
+from django.contrib.admin import widgets
+
 
 SEX_TYPES = ((u'', u'---------'),
              (u'Άνδρας', u'Άνδρας'),
@@ -23,4 +24,4 @@ class MyInfoForm(forms.Form):
     address = forms.CharField(label=u'Διεύθυνση Κατοικίας',
                               widget=forms.Textarea(attrs={'rows':3, 'cols':35}), required=False)
     tax_office = forms.CharField(label=u'Δ.Ο.Υ.', required=False)
-    birth_date = forms.DateField(label=u'Ημερομηνία Γέννησης', required=False)
+    birth_date = forms.DateField(label=u'Ημερομηνία Γέννησης', required=False, widget=widgets.AdminDateWidget())

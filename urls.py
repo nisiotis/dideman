@@ -5,6 +5,7 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     '',
+    url(r'^admin/dide/nonpermanent/list/$', 'dideman.dide.views.views.nonpermanent_list'),
     url(r'^admin/dide/geoschool/$', 'dideman.dide.views.views.school_geo_view'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/permanent/', 'dideman.api.views.permanent'),

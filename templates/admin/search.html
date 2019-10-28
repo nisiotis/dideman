@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n %}
+{% load url from future %}
+{% load admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+  <div>
+
+  </div>
+  <div>
+    <input type="hidden" name="action" value="{{ action_name }}" />
+    <input type="hidden" name="post" value="yes" />
+    <p>{{q}}</p>
+    <p>Δυνατότητα συστήματος υπό κατασκευή.</p>
+    <!--Needs to be implemented-->
+    <p><a href="/admin">Επιστροφή</a></p>
+    </div>
+</form>
+{% endblock %}

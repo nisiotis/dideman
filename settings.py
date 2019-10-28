@@ -113,6 +113,10 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.eggs.Loader',
 )
 
+
+
+
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -150,6 +154,7 @@ INSTALLED_APPS = (
     'dideman.stats',
     'django_extensions',
     'south',
+    
     #'chosen', 
     #'debug_toolbar',
 )

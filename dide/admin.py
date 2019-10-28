@@ -30,6 +30,7 @@ from models import (
                     ApplicationChoice, ApplicationType, SchoolCommission,
                     DegreeOrganization, NonPermanentUnemploymentMonth,
                     PartialService)
+from forms import OrderedSubstitutionInlineForm
 from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode, PaymentFilePDF, 
                     NonPermanentInsuranceFile)
@@ -244,18 +245,10 @@ class SubstitutePlacementInline(admin.TabularInline):
                                              'date_from', 'date_from_show', 'date_to'],
                                      extra=SubstitutePlacementInline.extra)
 
-from django.forms import Select
-class OrderedSubstitutionInlineForm(ModelForm):
-    class Meta:
-        model = OrderedSubstitution
-        widgets = {
-            'substitute': Select(attrs={'class': 'chozen-css'}),
-        }
-
 
 class OrderedSubstitutionInline(admin.TabularInline):
     model = OrderedSubstitution
-    form = OrderedSubstitutionInlineForm 
+    form = OrderedSubstitutionInlineForm
     extra = 0
 
 
@@ -385,6 +378,7 @@ class EmployeeAdmin(DideAdmin):
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
+
     list_display = ['order', 'date', 'web_code', 'order_type']
     search_fields = ['order', 'web_code']
     inlines = [OrderedSubstitutionInline]
@@ -855,7 +849,19 @@ def index(self, request, extra_context=None):
         'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
     }
     context.update(extra_context or {})
-    return TemplateResponse(request, self.index_template or
+    if request.POST:
+        context = {
+            'title': _('Site administration'),
+            'app_list': app_list,
+            'q': request.POST['q'],
+            'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
+
+        }
+        context.update(extra_context or {})
+        return TemplateResponse(request, 'admin/search.html', context,
+                            current_app=self.name)
+    else:
+        return TemplateResponse(request, self.index_template or
                             'admin/index.html', context,
                             current_app=self.name)
 

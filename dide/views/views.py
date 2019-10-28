@@ -8,6 +8,20 @@ from django.contrib.admin.views.decorators import staff_member_required
 from dideman.dide.models import NonPermanent, Permanent, School, Placement
 from dideman.dide.util.settings import SETTINGS
 
+@csrf_protect
+@staff_member_required
+def nonpermanent_list(request): 
+    np = NonPermanent.objects.all()
+    #import pdb; pdb.set_trace()
+        
+    context = {
+        "set": np,
+        "dide_place": SETTINGS['dide_place'],
+        "errors": [],
+    }
+
+    r = render_to_response('admin/nonpermanent_list.html', context, RequestContext(request))
+    return HttpResponse(r)
 
 @csrf_protect
 @staff_member_required

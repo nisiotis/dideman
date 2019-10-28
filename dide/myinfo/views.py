@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
-from dideman.lib.date import current_year, current_year_date_to_half
+from dideman.lib.date import *
 from dideman.dide.myinfo.forms import MyInfoForm
 from dideman.dide.applications.views import print_app
 from django.contrib import messages
@@ -456,9 +456,11 @@ def edit(request):
         return print_emp_report(request, request.GET['f'])
 
     else:
+        is_permanent = False
         emp = Employee.objects.get(id=request.session['matched_employee_id'])
         try:
             emptype = Permanent.objects.get(parent_id=emp.id)
+            is_permanent = True
         except Permanent.DoesNotExist:
             try:
                 emptype = NonPermanent.objects.get(parent_id=emp.id)
@@ -477,14 +479,21 @@ def edit(request):
             raise
 
         p = Placement.objects.filter(employee=emp.id).order_by('-date_from')
-        
         l = EmployeeLeave.objects.filter(employee=emp.id).order_by('-date_from')
         r = EmployeeResponsibility.objects.filter(employee=emp.id).order_by('date_to')
         a = Application.objects.filter(employee=emp.id).exclude(datetime_finalised=None).order_by('-datetime_finalised')
-         
-
+        teaching_experience = None
         
-
+        if is_permanent:
+            not_teacher = Placement.objects.filter(employee=emp.id, teaching_service=False)
+            not_teacher_range = DateInterval()
+            for o in not_teacher:
+                not_teacher_range += DateInterval(o.date_to.year-o.date_from.year,o.date_to.month-o.date_from.month,o.date_to.day-o.date_from.day) 
+            not_teacher = Placement.objects.filter(employee=emp.id, teaching_service=None)
+            if len(not_teacher) > 0:
+                teaching_experience = None
+            else:
+                teaching_experience = emptype.educational_service()-not_teacher_range
         emp_form = MyInfoForm(emp.__dict__)
         if request.POST:
             emp_form = MyInfoForm(request.POST)
@@ -500,6 +509,7 @@ def edit(request):
 
         return render_to_response('myinfo/edit.html',
                                   RequestContext(request, {'emp': emptype,
+                                                           'teaching_exp': teaching_experience,
                                                            'messages': messages,
                                                            'leaves': l,
                                                            'positions': p,

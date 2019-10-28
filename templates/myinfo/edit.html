@@ -1,9 +1,10 @@
 {% extends "myinfo/base.html" %}
 {% load i18n admin_static %}
 {% load base_site %}
+
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
-<script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/widgets.css" %}"/>
 
 
 {% endblock %}
@@ -46,7 +47,7 @@
 	<div class="form-row field-rank">
         <div>
           <label style = "width:220px;">Α.Φ.Μ. & Αρ. Δελτίου Ταυτότητας : </label>
-          <p>{{ emp.vat_number  }}, {{ emp.identity_number }}</p>
+          <p>{{ emp.vat_number  }} - {{ emp.identity_number }}</p>
         </div>
       </div>
 	{% endif %}
@@ -54,8 +55,8 @@
 	{% if emp.date_hired %}
 	<div class="form-row field-rank">
         <div>
-          <label style = "width:220px;">Ημερομηνία διορισμού : </label>
-          <p>{{ emp.date_hired }}</p>
+          <label style = "width:220px;">Ημερομηνία και ΦΕΚ διορισμού: </label>
+          <p>{{ emp.date_hired }} - {{ emp.order_hired }}</p>
         </div>
       </div>
 	{% endif %}
@@ -63,7 +64,7 @@
 	<div class="form-row field-rank">
         <div>
           <label style = "width:220px;">Συνολική υπηρεσία : </label>
-          <p>{{ emp.total_service }} - {{ emp.formatted_recognised_experience }} αναγνωρισμένη προϋπηρεσία</p>
+          <p>{{ emp.total_service }}{% if teaching_exp %} - {{ teaching_exp }} διδακτική προϋπηρεσία{% endif %}</p>
         </div>
       </div>
 	{% endif %}
@@ -83,7 +84,12 @@
         </div>
       </div>
 	{% endif %}
-
+  <div class="form-row">
+    <div style="font-weight: bold;">Σημείωση:</div>
+    <div style="text-align: justify;">
+      Τα στοιχεία τηρούνται στο πληροφοριακό σύστημα και ενημερώνονται από το προσωπικό της ΔΔΕ {% get_setting 'dide_place'  %}  με βάση την τρέχουσα νομοθεσία. Τα στοιχεία ενημερώνονται διαρκώς και η καρτέλα αυτή είναι διαθέσιμη μόνο για την δική σας ενημέρωση.
+    </div>
+  </div>
  	<h2>Περισσότερα στοιχεία</h2>
               {% for field in form %}
             <div class="form-row field-{{ field.html_name }}">

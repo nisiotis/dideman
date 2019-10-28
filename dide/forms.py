@@ -1,8 +1,70 @@
 # -*- coding: utf-8 -*-
 from django import forms
+from django.utils.text import force_unicode
+from django.utils.html import mark_safe
+from django.forms.widgets import flatatt
+
 from django.forms.models import ModelForm
-from dideman.dide.models import SubstitutePlacement, NonPermanent, PlacementType, School, SchoolCommission
+from django.forms import Widget
+from django.contrib.admin.widgets import AdminDateWidget 
+from dideman.dide.models import OrderedSubstitution, SubstitutePlacement, NonPermanent, PlacementType, School, SchoolCommission
 from dideman.lib.date import current_year_date_to_half
+
+'''
+class TextLinkFieldWidget(Widget):
+    
+    # A TextField widget with a link openning a new window
+    
+    def __init__(self, id, *args, **kwargs):
+        try:
+            self.value=NonPermanent.objects.get(parent_id=value).__unicode__()
+            self.id=NonPermanent.objects.get(parent_id=id).parent_id
+            print self.name, self.id
+        except:
+            self.name=None
+            self.id=None
+        super(TextLinkFieldWidget, self).__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None):
+        output = []
+        output.append('<input type="text" name="%s" value="%s" >' % (name, value or ''))
+        output.append('<span><a href="#" id="%s-link" target="blank" style="">Επιλογή</a></span>' % value)
+
+        return mark_safe(u' '.join(output))
+'''
+
+class SubstituteInput(forms.HiddenInput):
+
+    def render(self, name, value, attrs=None):
+        try:
+            textname=NonPermanent.objects.get(parent_id=value).__unicode__()
+            nid=value
+            value=textname
+        except:
+            value = ''
+        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
+        if value != '':
+            # Only add the 'value' attribute if a value is non-empty.
+            final_attrs['value'] = force_unicode(self._format_value(nid))
+        output = []
+        output.append(u'<input%s />' % flatatt(final_attrs))
+        output.append(u'<input readonly="true" type="text" id="display_%s" value="%s" size="40" />&nbsp;' % (self._format_value(final_attrs['id']), force_unicode(self._format_value(value))))
+        output.append(u'<a href="#" id="link_%s" onclick="this.href=\'/admin/dide/nonpermanent/list/\'+\'?id=\'+django.jQuery(this).attr(\'id\');return focusOrOpen(this, \'Αναπληρωτές\');">Επιλογή</a>&nbsp;' % self._format_value(final_attrs['id']) )
+        output.append(u'<a href="/admin/dide/nonpermanent/add/" class="add-another" id="add_%s" onclick="return showAddAnotherPopup(this);"> <img src="/static/admin/img/icon_addlink.gif" width="10" height="10" alt="Προσθέστε κι άλλο"></a>' % self._format_value(final_attrs['id']))
+        return mark_safe(''.join(output))   
+
+
+
+
+class OrderedSubstitutionInlineForm(ModelForm):
+
+    class Meta:
+        model = OrderedSubstitution
+    
+    def __init__(self, *args, **kwargs):
+        super(OrderedSubstitutionInlineForm, self).__init__(*args, **kwargs)
+        self.fields['substitute'].widget = SubstituteInput()
+
 
 
 class SubstitutePlacementForm(ModelForm):
@@ -23,18 +85,15 @@ TAXED_TYPES = [(11, u'Τακτικές Μονίμων'),
                (21, u'Έκτακτες που φορολογούνται'), 
                (22, u'Έκτακτες που δεν φορολογούνται'),  
                (23, u'Έκτακες με αυτοτελή φόρο')]
- 
-#               (24, u'Έκτακες προς εμφάνιση μόνο')]
 
 
 class PaymentFileNameMassForm(forms.Form):
     is_bound = 0
-    
     xml_file =  forms.FileField(label=u'Αρχείο ZIP', required=True)
     description = forms.CharField(label=u'Εμφανιζόμενο όνομα',
                                   required=True)
     taxed = forms.TypedChoiceField(label=u'Τύπος αποδοχών', choices=TAXED_TYPES, coerce=int)
-    
+
 
 class SchoolCommissionForm(forms.ModelForm):
 
