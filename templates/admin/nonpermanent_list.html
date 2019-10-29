@@ -93,6 +93,14 @@
     <div class="breadcrumbs">
       Λίστα αναπληρωτών
     </div>
+    <div id="content">
+          <form id="live-search" action="" method="post">
+              
+                  <input type="text" class="text-input" id="filter" placeholder="{% trans 'Search' %}..." value="" style="width: 100%;" />
+                  <h4><span id="filter-count">Βρέθηκαν {{ set.count }}</span></h4>
+              
+          </form>
+    </div>
   </div>
 
         <div id="content">
