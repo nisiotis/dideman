@@ -18,8 +18,16 @@
 })(django.jQuery)
 
 function focusOrOpen(link, name) {
-    alert(link);
     var popup = window.open('', name, 'height=500,width=800,resizable=yes,scrollbars=yes');
+    if(popup.location.href != link.href) {
+        popup.location.href = link.href;
+    }
+    popup.focus();
+    return false;
+}
+
+function focusOrOpenList(link, name) {
+    var popup = window.open('', name, 'height=600,width=500,resizable=no,scrollbars=yes');
     if(popup.location.href != link.href) {
         popup.location.href = link.href;
     }

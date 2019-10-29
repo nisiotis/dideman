@@ -21,17 +21,53 @@
 
     <script type="text/javascript">
         const urlParams = new URLSearchParams(window.location.search);
-
+        django.jQuery(document).ready(function(){
+            django.jQuery("#filter").keyup(function(){
+         
+                // Retrieve the input field text and reset the count to zero
+                var filter = django.jQuery(this).val(), count = 0;
+         
+                // Loop through the comment list
+                
+                django.jQuery("ul li").each(function(){
+         
+                    // If the list item does not contain the text phrase fade it out
+                    if (django.jQuery(this).text().search(new RegExp('^' + filter, "iu")) < 0) {
+                        django.jQuery(this).hide();
+         
+                    // Show the list item if the phrase matches and increase the count by 1
+                    } else {
+                        django.jQuery(this).show();
+                        count++;
+                    }
+                });
+         
+                // Update the count
+                var numberItems = count;
+                django.jQuery("#filter-count").text("Βρέθηκαν "+count);
+            });
+        });
     </script>
     <style>
+      #container {
+            position: relative;
+            min-width: 400px;
+            
+            padding: 0;
+      }
+      .listing {
+            list-style-type: none;
+            padding: 0px 0;
+            line-height: 8px;
+      }
       .fixed_header {
-      position: fixed;
-      width: 100%;
-      top: 0;
-      left: 0;
-      z-index: 10001;
-      background-color: white;
-      border-bottom: 1px solid rgb(204, 204, 204);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 10001;
+            background-color: white;
+            border-bottom: 1px solid rgb(204, 204, 204);
       }
     </style>
     {% block extrahead %}{% endblock %}
@@ -60,12 +96,20 @@
   </div>
 
         <div id="content">
-
+          <p style="margin-top: 50px;">&nbsp;</p>
+          <form id="live-search" action="" method="post">
+              
+                  <input type="text" class="text-input" id="filter" placeholder="{% trans 'Search' %}..." value="" style="width: 100%;" />
+                  <h4><span id="filter-count">&nbsp;</span></h4>
+              
+          </form>
           <div class="results">
+             <ul class="listing">
               {% for item in set %}
-              <h3><a href ="#" onclick="window.opener.django.jQuery('#'+urlParams.get('id').replace('link_', '')).val('{{ item.parent_id }}');window.opener.django.jQuery('#display_' + urlParams.get('id').replace('link_','')).val('{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }}');window.close();">{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }} ({{ item.vat_number }})</a></h3> 
+              <li class="listing"><h4><a href ="#" onclick="window.opener.django.jQuery('#'+urlParams.get('id').replace('link_', '')).val('{{ item.parent_id }}');window.opener.django.jQuery('#display_' + urlParams.get('id').replace('link_','')).val('{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }}');window.close();">{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }} ({{ item.vat_number }})</a></h4></li>
 
               {% endfor %}
+            </ul>
           </div>  
 	    <div style="height:30px;"></div>
 	    <div style="position: fixed; width: 100%; bottom: 0; left: 0; z-index: 10001; background-color: white;">
