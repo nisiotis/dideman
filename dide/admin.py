@@ -378,6 +378,10 @@ class EmployeeAdmin(DideAdmin):
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
+    class Media:
+        css = {'all': ('/static/admin/css/widgets.css',)}
+        js = ('/static/admin/js/calendar.js',
+              '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
 
     list_display = ['order', 'date', 'web_code', 'order_type', 'subs_in_order_count']
     search_fields = ['order', 'web_code']
