@@ -1,23 +1,29 @@
 {% load admin_static %}{% load url from future %}
 {% load base_site %}<!DOCTYPE html>
-<html lang="" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
+  {% load i18n %}
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=1;"/> 
 <title>{% block title %}{% endblock %}</title>
-<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
+{% block stylesheet %}
+<link rel="stylesheet" type="text/css" href="{% static "admin/css/base.css" %}" />
+{% endblock %}
 {% block extrastyle %}{% endblock %}
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
-<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
-<script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
-<script type="text/javascript" src="/admin/jsi18n/"></script>
-<script type="text/javascript" src="/static/admin/js/core.js"></script>
-<script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js">        </script>
-<script type="text/javascript" src="/static/admin/js/jquery.min.js"></script>
-<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
-<script type="text/javascript" src="/static/admin/js/actions.min.js"></script>
-<script type="text/javascript" src="/static/admin/js/calendar.js"></script>
-<script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
+
+ <script type="text/javascript" src="/static/admin/js/core.js"></script>
+    <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+    <script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/admin/jsi18n/"></script>
+    <script type="text/javascript" src="/static/js/chosen.jquery.js"></script>
+    <script type="text/javascript" src="/static/js/chosen.jquery_ready.js"></script>
+    <script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
+
+
+
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -55,6 +61,9 @@
 /*    border-bottom: 1px solid rgb(204, 204, 204); */
 }
 
+p {
+    text-align: justify;
+}
 
 #footer {
     clear: both;
@@ -93,6 +102,11 @@
 @media only screen
   and (max-width: 800px) {
 
+#container {
+
+    min-width: auto;
+}
+
 #content-main {
     margin-left: 0em;
     width: 99%;
@@ -109,15 +123,14 @@
 
 </style>
 <script>
- $(function() {
-  $("#save")
+ django.jQuery(function() {
+  django.jQuery("#save")
       .click(function() {
-        $("#edit-form").submit();
+        django.jQuery("#edit-form").submit();
     });
    });
 </script>
 </head>
-{% load i18n %}
 
 <body class="{% block bodyclass %}{% endblock %}">
 

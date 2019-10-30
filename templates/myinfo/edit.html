@@ -2,10 +2,13 @@
 {% load i18n admin_static %}
 {% load base_site %}
 
-{% block extrastyle %}{{ block.super }}
+{% block extrastyle %}
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/widgets.css" %}"/>
-
+<link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
+<link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
+{{ block.super }}
 
 {% endblock %}
 {% block title %}
@@ -86,9 +89,9 @@
 	{% endif %}
   <div class="form-row">
     <div style="font-weight: bold;">Σημείωση:</div>
-    <div style="text-align: justify;">
+    <div><p>
       Τα στοιχεία τηρούνται στο πληροφοριακό σύστημα και ενημερώνονται από το προσωπικό της ΔΔΕ {% get_setting 'dide_place'  %}  με βάση την τρέχουσα νομοθεσία. Τα στοιχεία ενημερώνονται διαρκώς και η καρτέλα αυτή είναι διαθέσιμη μόνο για την δική σας ενημέρωση.
-    </div>
+    </p></div>
   </div>
  	<h2>Περισσότερα στοιχεία</h2>
               {% for field in form %}
