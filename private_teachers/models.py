@@ -28,6 +28,12 @@ class PrivateTeacher(dide.Employee):
     current_hours = models.IntegerField(u'Τρέχον ωράριο', null=True, blank=True, default=18)
     current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης', blank=True, null=True)
 
+    def object_name(self):
+        return self._meta.object_name
+
+    def app_label(self):
+        return self._meta.app_label
+
     def _total_days(self, periods=None):
         periods = periods or self.workingperiod_set.all()
         ranges = [DateRange(Date(w.date_from), Date(w.date_to)) for w in periods]

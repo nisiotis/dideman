@@ -900,6 +900,12 @@ class Permanent(Employee):
     currently_serves = models.NullBooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
     educated = models.NullBooleanField(u'Έχει περάσει Π.Ε.Κ.', null=False, default=False)
 
+    def object_name(self):
+        return self._meta.object_name
+
+    def app_label(self):
+        return self._meta.app_label
+
     def total_service(self):
         if self.payment_start_date_manual:
             start = Date(self.payment_start_date_manual)
@@ -1137,6 +1143,12 @@ class Administrative(Employee):
     not_service_existing = models.IntegerField(u'Αφαιρούμενες μέρες άδειας', null=True, blank=True, default=0)
     currently_serves = models.NullBooleanField(u'Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
 
+    def object_name(self):
+        return self._meta.object_name
+
+    def app_label(self):
+        return self._meta.app_label
+
     def normal_leave_days(self):
         return min(24 + self.total_service().years, 29)
 
@@ -1293,6 +1305,11 @@ class NonPermanent(Employee):
     educational_level = models.IntegerField(u'Επίπεδο μόρφωσης', null=True, blank=True, choices=EDU_LEVEL, default=11)
     ergani_new = models.NullBooleanField(u'Νέος Μισθωτός', null=True, blank=True, default=False)
 
+    def object_name(self):
+        return self._meta.object_name
+
+    def app_label(self):
+        return self._meta.app_label
 
     def order(self, d=current_year_date_from()):
         return first_or_none(self.substituteministryorder_set.filter(date__gte=d))

@@ -14,13 +14,27 @@
   <div>
 
   </div>
-  <div>
+  <div id="content-main">
     <input type="hidden" name="action" value="{{ action_name }}" />
     <input type="hidden" name="post" value="yes" />
-    <p>{{q}}</p>
-    <p>Δυνατότητα συστήματος υπό κατασκευή.</p>
-    <!--Needs to be implemented-->
-    <p><a href="/admin">Επιστροφή</a></p>
+    <h2>Αποτελέσματα του {{q}}: {{ t }}</h2>
+    
+    <div><ul>
+      {% for group, item in set.items %}
+    
+        {% for r in item %}
+          <li style="list-style-type: none; padding: 1px 0;border-bottom: 1px #eee solid;">
+            <h3><a href="{{ r.app_label }}/{{ r.object_name|lower  }}/{{ r.parent_id }}">{{ r.lastname }} {{ r.firstname }} του {{ r.fathername }} - {{ group }}</a></h3>
+          </li>
+        {% empty %}
+                    
+        {% endfor %}
+
+      {% endfor %}
+    </ul></div>
+    <br />
+    <div class="footer"></div>
+    <div><p><a href="/admin">Επιστροφή</a></p></div>
     </div>
 </form>
 {% endblock %}

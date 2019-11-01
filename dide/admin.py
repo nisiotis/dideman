@@ -779,6 +779,7 @@ from django.utils import six
 from django.utils.text import capfirst
 from django.contrib.admin.sites import AdminSite
 from django.views.decorators.cache import never_cache
+from django.db.models import Q
 
 @never_cache
 def index(self, request, extra_context=None):
@@ -787,6 +788,7 @@ def index(self, request, extra_context=None):
     apps that have been registered in this site.
     """
     app_dict = {}
+    search_model = []
     user = request.user
     for model, model_admin in self._registry.items():
         app_label = model._meta.app_label
@@ -799,6 +801,7 @@ def index(self, request, extra_context=None):
             # If so, add the module to the model_list.
             if True in perms.values():
                 info = (app_label, model._meta.module_name)
+                search_model.append(model)
                 model_dict = {
                     'name': capfirst(model._meta.verbose_name_plural),
                     'perms': perms,
@@ -840,7 +843,6 @@ def index(self, request, extra_context=None):
 
     tot_admin = Administrative.objects.filter(currently_serves=1).count()
 
-
     context = {
         'title': _('Site administration'),
         'app_list': app_list,
@@ -854,14 +856,31 @@ def index(self, request, extra_context=None):
     }
     context.update(extra_context or {})
     if request.POST:
-        context = {
-            'title': _('Site administration'),
-            'app_list': app_list,
-            'q': request.POST['q'],
-            'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
+        results = {}
+        total_results = 0
+        if request.POST['q'] != '':
+            for model in search_model:
+                if model.__name__ == "Permanent":
+                    results[model._meta.verbose_name] = model.objects.filter(Q(lastname__startswith=request.POST['q'])
+                    | Q(vat_number__startswith=request.POST['q'])
+                    | Q(registration_number__startswith=request.POST['q']))
+                    total_results += model.objects.filter(Q(lastname__startswith=request.POST['q'])
+                    | Q(vat_number__startswith=request.POST['q'])
+                    | Q(registration_number__startswith=request.POST['q'])).count()
+                if model.__name__ in ("NonPermanent", "Administrative", "PrivateTeacher"):
+                    results[model._meta.verbose_name] = model.objects.filter(Q(lastname__startswith=request.POST['q'])
+                    | Q(vat_number__startswith=request.POST['q']))
+                    total_results += model.objects.filter(Q(lastname__startswith=request.POST['q'])
+                    | Q(vat_number__startswith=request.POST['q'])).count()
 
+        context = {
+            'title': _('Search'),
+            'q': request.POST['q'],
+            't': total_results,
+            'set': results,
         }
         context.update(extra_context or {})
+        
         return TemplateResponse(request, 'admin/search.html', context,
                             current_app=self.name)
     else:
