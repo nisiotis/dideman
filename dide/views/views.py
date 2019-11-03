@@ -17,9 +17,9 @@ from django.views.decorators.cache import never_cache
 from django.db.models import Q
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
-from django.utils.encoding import force_unicode
 
 import datetime
+
 
 @never_cache
 def index(self, request, extra_context=None):
@@ -51,7 +51,7 @@ def index(self, request, extra_context=None):
                         model_dict['admin_url'] = reverse('admin:%s_%s_changelist' % info, current_app=self.name)
                     except NoReverseMatch:
                         pass
-                if perms.get('add', False):
+                if perms.get('add', False) and model._meta.managed == True:
                     try:
                         model_dict['add_url'] = reverse('admin:%s_%s_add' % info, current_app=self.name)
                     except NoReverseMatch:
@@ -61,7 +61,7 @@ def index(self, request, extra_context=None):
                 else:
                     app_dict[app_label] = {
                         'name': app_label.title(),
-                        'app_url': reverse('admin:app_list', kwargs={'app_label': app_label}, current_app=self.name),
+                        #'app_url': reverse('admin:app_list', kwargs={'app_label': app_label}, current_app=self.name),
                         'has_module_perms': has_module_perms,
                         'models': [model_dict],
                     }
@@ -74,7 +74,7 @@ def index(self, request, extra_context=None):
     for app in app_list:
         app['models'].sort(key=lambda x: x['name'])
 
-    tot_perm = Permanent.objects.filter(currently_serves=1).count() 
+    tot_perm = Permanent.objects.filter(currently_serves=1).count()
     y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
     y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
     tot_non = NonPermanent.objects.substitutes_in_date_range(date_from='%d-09-01' % y1, date_to='%d-08-31' % y2).count() 
@@ -91,7 +91,7 @@ def index(self, request, extra_context=None):
         'total_private': '%d' % tot_priv,
         'total_administrative': '%d' % tot_admin,
         'y_1': y1,
-        'y_2': y2, 
+        'y_2': y2,
         'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
     }
     context.update(extra_context or {})
@@ -117,7 +117,6 @@ def index(self, request, extra_context=None):
             'set': results,
         }
         context.update(extra_context or {})
-        
         return TemplateResponse(request, 'admin/search.html', context,
                             current_app=self.name)
     else:
@@ -125,28 +124,29 @@ def index(self, request, extra_context=None):
                             'admin/index.html', context,
                             current_app=self.name)
 
+
 @csrf_protect
 @staff_member_required
-def nonpermanent_list(request): 
+def nonpermanent_list(request):
     np = NonPermanent.objects.all()
-    #import pdb; pdb.set_trace()
-        
     context = {
         "set": np,
         "dide_place": SETTINGS['dide_place'],
         "errors": [],
     }
-
     r = render_to_response('admin/nonpermanent_list.html', context, RequestContext(request))
     return HttpResponse(r)
 
+
 @csrf_protect
 @staff_member_required
-def school_geo_view(request): 
+def school_geo_view(request):
     sch = School.objects.all().exclude(google_maps_x__isnull=True).exclude(google_maps_x__exact='').exclude(google_maps_y__isnull=True).exclude(google_maps_y__exact='')
     sch_units = []
+    y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
+    y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
+
     for item in sch:
-        #import pdb; pdb.set_trace()
         c_npr = NonPermanent.objects.temporary_post_in_organization(item.id).count()
         c_prm = Permanent.objects.serving_in_organization(item.id).filter(currently_serves=True).count()
         unit = {
@@ -154,19 +154,20 @@ def school_geo_view(request):
             'title': item.name,
             'x': item.google_maps_x,
             'y': item.google_maps_y,
-            'pop': c_prm,
-            'pop_np': c_npr,
+            'pop_p': c_prm * 25,
+            'pop_np': c_npr * 25,
         }
         sch_units.append(unit)
 
-    g_settings = SETTINGS['google_map_settings'].split(',')
+    map_settings = SETTINGS['open_map_settings'].split(';')
     opts = []
     context = {
+        "yf": y1,
+        "yt": y2,
         "schools": sch_units,
-        "google_x": g_settings[0],
-        "google_y": g_settings[1],
-        "google_zoom": g_settings[2],
-        "google_key": SETTINGS['google_map_key'],
+        "om_x": map_settings[0],
+        "om_y": map_settings[1],
+        "om_zoom": map_settings[2],
         "title": u'Γεωγραφική Απεικόνιση Σχολείων',
         "opts": opts,
         "form": [],
@@ -176,9 +177,6 @@ def school_geo_view(request):
 
     r = render_to_response('admin/schools_geo_list.html', context, RequestContext(request))
     return HttpResponse(r)
-
-from django.shortcuts import render_to_response
-from django.template import RequestContext
 
 
 def handler404(request):

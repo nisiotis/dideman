@@ -2,6 +2,12 @@
 {% load i18n admin_static admin_list %}
 {% load url from future %}
 {% load admin_urls %}
+{% block extrahead %}
+<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.css" />
+<script src="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.js"></script>
+
+
+{% endblock %}
 {% block extrastyle %}
     <style>
       html, body {
@@ -10,17 +16,20 @@
         padding: 0;
       }
 
-      #map, #container, #content, #content-main {
+      #container, #content, #content-main {
         height: 100%;
+
       }
+      #map { height: 97.5%; }
+
       #legend {  
         width: 100%;
         padding: 5px 0 5px 0;
-        border-top: 1px solid #eee;
-        border-bottom: 1px solid #eee;
+
         margin-top: 10px;
         margin-bottom: 10px;      
       }
+      #border_map { width: 100%; height: 100%; border: solid 1px; color: #ccc;}
     </style>
 {% endblock %}
 
@@ -30,87 +39,52 @@
     {% block object-tools %}
     {% endblock %}
     <div id="legend">
-      <p>Μπλε περιοχή : Μόνιμοι καθηγητές</p>
-      <p>Κόκκινη περιοχή : Αναπληρωτές καθηγητές</p>
+      <h3>Γεωγραφική απεικόνιση συγκέντρωσης εκπαιδευτικών περιόδου {{ yf }} - {{ yt }}</h3>
+      <p><span style="color:blue;">Μπλε περιοχή : Μόνιμοι καθηγητές</span>
+       - <span style="color:red;">Κόκκινη περιοχή : Αναπληρωτές καθηγητές</span></p>
     </div>
-    <div id="map"></div>
-    <script>
-
-      var schoolmap = {
-      {% for item in schools %}
-        {{ item.id }}: {
-          unitname: '{{ item.title }}',
-          center: {lat: {{ item.y }}, lng: {{ item.x }} },
-          population: {{ item.pop }},
-          population_np: {{ item.pop_np }}
-        },
-      {% endfor %}
-
-
-      };
-
-      function initMap() {
-        // Create the map.
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: {{ google_zoom }},
-          center: { lat: {{ google_x }}, lng: {{ google_y }} },
-          mapTypeId: 'roadmap'
-        });
-
-        // Construct the circle for each value in schoolmap.
-        // Note: We scale the area of the circle based on the population.
-
-        for (var sch in schoolmap) {
-          // Add the circle for this school to the map.
-
-          var schCircle = new google.maps.Circle({
-            strokeColor: '#0000FF',
-            strokeOpacity: 0.7,
-            strokeWeight: 2,
-            fillColor: '#0000FF',
-            fillOpacity: 0.10,
-            map: map,
-            center: schoolmap[sch].center,
-            title: schoolmap[sch].unitname,
-            radius: Math.sqrt(schoolmap[sch].population * 50) * 50
-          });
-
-          // Add the circle for this school to the map.
-
-          var schCircleNP = new google.maps.Circle({
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.7,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.10,
-            map: map,
-            center: schoolmap[sch].center,
-            title: schoolmap[sch].unitname,
-            radius: Math.sqrt(schoolmap[sch].population_np * 50) * 50
-          });
-
-        //circle is the google.maps.Circle-instance
-
-        google.maps.event.addListener(schCircle,'mouseover',function(){
-        this.getMap().getDiv().setAttribute('title',this.get('title'));});
-
-        google.maps.event.addListener(schCircle,'mouseout',function(){
-        this.getMap().getDiv().removeAttribute('title');});
-
-        google.maps.event.addListener(schCircleNP,'mouseover',function(){
-        this.getMap().getDiv().setAttribute('title',this.get('title'));});
-
-        google.maps.event.addListener(schCircleNP,'mouseout',function(){
-        this.getMap().getDiv().removeAttribute('title');});
-
-        }
-      }
-    </script>
-
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_key }}&callback=initMap"></script>
-
+    <div id="border_map">
+      <div style="margin: 10px;" id="map"></div>
+    </div>
+    <br />
+    <div class="footer"></div>
+    <div><p><a href="/admin">Επιστροφή</a></p></div>
+    </div>
   </div>
+<script>
 
+// Where you want to render the map.
+var element = document.getElementById('map');
+
+// Height has to be set. You can do this in CSS too.
+//element.style = 'height:100%;';
+
+// Create Leaflet map on map element.
+var map = L.map(element);
+
+// Add OSM tile leayer to the Leaflet map.
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Target's GPS coordinates.
+var center = L.latLng('{{ om_x }}', '{{ om_y }}');
+
+map.setView(center, {{ om_zoom }});
+
+// Place a marker on the same location.
+{% for item in schools %}
+var p{{ forloop.counter }} = L.latLng('{{ item.y }}', '{{ item.x }}');
+var np{{ forloop.counter }} = L.latLng('{{ item.y }}', '{{ item.x }}');
+{% if item.pop_p != 0 %}
+  L.circle(p{{ forloop.counter }}, {radius: {{ item.pop_p }}, color: 'blue', weight:1, stroke:true}).bindTooltip('{{ item.title }}').addTo(map);
+{% endif %}
+{% if item.pop_np != 0 %}
+  L.circle(np{{ forloop.counter }}, {radius: {{ item.pop_np }}, color: 'red', weight:1, stroke:true}).bindTooltip('{{ item.title }}').addTo(map);
+{% endif %}
+{% endfor %}
+  
+</script>
 {% endblock %}
 
 

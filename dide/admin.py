@@ -15,7 +15,7 @@ from overrides.admin import DideAdmin
 from filters import *
 from applications.filters import FinalisedFilter
 from models import (
-    #GeoSchool, 
+                    GeoSchool, 
                     TransferArea, Island, Leave, Responsibility, Profession,
                     Promotion, PromotionNew, NonPermanentType, Administrative,
                     NonPermanent, Permanent, Employee, DegreeCategory,
@@ -480,7 +480,7 @@ class PermanentAdmin(EmployeeAdmin):
                            'recognised_experience',
                            'formatted_recognised_experience',
                            'checked_service',
-                           #'recognised_experience_n4354_2015',
+                           #'recognised_experience_n4354_2015', Removed by request
                            'recognised_experience_n4452_2017',
                            'formatted_recognised_experience_n4452_2017',
                            'non_educational_experience',
@@ -738,7 +738,7 @@ class GeoSchoolAdmin(admin.ModelAdmin):
 
 
 map(lambda t: admin.site.register(*t), (
-    #(GeoSchool, GeoSchoolAdmin),
+    (GeoSchool, GeoSchoolAdmin),
     (Settings, SettingsAdmin),
     (Leave, LeaveAdmin),
     (Permanent, PermanentAdmin),

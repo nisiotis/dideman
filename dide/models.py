@@ -5,17 +5,17 @@ from dideman.lib.common import *
 from dideman.lib.date import *
 from dideman.dide.decorators import shorted
 from django.db.models import Max
-import sql, os
 from django.db import connection, transaction
 from south.modelsinspector import add_introspection_rules
 from django.db.models import Sum
-import datetime
 from dideman import settings
 from operator import itemgetter, concat
 from itertools import groupby
-
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
+import datetime
+import sql
+import os
 
 
 class NullableCharField(models.CharField):
@@ -28,6 +28,7 @@ class NullableCharField(models.CharField):
 
     def get_db_prep_value(self, value, *args, **kwargs):
         return value or None
+
 
 add_introspection_rules([], ['^dideman\.dide\.models\.NullableCharField'])
 
@@ -44,7 +45,8 @@ class RankCode(models.Model):
     def __unicode__(self):
         return self.rank
 
-PDF_FILE_TYPES = [(1, u'Μήνιαίες Βεβαιώσεις'), 
+
+PDF_FILE_TYPES = [(1, u'Μήνιαίες Βεβαιώσεις'),
                   (2, u'Έτήσιες Βεβαιώσεις')]
 
 
@@ -58,7 +60,7 @@ class PaymentFilePDF(models.Model):
         ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         filename = "%s%s" % (ts, filename[-4:])
         return os.path.join(settings.MEDIA_ROOT, "pdffiles", filename)
-    
+
     id = models.AutoField(primary_key=True)
     pdf_file = models.FileField(u'Αρχείο', upload_to=timestampedfiles)
     description = models.CharField(u'Περιγραφή', max_length=255)
@@ -71,6 +73,7 @@ class PaymentFilePDF(models.Model):
 
     def __unicode__(self):
         return self.description
+
 
 class PaymentEmployeePDF(models.Model):
 
@@ -95,7 +98,6 @@ def pdffile_delete(sender, instance, **kwargs):
         l = os.listdir(os.path.join(settings.MEDIA_ROOT, "pdffiles", "extracted"))
         f = instance.pdf_file.name.replace(os.path.join(settings.MEDIA_ROOT,
                                                         'pdffiles'),'')[1:-4]
-        
         for itm in l:
             if itm.startswith("%s" % f):
                 os.remove(os.path.join(settings.MEDIA_ROOT,
@@ -104,12 +106,12 @@ def pdffile_delete(sender, instance, **kwargs):
         instance.pdf_file.delete(False)
 
 
-TAXED_TYPES = [(11, u'Τακτικές Μονίμων'), 
-               (12, u'Τακτικές Αναπληρωτών'), 
-               (21, u'Έκτακτες που φορολογούνται'), 
-               (22, u'Έκτακτες που δεν φορολογούνται'),  
+TAXED_TYPES = [(11, u'Τακτικές Μονίμων'),
+               (12, u'Τακτικές Αναπληρωτών'),
+               (21, u'Έκτακτες που φορολογούνται'),
+               (22, u'Έκτακτες που δεν φορολογούνται'),
                (23, u'Έκτακτες με αυτοτελή φόρο')]
- 
+
 
 class PaymentFileName(models.Model):
 
@@ -619,7 +621,6 @@ class Employee(models.Model):
     checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=False)
     citizenship_code = models.CharField(u'Κωδικός Υπηκοότητας', max_length=3, null=True, blank=True, default='048')
 
-
     def profession_description(self):
         return self.profession.description
     profession_description.short_description = u'Λεκτικό ειδικότητας'
@@ -700,14 +701,14 @@ class Employee(models.Model):
         transaction.commit_unless_managed()
 
     def subclass(self):
-        for attr in ["administrative", "permanent", "nonnermanent", "privateteacher"]:            
+        for attr in ["administrative", "permanent", "nonnermanent", "privateteacher"]:
             try:
                 m = getattr(self, attr)
                 if hasattr(m, "currently_serves"):
                     if getattr(m, "currently_serves") == 1:
                         return m
                 else:
-                    return m                        
+                    return m
             except:
                 continue
         if m:
@@ -717,16 +718,14 @@ class Employee(models.Model):
     def normal_leave_days(self):
         raise NotImplementedError
 
-
     def to_text(self):
         if self.sex == "Άνδρας":
-             return "στον"
+            return "στον"
         else:
-             return "στην"
+            return "στην"
 
     def employment_text(self):
         return "υπάλληλος"
-
 
     def __unicode__(self):
         if hasattr(self, 'permanent') and self.permanent is not None:
@@ -853,14 +852,13 @@ class PermanentManager(models.Manager):
                .filter(type__name=u'Μετάθεση')]
         return self.all().exclude(pk__in=ids)
 
-# New Extra Rank Previous Service 
-# Field is in Employee table
+    # New Extra Rank Previous Service
+    # Field is in Employee table
     def extra_rank_service(self):
         ids = [p.id for p in Employee.objects.exclude(recognised_experience_n4452_2017__isnull=True).exclude(recognised_experience_n4452_2017__exact=u'').exclude(recognised_experience_n4452_2017__exact='000000')]
-        
         return self.filter(pk__in=ids)
 
-# New Promotion Filter 
+    # New Promotion Filter 
     def next_promotion_in_range(self, date_from, date_to):
         return Permanent.objects.filter(
             id__in=[o['employee']
@@ -872,11 +870,12 @@ class PermanentManager(models.Manager):
                               .filter(next_promotion_date__gte=date_from,
                                       next_promotion_date__lte=date_to)]])
 
-# φίλτρο επόμενης μείωσης ωραρίου     
+    # φίλτρο επόμενης μείωσης ωραρίου     
     def next_hours_reduction_in_range(self, date_from, date_to):
         d_i = DateInterval(date_to.year-date_from.year, date_to.month-date_from.month, date_to.day-date_from.day)
         p = self.filter(currently_serves=True).exclude(non_educational_experience__isnull=True).exclude(non_educational_experience__exact=u'')
         return [o.id for o in p if o.hours_next() is not None and o.hours_next() < d_i]
+
 
 class Permanent(Employee):
 
@@ -947,7 +946,7 @@ class Permanent(Employee):
             return 30
     hours.short_description = u'Υποχρεωτικό ωράριο'
 
-# επόμενη μείωση ωραρίου σε διάστημα 
+    # επόμενη μείωση ωραρίου σε διάστημα 
     def hours_next(self):
         cat = self.profession.category()
         years = self.educational_service().years
@@ -976,10 +975,9 @@ class Permanent(Employee):
     def promotions(self):
         return self.promotion_set.all()
 
-# Νέοι βαθμοί με τον Νόμο 4354/2015
+    # Νέοι βαθμοί με τον Νόμο 4354/2015
     def promotionsnew(self):
         return self.promotionnew_set.all()
-
 
     def permanent_post(self):
         if self.has_permanent_post:
@@ -999,7 +997,6 @@ class Permanent(Employee):
                                          date_to__gte=current_year_date_from,
                                          type__id=3).order_by('-date_from'))
     temporary_position.short_description = u'Προσωρινή Τοποθέτηση'
-
 
     def current_year_services(self):
         return Placement.objects.filter(employee=self,
@@ -1040,7 +1037,6 @@ class Permanent(Employee):
             Promotion(value=u'Χωρίς', date=datetime.date.today())
     rank.short_description = u'Παλιός Βαθμός'
 
-
     def rank_date(self):
         rankdate = first_or_none(
             Promotion.objects.filter(employee=self).order_by('-date'))
@@ -1063,7 +1059,6 @@ class Permanent(Employee):
             return rank.id if rank else None
 
     rank_id.short_description = u'ID Βαθμού'
-
 
     # Νέοι βαθμοί με τον Νόμο 4354/2015
     def ranknew(self):
@@ -1120,6 +1115,7 @@ PROMOTION_CHOICES = [(x, x) for x in [u'ΣΤ0', u'Ε4', u'Ε3', u'Ε2', u'Ε1',
 
 class AdministrativeManager(models.Manager):
     pass
+
 
 AdministrativeManager.choices = PermanentManager.choices.im_func
 
@@ -1181,6 +1177,7 @@ class Promotion(models.Model):
     def __unicode__(self):
         return self.value
 
+
 class PromotionNew(models.Model):
 
     class Meta:
@@ -1189,7 +1186,6 @@ class PromotionNew(models.Model):
 
     rank = models.CharField(u'Βαθμός', max_length=5)
     value = models.ForeignKey(RankCode, verbose_name=u'Κλιμάκιο')
-    
     employee = models.ForeignKey(Employee)
     date = models.DateField(u'Ημερομηνία μεταβολής')
     next_promotion_date = models.DateField(u'Ημερομηνία επόμενης μεταβολής', null=True, blank=True)
@@ -1198,7 +1194,7 @@ class PromotionNew(models.Model):
     order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
 
     def __unicode__(self):
-        return u"%s %s" %(self.rank, self.value)
+        return u"%s %s" % (self.rank, self.value)
 
 class NonPermanentTypeManager(models.Manager):
 
@@ -1209,7 +1205,7 @@ class NonPermanentTypeManager(models.Manager):
 WORK_TYPES = ((0, u'Πλήρης'),
               (1, u'Μερική'),
               (2, u'Εκ περιτροπής'))
-              
+
 
 
 class NonPermanentType(models.Model):
@@ -1287,7 +1283,8 @@ EDU_LEVEL = ((11, u'ΑΕΙ'),
              (10, u'ΤΕΙ'),
              (5, u'ΤΕΛ'),
              (7, u'ΤΕΣ'))
-        
+
+
 class NonPermanent(Employee):
 
     class Meta:
@@ -1365,8 +1362,7 @@ class NonPermanent(Employee):
         return 7
 
     def __unicode__(self):
-        return u'%s %s του %s' % (self.lastname, self.firstname,
-                                       self.fathername)
+        return u'%s %s του %s' % (self.lastname, self.firstname, self.fathername)
 
 
 class EmployeeProfession(models.Model):
@@ -1414,6 +1410,7 @@ class SchoolManager(models.Manager):
 MUNICIPALITIES = (u"Αγαθονησίου", u"Αστυπάλαιας", u"Καλυμνίων", u"Καρπάθου", u"Κάσου", u"Κω", u"Λειψών", u"Λέρου",
                   u"Μεγίστης",  u"Νισύρου", u"Πάτμου", u"Ρόδου", u"Σύμης", u"Τήλου", u"Χάλκης")
 MUNICIPALITIES_CHOICES = [(x, x) for x in MUNICIPALITIES]
+
 
 class SchoolCommission(models.Model):
 
@@ -1587,6 +1584,7 @@ class SubstituteMinistryOrder(models.Model):
 
     subs_in_order_count.short_description = u'Αριθμός αναπληρωτών'
 
+
 class OrderedSubstitution(models.Model):
 
     class Meta:
@@ -1702,7 +1700,6 @@ class NonPermanentLeave(models.Model):
         return self.non_permanent.profession
     profession.short_description = u'Ειδικότητα'
 
-
     def period_description(self):
         periods = self.leaveperiod_set.all()
         if len(periods) > 0:
@@ -1722,7 +1719,6 @@ class NonPermanentLeave(models.Model):
 
             desc = u"από %s έως %s (%s %s %s)" % (self.date_from, self.date_to, self.duration, dur_desc, s)
         return desc
-
 
     def clean(self):
         from django.core.exceptions import ValidationError
@@ -1753,8 +1749,8 @@ LEAVE_PERIOD_CHOICES = (('no', u'Χωρίς Αποδοχές'),
 class LeavePeriod(models.Model):
 
     class Meta:
-      verbose_name = u'Χρονικό Διάστημα'
-      verbose_name_plural = u'Χρονικά Διαστήματα'
+        verbose_name = u'Χρονικό Διάστημα'
+        verbose_name_plural = u'Χρονικά Διαστήματα'
 
     date_from = models.DateField(u'Έναρξη')
     date_to = models.DateField(u'Λήξη')
@@ -1901,7 +1897,6 @@ class EmployeeResponsibility(models.Model):
         return self.date_from.strftime('%d-%m-%Y') + '-' + self.order
 
 
-
 class DegreeOrganization(models.Model):
 
     class Meta:
@@ -1912,7 +1907,6 @@ class DegreeOrganization(models.Model):
 
     def __unicode__(self):
         return self.name
-
 
 
 class EmployeeDegree(models.Model):
@@ -1930,7 +1924,7 @@ class EmployeeDegree(models.Model):
     organization = models.ForeignKey(DegreeOrganization, verbose_name=u'Φορέας Πιστοποίησης', null=True)
     checked = models.BooleanField(u'Ελεγμένο', default=False)
     relevance = models.BooleanField(u'Συνάφεια', default=False)
-    
+
     def __unicode__(self):
         return self.name
 
@@ -1951,7 +1945,6 @@ class Child(models.Model):
                                                   ('died', u'Απεβίωσε'),
                                                   ('yes', u'Ναι')))
     is_dependent = models.NullBooleanField(u'Είναι προστατευόμενο μέλος', null=True, blank=True, default=True)
-
 
     def __unicode__(self):
         return "%s %s" % (self.first_name, self.date_birth.strftime('%d-%m-%Y'))
@@ -1994,11 +1987,11 @@ class NonPermanentInsuranceFile(models.Model):
 
     id = models.AutoField(primary_key=True)
     xls_file1 = models.FileField(u'Αρχείο 1ου μήνα', upload_to="xlsfiles")
-    xls_file2 = models.FileField(u'Αρχείο 2ου μήνα',upload_to="xlsfiles")
-    xls_file3 = models.FileField(u'Αρχείο 3ου μήνα',upload_to="xlsfiles")
+    xls_file2 = models.FileField(u'Αρχείο 2ου μήνα', upload_to="xlsfiles")
+    xls_file3 = models.FileField(u'Αρχείο 3ου μήνα', upload_to="xlsfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
     status = models.BooleanField(u'Κατάσταση', blank=True)
-    
+
     def __unicode__(self):
         return self.description
 
@@ -2007,10 +2000,14 @@ class NonPermanentInsuranceFile(models.Model):
 def xls_file1_delete(sender, instance, **kwargs):
     if instance.xls_file1:
         instance.xls_file1.delete(False)
+
+
 @receiver(pre_delete, sender=NonPermanentInsuranceFile)
 def xls_file2_delete(sender, instance, **kwargs):
     if instance.xls_file2:
         instance.xls_file2.delete(False)
+
+
 @receiver(pre_delete, sender=NonPermanentInsuranceFile)
 def xls_file3_delete(sender, instance, **kwargs):
     if instance.xls_file3:
@@ -2022,7 +2019,7 @@ class NonPermanentUnemploymentMonth(models.Model):
     class Meta:
         verbose_name = u'Στοιχεία ανεργίας μηνός'
         verbose_name_plural = u'Στοιχεία ανεργίας μηνών'
-    
+
     insurance_file = models.ForeignKey(NonPermanentInsuranceFile, on_delete=models.CASCADE)
     employee = models.ForeignKey(Employee)
     pay_type = models.CharField(u'Τύπος μισθοδοσίας', max_length=200)
@@ -2054,11 +2051,10 @@ class Settings(models.Model):
         return self.name
 
 
-#class GeoSchool(School):
+class GeoSchool(School):
 
-#    class Meta:
-#        verbose_name = u'Σχολεία - Γεωγραφική Απεικόνιση'
-#        verbose_name_plural = u'Σχολεία - Γεωγραφική Απεικόνιση'
-#        proxy = True
-#        #managed = False
-
+    class Meta:
+        verbose_name = u'Σχολεία - Γεωγραφική Απεικόνιση'
+        verbose_name_plural = u'Σχολεία - Γεωγραφική Απεικόνιση'
+        proxy = True
+        managed = False
