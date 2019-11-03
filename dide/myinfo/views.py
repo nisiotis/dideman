@@ -32,7 +32,7 @@ from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
 from dideman.lib.date import current_year_date_from, current_year_date_to
 from django.db.models.query import QuerySet
-
+from django.core.exceptions import ObjectDoesNotExist
 import smtplib
 import datetime
 import os
@@ -442,8 +442,11 @@ def print_exp_report(request):
 @csrf_protect
 @match_required
 def edit(request):
-    f = []
+    fs = []
     exp = False
+    y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
+    y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
+
     if 'logout' in request.GET:
         request.session.clear()
         return HttpResponseRedirect('/?logout=True')
@@ -464,8 +467,9 @@ def edit(request):
         except Permanent.DoesNotExist:
             try:
                 emptype = NonPermanent.objects.get(parent_id=emp.id)
-                f = set(f.insurance_file for f in NonPermanentUnemploymentMonth.objects.filter(employee=emp.id))
-
+                f = list(set((f.insurance_file, f.year) for f in NonPermanentUnemploymentMonth.objects.filter(employee=emp.id)))
+                f.sort(key = lambda x: x[1], reverse=True)
+                fs = [x[0] for x in f]
                 if emptype.order() is not None:
                     if emptype.order().order_end_manager != u'' and emptype.order().show_online_order == True and emptype.show_exp_report == True:
                         exp = True
@@ -479,6 +483,19 @@ def edit(request):
             raise
 
         p = Placement.objects.filter(employee=emp.id).order_by('-date_from')
+        try:
+            try:
+                oserv = emptype.organization_serving().organization.school
+                omap_x = oserv.google_maps_x
+                omap_y = oserv.google_maps_y
+                omap_t = oserv.name
+            except:
+                raise ObjectDoesNotExist
+        except ObjectDoesNotExist, NoneType:
+            map_settings = SETTINGS['open_map_settings'].split(';')
+            omap_x = map_settings[1]
+            omap_y = map_settings[0]
+            omap_t = emptype.organization_serving()
         l = EmployeeLeave.objects.filter(employee=emp.id).order_by('-date_from')
         r = EmployeeResponsibility.objects.filter(employee=emp.id).order_by('date_to')
         a = Application.objects.filter(employee=emp.id).exclude(datetime_finalised=None).order_by('-datetime_finalised')
@@ -517,6 +534,10 @@ def edit(request):
                                                            'applications': a,
                                                            'form': emp_form,
                                                            'service': exp,
-                                                           'insurance': f
-                                                       }
-                                        ))
+                                                           'insurance': fs,
+                                                           'om_x': omap_x,
+                                                           'om_y': omap_y,
+                                                           'om_p': omap_t,
+                                                           'yf': y1,
+                                                           'yt': y2,
+                                                            }))

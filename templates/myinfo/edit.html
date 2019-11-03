@@ -8,6 +8,12 @@
 <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
 <link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
 <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
+<style>
+#map {
+  width: 100%;
+  height: 300px;
+}
+</style>
 {{ block.super }}
 
 {% endblock %}
@@ -20,7 +26,13 @@
        <ul class="messagelist">{% for message in messages %}<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message}}</li>{% endfor %}</ul>
   
     {% endif %}
-    {% endblock  %}
+{% endblock  %}
+{% block extrahead %}
+<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.css" />
+<script src="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.js"></script>
+
+
+{% endblock %}
 {% block content %}
 <div id="content-main">
     <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
@@ -116,7 +128,38 @@
 
 {% endblock %}
 {% block sidebar %}
+
 <div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>Η θέση υπηρεσίας μου για το σχ. έτος {{ yf }} - {{ yt }}</h2>
+
+      <div id="map"></div>
+    </div>
+
+<script>
+
+// Where you want to render the map.
+var element = document.getElementById('map');
+
+// Height has to be set. You can do this in CSS too.
+//element.style = 'height:100%;';
+
+// Create Leaflet map on map element.
+var map = L.map(element);
+
+// Add OSM tile leayer to the Leaflet map.
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+// Target's GPS coordinates.
+var center = L.latLng('{{ om_y }}', '{{ om_x }}');
+map.setView(center, 12);
+L.marker(center).bindTooltip("{{ om_p }}").addTo(map);
+
+</script>
+
+
     <div class="module" id="recent-actions-module">
         <h2>Το ιστορικό μου</h2>
         <h3>Άδειες</h3>
@@ -145,6 +188,7 @@
             {% endfor %}
             </ul>
 	{% endif %}
+  {% if applications %}
         <h3>Αιτήσεις</h3>
             <ul class="actionlist">
             {% for entry in applications %}
@@ -153,6 +197,7 @@
             <li>Δεν βρέθηκαν ηλεκτρονικές αιτήσεις</li>  
             {% endfor %}
             </ul>
+  {% endif %}
 	    {% if service %}
         <h2>Βεβαίωση προϋπηρεσίας και απόλυσης</h2>
             <ul class="actionlist">
@@ -164,7 +209,7 @@
             </ul>
 	    {% endif %}
 	{% if insurance %}
-        <h2>Βεβαιώσεις εργοδότη</h2>
+        <h2>Βεβαιώσεις εργοδότη αναπληρωτών</h2>
             <ul class="actionlist">
             {% for entry in insurance %}
             <li><a id="insuranceprint" href="?print_emp=1&f={{entry.id}}">{{entry.description}}</a></li>
@@ -175,4 +220,5 @@
 	 {% endif %}
             </div>
 </div>
+
 {% endblock %}
