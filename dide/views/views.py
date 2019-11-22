@@ -6,7 +6,8 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.admin.views.decorators import staff_member_required
-from dideman.dide.models import NonPermanent, Permanent, School, Placement, Administrative
+from django.contrib import messages
+from dideman.dide.models import Employee, NonPermanent, Permanent, School, Placement, Administrative
 from dideman.private_teachers.models import PrivateTeacher
 from dideman.dide.util.settings import SETTINGS
 from django import VERSION as djangoversion
@@ -16,9 +17,9 @@ from django.utils.text import capfirst
 from django.views.decorators.cache import never_cache
 from django.db.models import Q
 from django.conf.urls.defaults import *
-from django.core.urlresolvers import reverse
-
-import datetime
+from django.core.urlresolvers import reverse, NoReverseMatch
+from cStringIO import StringIO
+import datetime, base64
 
 
 @never_cache
@@ -116,6 +117,7 @@ def index(self, request, extra_context=None):
             't': total_results,
             'set': results,
         }
+        
         context.update(extra_context or {})
         return TemplateResponse(request, 'admin/search.html', context,
                             current_app=self.name)
@@ -123,6 +125,45 @@ def index(self, request, extra_context=None):
         return TemplateResponse(request, self.index_template or
                             'admin/index.html', context,
                             current_app=self.name)
+
+
+@csrf_protect
+@staff_member_required
+def photo_update(request, emp_id):
+    e = Employee.objects.get(id=emp_id)
+    if request.POST:
+        if 'photo' in request._files:
+            e.photo = base64.b64encode(request._files['photo'].read())
+            e.photo_type = request._files['photo'].name.split(".")[-1]
+            e.save()
+            return HttpResponse()
+        else:
+            e.photo = ''
+            e.photo_type = ''
+            e.save()
+            messages.info(request, 'Η φωτογραφία διαγράφηκε.')
+    if 'saved' in request.GET:
+        messages.info(request, 'Η φωτογραφία ενημερώθηκε.')
+    context = {
+        "messages": messages,
+        "emp": e,
+        "dide_place": SETTINGS['dide_place'],
+        "errors": [],
+    }
+    return render_to_response('admin/photo.html',
+                                  RequestContext(request, context))
+
+
+@csrf_protect
+@staff_member_required
+def photo(request, emp_id):
+    emp = Employee.objects.get(id=emp_id)
+    file = StringIO()
+    file.write(base64.b64decode(emp.photo))
+    file.seek(0)
+    response = HttpResponse(file.getvalue(), mimetype='image/%s' % emp.photo_type)
+    file.close()
+    return response
 
 
 @csrf_protect

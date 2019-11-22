@@ -1,16 +1,23 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib import admin
-from dideman.dide.employee.decorators import match_required
+#from dideman.dide.employee.decorators import match_required
 admin.autodiscover()
 
 urlpatterns = patterns(
     '',
-    url(r'^admin/dide/nonpermanent/list/$', 'dideman.dide.views.views.nonpermanent_list'),
-    url(r'^admin/dide/geoschool/$', 'dideman.dide.views.views.school_geo_view'),
+    url(r'^admin/dide/photo/(?P<emp_id>\d+)/$',
+        'dideman.dide.views.views.photo'),
+    url(r'^admin/dide/photo_edit/(?P<emp_id>\d+)/$',
+        'dideman.dide.views.views.photo_update'),
+    url(r'^admin/dide/nonpermanent/list/$',
+        'dideman.dide.views.views.nonpermanent_list'),
+    url(r'^admin/dide/geoschool/$',
+        'dideman.dide.views.views.school_geo_view'),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^api/permanent/', 'dideman.api.views.permanent'),
-    url(r'^api/schoolposts/', 'dideman.api.views.schoolposts'),
-
+    url(r'^api/permanent/',
+        'dideman.api.views.permanent'),
+    url(r'^api/schoolposts/',
+        'dideman.api.views.schoolposts'),
     url(r'^employee/help/',
         'dideman.dide.employee.match.help'),
     url(r'^salary/help/',
@@ -23,6 +30,10 @@ urlpatterns = patterns(
         'dideman.dide.salary.views.view'),
     url(r'^myinfo/edit/$',
         'dideman.dide.myinfo.views.edit'),
+    url(r'^myinfo/edit/photo/(?P<emp_id>\d+)/$',
+        'dideman.dide.myinfo.views.myphoto'),
+    url(r'^myinfo/edit/photo_edit/(?P<emp_id>\d+)/$',
+        'dideman.dide.myinfo.views.myphoto_update'),
     url(r'^$',
         'dideman.dide.menu.views.menu'),
     url(r'^salary/view/showpdf/$',

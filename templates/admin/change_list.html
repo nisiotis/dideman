@@ -9,7 +9,7 @@
      <h2>Φίλτρα</h2>
       <div>
         <li><a href="{{ cl.request.path  }}">Καθαρισμός Όλων</a></li>
-        <li><a href="{{ cl.request.path  }}filters/" onclick="return focusOrOpen(this, 'Φίλτρα');">Αναλυτικά</a></li>
+        <li><a href="{{ cl.request.path  }}filters/" onclick="return focusOrOpen(this, 'Φίλτρα', {'width': 700, 'height': 550});">Αναλυτικά</a></li>
       {% for spec in cl.filter_specs %}
         {% if spec.list_view %}
           {% if spec|is_free_date_filter %}

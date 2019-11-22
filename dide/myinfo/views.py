@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, NonPermanent, Employee, Placement,
                                  EmployeeLeave, Application, EmployeeResponsibility,
@@ -22,21 +22,60 @@ from email import Charset
 from email.generator import Generator
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT, TA_JUSTIFY
-from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.pdfbase.pdfmetrics import registerFont
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, Image, Table
-from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
+from reportlab.platypus.doctemplate import SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
 from dideman.lib.date import current_year_date_from, current_year_date_to
 from django.db.models.query import QuerySet
 from django.core.exceptions import ObjectDoesNotExist
-import smtplib
-import datetime
-import os
-import calendar
+import smtplib, datetime, os, calendar, base64
+
+@csrf_protect
+@match_required
+def myphoto_update(request, emp_id):
+    e = Employee.objects.get(id=emp_id)
+    if request.POST:
+        if 'photo' in request._files:
+            e.photo = base64.b64encode(request._files['photo'].read())
+            e.photo_type = request._files['photo'].name.split(".")[-1]
+            e.save()
+            return HttpResponse()
+        else:
+            e.photo = ''
+            e.photo_type = ''
+            e.save()
+            messages.info(request, 'Η φωτογραφία διαγράφηκε.')
+    if 'saved' in request.GET:
+        messages.info(request, 'Η φωτογραφία ενημερώθηκε.')
+    context = {
+        "messages": messages,
+        "emp": e,
+        "dide_place": SETTINGS['dide_place'],
+        "errors": [],
+    }
+    return render_to_response('myinfo/myphoto.html',
+                                  RequestContext(request, context))
+
+
+
+@csrf_protect
+@match_required
+def myphoto(request, emp_id):
+    response = HttpResponse()
+    if int(emp_id) == int(request.session['matched_employee_id']):
+        emp = Employee.objects.get(id=emp_id)
+        file = StringIO()
+        file.write(base64.b64decode(emp.photo))
+        file.seek(0)
+        response = HttpResponse(file.getvalue(), mimetype='image/%s' % emp.photo_type)
+        file.close()
+    return response
+
 
 def protocol_number(order):
     try:
@@ -84,7 +123,6 @@ def print_emp_report(request, fid):
                                                   'DroidSans.ttf')))
     registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
                                                        'DroidSans-Bold.ttf')))
-
 
     doc = SimpleDocTemplate(response, pagesize=A4)
     doc.topMargin = 1.0 * cm
@@ -143,7 +181,6 @@ def print_emp_report(request, fid):
         data.append([Paragraph(u'ΑΡΜΟΔΙΟ ΥΠΟΚΑΤΑΣΤΗΜΑ ΙΚΑ ΕΛΕΓΧΟΥ ', tbl_style['Left']), Paragraph(u' ', tbl_style['Left'])])
         data.append([Paragraph(u'ΚΩΔΙΚΟΣ - ΟΝΟΜΑΣΙΑ ', tbl_style['Left']), Paragraph(u'%s' % SETTINGS['ika_code'] , tbl_style['Left'])])
 
-        
         table = Table(data, style=tsf, colWidths=[7.0 * cm, 11.0 * cm])
         elements.append(table)
         elements.append(Paragraph(u' ', heading_style['Spacer']))
@@ -166,7 +203,7 @@ def print_emp_report(request, fid):
         data.append([Paragraph(u'ΟΝΟΜΑ: ', tbl_style['Left']), Paragraph(u'%s' % emp.firstname, tbl_style['Right'])])
         data.append([Paragraph(u'ΟΝΟΜΑ ΠΑΤΡΟΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.fathername, tbl_style['Right'])])
         data.append([Paragraph(u'ΟΝΟΜΑ ΜΗΤΡΟΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.mothername, tbl_style['Right'])])
-        
+
         if emp.birth_date == None:
             data.append([Paragraph(u'ΗΜΕΡΟΜΗΝΙΑ ΓΕΝΝΗΣΕΩΣ: ', tbl_style['Left']), Paragraph(u' ', tbl_style['Right'])])
 
@@ -179,7 +216,7 @@ def print_emp_report(request, fid):
             ec = emp.other_social_security.code
         else:
             ec = '101'
-            
+
         data.append([Paragraph(u'ΠΑΚΕΤΟ ΚΑΛΥΨΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % ec, tbl_style['Right'])])
         data.append([Paragraph(u'ΜΙΣΘΟΛΟΓΙΚΗ ΠΕΡΙΟΔΟΣ: ', tbl_style['Left']), Paragraph(u'%s / %s' % (r.month, r.year), tbl_style['Right'])])
         if r.insured_from.strip() in ('', '/  /'):
@@ -188,7 +225,7 @@ def print_emp_report(request, fid):
         else:
             dtf = r.insured_from
             dtt = r.insured_to
-        
+
         data.append([Paragraph(u'ΑΠΟ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % dtf, tbl_style['Right'])])
         data.append([Paragraph(u'ΕΩΣ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % dtt, tbl_style['Right'])])
         data.append([Paragraph(u'ΤΥΠΟΣ ΑΠΟΔΟΧΩΝ: ', tbl_style['Left']), Paragraph(u'%s' % r.pay_type, tbl_style['Right'])])
@@ -198,19 +235,19 @@ def print_emp_report(request, fid):
         if len(rpam) == 1:
             rpam = rpam + '0'
         data.append([Paragraph(u'ΑΠΟΔΟΧΕΣ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
-        
+
         lpam = r.employee_contributions.split('.')[0]
         rpam = r.employee_contributions.split('.')[1]
         if len(rpam) == 1:
             rpam = rpam + '0'
         data.append([Paragraph(u'ΕΙΣΦΟΡΕΣ ΑΣΦΑΛΙΣΜΕΝΟΥ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
-        
+
         lpam = r.employer_contributions.split('.')[0]
         rpam = r.employer_contributions.split('.')[1]
         if len(rpam) == 1:
             rpam = rpam + '0'
         data.append([Paragraph(u'ΕΙΣΦΟΡΕΣ ΕΡΓΟΔΟΤΗ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
-        
+
         lpam = r.total_contributions.split('.')[0]
         rpam = r.total_contributions.split('.')[1]
         if len(rpam) == 1:
@@ -229,13 +266,12 @@ def print_emp_report(request, fid):
         elements.append(Paragraph(u'ΠΑΡΑΤΗΡΗΣΗ', tbl_style['Left']))
 
         elements.append(Paragraph(u'Τα αναγραφόμενα στην παρούσα Βεβαίωση ασφαλιστικά στοιχεία λαμβάνονται υπόψη μέχρι την επεξεργασία της Α.Π.Δ. των συγκεκριμένων μισθολογικών περιόδων και την υποβολή και έκδοση από το ΙΚΑ του αντίστοιχου Αποσπάσματος Ατομικού Λογαριασμού Ασφάλισης.', tbl_style['Justify']))
-        
-        
+
         today = datetime.date.today()
-        
+
         data.append([Paragraph(u' ', signature['Center']) ,Paragraph(u'Ρόδος, %s / %s / %s' %
                                (today.day, today.month, today.year), signature['Center'])])
-        
+
         table = Table(data, style=tsf, colWidths=[9.0 * cm, 8.0 * cm])
         elements.append(table)
         elements.append(Paragraph(u' ', heading_style['Spacer']))
@@ -246,16 +282,15 @@ def print_emp_report(request, fid):
         im = Image(sign)
         im.drawHeight = 3.2 * cm
         im.drawWidth = 6.5 * cm
-        
-        data.append([Paragraph(u' ', signature['Center']) ,im])
-        
+
+        data.append([Paragraph(u' ', signature['Center']), im])
+
         table = Table(data, style=tsf, colWidths=[10.0 * cm, 7.0 * cm])
         elements.append(table)
         elements.append(PageBreak())
-        
+
     doc.build(elements)
     return response
-
 
 
 @csrf_protect
@@ -268,7 +303,6 @@ def print_exp_report(request):
                                                   'DroidSans.ttf')))
     registerFont(TTFont('DroidSans-Bold', os.path.join(settings.MEDIA_ROOT,
                                                        'DroidSans-Bold.ttf')))
-
 
     doc = SimpleDocTemplate(response, pagesize=A4)
     doc.topMargin = 1.0 * cm
@@ -325,7 +359,7 @@ def print_exp_report(request):
     im.drawHeight = 1.25 * cm
     im.drawWidth = 1.25 * cm
     data = []
-    #today = datetime.date.today()
+
     date_plus1 = emptype.current_placement().date_to
     data.append([Paragraph(u'Ρόδος, %s / %s / %s' % (date_plus1.day, date_plus1.month, date_plus1.year), tbl_style['Left'])])
     data.append([Paragraph(u' ', heading_style['Spacer'])])
@@ -383,11 +417,11 @@ def print_exp_report(request):
     elements.append(Paragraph(u'Απόφαση τοποθέτησης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_start_manager, tbl_style['Left']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    
+
     elements.append(Paragraph(u'Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_end_manager, tbl_style['Left']))
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
-    
+
     if emptype.current_placement().substituteplacement.date_from_show:
         elements.append(Paragraph(u'Ημερομηνία ανάληψης υπηρεσίας: %s/%s/%s' % (emptype.current_placement().substituteplacement.date_from_show.day, emptype.current_placement().substituteplacement.date_from_show.month, emptype.current_placement().substituteplacement.date_from_show.year), tbl_style['Left']))
     else:
@@ -405,7 +439,6 @@ def print_exp_report(request):
 
     elements.append(Paragraph(u'Η βεβαίωση αυτή χορηγείται ύστερα από αίτηση του/της ενδιαφερόμενου/ης προκειμένου να τη χρησιμοποιήσει ως δικαιολογητικό για την αναγνώριση της προϋπηρεσίας του/της.', tbl_style['Justify']))
 
-    #elements.append(Paragraph(u' ', heading_style['Spacer']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
     data = []
@@ -419,19 +452,12 @@ def print_exp_report(request):
     table6 = Table(data, style=tsf, colWidths=[10.0 * cm, 7.0 * cm])
     elements.append(table6)
 
-    #elements.append(Paragraph(u' ', heading_style['Spacer']))
-    #elements.append(Paragraph(u' ', heading_style['Spacer']))
-    #elements.append(Paragraph(u'ΚΟΙΝΟΠΟΙΗΣΗ', tbl_style['BoldLeft']))
-    #elements.append(Paragraph(u'1. %s' % emptype.current_placement(), tbl_style['Left']))
-    #elements.append(Paragraph(u'2. Α.Φ.', tbl_style['Left']))
     if emptype.order().order_type == 3:
-
         logo = os.path.join(settings.MEDIA_ROOT, "espa2.jpg")
         im = Image(logo)
         im.drawHeight = 3.0 * cm
         im.drawWidth = 16.3 * cm
         elements.append(im)
-
 
     elements.append(PageBreak())
 
@@ -442,6 +468,7 @@ def print_exp_report(request):
 @csrf_protect
 @match_required
 def edit(request):
+
     fs = []
     exp = False
     y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
@@ -459,6 +486,8 @@ def edit(request):
         return print_emp_report(request, request.GET['f'])
 
     else:
+        if 'saved' in request.GET:
+            messages.info(request, "Τα στοιχεία σας ενημερώθηκαν.")
         is_permanent = False
         emp = Employee.objects.get(id=request.session['matched_employee_id'])
         try:
@@ -473,7 +502,6 @@ def edit(request):
                 if emptype.order() is not None:
                     if emptype.order().order_end_manager != u'' and emptype.order().show_online_order == True and emptype.show_exp_report == True:
                         exp = True
-                
             except NonPermanent.DoesNotExist:
                 try:
                     emptype = Administrative.objects.get(parent_id=emp.id)
@@ -491,7 +519,7 @@ def edit(request):
                 omap_t = oserv.name
             except:
                 raise ObjectDoesNotExist
-        except ObjectDoesNotExist, NoneType:
+        except ObjectDoesNotExist:
             map_settings = SETTINGS['open_map_settings'].split(';')
             omap_x = map_settings[1]
             omap_y = map_settings[0]
@@ -500,7 +528,7 @@ def edit(request):
         r = EmployeeResponsibility.objects.filter(employee=emp.id).order_by('date_to')
         a = Application.objects.filter(employee=emp.id).exclude(datetime_finalised=None).order_by('-datetime_finalised')
         teaching_experience = None
-        
+
         if is_permanent:
             not_teacher = Placement.objects.filter(employee=emp.id, teaching_service=False)
             not_teacher_range = DateInterval()
@@ -519,11 +547,11 @@ def edit(request):
                     if hasattr(emp, key):
                         setattr(emp, key, emp_form.cleaned_data[key])
                 emp.save()
-                messages.info(request, "Τα στοιχεία σας ενημερώθηκαν.")
                 if emp.email:
-                    MailSender(u' '.join([emp.firstname, emp.lastname]),
-                               emp.email)
-
+                    pass
+                    #MailSender(u' '.join([emp.firstname, emp.lastname]),
+                    #           emp.email)
+            return HttpResponseRedirect('/myinfo/edit/?saved=true')
         return render_to_response('myinfo/edit.html',
                                   RequestContext(request, {'emp': emptype,
                                                            'teaching_exp': teaching_experience,

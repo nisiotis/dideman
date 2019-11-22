@@ -1,0 +1,132 @@
+{% load url from future %}
+{% load admin_static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    {% load i18n %}
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
+    {% block extrastyle %}{% endblock %}
+    <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}"admin/css/ie.css"{% endblock %}" /><![endif]-->
+    {% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}"admin/css/rtl.css"{% endblock %}" />
+    {% endif %}
+    <script type="text/javascript" src="/static/admin/js/core.js"></script>
+    <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+    <script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
+    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+    <script type="text/javascript" src="/admin/jsi18n/"></script>
+
+    <script type="text/javascript" src="/static/js/upload.js"></script>
+    <style>
+      #container {
+        text-align: center;;
+        position: relative;
+        min-width: 350px;
+        padding: 0;
+      }
+      .photoimg {
+        width: 300px;
+        height: 400px;
+
+      }
+      p {
+        text-align: justify;
+      }
+      .photo {
+        float: left;
+        margin: 5px; 
+        width: 300px;
+        height: 400px;
+        border: 1px solid #ddd;
+      }
+      .fixed_header {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 10001;
+            background-color: white;
+            border-bottom: 1px solid rgb(204, 204, 204);
+      }
+    </style>
+    {% block extrahead %}{% endblock %}
+    {% block blockbots %}
+    <meta name="robots" content="NONE,NOARCHIVE" />
+    {% endblock %}
+
+</head>
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+
+
+<div id="container">
+  <div class="fixed_header">
+    <div id="header">
+        <div id="branding">
+        <h1 id="site-name">ΔΔΕ {{ dide_place }}</h1>
+        </div>
+    </div>
+    <!-- END Header -->
+      {% block messages %}
+          {% if messages %}
+       
+             <ul class="messagelist">{% for message in messages %}<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>{% endfor %}</ul>
+        
+          {% endif %}
+      {% endblock  %}
+  </div>
+
+  <div id="content">
+      <div style="height:30px;"></div>
+
+          {% if messages %}
+       
+            {% for message in messages %}
+              <div style="height:20px;"></div>
+            {% endfor %}
+        
+          {% endif %}
+
+        {% if emp.photo %}
+          <img class="photoimg" id="photo" src="/myinfo/edit/photo/{{ emp.id }}/">
+        {% else %}    
+          {% if emp.sex == "Άνδρας" %}
+            <img class="photoimg" id="photo" src="{% static "img/male_user-4x3.png" %}">
+          {% elif  emp.sex == "Γυναίκα" %}
+            <img class="photoimg" id="photo" src="{% static "img/female_user-4x3.png" %}">
+          {% endif %}
+        {% endif %}
+
+
+          <form id="photo-upload" action="{{ form_url }}" method="post" type="multipart/form-data">{% csrf_token %}
+              <input type="hidden" id="link_id" name="link_id" value="/myinfo/edit/photo_edit/{{ emp.id }}/">
+              <input type="file" id="photo" name="photo" style="width: 200px;">
+              <input type="submit" value="Μεταφώρτωση" id="edit" name="edit"> 
+              <div style="width: 100%; height: 7px; padding-top:1px padding-bottom:1px; background: #aaa;">
+                <div id="progr" style="width: 0%; height: 5px; background: #000;"></div>
+              </div>     
+              <p>Επιλέξτε μια φωτογραφία με ύψος 400 pixels και πλάτος 300 pixels ή υποδιαιρέσεις ή πολλαπλάσια αυτών των διαστάσεων (αναλογία 3/4). Οι τύποι αρχείων που υποστηρίζονται είναι PNG και JPG με μέγιστο μέγεθος αρχείου 1 Mb.</p>
+          </form>
+          <div style="height:50px;"></div>
+    </div>
+ 
+
+      <div style="position: fixed; width: 100%; bottom: 0; left: 0; z-index: 10001; background-color: white;">
+        <div style="margin-left: 10px; margin-right: 10px;">
+    <div class="submit-row" style="margin: 0 0 5px 0;">
+        <form id="photo-delete" action="{{ form_url }}" method="post">{% csrf_token %}
+          <p class="deletelink-box"><a href="#" class="deletelink" onclick="django.jQuery('#photo-delete').submit();">Διαγραφή</a></p>
+          <input type="button" value="Κλείσιμο Παραθύρου" onclick="window.opener.location.reload(true);window.close();"/>
+        </form>
+    </div>
+        </div>
+      </div>
+
+        </div>
+
+</body>
+</html>
+

@@ -581,7 +581,9 @@ class Employee(models.Model):
     fathername = models.CharField(u'Όνομα Πατέρα', max_length=100)
     mothername = models.CharField(u'Όνομα Μητέρας', max_length=100, null=True, blank=True)
     sex = models.CharField(u'Φύλο', max_length=10, null=True, blank=True, choices=SEX_TYPES)
-    address = models.CharField(u'Διεύθυνση', max_length=200, null=True, blank=True)
+    address = models.CharField(u'Διεύθυνση - Οδός, Αριθμός', max_length=200, null=True, blank=True)
+    address_postcode = models.CharField(u'Ταχ. Κωδικός', max_length=6, null=True, blank=True)
+    address_city = models.CharField(u'Πόλη', max_length=30, null=True, blank=True)    
     identity_number = NullableCharField(u'Αρ. Δελτίου Ταυτότητας', max_length=8, null=True, unique=True, blank=True)
     transfer_area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης', null=True, blank=True)
     recognised_experience = models.CharField(u'Προϋπηρεσία (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
@@ -618,8 +620,20 @@ class Employee(models.Model):
     show_mass_pay = models.NullBooleanField(u'Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', null=True, blank=True, default=True)
     ama = models.CharField(u'ΑΜΑ ΙΚΑ ΕΤΑΜ', max_length=10, null=True, blank=True)
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
+    date_modified = models.DateField(u'Τελευταία ενημέρωση', auto_now=True)
     checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=False)
     citizenship_code = models.CharField(u'Κωδικός Υπηκοότητας', max_length=3, null=True, blank=True, default='048')
+    photo = models.TextField(u'Φωτογραφία', blank=True, default=None)
+    photo_type = models.CharField(u'Τύπος Φωτογραφίας', max_length=10, null=True, blank=True)
+
+    def show_photo(self):
+        if self.photo:
+            return "<img src='/admin/dide/photo/%s/' style='width:75px;height:100px;padding-right:5px;vertical-align:top;'><a href='/admin/dide/photo_edit/%s/'  onclick=\"return focusOrOpen(this, 'Φωτογραφία',{'width': 350, 'height': 600});\">Αλλαγή Φωτογραφίας</a>" % (self.id, self.id)
+        else:
+            return "Δ/Υ <a href='/admin/dide/photo_edit/%s/'  onclick=\"return focusOrOpen(this, 'Φωτογραφία',{'width': 350, 'height': 600});\">Αλλαγή Φωτογραφίας</a>" % self.id
+
+    show_photo.allow_tags = True
+    show_photo.short_description = "Φωτογραφία"
 
     def profession_description(self):
         return self.profession.description
@@ -1890,8 +1904,8 @@ class EmployeeResponsibility(models.Model):
     responsibility = models.ForeignKey(Responsibility, verbose_name=u'Θέση ευθύνης')
     date_from = models.DateField(u'Ημ. Έναρξης')
     date_to = models.DateField(u'Ημ. Λήξης')
-    order = models.CharField(max_length=200)
-    description = models.CharField(max_length=300, null=True, blank=True)
+    order = models.CharField(u'Απόφαση', max_length=200)
+    description = models.CharField(u'Περιγραφή', max_length=300, null=True, blank=True)
 
     def __unicode__(self):
         return self.date_from.strftime('%d-%m-%Y') + '-' + self.order

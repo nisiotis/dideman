@@ -27,18 +27,16 @@ class SubstituteInput(forms.HiddenInput):
         output = []
         output.append(u'<input%s />' % flatatt(final_attrs))
         output.append(u'<input readonly="true" type="text" id="display_%s" value="%s" size="40" />&nbsp;' % (self._format_value(final_attrs['id']), force_unicode(self._format_value(value))))
-        output.append(u'<a href="#" id="link_%s" onclick="this.href=\'/admin/dide/nonpermanent/list/\'+\'?id=\'+django.jQuery(this).attr(\'id\');return focusOrOpenList(this, \'Αναπληρωτές\');">Επιλογή</a>&nbsp;' % self._format_value(final_attrs['id']) )
+        output.append(u'<a href="#" id="link_%s" onclick="this.href=\'/admin/dide/nonpermanent/list/\'+\'?id=\'+django.jQuery(this).attr(\'id\');return focusOrOpen(this, \'Αναπληρωτές\',{\'width\': 500, \'height\': 600});">Επιλογή</a>&nbsp;' % self._format_value(final_attrs['id']) )
         output.append(u'<a href="/admin/dide/nonpermanent/add/" class="add-another" id="add_%s" onclick="return showAddAnotherPopup(this);"> <img src="/static/admin/img/icon_addlink.gif" width="10" height="10" alt="Προσθέστε κι άλλο"></a>' % self._format_value(final_attrs['id']))
         return mark_safe(''.join(output))   
-
-
 
 
 class OrderedSubstitutionInlineForm(ModelForm):
 
     class Meta:
         model = OrderedSubstitution
-    
+
     def __init__(self, *args, **kwargs):
         super(OrderedSubstitutionInlineForm, self).__init__(*args, **kwargs)
         self.fields['substitute'].widget = SubstituteInput()

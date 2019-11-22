@@ -20,6 +20,7 @@
     <script type="text/javascript" src="/static/js/chosen.jquery.js"></script>
     <script type="text/javascript" src="/static/js/chosen.jquery_ready.js"></script>
     <script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
+    <script type="text/javascript" src="/static/js/dide.js"></script>
 
 
 
@@ -160,7 +161,7 @@ p {
     <!-- Content -->
     <div id="content" class="{% block coltype %}{% endblock %}">
         {% block pretitle %}{% endblock %}
-        {% block content_title %}<h1><img src="{% static "img/page_full.png" %}" style="pading: 2px; "> {{ emp.lastname  }} {{ emp.firstname  }}</h1>{% endblock %}
+        {% block content_title %}<h1><img src="{% static "img/page_full.png" %}" style="pading: 2px; "> Στοιχεία καρτέλας</h1>{% endblock %}
         {% block content %}
         {% block object-tools %}{% endblock %}
         {{ content }}
@@ -175,7 +176,7 @@ p {
   <div id="footer">
     <div class="submit-row" style="margin: 0 0 0 0;">
      <div style="text-align: left; float: left; width: 350px;">
-      <!--<input type="button" id="bsave" value="Αποθήκευση" />-->
+      <!--<input type="button" id="bsave" value="Αποθήκευση Αλλαγών" />-->
       <a id="save" href="#">Αποθήκευση Αλλαγών</a>
       </div>
       <div style="text-align: right; float: right; margin-left: 200px;">

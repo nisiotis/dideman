@@ -358,7 +358,7 @@ class EmployeeAdmin(DideAdmin):
     inlines = [DegreeInline, ChildInline, LoanInline]
     fieldsets = [
         (u'Βασικά στοιχεία', {
-                'fields': ['currently_serves', 'transfer_area',
+                'fields': ['show_photo', 'currently_serves', 'transfer_area',
                            'firstname', 'lastname', 'fathername',
                            'mothername',  'profession',
                            'date_end', 'address',
@@ -369,7 +369,7 @@ class EmployeeAdmin(DideAdmin):
                            'organization_serving', 'date_created']}),
         economic_fieldset]
     readonly_fields = ['last_placement', 'organization_serving',
-                       'date_created', 'profession_description']
+                       'date_created', 'profession_description', 'show_photo']
     list_max_show_all = 10000
     list_per_page = 50
     actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
@@ -463,7 +463,7 @@ class PermanentAdmin(EmployeeAdmin):
     list_per_page = 50
     fieldsets = [
         ('Γενικά Στοιχεία', {
-            'fields': [
+            'fields': [ 'show_photo',
                 'transfer_area',
                     'lastname', 'firstname', 'fathername', 'notes',
                     'sex', 'registration_number', 'profession',
@@ -471,7 +471,8 @@ class PermanentAdmin(EmployeeAdmin):
                     'temporary_position', 'organization_serving',
                     'study_years', 'serving_type', 'date_hired',
                     'order_hired', 'is_permanent',
-                    'has_permanent_post', 'rank', 'ranknew', 'address', 'identity_number',
+                    'has_permanent_post', 'rank', 'ranknew', 'address',
+                    'address_postcode','address_city', 'identity_number',
                     'inaccessible_school', 'telephone_number1',
                     'telephone_number2', 'email', 'marital_status',
                     'birth_date', 'date_created', 'educated']}), #Removed 'hours_current',
@@ -513,7 +514,8 @@ class PermanentAdmin(EmployeeAdmin):
                                      'educated',
                                      'calculable_not_service',
                                      'ranknew__rank', 'ranknew__value','ranknew_date','ranknew__next_promotion_date',
-                                     'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
+                                     'rank__value', 'rank__date', 'rank__next_promotion_date'],
+                                     exclude=['notes','photo','photo_type'])] + \
                      proag_docx_reports + permanent_docx_reports, key=lambda k: k.short_description)
 
 
@@ -536,7 +538,7 @@ class AdministrativeAdmin(PermanentAdmin):
                                                EmployeeWithOutLeaveFilter)
     fieldsets = [
             ('Γενικά Στοιχεία', {
-                'fields': [
+                'fields': [ 'show_photo',
                         'transfer_area',
                         'lastname', 'firstname', 'fathername', 'notes',
                         'sex', 'registration_number', 'profession',
@@ -545,7 +547,8 @@ class AdministrativeAdmin(PermanentAdmin):
                         'study_years', 'serving_type', 'date_hired',
                         'order_hired', 'is_permanent',
                         'has_permanent_post', 'rank', 'ranknew', 'identity_number',  
-                        'address', 'telephone_number1',
+                        'address', 'address_postcode','address_city',
+                        'telephone_number1',
                         'telephone_number2', 'email', 'marital_status',
                         'birth_date', 'hours_current', 'date_created']}),
             ('Στοιχεία Προϋπηρεσίας', {
@@ -575,7 +578,8 @@ class AdministrativeAdmin(PermanentAdmin):
                                     'payment_start_date_auto',
                                     'formatted_recognised_experience',
                                     'checked_service',
-                                    'rank__value', 'rank__date', 'rank__next_promotion_date'])] + \
+                                    'rank__value', 'rank__date', 'rank__next_promotion_date'],
+                                    exclude=['notes','photo','photo_type'])] + \
         permanent_docx_reports, key=lambda k: k.short_description)   
 
 
@@ -690,21 +694,21 @@ class NonPermanentAdmin(EmployeeAdmin):
 
     fieldsets = [
         ('Στοιχεία μη-μόνιμου', {
-            'fields': [
+            'fields': ['show_photo',
                     'lastname', 'firstname', 'fathername', 'mothername',
                     'sex', 'current_transfer_area',
                     'notes', 'type', 'profession', 'profession_description',
                     'profession_code_oaed',
                     'current_placement', 'organization_serving',
                     'study_years', 'show_exp_report',
-                    'identity_number', 'address',
+                    'identity_number', 'address', 'address_postcode','address_city',
                     'telephone_number1',
                     'telephone_number2', 'email', 'marital_status', 'birth_date',
                     'date_created', 'pedagogical_sufficiency', 'educational_level',
             'ergani_new',        
             'social_security_number', 'citizenship_code']}),
             economic_fieldset]
-    readonly_fields = ['type', 'profession_description',
+    readonly_fields = ['show_photo', 'type', 'profession_description',
                        'current_placement', 'organization_serving',
                        'date_created',
                        'current_transfer_area']
@@ -716,7 +720,8 @@ class NonPermanentAdmin(EmployeeAdmin):
                    NonPermanentOrganizationServingFilter,
                    NonPermanentWithTotalExtraPosition]
     actions = sorted([to_permanent, to_administrative, to_private_teacher,
-                    CSVReport(add=['current_placement', 'organization_serving', 'profession__description']),
+                    CSVReport(add=['current_placement', 'organization_serving', 'profession__description'],
+                        exclude=['notes','photo','photo_type']),
                   ] + nonpermanent_docx_reports + [XMLWriteE3Action(u'Δημιουργία Εργάνη XML E3')] + [XMLWriteE7Action(u'Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
 
 

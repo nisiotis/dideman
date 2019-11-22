@@ -24,7 +24,8 @@
     
         {% for r in item %}
           <li style="list-style-type: none; padding: 1px 0;border-bottom: 1px #eee solid;">
-            <h3><a href="{{ r.app_label }}/{{ r.object_name|lower  }}/{{ r.parent_id }}">{{ r.lastname }} {{ r.firstname }} του {{ r.fathername }} - {{ group }}</a></h3>
+            <h3><a href="{{ r.app_label }}/{{ r.object_name|lower  }}/{{ r.parent_id }}">{{ r.lastname }} {{ r.firstname }} του {{ r.fathername }} 
+            {% if r.organization_serving %} - {{ r.organization_serving }}{% endif %} - {{ group }}</a></h3>
           </li>
         {% empty %}
                     
