@@ -31,6 +31,12 @@ def index(self, request, extra_context=None):
     app_dict = {}
     search_model = []
     user = request.user
+    tot_pho = None
+    is_super = None
+    if user.is_superuser:
+        is_super = True
+        tot_pho = Employee.objects.exclude(photo__exact='').exclude(photo__isnull=True).count()
+
     for model, model_admin in self._registry.items():
         app_label = model._meta.app_label
         has_module_perms = user.has_module_perms(app_label)
@@ -93,6 +99,8 @@ def index(self, request, extra_context=None):
         'total_administrative': '%d' % tot_admin,
         'y_1': y1,
         'y_2': y2,
+        'is_super': is_super,
+        'photo_total': tot_pho,
         'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
     }
     context.update(extra_context or {})
