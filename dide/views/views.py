@@ -32,11 +32,15 @@ def index(self, request, extra_context=None):
     search_model = []
     user = request.user
     tot_pho = None
+    tot_day_mod = None
     is_super = None
+    today = datetime.date.today()
     if user.is_superuser:
         is_super = True
         tot_pho = Employee.objects.exclude(photo__exact='').exclude(photo__isnull=True).count()
-
+        tot_day_mod = Employee.objects.filter(date_modified__year=today.year,
+                                                date_modified__month=today.month,
+                                                date_modified__day=today.day).count()
     for model, model_admin in self._registry.items():
         app_label = model._meta.app_label
         has_module_perms = user.has_module_perms(app_label)
@@ -101,6 +105,7 @@ def index(self, request, extra_context=None):
         'y_2': y2,
         'is_super': is_super,
         'photo_total': tot_pho,
+        'today_mod_total': tot_day_mod,
         'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
     }
     context.update(extra_context or {})
