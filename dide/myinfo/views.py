@@ -471,8 +471,8 @@ def edit(request):
 
     fs = []
     exp = False
-    y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
-    y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
+    y1 = datetime.date.today().year if datetime.date.today().month > 9 and datetime.date.today().month <= 12 else datetime.date.today().year - 1
+    y2 = datetime.date.today().year if datetime.date.today().month >= 1 and datetime.date.today().month < 9 else datetime.date.today().year + 1
 
     if 'logout' in request.GET:
         request.session.clear()
