@@ -86,8 +86,10 @@ def index(self, request, extra_context=None):
         app['models'].sort(key=lambda x: x['name'])
 
     tot_perm = Permanent.objects.filter(currently_serves=1).count()
-    y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
-    y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
+
+    y1 = datetime.date.today().year if datetime.date.today().month > 9 and datetime.date.today().month <= 12 else datetime.date.today().year - 1
+    y2 = datetime.date.today().year if datetime.date.today().month >= 1 and datetime.date.today().month < 9 else datetime.date.today().year + 1
+
     tot_non = NonPermanent.objects.substitutes_in_date_range(date_from='%d-09-01' % y1, date_to='%d-08-31' % y2).count() 
 
     tot_priv = PrivateTeacher.objects.filter(active__exact=1).count()
