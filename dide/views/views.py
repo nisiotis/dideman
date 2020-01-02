@@ -26,7 +26,8 @@ import datetime, base64
 def index(self, request, extra_context=None):
     """
     Displays the main admin index page, which lists all of the installed
-    apps that have been registered in this site.
+    apps that have been registered in this site. Added a search field, used monkey-patch 
+    to overide the default index
     """
     app_dict = {}
     search_model = []
@@ -115,16 +116,29 @@ def index(self, request, extra_context=None):
         results = {}
         total_results = 0
         if request.POST['q'] != '':
-            for model in search_model:
-                if model.__name__ == "Permanent":
-                    results[model._meta.verbose_name] = model.objects.filter(Q(lastname__startswith=request.POST['q'].upper())
-                    | Q(vat_number__startswith=request.POST['q'])
-                    | Q(registration_number__startswith=request.POST['q']))
-                    total_results += len(results[model._meta.verbose_name])
-                if model.__name__ in ("NonPermanent", "Administrative", "PrivateTeacher"):
-                    results[model._meta.verbose_name] = model.objects.filter(Q(lastname__startswith=request.POST['q'].upper())
-                    | Q(vat_number__startswith=request.POST['q']))
-                    total_results += len(results[model._meta.verbose_name])
+            if request.POST['q'] == '/photo':
+                for model in search_model:
+                    if model.__name__ in ("Permanent", "NonPermanent", "Administrative"):
+                        results[model._meta.verbose_name] = model.objects.exclude(photo__exact='').exclude(photo__isnull=True)
+                        total_results += len(results[model._meta.verbose_name])
+            elif request.POST['q'] == '/lastedit':
+                for model in search_model:
+                    if model.__name__ in ("Permanent", "NonPermanent", "Administrative", "PrivateTeacher"):
+                        results[model._meta.verbose_name] = model.objects.filter(date_modified__year=today.year,
+                                                date_modified__month=today.month,
+                                                date_modified__day=today.day)
+                        total_results += len(results[model._meta.verbose_name])
+            else:
+                for model in search_model:
+                    if model.__name__ == "Permanent":
+                        results[model._meta.verbose_name] = model.objects.filter(Q(lastname__startswith=request.POST['q'].upper())
+                        | Q(vat_number__startswith=request.POST['q'])
+                        | Q(registration_number__startswith=request.POST['q']))
+                        total_results += len(results[model._meta.verbose_name])
+                    if model.__name__ in ("NonPermanent", "Administrative", "PrivateTeacher"):
+                        results[model._meta.verbose_name] = model.objects.filter(Q(lastname__startswith=request.POST['q'].upper())
+                        | Q(vat_number__startswith=request.POST['q']))
+                        total_results += len(results[model._meta.verbose_name])
 
         context = {
             'title': _('Search'),
