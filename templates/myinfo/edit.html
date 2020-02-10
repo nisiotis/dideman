@@ -87,8 +87,8 @@ label {
     {% endif %}
 {% endblock  %}
 {% block extrahead %}
-<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.css" />
-<script src="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
 
 
 {% endblock %}
@@ -243,7 +243,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 var center = L.latLng('{{ om_y }}', '{{ om_x }}');
 map.setView(center, 12);
 L.marker(center).bindTooltip("{{ om_p }}").addTo(map);
-
+map.invalidateSize();
 </script>
 
 
