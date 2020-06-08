@@ -49,7 +49,7 @@
       <w:r>
         <w:rPr/>
         <w:t>Απόφαση διορισμού {{settings.ministry_title}}: {{rec.order__order}} {{rec.order__date}}</w:t>
-      </w:r>_
+      </w:r>
     </w:p>
     <w:p>
       <w:pPr>
@@ -60,6 +60,7 @@
         <w:t>Απόφαση τοποθέτησης Διευθυντή Δ.Ε. Δωδεκανήσου: {{rec.order__order_start_manager}} </w:t>
       </w:r>
     </w:p>
+
     <w:p>
       <w:pPr>
         <w:pStyle w:val="style18"/>
@@ -69,22 +70,34 @@
         <w:t>Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: {{rec.order__order_end_manager}} </w:t>
       </w:r>
     </w:p>
+
     <w:p>
       <w:pPr>
         <w:pStyle w:val="style18"/>
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Ημερομηνία ανάληψης υπηρεσίας: {% if rec.current_placement__date_from_show %} {{ rec.current_placement__date_from_show }} {% else %} {{ rec.current_placement__date_from }} {% endif %}</w:t>
+        <w:t>Ημερομηνία ανάληψης υπηρεσίας: {% if rec.current_placement__date_from_show %} {{ rec.current_placement__date_from_show }} {% else %} {{ rec.current_placement__date_from }} {% endif %} </w:t>
       </w:r>
     </w:p>
+
+    <w:p>
+      <w:pPr>
+	<w:pStyle w:val="style18"/>
+      </w:pPr>
+      <w:r>
+        <w:rPr/>
+        <w:t>Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: {% if rec.current_placement__date_from_show %} {{ rec.current_placement__date_from_show }} {% else %} {{ rec.current_placement__date_from }} {% endif %} - {{ rec.current_placement__date_to }}</w:t>
+      </w:r>
+    </w:p>
+
     <w:p>
       <w:pPr>
         <w:pStyle w:val="style18"/>
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος προϋπηρεσίας με βάση την υπουργική απόφαση: {{rec.experience}}.</w:t>
+        <w:t>Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών: {{ rec.current_placement__date_from }} - {{ rec.current_placement__date_to }}</w:t>
       </w:r>
     </w:p>
 
