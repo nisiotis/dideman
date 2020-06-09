@@ -40,7 +40,7 @@ nonpermanent_docx_reports = [
 
     NonPermanentDocxReport(u'Αυτοδίκαιη Απόλυση', 'apolisi-proypiresia.xml',
                            ['profession__description', 'firstname', 'current_placement', 
-                            'current_placement__date_from_show', 'current_placement__date_to',
+                            'current_placement__substituteplacement__date_from_show', 'current_placement__date_to',
                             'current_placement__date_from',
                             'lastname', 'profession', 'current_placement',
                             'order__order_end_manager', 'experience', 'current_placement', 'fathername',

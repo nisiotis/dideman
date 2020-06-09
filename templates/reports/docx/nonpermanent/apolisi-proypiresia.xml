@@ -77,7 +77,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Ημερομηνία ανάληψης υπηρεσίας: {% if rec.current_placement__date_from_show %} {{ rec.current_placement__date_from_show }} {% else %} {{ rec.current_placement__date_from }} {% endif %} </w:t>
+        <w:t>Ημερομηνία ανάληψης υπηρεσίας: {% if rec.current_placement__substituteplacement__date_from_show %} {{rec.current_placement__substituteplacement__date_from_show}} {% else %} {{ rec.current_placement__date_from }} {% endif %} </w:t>
       </w:r>
     </w:p>
 
@@ -87,7 +87,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: {% if rec.current_placement__date_from_show %} {{ rec.current_placement__date_from_show }} {% else %} {{ rec.current_placement__date_from }} {% endif %} - {{ rec.current_placement__date_to }}</w:t>
+        <w:t>Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: {% if rec.current_placement__substituteplacement__date_from_show %} {{rec.current_placement__substituteplacement__date_from_show}} {% else %} {{ rec.current_placement__date_from }} {% endif %} - {{ rec.current_placement__date_to }}</w:t>
       </w:r>
     </w:p>
 
