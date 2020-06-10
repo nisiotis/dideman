@@ -87,7 +87,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: {% if rec.current_placement__substituteplacement__date_from_show %} {{rec.current_placement__substituteplacement__date_from_show}} {% else %} {{ rec.current_placement__date_from }} {% endif %} - {{ rec.current_placement__date_to }}</w:t>
+        <w:t>Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: {{ rec.experience_salary }}</w:t>
       </w:r>
     </w:p>
 
@@ -97,7 +97,7 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών: {{ rec.current_placement__date_from }} - {{ rec.current_placement__date_to }}</w:t>
+        <w:t>Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών: {{ rec.experience }}</w:t>
       </w:r>
     </w:p>
 

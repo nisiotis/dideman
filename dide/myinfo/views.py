@@ -429,15 +429,17 @@ def print_exp_report(request):
 
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
-#    elements.append(Paragraph(u'Χρόνος προϋπηρεσίας με βάση την υπουργική απόφαση: %s' % emptype.experience(), tbl_style['Left']))
 
-    if emptype.current_placement().substituteplacement.date_from_show:
-        elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: %s/%s/%s - %s/%s/%s' % (emptype.current_placement().substituteplacement.date_from_show.day, emptype.current_placement().substituteplacement.date_from_show.month, emptype.current_placement().substituteplacement.date_from_show.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Left']))
-    else:
-        elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: %s/%s/%s - %s/%s/%s' % (emptype.current_placement().date_from.day, emptype.current_placement().date_from.month, emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Left']))
+    elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: %s' % emptype.experience_salary(), tbl_style['Left']))
+
+    elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών: %s' % emptype.experience(), tbl_style['Left']))
+#    if emptype.current_placement().substituteplacement.date_from_show:
+#        elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: %s/%s/%s - %s/%s/%s' % (emptype.current_placement().substituteplacement.date_from_show.day, emptype.current_placement().substituteplacement.date_from_show.month, emptype.current_placement().substituteplacement.date_from_show.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Left']))
+#    else:
+#        elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: %s/%s/%s - %s/%s/%s' % (emptype.current_placement().date_from.day, emptype.current_placement().date_from.month, emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Left']))
 
 
-    elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών:  %s/%s/%s - %s/%s/%s' % (emptype.current_placement().date_from.day, emptype.current_placement().date_from.month, emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Left']))
+#    elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών:  %s/%s/%s - %s/%s/%s' % (emptype.current_placement().date_from.day, emptype.current_placement().date_from.month, emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Left']))
     elements.append(Paragraph(u' ', heading_style['Spacer']))
 
     elements.append(Paragraph(u'Το πλήρες ωράριο εβδομαδιαίας διδακτικής απασχόλησης των εκπαιδευτικών της Δευτεροβάθμιας Εκπαίδευσης κλάδων ΠΕ που ισχύει σύμφωνα με τον Ν.4152/2013 είναι 23 ώρες.', tbl_style['Justify']))

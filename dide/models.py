@@ -1358,6 +1358,17 @@ class NonPermanent(Employee):
         else:
             return DateInterval()
 
+    def experience_salary(self):
+        p = self.current_placement()
+        #import pdb; pdb.set_trace()
+        if p:
+            if p.substituteplacement.date_from_show:
+                return Date(p.date_to) - Date(p.substituteplacement.date_from_show) + DateInterval(days=1)
+            else:
+                return Date(p.date_to) - Date(p.date_from) + DateInterval(days=1)
+        else:
+            return DateInterval()
+
     def employment_type_text(self):
         t = self.type()
         if t is not None:
