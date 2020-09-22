@@ -88,7 +88,7 @@ def index(self, request, extra_context=None):
 
     tot_perm = Permanent.objects.filter(currently_serves=1).count()
 
-    y1 = datetime.date.today().year if datetime.date.today().month > 9 and datetime.date.today().month <= 12 else datetime.date.today().year - 1
+    y1 = datetime.date.today().year if datetime.date.today().month > 8 and datetime.date.today().month <= 12 else datetime.date.today().year - 1
     y2 = datetime.date.today().year if datetime.date.today().month >= 1 and datetime.date.today().month < 9 else datetime.date.today().year + 1
 
     tot_non = NonPermanent.objects.substitutes_in_date_range(date_from='%d-09-01' % y1, date_to='%d-08-31' % y2).count() 
@@ -104,8 +104,8 @@ def index(self, request, extra_context=None):
         'total_nonpermanent': '%d' % tot_non,
         'total_private': '%d' % tot_priv,
         'total_administrative': '%d' % tot_admin,
-        'y_1': y1,
-        'y_2': y2,
+        'yf': y1,
+        'yt': y2,
         'is_super': is_super,
         'photo_total': tot_pho,
         'today_mod_total': tot_day_mod,
@@ -213,8 +213,11 @@ def nonpermanent_list(request):
 def school_geo_view(request):
     sch = School.objects.all().exclude(google_maps_x__isnull=True).exclude(google_maps_x__exact='').exclude(google_maps_y__isnull=True).exclude(google_maps_y__exact='')
     sch_units = []
-    y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
-    y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
+    y1 = datetime.date.today().year if datetime.date.today().month > 8 and datetime.date.today().month <= 12 else datetime.date.today().year - 1
+    y2 = datetime.date.today().year if datetime.date.today().month >= 1 and datetime.date.today().month < 9 else datetime.date.today().year + 1
+
+#    y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
+#    y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
 
     for item in sch:
         c_npr = NonPermanent.objects.temporary_post_in_organization(item.id).count()
