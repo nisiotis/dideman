@@ -131,7 +131,7 @@ def read(file, filerec, istaxed):
                             sql += " @lastcat, '" + rmv_nsp(elm) + "',"
                             if int(elm.get('code')) not in paycodesdic:
                                 pc = PaymentCode(id=int(elm.get('code')),
-                                                 description='')
+                                                 description=u'-', group_name=u'', calc_type=0)
                                 pc.save()
                                 paycodesdic.add(pc.id)
                             sql += elm.get('code') + ","

@@ -272,7 +272,7 @@ class CSVReport(TemplateAction):
             for field in self.fields]
         writer.writerow(descriptions)
         for obj in queryset:
-            row = [self.field_string_value(obj, f, encode_in_iso=True)
+            row = [self.field_string_value(obj, f, encode_in_iso=True).replace("\n", "").replace(";","")
                    for f in self.fields]
             writer.writerow(row)
         self.add_response_headers()
