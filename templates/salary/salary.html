@@ -57,7 +57,7 @@ $(function() {
       </div>
 	{% endif %}
 
-        {% if emp.ranknew %}
+        {% if emp.ranknew and emp.salary != "Χωρίς" %}
         <div class="form-row field-rank">
         <div>
           <label style = "width:220px;">Νέος Βαθμός - Κλιμάκιο : </label>
