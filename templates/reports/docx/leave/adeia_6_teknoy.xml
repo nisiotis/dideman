@@ -1,0 +1,53 @@
+       <!--Υπάλληλοι που δεν υπάγονται στην παράγραφο 2 και έχουν ποσοστό αναπηρίας πενήντα τοις εκατό (50%) και άνω,
+       ή ανήλικα ή ενήλικα τέκνα, τα οποία δεν εργάζονται λόγω της αναπηρίας αυτής, με ποσοστό αναπηρίας
+       πενήντα τοις εκατό (50%) και άνω.
+       -->
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις διατάξεις του άρθρου 50 παρ.3, του Ν.3528/2007 (Φ.Ε.Κ. 26 τ.Α') </w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. την ΔΙΔΑΔ/Φ69/117/οικ11102/28-5-2020 με ΑΔΑ 6ΣΦ146ΜΤΛ6-48Π εγκύκλιο του ΥΠ.ΕΣ</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Το άρθρο 16 του νόμου 2085/92 (Φ.Ε.Κ. 170/20-10-1992 τ.Α')</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Την  αριθμ. 160443/29-12-2009 (Φ.Ε.Κ. 2450 τ.Β') Υπουργική Απόφαση</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>4. Την  αριθμ. {{rec.order}}</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε στον/ην {{ rec.recipient }} του {{ rec.employee__fathername }}, υπάλληλο κλάδου {{ rec.profession }} του {{ rec.employee__subclass__organization_serving }} ειδική  άδεια {{rec.duration}} ημερών με αποδοχές από {{ rec.date_from }} έως {{ rec.date_to }}.</w:t>
+            </w:r>
+        </w:p>

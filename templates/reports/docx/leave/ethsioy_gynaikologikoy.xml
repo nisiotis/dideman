@@ -1,0 +1,50 @@
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t xml:space="preserve"> Έχοντας υπόψη:</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>1. Τις διατάξεις :</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>   α) του Ν.3528/2007, άρθ. 50, παρ. 9,που προστέθηκε με το άρθρο 47 του Ν.4674/2020,  με την οποία προβλέπεται ότι στις υπαλλήλους χορηγείται μια (1) μέρα το χρόνο με αποδοχές για τη διενέργεια ετήσιου γυναικολογικού ελέγχου</w:t>
+            </w:r>
+        </w:p>        
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>   β) την ΔΙΔΑΔ Φ69/117οικ11102/28-5-2020 (ΑΔΑ:6ΣΦ146ΜΤΛ6-48Π)</w:t>
+            </w:r>
+        </w:p>
+
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>2. Την αίτηση της ενδιαφερομένης</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:r>
+                <w:t>3. Τη σχετική βεβαίωση του θεράποντος ιατρού περί πραγματοποίησης του σχετικού ελέγχου</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="00562E43" w:rsidRPr="00B93A11" w:rsidRDefault="00B93A11" w:rsidP="00B93A11">
+            <w:pPr>
+                <w:jc w:val="center"/>
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+            </w:pPr>
+            <w:r w:rsidRPr="00B93A11">
+                <w:rPr>
+                    <w:u w:val="single"/>
+                </w:rPr>
+                <w:t>α π ο φ α σ ί ζ ο υ μ ε</w:t>
+            </w:r>
+        </w:p>
+        <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
+            <w:r w:rsidRPr="004079CD">
+                <w:t xml:space="preserve">Χορηγούμε στην {{ rec.recipient }} του {{ rec.employee__fathername }}, υπάλληλο κλάδου {{ rec.profession }} του {{ rec.employee__subclass__organization_serving }} άδεια για ετήσιο γυναικολογικό έλεγχο  {{ rec.date_from }} έως {{ rec.date_to }} με αποδοχές.</w:t>
+            </w:r>
+        </w:p>
