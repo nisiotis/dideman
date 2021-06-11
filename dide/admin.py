@@ -235,6 +235,7 @@ class PartialServiceInline(admin.TabularInline):
     fields = ('organization', 'date_from', 'date_to', 
               'type', 'hours', 'hours_overtime', 'order_min', 'order_pysde', 'order_manager')
 
+
 class SubstitutePlacementInline(admin.TabularInline):
     model = SubstitutePlacement
     extra = 0
@@ -707,6 +708,10 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'date_created', 'pedagogical_sufficiency', 'educational_level',
             'ergani_new',        
             'social_security_number', 'citizenship_code']}),
+        ('Στοιχεία Προϋπηρεσίας', {
+            'fields': [
+                       'recognised_experience','checked_service',
+                       ]}),
             economic_fieldset]
     readonly_fields = ['show_photo', 'type', 'profession_description',
                        'current_placement', 'organization_serving',

@@ -191,10 +191,15 @@ class DateInterval(object):
         """
         format the tuple (self.years, self.months, self.days) as a string
         when given a formatter. If no formatter is given the default
-        formatter (u"%s έτη, %s μήνες, %s ημέρες") is applied
+        formatter (u"%s η, %s μήνες, %s ημέρες") is applied
         """
         formatter = formatter or u"%s έτη, %s μήνες, %s ημέρες"
         return formatter % (self.years, self.months, self.days)
+
+
+
+    def __str__(self):
+        return "%s-%s-%s" % self.tuple()
 
     def total300(self):
         """same interval in 300 day year"""
@@ -206,6 +211,19 @@ class DateInterval(object):
             m -= 12
             y += 1
         return y * 300 + m * 25 + d
+
+    def totalmeivmemo(self,hours, eisag):
+
+        """same intervalΣΕ ΜΕΙΩΜΕΝΝΟΥ ΩΡΑΡΙΟΥ """
+        y, m, d = self.tuple()
+        if d >= 30:
+            d -= 30
+            m += 1
+        if m >= 12:
+            m -= 12
+            y += 1
+        return (y * 300 + m * 30 + d) * hours / eisag
+
 
     def __add__(self, other):
         return self.__class__(days=self.total + other.total)
