@@ -1,4 +1,4 @@
-﻿    <w:p>
+﻿      <w:p>
       <w:pPr>
         <w:jc w:val="both"/>
       </w:pPr>
@@ -8,38 +8,7 @@
       </w:r>
       <w:r>
         <w:rPr/>
-        <w:t>Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση της Διεύθυνσης Δευτεροβάθμιας Εκπαίδευσης {{settings.dide_place}} απολύεστε αυτοδίκαια και χωρίς καμία αποζημίωση από το Δημόσιο από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την {{rec.current_placement.date_to}}. </w:t>
-      </w:r>
-    </w:p>
-
-    <w:p>
-    </w:p>
-
-    <w:p w:rsidR="001420B7" w:rsidRDefault="00765FD0">
-      <w:pPr>
-        <w:pStyle w:val="1"/>
-        <w:numPr>
-          <w:ilvl w:val="0"/>
-          <w:numId w:val="1"/>
-        </w:numPr>
-      </w:pPr>
-      <w:r>
-        <w:t>ΘΕΜΑ: Βεβαίωση Προϋπηρεσίας</w:t>
-      </w:r>
-    </w:p>
-
-
-    <w:p>
-      <w:pPr>
-        <w:jc w:val="both"/>
-      </w:pPr>
-      <w:r>
-        <w:rPr/>
-        <w:t xml:space="preserve"></w:t>
-      </w:r>
-      <w:r>
-        <w:rPr/>
-        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.current_placement}} ως {{rec.type}} με σχέση εργασίας ιδιωτικού δικαίου, ορισμένου χρόνου και υπηρέτησε από {{rec.current_placement.date_from}} έως {{rec.current_placement.date_to}}.</w:t>
+        <w:t>Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η {{rec.recipient}} με όνομα πατρός {{rec.fathername}} του κλάδου {{rec.profession}} {{rec.profession__description}} τοποθετήθηκε στο {{rec.current_placement}} ως {{rec.type}}  ({{ rec.current_placement__substituteplacement__week_hours}} ώρες/εβδομάδα)με σχέση εργασίας ιδιωτικού δικαίου, ορισμένου χρόνου και υπηρέτησε από {{rec.current_placement.date_from}} έως {{rec.current_placement.date_to}}.</w:t>
       </w:r>
     </w:p>
     <w:p>
@@ -81,16 +50,18 @@
       </w:r>
     </w:p>
 
-    <w:p>
+ <w:p>
       <w:pPr>
 	<w:pStyle w:val="style18"/>
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: {{ rec.experience_salary  }}</w:t>
+        <w:t>
+              Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: {{ rec.experience_salary }}
+
+        </w:t>
       </w:r>
     </w:p>
-
     <w:p>
       <w:pPr>
         <w:pStyle w:val="style18"/>
@@ -107,10 +78,14 @@
       </w:pPr>
       <w:r>
         <w:rPr/>
-        <w:t>Το πλήρες ωράριο εβδομαδιαίας διδακτικής απασχόλησης των εκπαιδευτικών της Δευτεροβάθμιας Εκπαίδευσης κλάδων ΠΕ που ισχύει σύμφωνα με τον Ν.4152/2013 είναι 23 ώρες.</w:t>
+        <w:t>
+            Το πλήρες ωράριο εβδομαδιαίας διδακτικής απασχόλησης των εκπαιδευτικών της Δευτεροβάθμιας Εκπαίδευσης κλάδων {{ rec.profession__category }} που ισχύει σύμφωνα με τον Ν.4152/2013 είναι
+      {% if  rec.profession__category == "ΠΕ" %} 23
+            {% else  %} 24 {%endif%}  ώρες
+
+        </w:t>
       </w:r>
     </w:p>
-
     <w:p>
       <w:pPr>
         <w:jc w:val="both"/>
