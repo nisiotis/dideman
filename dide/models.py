@@ -1989,6 +1989,7 @@ class EmployeeDegree(models.Model):
     class Meta:
         verbose_name = u'Πτυχία/Προσόντα εκπαιδευτικού'
         verbose_name_plural = u'Πτυχία/Προσόντα εκπαιδευτικών'
+        ordering = ['-date']
 
     name = models.CharField(u'Τίτλος', max_length=200)  # τιτλος πτυχίου
     degree = models.ForeignKey(DegreeCategory, verbose_name=u'Κατηγορία')
