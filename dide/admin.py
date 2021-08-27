@@ -725,7 +725,7 @@ class NonPermanentAdmin(EmployeeAdmin):
                    NonPermanentOrganizationServingFilter,
                    NonPermanentWithTotalExtraPosition]
     actions = sorted([to_permanent, to_administrative, to_private_teacher,
-                    CSVReport(add=['current_placement', 'organization_serving', 'profession__description'],
+                    CSVReport(add=['current_placement', 'organization_serving', 'profession__description', 'order', 'type'],
                         exclude=['photo','photo_type']),
                   ] + nonpermanent_docx_reports + [XMLWriteE3Action(u'Δημιουργία Εργάνη XML E3')] + [XMLWriteE7Action(u'Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
 
