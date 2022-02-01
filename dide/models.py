@@ -1054,6 +1054,7 @@ class Permanent(Employee):
 
     permanent_post_island.short_description = u'Νησί Οργανικής'
 
+# οι μερες αδειας των αποσπασμενων σε Διευθυνσεις και γρααφεια ειναι 29
     def normal_leave_days(self):
         return 10
 

@@ -50,7 +50,7 @@ nonpermanent_docx_reports = [
                             'protocol_number': lambda d: protocol_number(d['order'].order_end_manager),
                             'cc': ['{{current_placement}}', 'Α.Φ.']}),
 
-    NonPermanentDocxReport(u'ΒΕΒΑΙΩΣΗ ΠΡΟΥΠΗΡΕΣΙΑΣ ΑΝΑΠΛΗΡΩΤΗ', 'apolisi-proypiresia2.xml',
+    NonPermanentDocxReport(u'ΒΕΒΑΙΩΣΗ ΠΡΟΥΠΗΡΕΣΙΑΣ ΑΝΑΠΛΗΡΩΤΗ τρεχοντος έτους', 'apolisi-proypiresia2.xml',
                            ['profession__description', 'firstname', 'current_placement', 
                             'current_placement__substituteplacement__date_from_show', 'current_placement__date_to',
                             'current_placement__date_from',
