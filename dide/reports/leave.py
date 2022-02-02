@@ -192,7 +192,7 @@ leave_docx_reports = [
     LeaveDocxReport(u'Αναρρωτική άνευ αποδοχών', 'anarrotiki_xoris_apodoxes.xml',
                     custom_context={'subject':
                                     u'Χορήγηση αναρρωτικής άδειας'}),
-    LeaveDocxReport(u'Α.Χ.Α ΤΕΚΝΟΥ Ν4830/2021', 'adeia_anatrofis_no_pay2021.xml',
+    LeaveDocxReport(u'ανατροφής τέκνου χωρίς αποδοχές Ν4830_2021', 'adeia_anatrofis_no_pay2021.xml',
                     custom_context={'subject':
                                         u'Χορήγηση άδειας άνευ αποδοχών για ανατροφή τέκνου ως 8 ετών'}),
 
