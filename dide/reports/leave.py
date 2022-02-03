@@ -62,7 +62,8 @@ class LeaveDocxReport(DocxReport):
 leave_docx_reports = [
     LeaveDocxReport(u'Aιμοδοτική - παροχής αιμοπεταλίων', 'adeia_aimodosias-aimopetalia.xml',
                     custom_context={'subject': u'Χορήγηση άδειας λόγω αιμοληψίας ή λήψης αιμοπεταλίων'}),
-
+    LeaveDocxReport(u'Aιμοδοτική ', 'adeia_aimodosias.xml',
+                    custom_context={'subject': u'Χορήγηση άδειας λόγω αιμοληψίας'}),
     LeaveDocxReport(u'Συνδικαλιστική',
                     'adeia_syndikalistiki.xml',
                     custom_context={'subject':  u'Χορήγηση Συνδικαλιστικής Άδειας '}),
@@ -191,6 +192,10 @@ leave_docx_reports = [
     LeaveDocxReport(u'Αναρρωτική άνευ αποδοχών', 'anarrotiki_xoris_apodoxes.xml',
                     custom_context={'subject':
                                     u'Χορήγηση αναρρωτικής άδειας'}),
+
+    LeaveDocxReport(u'ανατροφής τέκνου χωρίς αποδοχές Ν4830_2021', 'adeia_anatrofis_no_pay2021.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση άδειας άνευ αποδοχών για ανατροφή τέκνου ως 8 ετών'}),
 
     LeaveDocxReport(u'Ειδικη Ασθένειας συζύγου ή ανήλικου τέκνου', 'adeia_asth_teknou_syzygoy_over22.xml',
                     custom_context={'subject':
