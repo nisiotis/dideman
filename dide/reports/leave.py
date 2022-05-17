@@ -200,4 +200,7 @@ leave_docx_reports = [
     LeaveDocxReport(u'Ειδικη Ασθένειας συζύγου ή ανήλικου τέκνου', 'adeia_asth_teknou_syzygoy_over22.xml',
                     custom_context={'subject':
                                         u'Χορήγηση άδειας λόγω ασθένειας συζύγου ή ανήλικου τέκνου'}),
+    LeaveDocxReport(u'Αναρρωτική Ειδικού σκοπού covid19', 'adeia_covid_anar.xml',
+                    custom_context={'subject':
+                                        u'Χορήγηση αναρρωτικής άδειας ειδικού σκοπού λόγω Covid-19»'}),
     ]
