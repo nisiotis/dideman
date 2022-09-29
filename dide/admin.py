@@ -465,7 +465,7 @@ class PermanentAdmin(EmployeeAdmin):
         ('Γενικά Στοιχεία', {
             'fields': [ 'show_photo',
                 'transfer_area',
-                    'lastname', 'firstname', 'fathername', 'notes',
+                    'lastname', 'firstname', 'fathername', 'mothername', 'notes',
                     'sex', 'registration_number', 'profession',
                     'profession_description', 'permanent_post',
                     'temporary_position', 'organization_serving',
