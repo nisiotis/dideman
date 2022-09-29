@@ -894,10 +894,6 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_proslipsitime>%s</f_proslipsitime>\n" % (datetime.datetime.now() + timedelta(hours=2)).strftime('%H:%m'))
             
             xml_file.write(u"\t\t<f_apoxwrisitime>20:00</f_apoxwrisitime>\n") # added for xsd v4
-<<<<<<< HEAD
-=======
-
->>>>>>> b89600aff7e971a7fc18bbe277304e76f7579549
             xml_file.write(u"\t\t<f_orario>%s</f_orario>\n" % manage_len(' ', 100))
             xml_file.write(u"\t\t<f_wresexternal/>\n")
             try:
@@ -965,11 +961,7 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_apoalliperioxi/>\n")
             xml_file.write(u"\t\t<f_nationalityalli/>\n")
             xml_file.write(u"\t\t<f_kallikratisalli/>\n")
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> b89600aff7e971a7fc18bbe277304e76f7579549
             # added for xsd v4
             xml_file.write(u"\t\t<f_working_time_digital_organization>0</f_working_time_digital_organization>\n")
             xml_file.write(u"\t\t<f_full_employment_hours>030,0</f_full_employment_hours>\n")
@@ -980,10 +972,6 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_dialeimma_entos_wrariou>0</f_dialeimma_entos_wrariou>\n")
             # ---
 
-<<<<<<< HEAD
-
-=======
->>>>>>> b89600aff7e971a7fc18bbe277304e76f7579549
             xml_file.write(u"\t\t<f_topothetisiepistoli>0</f_topothetisiepistoli>\n")
             xml_file.write(u"\t\t<f_topothetisioaed>0</f_topothetisioaed>\n")
             xml_file.write(u"\t\t<f_programaoaed/>\n")
