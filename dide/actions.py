@@ -889,6 +889,8 @@ class XMLWriteE3Action(object):
             except:
                 xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
             xml_file.write(u"\t\t<f_proslipsitime>%s</f_proslipsitime>\n" % (datetime.datetime.now() + timedelta(hours=2)).strftime('%H:%m'))
+            
+            xml_file.write(u"\t\t<f_apoxwrisitime>20:00</f_apoxwrisitime>\n") # added for xsd v4
             xml_file.write(u"\t\t<f_orario>%s</f_orario>\n" % manage_len(' ', 100))
             xml_file.write(u"\t\t<f_wresexternal/>\n")
             try:
@@ -956,6 +958,18 @@ class XMLWriteE3Action(object):
             xml_file.write(u"\t\t<f_apoalliperioxi/>\n")
             xml_file.write(u"\t\t<f_nationalityalli/>\n")
             xml_file.write(u"\t\t<f_kallikratisalli/>\n")
+
+            # added for xsd v4
+            xml_file.write(u"\t\t<f_working_time_digital_organization>0</f_working_time_digital_organization>\n")
+            xml_file.write(u"\t\t<f_full_employment_hours>030,0</f_full_employment_hours>\n")
+            xml_file.write(u"\t\t<f_week_days>5</f_week_days>\n")
+            xml_file.write(u"\t\t<f_euelikto_wrario_minutes>0</f_euelikto_wrario_minutes>\n")
+            xml_file.write(u"\t\t<f_working_card>0</f_working_card>\n")
+            xml_file.write(u"\t\t<f_dialeimma_minutes>0</f_dialeimma_minutes>\n")
+            xml_file.write(u"\t\t<f_dialeimma_entos_wrariou>0</f_dialeimma_entos_wrariou>\n")
+            # ---
+
+
             xml_file.write(u"\t\t<f_topothetisiepistoli>0</f_topothetisiepistoli>\n")
             xml_file.write(u"\t\t<f_topothetisioaed>0</f_topothetisioaed>\n")
             xml_file.write(u"\t\t<f_programaoaed/>\n")
