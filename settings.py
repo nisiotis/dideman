@@ -152,7 +152,7 @@ INSTALLED_APPS = (
     'dideman.api',
     'dideman.private_teachers',
     'dideman.stats',
-    'django_extensions',
+    #'django_extensions',
     'south',
     
     #'chosen', 
