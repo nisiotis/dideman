@@ -36,7 +36,7 @@ def print_app(request, set_id):
     set = base_app.set
     app = get_model('dide', set.klass).objects.get(parent=base_app)
     form = get_form(set.klass)
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=app_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                   'DroidSans.ttf')))

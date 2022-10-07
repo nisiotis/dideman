@@ -112,7 +112,7 @@ def print_pay(request, id):
         pay_cat_list.append(pay_cat_dict)
     report['payment_categories'] = pay_cat_list
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=pay_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                   'DroidSans.ttf')))
@@ -216,7 +216,7 @@ def print_mass_pay(request, year):
         reports.append(report)
 
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=pay_report_%s.pdf' % year
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                   'DroidSans.ttf')))
@@ -340,7 +340,7 @@ def showpdf(request):
         page.mergePage(overlay)
         pdf_out = PdfFileWriter()
         pdf_out.addPage(page)
-        response = HttpResponse(mimetype='application/pdf')
+        response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=%s' % request.GET['f']
 
         pdf_out.write(response)
