@@ -6,7 +6,7 @@ DEBUG = True #secret_settings.DEBUG
 TEMPLATE_DEBUG = DEBUG #secret_settings.DEBUG
 
 ADMINS = (
-     ('Your Name', 'ictdep@dide.dod.sch.gr'),
+     ('ICT Department', 'ictdep@dide.dod.sch.gr'),
 )
 ALLOWED_HOSTS = ['its.dod.sch.gr','its.dide.dod.sch.gr','10.103.254.11']
 
@@ -25,16 +25,16 @@ DATABASES = {
     }
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-        'JOHNNY_CACHE': True,
-    }
-}
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#        'LOCATION': '127.0.0.1:11211',
+#        'JOHNNY_CACHE': True,
+#    }
+#}
 
 
-JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_dideman'
+#JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_dideman'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -114,17 +114,14 @@ TEMPLATE_LOADERS = (
 )
 
 
-
-
-
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'johnny.middleware.LocalStoreClearMiddleware',
-    'johnny.middleware.QueryCacheMiddleware',
+    #'johnny.middleware.LocalStoreClearMiddleware',
+    #'johnny.middleware.QueryCacheMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
@@ -138,6 +135,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -145,19 +143,28 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
+#    'admin_volt.apps.AdminVoltConfig',
+
+
+    'admin_interface',
+    'flat_responsive', # only if django version < 2.0
+    'flat', # only if django version < 1.9
+    'colorfield',
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
-    #'django.contrib.admindocs',
+#    'django.contrib.admindocs',
     'dideman.dide',
     'dideman.api',
     'dideman.private_teachers',
     'dideman.stats',
-    #'django_extensions',
-    'south',
+#    'django_extensions',
+#    'south',
     
-    #'chosen', 
-    #'debug_toolbar',
+#    'chosen', 
+#    'debug_toolbar',
+
 )
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -199,9 +206,13 @@ DEBUG_TOOLBAR_PANELS = (
 )
 INTERNAL_IPS = ('127.0.0.1',)
 
+#ADMIN_TOOLS_THEMING_CSS = 'css/theming.css'
+#ADMIN_TOOLS_INDEX_DASHBOARD = 'dideman.dashboard.CustomIndexDashboard'
+#ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'dideman.dashboard.CustomAppIndexDashboard'
 
 DATABASES = secret_settings.DATABASES
 EMAIL_HOST = secret_settings.EMAIL_HOST
 EMAIL_HOST_USER = secret_settings.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = secret_settings.EMAIL_HOST_PASSWORD
 SECRET_KEY = secret_settings.SECRET_KEY
+

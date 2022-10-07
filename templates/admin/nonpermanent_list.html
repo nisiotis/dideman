@@ -105,7 +105,7 @@
 
         <div id="content">
           <p style="margin-top: 50px;">&nbsp;</p>
-          <div class="results" style="margin-top: 60px;">
+          <div class="results" style="margin-top: 140px;">
              <ul class="listing">
               {% for item in set %}
               <li class="listing"><h4><a href ="#" onclick="window.opener.django.jQuery('#'+urlParams.get('id').replace('link_', '')).val('{{ item.parent_id }}');window.opener.django.jQuery('#display_' + urlParams.get('id').replace('link_','')).val('{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }}');window.close();">{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }} ({{ item.vat_number }})</a></h4></li>

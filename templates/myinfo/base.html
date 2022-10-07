@@ -1,17 +1,13 @@
 {% load admin_static %}{% load url from future %}
 {% load base_site %}<!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html lang="" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
-  {% load i18n %}
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=1;"/> 
 <title>{% block title %}{% endblock %}</title>
-{% block stylesheet %}
-<link rel="stylesheet" type="text/css" href="{% static "admin/css/base.css" %}" />
-{% endblock %}
+<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
 {% block extrastyle %}{% endblock %}
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
-
  <script type="text/javascript" src="/static/admin/js/core.js"></script>
     <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
     <script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
@@ -21,10 +17,6 @@
     <script type="text/javascript" src="/static/js/chosen.jquery_ready.js"></script>
     <script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
     <script type="text/javascript" src="/static/js/dide.js"></script>
-
-
-
-
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -145,7 +137,7 @@ p {
         <div id="branding">
             <h1 id="site-name">Δ.Δ.Ε. {% get_setting 'dide_place'  %} </h1>
         </div>
-    
+    </div>
     <!-- END Header -->
     {% block breadcrumbs %}
     <div class="breadcrumbs">
@@ -153,15 +145,15 @@ p {
     </div>
     
     {% endblock %}
-    </div>
+    
     </div>    
-    <div style="padding-top:57px"> </div>
+    <div style="padding-top:80px"> </div>
     {% block messages %} {% endblock  %}
 
     <!-- Content -->
     <div id="content" class="{% block coltype %}{% endblock %}">
         {% block pretitle %}{% endblock %}
-        {% block content_title %}<h1><img src="{% static "img/page_full.png" %}" style="pading: 2px; "> Στοιχεία καρτέλας</h1>{% endblock %}
+        {% block content_title %}{% endblock %}
         {% block content %}
         {% block object-tools %}{% endblock %}
         {{ content }}

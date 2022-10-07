@@ -3,17 +3,12 @@
   {% blocktrans with title as filter_title %} {{ filter_title }} {% endblocktrans %}
 </h2>
   {% if modifiers %}
-<span class="modifier">[
-  {% for modifier in modifiers %}
-    {% if not forloop.first %}
-      | 
-    {% endif %}
-    <span class="selected">
+
+  {% for modifier in modifiers %}    
       <a{% if modifier.selected %} class="selected"{% endif %} href="{{ modifier.query_string }}">{{ modifier.display }}</a>
-    </span>
+    
   {% endfor %}
-  ]
-</span>
+
 {% endif %}
 <ul>
 {% for choice in choices %}

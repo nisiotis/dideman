@@ -2,6 +2,7 @@ from django.contrib.admin.sites import AdminSite
 from dideman.dide.util.settings import SETTINGS
 from django import VERSION as djangoversion
 
+
 class DideSite(AdminSite):
 	#@never_cache
 	#def index(self, request, extra_context=None):

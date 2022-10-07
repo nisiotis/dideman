@@ -72,7 +72,7 @@ def myphoto(request, emp_id):
         file = StringIO()
         file.write(base64.b64decode(emp.photo))
         file.seek(0)
-        response = HttpResponse(file.getvalue(), mimetype='image/%s' % emp.photo_type)
+        response = HttpResponse(file.getvalue(), content_type='image/%s' % emp.photo_type)
         file.close()
     return response
 

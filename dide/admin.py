@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from dideman.private_teachers.models import PrivateTeacher
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
 from django.template.response import TemplateResponse
@@ -47,6 +47,8 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from dideman.dide.views.views import index
 from django.contrib.admin.sites import AdminSite
+
+
 import zipfile, os
 
 
@@ -789,3 +791,5 @@ UserAdmin.list_display = ('username', 'first_name', 'last_name', 'is_active', 'i
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
+import admin_interface
+admin.site.unregister(admin_interface.models.Theme)

@@ -88,8 +88,6 @@ p {
 #main-list-div {
     width: 100%; 
     margin: 0; 
-    background: #7CA0C7 url({% static "admin/img/default-bg.gif" %}) top left repeat-x; 
-    color: white;
     overflow: hidden;
 }
 
@@ -156,14 +154,13 @@ p {
     </div>
     {% endblock %}
     </div>
-    <div style="padding-top:57px"> </div>
+    <div style="padding-top:80px"> </div>
     {% block messages %} {% endblock  %}
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">
         {% block pretitle %}{% endblock %}
-        {% block content_title %}<h1><img src="{% static "img/euro_currency_sign.png" %}" style="pading: 2px; ">  {{ emp.lastname  }} {{ emp.firstname  }}</h1>{% endblock %}
+        {% block content_title %}{% endblock %}
 
-<!--        { % block content_title % }{ % if title % }<h1>{ { title } }</h1>{ % endif % }{ % endblock % } -->
         {% block content %}
         {% block object-tools %}{% endblock %}
         {{ content }}
@@ -197,6 +194,7 @@ p {
       <a id="myinfo" href="/myinfo/edit">Τα στοιχεία μου</a> 
       |
       <a id="logout" href="?logout">Έξοδος</a> 
+      
       </div>
       </div>
     	

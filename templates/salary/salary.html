@@ -13,7 +13,71 @@ $(function() {
     });
 });
 </script>
+<style>
+#map {
+  width: 100%;
+  height: 300px;
+}
 
+label {
+  width: 220px!important;
+}
+.photoimg {
+  width: 100px;
+  height: 133px;
+
+}
+
+.photo {
+  float: left;
+  margin: 5px; 
+  width: 100px;
+  height: 133px;
+  border: 1px solid #ddd;
+}
+
+.detals {
+  float: left; 
+  width: calc(100%-112px);
+}
+.photo_padding {
+  padding-left: 0px!important;
+}
+
+@media only screen
+  and (max-width: 800px) {
+
+#id_address {
+  width: 200px;
+}
+#photo_link {
+  display: none;
+}
+label {
+  width: 8em!important;
+}
+.photoimg {
+  width: 100px;
+  height: 133px;
+}
+.photo {
+  text-align: center;
+  /*float: left;
+  margin: 5px; */
+  width: 100%;
+  height: 133px;
+  border: 0px solid #ddd;*/
+}
+.detals {
+  width: 100%;
+  /*float: left;
+  width: calc(100%-112px); */
+}
+.photo_padding {
+  padding-left: 10px!important;
+}
+    }
+</style>
 {% endblock %}
 {% block title %}
 Δ.Δ.Ε. {% get_setting 'dide_place'  %}
@@ -25,20 +89,34 @@ $(function() {
     <form action="{{ app_path }}" method="post" id="edit-form">{% csrf_token %}
       <input type="hidden" id="emp-action" name="emp-action" value="0" />
       <fieldset class="module aligned">
-        <h2>Στοιχεία Καρτέλας</h2>
+        
 
-      <div class="form-row field-fathername">
-        <div>
-          <label style="width:220px;">Πατρώνυμο : </label>
-            <p>{{ emp.fathername  }}</p>
+        <div class="photo">
+
+        {% if emp.photo %}
+          <img class="photoimg" id="photo" src="/myinfo/edit/photo/{{ emp.id }}/">
+        {% else %}    
+          {% if emp.sex == "Άνδρας" %}
+            <img class="photoimg" id="photo" src="{% static "img/male_user-4x3.png" %}">
+          {% elif  emp.sex == "Γυναίκα" %}
+            <img class="photoimg" id="photo" src="{% static "img/female_user-4x3.png" %}">
+          {% endif %}
+        {% endif %}
         </div>
-      </div> 
-      <div class="form-row field-profession">
-        <div>
-          <label style="width:220px;">Ειδικότητα : </label>
-          <p>{{ emp.profession  }} - {{ emp.profession_description  }}</p>
+
+        <div class="details">
+          <div><h3 style="font-size:18px;">{{ emp.lastname  }} {{ emp.firstname  }}</h3></div>          
+          <div class="form-row field-profession photo_padding">
+            <div>
+              
+              <h4>{{ emp.profession  }} - {{ emp.profession_description  }}</h4>
+            </div>
+          </div>
+          <div class="form-row field-profession photo_padding" style="border: 0px!important;">
+            </div>
+          
         </div>
-      </div>
+        <div style="clear:both;">
 
 	{% if emp.registration_number %}
 	<div class="form-row field-registration_number">
@@ -75,7 +153,7 @@ $(function() {
       </div>
 	{% endif %}
  	<div id="main-list-div">
- 	  <div id="left-list-div">Αποδοχές</div>
+ 	  <div id="left-list-div"></div>
  	  <div id="right-list-div">
 	    {% if emp.show_mass_pay %}
  		<select id="totalreports" style="font-size: 11px; font-family: 'Lucida Grande΄', Verdana, Arial, sans-serif;">
@@ -128,7 +206,7 @@ $(function() {
         <h2>Βοήθεια Έκδοσης Μισθοδοτικών Καταστάσεων</h2>
 	<p>Οι μισθοδοτικές καταστάσεις ή αλλιώς βεβαιώσεις αποδοχών, είναι διαθέσιμες μόνο ηλεκτρονικά για το μεγαλύτερο ποσοστό των εργαζομένων στην ΔΔΕ. Σε περίπτωση που εμφανίζεται κάποιο λάθος στην βεβαίωση σας παρακαλούμε επικοινωνήστε με την υπηρεσία, αφού πρώτα συμβουλευθείτε τις συχνές ερωτήσεις στην παρακάτω διεύθυνση: </p>
 	<p>
-	<a href="#" onclick="window.open('/salary/help','helpWindow', 'height=250,width=800,scrollbars=yes');">Συχνές ερωτήσεις</a>
+	<a href="#" onclick="window.open('/salary/help','helpWindow', 'height=350,width=980,scrollbars=yes');">Συχνές ερωτήσεις</a>
 	</p>
 	
 	{% endif %}

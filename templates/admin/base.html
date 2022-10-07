@@ -64,7 +64,9 @@
     {% endblock messages %}
 
         {% block pretitle %}{% endblock %}
-        {% block content_title %}{% if title %}<h1><img src="/static/img/directions.png" style="pading: 2px; "> {{ title }}</h1>{% endif %}{% endblock %}
+        {% if not app_list %}    
+            {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        {% endif %}
         {% block content %}
         {% block object-tools %}{% endblock %}
         {{ content }}

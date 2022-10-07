@@ -16,7 +16,7 @@ from django.utils import six
 from django.utils.text import capfirst
 from django.views.decorators.cache import never_cache
 from django.db.models import Q
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.core.urlresolvers import reverse, NoReverseMatch
 from cStringIO import StringIO
 import datetime, base64
@@ -43,9 +43,20 @@ def index(self, request, extra_context=None):
                                                 date_modified__month=today.month,
                                                 date_modified__day=today.day).count()
     for model, model_admin in self._registry.items():
-        app_label = model._meta.app_label
-        has_module_perms = user.has_module_perms(app_label)
+        if model._meta.app_label == "dide":
+            app_label = model._meta.app_label
+            app_text = u"Διεύθυνση"
+        elif model._meta.app_label == "auth":
+            app_label = model._meta.app_label
+            app_text = u"Χρήστες"
+        elif model._meta.app_label == "private_teachers":
+            app_label = model._meta.app_label
+            app_text = u"Ιδιωτικά Σχολεία"
+        else:
+            app_text = model._meta.app_label
+            app_label = model._meta.app_label
 
+        has_module_perms = user.has_module_perms(app_label)
         if has_module_perms:
             perms = model_admin.get_model_perms(request)
 
@@ -58,6 +69,8 @@ def index(self, request, extra_context=None):
                     'name': capfirst(model._meta.verbose_name_plural),
                     'perms': perms,
                 }
+
+                
                 if perms.get('change', False):
                     try:
                         model_dict['admin_url'] = reverse('admin:%s_%s_changelist' % info, current_app=self.name)
@@ -72,7 +85,7 @@ def index(self, request, extra_context=None):
                     app_dict[app_label]['models'].append(model_dict)
                 else:
                     app_dict[app_label] = {
-                        'name': app_label.title(),
+                        'name': app_text,
                         #'app_url': reverse('admin:app_list', kwargs={'app_label': app_label}, current_app=self.name),
                         'has_module_perms': has_module_perms,
                         'models': [model_dict],
@@ -190,7 +203,7 @@ def photo(request, emp_id):
     file = StringIO()
     file.write(base64.b64decode(emp.photo))
     file.seek(0)
-    response = HttpResponse(file.getvalue(), mimetype='image/%s' % emp.photo_type)
+    response = HttpResponse(file.getvalue(), content_type='image/%s' % emp.photo_type)
     file.close()
     return response
 
