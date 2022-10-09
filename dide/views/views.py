@@ -22,6 +22,9 @@ from cStringIO import StringIO
 import datetime, base64
 
 
+def finddublicates(self):
+    pass
+
 @never_cache
 def index(self, request, extra_context=None):
     """
@@ -63,7 +66,7 @@ def index(self, request, extra_context=None):
             # Check whether user has any perm for this module.
             # If so, add the module to the model_list.
             if True in perms.values():
-                info = (app_label, model._meta.module_name)
+                info = (app_label, model._meta.model_name)
                 search_model.append(model)
                 model_dict = {
                     'name': capfirst(model._meta.verbose_name_plural),

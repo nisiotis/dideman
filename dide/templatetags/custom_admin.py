@@ -43,7 +43,7 @@ def submit_row(context):
     
     return {
         'sub_url': sub_url,
-        'onclick_attrib': (opts.get_ordered_objects() and change
+        'onclick_attrib': (change
                             and 'onclick="submitOrderForm();"' or ''),
         'show_delete_link': (not is_popup and context['has_delete_permission']
                               and (change or context.get('show_delete', True))),
@@ -55,7 +55,7 @@ def submit_row(context):
         'show_save': True,
         'show_print': not context['add'],
         'object_id': context['object_id'] if 'object_id' in context else None,
-        'form_id': opts.module_name + '_form'
+        'form_id': opts.model_name + '_form'
     }
 
 

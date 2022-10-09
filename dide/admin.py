@@ -589,6 +589,7 @@ class EmployeeLeaveForm(ModelForm):
 
     class Meta:
         model = EmployeeLeave
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(EmployeeLeaveForm, self).__init__(*args, **kwargs)
@@ -612,6 +613,7 @@ class NonPermanentLeaveForm(ModelForm):
     
     class Meta:
         model = NonPermanentLeave
+        fields = '__all__'
         
     def __init__(self, *args, **kwargs):
         super(NonPermanentLeaveForm, self).__init__(*args, **kwargs)

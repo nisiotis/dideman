@@ -66,7 +66,7 @@ class DideAdmin(admin.ModelAdmin):
     def get_urls(self):
         url_patterns = patterns('',
                                 url('filters/$',
-                                    'dideman.%s.views.filters.%s' % (self.model._meta.app_label, self.model._meta.module_name)))
+                                    'dideman.%s.views.filters.%s' % (self.model._meta.app_label, self.model._meta.model_name)))
         return url_patterns + super(DideAdmin, self).get_urls()
 
     def changelist_view(self, request, extra_context=None):

@@ -36,6 +36,7 @@ class OrderedSubstitutionInlineForm(ModelForm):
 
     class Meta:
         model = OrderedSubstitution
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         super(OrderedSubstitutionInlineForm, self).__init__(*args, **kwargs)
@@ -47,6 +48,7 @@ class SubstitutePlacementForm(ModelForm):
 
     class Meta:
         model = SubstitutePlacement
+        fields = '__all__'
 
     pltype = PlacementType.objects.get(pk=3)
 
@@ -75,6 +77,7 @@ class SchoolCommissionForm(forms.ModelForm):
 
     class Meta:
         model = SchoolCommission
+        fields = '__all__'
 
     schools = forms.ModelMultipleChoiceField(label=u'Σχολεία', queryset=School.objects.all(),
                                              widget=forms.SelectMultiple(attrs={'size':'40'}))

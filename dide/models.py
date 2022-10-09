@@ -6,7 +6,7 @@ from dideman.lib.date import *
 from dideman.dide.decorators import shorted
 from django.db.models import Max
 from django.db import connection, transaction
-from south.modelsinspector import add_introspection_rules
+#from south.modelsinspector import add_introspection_rules
 from django.db.models import Sum
 from dideman import settings
 from operator import itemgetter, concat
@@ -29,8 +29,12 @@ class NullableCharField(models.CharField):
     def get_db_prep_value(self, value, *args, **kwargs):
         return value or None
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(NullableCharField, self).deconstruct()
+        return name, path, args, kwargs
 
-add_introspection_rules([], ['^dideman\.dide\.models\.NullableCharField'])
+
+#add_introspection_rules([], ['^dideman\.dide\.models\.NullableCharField'])
 
 
 class RankCode(models.Model):
@@ -64,7 +68,7 @@ class PaymentFilePDF(models.Model):
     id = models.AutoField(primary_key=True)
     pdf_file = models.FileField(u'Αρχείο', upload_to=timestampedfiles)
     description = models.CharField(u'Περιγραφή', max_length=255)
-    status = models.BooleanField(u'Κατάσταση', blank=True)
+    status = models.BooleanField(u'Κατάσταση', blank=True, default=None)
     extracted_files = models.IntegerField(u'Αρχεία που \
     δημιουργίθηκαν', null=True, blank=True)
     pdf_file_type = models.IntegerField(u'Τύπος αποδοχών', 
@@ -122,7 +126,7 @@ class PaymentFileName(models.Model):
     id = models.AutoField(primary_key=True)
     xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
-    status = models.BooleanField(u'Κατάσταση', blank=True)
+    status = models.BooleanField(u'Κατάσταση', blank=True, default=None)
     imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', 
                                            null=True, blank=True)
     taxed = models.IntegerField(u'Τύπος αποδοχών', choices=TAXED_TYPES, 
@@ -302,11 +306,11 @@ class MoveInside(Application):
     telephone_number = models.CharField(u'Τηλέφωνο επικοινωνίας', max_length=20)
     colocation_municipality = models.CharField(u'Δήμος Συνυπηρέτησης', max_length=200, null=True, blank=True)
     nativity_municipality = models.CharField(u'Δήμος Εντοπιότητας', max_length=200, null=True, blank=True)
-    married = models.BooleanField(u'Έγγαμος', default=False)
-    divorced = models.BooleanField(u'Διαζευγμένος', default=False)
-    widowed = models.BooleanField(u'Σε χηρεία', default=False)
-    custody = models.BooleanField(u'Επιμέλεια παιδιών', default=False)
-    single_parent = models.BooleanField(u'Μονογονεϊκή οικογένεια', default=False)
+    married = models.BooleanField(u'Έγγαμος', default=None)
+    divorced = models.BooleanField(u'Διαζευγμένος', default=None)
+    widowed = models.BooleanField(u'Σε χηρεία', default=None)
+    custody = models.BooleanField(u'Επιμέλεια παιδιών', default=None)
+    single_parent = models.BooleanField(u'Μονογονεϊκή οικογένεια', default=None)
     children = models.IntegerField(u'Τέκνα ανήλικα ή σπουδάζοντα', null=True, blank=True)
     health_self = models.CharField(u'Λόγοι Υγείας', max_length=100, choices=HEALTH_CHOICES, null=True, blank=True)
     health_spouse = models.CharField(u'Λόγοι υγεία συζύγου', max_length=100, choices=HEALTH_CHOICES, null=True, default=None, blank=True)
@@ -315,11 +319,11 @@ class MoveInside(Application):
     parents_place = models.CharField(u'Περιοχή διαμονής γονέων', max_length=150, null=True, blank=True)
     health_siblings = models.NullBooleanField(u'Λόγοι υγείας αδερφών (> 67% με επιμέλεια)', default=False, null=True, blank=True)
     siblings_place = models.CharField(u'Περιοχή διαμονής αδερφών', max_length=150,  null=True, blank=True)
-    in_vitro = models.BooleanField(u'Θεραπεία εξωσωματικής γονιμοποίησης', default=False)
+    in_vitro = models.BooleanField(u'Θεραπεία εξωσωματικής γονιμοποίησης', default=None)
     post_graduate_subject = models.CharField(u'Περιοχή μεταπτυχιακών σπουδών (εφόσον υπάρχει)', null=True, blank=True, max_length=150)
     special_category = models.CharField(u'Ειδική κατηγορία μετάθεσης', max_length=150, null=True, blank=True)
     military_spouse = models.NullBooleanField(u'Σύζυγος στρατιωτικού', null=True, blank=True, default=False)
-    elected = models.BooleanField(u'Αιρετός ΟΤΑ', default=False)
+    elected = models.BooleanField(u'Αιρετός ΟΤΑ', default=None)
     judge_spouse = models.NullBooleanField(u'Σύζυγος δικαστικού',default=False, null=True, blank=True)
     move_primary = models.NullBooleanField(u'Απόσπαση Α\'βάθμια', default=False, null=True, blank=True)
     other_reasons = models.CharField(u'Άλλοι λόγοι', null=True, blank=True, default=None, max_length=500)
@@ -423,7 +427,7 @@ class Organization(models.Model):
     objects = OrganizationManager()
 
     name = models.CharField(u'Όνομα', max_length=100)
-    belongs = models.BooleanField(u'Ανήκει στην Δ.Δ.Ε. Δωδεκανήσου')
+    belongs = models.BooleanField(u'Ανήκει στην Δ.Δ.Ε. Δωδεκανήσου', default=None)
 
     def natural_key(self):
         return (self.name, )
@@ -482,12 +486,12 @@ class Leave(models.Model):
 
     name = models.CharField(max_length=200, verbose_name=u'Κατηγορία')
     type = models.CharField(max_length=15, verbose_name=u'Τύπος', choices=LEAVE_TYPES)
-    not_paying = models.BooleanField(verbose_name=u'Χωρίς αποδοχές')
-    is_service = models.BooleanField(verbose_name=u'Χρόνος κανονικής υπηρεσίας')
-    only_working_days = models.BooleanField(verbose_name=u'Μόνο εργάσιμες μέρες')
+    not_paying = models.BooleanField(verbose_name=u'Χωρίς αποδοχές', default=None)
+    is_service = models.BooleanField(verbose_name=u'Χρόνος κανονικής υπηρεσίας', default=None)
+    only_working_days = models.BooleanField(verbose_name=u'Μόνο εργάσιμες μέρες', default=None)
     orders = models.CharField(u'Διατάξεις', null=True, blank=True, max_length=300)
     description = models.CharField(null=True, blank=True, verbose_name=u'Περιγραφή', max_length=300)
-    for_non_permanents = models.BooleanField(null=False, blank=False, verbose_name=u'Μη μόνιμων', default=False)
+    for_non_permanents = models.BooleanField(null=False, blank=False, verbose_name=u'Μη μόνιμων', default=None)
     service_days_count = models.IntegerField(null=True, blank=True, max_length=3, verbose_name=u'Μέρες μετρήσιμης προϋπηρεσίας', default=0)
 
     def __unicode__(self):
@@ -553,9 +557,9 @@ class EmployeeManager(models.Manager):
     def get_by_natural_key(self, firstname, lastname, fathername, profession):
         return self.get(firstname=firstname, lastname=lastname, fathername=fathername, profession=profession)
 
-    def get_query_set(self):
+    def get_queryset(self):
         # select permanent if exists
-        return super(EmployeeManager, self).get_query_set().select_related('permanent')
+        return super(EmployeeManager, self).get_queryset().select_related('permanent')
 
 
 SEX_TYPES = ((u'Άνδρας', u'Άνδρας'),
@@ -601,8 +605,8 @@ class Employee(models.Model):
     telephone_number2 = models.CharField(u'Αρ. Τηλεφώνου 2', max_length=14, null=True, blank=True)
     marital_status = models.IntegerField(u'Οικογενειακή Κατάσταση', null=True, blank=True, choices=MARITAL_TYPES)
     social_security_registration_number = models.CharField(u'Α.Μ.Κ.Α.', max_length=11, null=True, blank=True)
-    before_93 = models.BooleanField(u'Ασφαλισμένος πριν το 93', default=False)
-    has_family_subsidy = models.BooleanField(u'Οικογενειακό επίδομα', default=False)
+    before_93 = models.BooleanField(u'Ασφαλισμένος πριν το 93', default=None)
+    has_family_subsidy = models.BooleanField(u'Οικογενειακό επίδομα', default=None)
     other_social_security = models.ForeignKey(u'SocialSecurity', verbose_name=u'Άλλο ταμείο ασφάλισης', null=True, blank=True)
     organization_paying = models.ForeignKey(Organization, verbose_name=u'Οργανισμός μισθοδοσίας',related_name='organization_paying', null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
@@ -621,7 +625,7 @@ class Employee(models.Model):
     ama = models.CharField(u'ΑΜΑ ΙΚΑ ΕΤΑΜ', max_length=10, null=True, blank=True)
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
     date_modified = models.DateField(u'Τελευταία ενημέρωση', auto_now=True)
-    checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=False)
+    checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=None)
     citizenship_code = models.CharField(u'Κωδικός Υπηκοότητας', max_length=3, null=True, blank=True, default='048')
     photo = models.TextField(u'Φωτογραφία', blank=True, default=None)
     photo_type = models.CharField(u'Τύπος Φωτογραφίας', max_length=10, null=True, blank=True)
@@ -1308,7 +1312,7 @@ class NonPermanent(Employee):
     objects = NonPermanentManager()
 
     parent = models.OneToOneField(Employee, parent_link=True)
-    pedagogical_sufficiency = models.BooleanField(u'Παιδαγωγική κατάρτιση', default=False)
+    pedagogical_sufficiency = models.BooleanField(u'Παιδαγωγική κατάρτιση', default=None)
     social_security_number = models.CharField(u'Αριθμός Ι.Κ.Α.', max_length=10, null=True, blank=True)
     profession_code_oaed = models.CharField(u'Κωδικός ειδικότητας ΟΑΕΔ', max_length=10, null=True, blank=True)
     show_exp_report = models.NullBooleanField(u'Εμφάνιση Προϋπηρεσίας - Απόλυσης', null=True, blank=True, default=True)
@@ -1473,7 +1477,7 @@ class School(Organization):
     code = models.IntegerField(u'Κωδικός Σχολείου', max_length=5, unique=True)
     # γενικό λύκειο, γυμνάσιο, επαλ...
     type = models.ForeignKey(SchoolType, verbose_name=u'Κατηγορία')
-    inaccessible = models.BooleanField(u'Δυσπρόσιτο', default=False)
+    inaccessible = models.BooleanField(u'Δυσπρόσιτο', default=None)
     address = models.CharField(u'Διεύθυνση', max_length=200, null=True, blank=True)
     post_code = models.CharField(u'Τ.Κ.', max_length=5, null=True, blank=True)
     telephone_number = models.CharField(u'Αρ. Τηλεφώνου', max_length=14, null=True, blank=True)
@@ -1948,8 +1952,8 @@ class EmployeeDegree(models.Model):
     score = models.CharField(u'Βαθμός', max_length=20, null=True, blank=True)
     degree_number = models.CharField(u'Αρ. πιστοποιητικού', max_length=20, null=True, blank=True)
     organization = models.ForeignKey(DegreeOrganization, verbose_name=u'Φορέας Πιστοποίησης', null=True)
-    checked = models.BooleanField(u'Ελεγμένο', default=False)
-    relevance = models.BooleanField(u'Συνάφεια', default=False)
+    checked = models.BooleanField(u'Ελεγμένο', default=None)
+    relevance = models.BooleanField(u'Συνάφεια', default=None)
 
     def __unicode__(self):
         return self.name
@@ -2016,7 +2020,7 @@ class NonPermanentInsuranceFile(models.Model):
     xls_file2 = models.FileField(u'Αρχείο 2ου μήνα', upload_to="xlsfiles")
     xls_file3 = models.FileField(u'Αρχείο 3ου μήνα', upload_to="xlsfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
-    status = models.BooleanField(u'Κατάσταση', blank=True)
+    status = models.BooleanField(u'Κατάσταση', blank=True, default=None)
 
     def __unicode__(self):
         return self.description
