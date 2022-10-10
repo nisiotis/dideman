@@ -35,6 +35,12 @@
 #content {
     margin-top: 90px;
 }
+#content-related {
+    float: right;
+    width: 22em;
+    position: relative;
+    margin-right: -23em;
+}
 .change-form #content {
     margin: 140px 10px;
 }

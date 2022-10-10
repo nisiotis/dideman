@@ -22,8 +22,17 @@ from cStringIO import StringIO
 import datetime, base64
 
 
-def finddublicates(self):
-    pass
+def find_duplicates():
+    l = []
+    p = Permanent.objects.all()
+    n = NonPermanent.objects.all()
+    for pitem in p:
+        for nitem in n:
+            if (pitem.firstname == nitem.firstname) and (pitem.lastname == nitem.lastname) and (pitem.fathername == nitem.fathername) and (pitem.profession == nitem.profession):
+                l.append(pitem)
+                l.append(nitem)
+
+    return l
 
 @never_cache
 def index(self, request, extra_context=None):
@@ -89,7 +98,6 @@ def index(self, request, extra_context=None):
                 else:
                     app_dict[app_label] = {
                         'name': app_text,
-                        #'app_url': reverse('admin:app_list', kwargs={'app_label': app_label}, current_app=self.name),
                         'has_module_perms': has_module_perms,
                         'models': [model_dict],
                     }
@@ -112,7 +120,7 @@ def index(self, request, extra_context=None):
     tot_priv = PrivateTeacher.objects.filter(active__exact=1).count()
 
     tot_admin = Administrative.objects.filter(currently_serves=1).count()
-
+    dbls = find_duplicates()
     context = {
         'title': _('Site administration'),
         'app_list': app_list,
@@ -126,6 +134,8 @@ def index(self, request, extra_context=None):
         'photo_total': tot_pho,
         'today_mod_total': tot_day_mod,
         'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
+        'total_dbl': len(dbls)/2,
+
     }
     context.update(extra_context or {})
     if request.POST:
@@ -137,6 +147,9 @@ def index(self, request, extra_context=None):
                     if model.__name__ in ("Permanent", "NonPermanent", "Administrative"):
                         results[model._meta.verbose_name] = model.objects.exclude(photo__exact='').exclude(photo__isnull=True)
                         total_results += len(results[model._meta.verbose_name])
+            if request.POST['q'] == '/duplicates':
+                results['Διπλές Εγγραφές'] = dbls
+                total_results = len(dbls)/2
             elif request.POST['q'] == '/lastedit':
                 for model in search_model:
                     if model.__name__ in ("Permanent", "NonPermanent", "Administrative", "PrivateTeacher"):
