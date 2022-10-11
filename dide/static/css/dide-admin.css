@@ -1,3 +1,33 @@
 span.modifier { font-size:10px; font-weight:normal; margin-left: 2px; }
 span.modifier a { margin: 0px; }
 #changelist-filter a.selected { color: #5b80b2; }
+#changelist-filter a {
+    display: inline;
+    color: #999;
+    white-space: nowrap;
+    margin-left: 1em;
+}
+#changelist-filter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+    width: 280px;
+    background: #f8f8f8;
+    border-left: none;
+    margin: 0;
+    overflow: auto;
+}
+
+.change-list .filtered .results, .change-list .filtered .paginator,
+.filtered #toolbar, .filtered div.xfull {
+    margin-right: 280px;
+    width: auto;
+}	
+
+.object-tools li {
+    display: block;
+    float: left;
+    margin-left: 5px;
+    height: 30px;
+}

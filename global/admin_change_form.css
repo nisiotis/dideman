@@ -72,3 +72,18 @@
     background-color: white;
 /*    border-bottom: 1px solid rgb(204, 204, 204); */
 }
+#changelist table {
+    white-space: nowrap;
+    width: 100%;
+}
+
+#changelist-filter a {
+    /*display: block;*/
+    color: #999;
+}
+
+.change-list .filtered .results, .change-list .filtered .paginator,
+.filtered #toolbar, .filtered div.xfull {
+    margin-right: 280px;
+    width: auto;
+}

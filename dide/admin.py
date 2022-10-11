@@ -373,7 +373,7 @@ class EmployeeAdmin(DideAdmin):
     readonly_fields = ['last_placement', 'organization_serving',
                        'date_created', 'profession_description', 'show_photo']
     list_max_show_all = 10000
-    list_per_page = 50
+    list_per_page = 100 #from 50
     actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
                ShowOption(u'Eμφάνιση Μισθοδοτικών Καταστάσεων', 'show_mass_pay'),
                HideOption(u'Απόκρυψη Μισθοδοτικών Καταστάσεων', 'show_mass_pay'),
@@ -434,9 +434,11 @@ class PermanentAdmin(EmployeeAdmin):
         css = {'all': ('css/no-addanother-button.css',
                          '/static/admin/css/widgets.css', '/static/admin/css/my_forms.css')}
     
-    list_display = ['lastname', 'firstname', 'fathername',
-                    'registration_number', 'profession', 'date_hired',
+    list_display = ['registration_number', 'lastname', 'firstname', 'fathername',
+                    'profession', 'date_hired',
                     'permanent_post', 'organization_serving']
+    list_display_links = ['lastname']
+
     inlines = EmployeeAdmin.inlines + [PromotionNewInline, PromotionInline, PlacementInline,
                                        ServiceInline, PartialServiceInline, LeaveInline, ResponsibilityInline]
 
@@ -462,7 +464,7 @@ class PermanentAdmin(EmployeeAdmin):
                                                EmployeeWithOutLeaveFilter,
                                                NextHoursReductionFilter,
                                                RecognisedExperienceN44522017Filter)
-    list_per_page = 50
+    list_per_page = 100 # from 50
     fieldsets = [
         ('Γενικά Στοιχεία', {
             'fields': [ 'show_photo',
@@ -691,10 +693,11 @@ class NonPermanentAdmin(EmployeeAdmin):
         css = {'all': ('css/no-addanother-button.css',
                          '/static/admin/css/widgets.css', '/static/admin/css/my_forms.css')}
 
-    list_display = ['lastname', 'firstname', 'fathername',
+    list_display = ['vat_number', 'lastname', 'firstname', 'fathername',
                     'profession', 'current_placement']
+    list_display_links = ['lastname']
     search_fields = ('lastname', 'identity_number', 'vat_number')
-    list_per_page = 50
+    list_per_page = 100 #from 50
 
     fieldsets = [
         ('Στοιχεία μη-μόνιμου', {
