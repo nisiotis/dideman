@@ -505,7 +505,7 @@ class PermanentAdmin(EmployeeAdmin):
          'date_created', 'educational_service']
 
     actions = sorted([to_private_teacher, to_administrative,
-      CSVReport(add=['permanent_post', 'organization_serving',
+      CSVReport(add=['permanent_post', 'organization_serving', 'date_hired',
                                      'permanent_post_island',
                                      'temporary_position',
                                      'hours', 'hours_next',

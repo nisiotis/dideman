@@ -2,13 +2,11 @@
 import locale
 import os
 import secret_settings
-DEBUG = True #secret_settings.DEBUG
-TEMPLATE_DEBUG = DEBUG #secret_settings.DEBUG
-
+DEBUG = True
 ADMINS = (
      ('ICT Department', 'ictdep@dide.dod.sch.gr'),
 )
-ALLOWED_HOSTS = ['its.dod.sch.gr','its.dide.dod.sch.gr','10.103.254.11']
+ALLOWED_HOSTS = ['its.dod.sch.gr','its.dide.dod.sch.gr','10.103.254.11', '81.186.76.92']
 
 MANAGERS = ADMINS
 
@@ -142,27 +140,17 @@ INSTALLED_APPS = (
 #    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-#    'admin_volt.apps.AdminVoltConfig',
-
-
     'admin_interface',
     'flat_responsive', # only if django version < 2.0
     'flat', # only if django version < 1.9
     'colorfield',
     'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-#    'django.contrib.admindocs',
     'dideman.dide',
     'dideman.api',
     'dideman.private_teachers',
     'dideman.stats',
-#    'django_extensions',
-#    'south',
-    
-#    'chosen', 
-#    'debug_toolbar',
-
+#    'south',    
+    'chosen',
 )
 
 
@@ -193,22 +181,7 @@ FILE_CHARSET = 'utf-8'
 DATE_INPUT_FORMATS = ('%d-%m-%Y', '%d/%m/%Y')
 DATE_FORMAT = 'd-m-Y'
 
-DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.template.TemplateDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    'debug_toolbar.panels.logger.LoggingPanel',
-)
 INTERNAL_IPS = ('127.0.0.1',)
-
-#ADMIN_TOOLS_THEMING_CSS = 'css/theming.css'
-#ADMIN_TOOLS_INDEX_DASHBOARD = 'dideman.dashboard.CustomIndexDashboard'
-#ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'dideman.dashboard.CustomAppIndexDashboard'
 
 DATABASES = secret_settings.DATABASES
 EMAIL_HOST = secret_settings.EMAIL_HOST
