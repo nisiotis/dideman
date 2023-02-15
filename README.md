@@ -10,4 +10,4 @@ The django platform requires a linux server and a wsgi-capable web server. As fo
 it requires a MySQL database and a long list of python libraries, such as ReportLab pdf engine, Pandas 
 statistics, PIL image and a caching engine, johnny-cache.
 
-New version in newversion branch for django 1.7.11 including a somewhat new interface.
+New version in new_version branch for django 1.7.11 including a somewhat new interface.
