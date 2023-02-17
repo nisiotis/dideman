@@ -126,7 +126,7 @@ class PaymentFileName(models.Model):
     id = models.AutoField(primary_key=True)
     xml_file = models.FileField(upload_to="xmlfiles")
     description = models.CharField(u'Περιγραφή', max_length=255)
-    status = models.BooleanField(u'Κατάσταση', blank=True, default=None)
+    status = models.BooleanField(u'Κατάσταση', blank=True, default=0)
     imported_records = models.IntegerField(u'Εγγραφές που ενημερώθηκαν', 
                                            null=True, blank=True)
     taxed = models.IntegerField(u'Τύπος αποδοχών', choices=TAXED_TYPES, 
