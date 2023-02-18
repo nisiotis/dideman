@@ -13,7 +13,9 @@
   width: 100%;
   height: 300px;
 }
-
+ul {
+  list-style-type: none!important;
+}
 label {
   width: 220px!important;
 }
@@ -31,16 +33,16 @@ label {
   border: 1px solid #ddd;
 }
 
-.detals {
-  float: left; 
-  width: calc(100%-112px);
+.details {
+  float: left!important; 
+  width: calc(100%-112px)!important;
 }
 .photo_padding {
   padding-left: 0px!important;
 }
 
 @media only screen
-  and (max-width: 800px) {
+  and (max-width: 780px) {
 
 #id_address {
   width: 200px;
@@ -48,6 +50,10 @@ label {
 #photo_link {
   display: none;
 }
+ul {
+  list-style-type: none!important;
+}
+
 label {
   width: 8em!important;
 }
@@ -57,16 +63,9 @@ label {
 }
 .photo {
   text-align: center;
-  /*float: left;
-  margin: 5px; */
-  width: 100%;
-  height: 133px;
-  border: 0px solid #ddd;*/
 }
-.detals {
-  width: 100%;
-  /*float: left;
-  width: calc(100%-112px); */
+.details {
+  width: 100%!important;
 }
 .photo_padding {
   padding-left: 10px!important;
@@ -89,8 +88,6 @@ label {
 {% block extrahead %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
-
-
 {% endblock %}
 {% block content %}
 <div id="content-main">
