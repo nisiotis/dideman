@@ -625,7 +625,7 @@ class Employee(models.Model):
     ama = models.CharField(u'ΑΜΑ ΙΚΑ ΕΤΑΜ', max_length=10, null=True, blank=True)
     date_created = models.DateField(u'Ημερομηνία δημιουργίας', auto_now_add=True)
     date_modified = models.DateField(u'Τελευταία ενημέρωση', auto_now=True)
-    checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=None)
+    checked_service = models.BooleanField(u'Ελεγμένη προϋπηρεσία', default=0)
     citizenship_code = models.CharField(u'Κωδικός Υπηκοότητας', max_length=3, null=True, blank=True, default='048')
     photo = models.TextField(u'Φωτογραφία', blank=True, default=None)
     photo_type = models.CharField(u'Τύπος Φωτογραφίας', max_length=10, null=True, blank=True)
