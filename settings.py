@@ -1,7 +1,7 @@
 # Django settings for dideman project.
 import locale
 import os
-import secret_settings
+import dideman.secret_settings as secret_settings
 DEBUG = True
 ADMINS = (
      ('ICT Department', 'ictdep@dide.dod.sch.gr'),

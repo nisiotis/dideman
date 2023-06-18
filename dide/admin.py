@@ -70,24 +70,24 @@ class NonPermanentInsuranceFileAdmin(DideAdmin):
             self.message_user(request, msg, level=messages.ERROR)
 
             
-class PaymentFilePDFAdmin(DideAdmin):
-    readonly_fields = ['status', 'extracted_files']
-    list_display = ('description', 'status', 'extracted_files', 'pdf_file_type')
-    search_fields = ('description',)
-    actions = [PDFReadAction(u'Δημιουργία PDF')]
+#class PaymentFilePDFAdmin(DideAdmin):
+#    readonly_fields = ['status', 'extracted_files']
+#    list_display = ('description', 'status', 'extracted_files', 'pdf_file_type')
+#    search_fields = ('description',)
+#    actions = [PDFReadAction(u'Δημιουργία PDF')]
 
-    def save_model(self, request, obj, form, change):
-        pf = force_unicode(obj.pdf_file.name, 'cp737', 'ignore')
-        if pf[-4:] == ".pdf":
-            obj.save()
-        else:
-            msg = u'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής pdf.'
-            self.message_user(request, msg, level=messages.ERROR)
+#    def save_model(self, request, obj, form, change):
+#        pf = force_unicode(obj.pdf_file.name, 'cp737', 'ignore')
+#        if pf[-4:] == ".pdf":
+#            obj.save()
+#        else:
+#            msg = u'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής pdf.'
+#            self.message_user(request, msg, level=messages.ERROR)
 
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ['pdf_file' ] + self.readonly_fields                
-        return self.readonly_fields
+#    def get_readonly_fields(self, request, obj=None):
+#        if obj:
+#            return ['pdf_file' ] + self.readonly_fields                
+#        return self.readonly_fields
 
 
 class PaymentFileNameAdmin(DideAdmin):
@@ -484,6 +484,7 @@ class PermanentAdmin(EmployeeAdmin):
                 'fields': ['currently_serves',
                            'recognised_experience',
                            'formatted_recognised_experience',
+                           'salary_experience',
                            'checked_service',
                            #'recognised_experience_n4354_2015', Removed by request
                            'recognised_experience_n4452_2017',
@@ -772,7 +773,7 @@ map(lambda t: admin.site.register(*t), (
     (SchoolCommission, SchoolCommissionAdmin),
     (PaymentCategoryTitle, PaymentCategoryTitleAdmin),
     (PaymentReportType, PaymentReportTypeAdmin),
-    (PaymentFilePDF, PaymentFilePDFAdmin),
+#    (PaymentFilePDF, PaymentFilePDFAdmin),
     (PaymentFileName, PaymentFileNameAdmin),
     (NonPermanentInsuranceFile, NonPermanentInsuranceFileAdmin),
     (RankCode, RankCodeAdmin),
