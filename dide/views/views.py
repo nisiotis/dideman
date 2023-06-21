@@ -147,7 +147,7 @@ def index(self, request, extra_context=None):
                     if model.__name__ in ("Permanent", "NonPermanent", "Administrative"):
                         results[model._meta.verbose_name] = model.objects.exclude(photo__exact='').exclude(photo__isnull=True)
                         total_results += len(results[model._meta.verbose_name])
-            if request.POST['q'] == '/duplicates':
+            if request.POST['q'] == '/dublicates':
                 results['Διπλές Εγγραφές'] = dbls
                 total_results = len(dbls)/2
             elif request.POST['q'] == '/lastedit':
@@ -159,14 +159,15 @@ def index(self, request, extra_context=None):
                         total_results += len(results[model._meta.verbose_name])
             else:
                 for model in search_model:
+                    #results = []
                     if model.__name__ == "Permanent":
-                        results[model._meta.verbose_name] = model.objects.filter(Q(lastname__startswith=request.POST['q'].upper())
-                        | Q(vat_number__startswith=request.POST['q'])
-                        | Q(registration_number__startswith=request.POST['q']))
+                        results[model._meta.verbose_name] = model.objects.filter(Q(lastname__istartswith=request.POST['q'].upper())
+                        | Q(vat_number__istartswith=request.POST['q'])
+                        | Q(registration_number__istartswith=request.POST['q']))
                         total_results += len(results[model._meta.verbose_name])
                     if model.__name__ in ("NonPermanent", "Administrative", "PrivateTeacher"):
-                        results[model._meta.verbose_name] = model.objects.filter(Q(lastname__startswith=request.POST['q'].upper())
-                        | Q(vat_number__startswith=request.POST['q']))
+                        results[model._meta.verbose_name] = model.objects.filter(Q(lastname__istartswith=request.POST['q'].upper())
+                        | Q(vat_number__istartswith=request.POST['q']))
                         total_results += len(results[model._meta.verbose_name])
 
         context = {

@@ -484,7 +484,9 @@ class PermanentAdmin(EmployeeAdmin):
                 'fields': ['currently_serves',
                            'recognised_experience',
                            'formatted_recognised_experience',
+                           'payment_start_date_auto',
                            'salary_experience',
+                           #'salary_start_date_auto', #To implement soon 19/6/23
                            'checked_service',
                            #'recognised_experience_n4354_2015', Removed by request
                            'recognised_experience_n4452_2017',
@@ -492,7 +494,7 @@ class PermanentAdmin(EmployeeAdmin):
                            'non_educational_experience',
                            'calculable_not_service', 'not_service_existing',
                            'total_service',
-                           'payment_start_date_auto',
+                           
                            'payment_start_date_manual',
                            'educational_service',
                            'hours', 'hours_next',

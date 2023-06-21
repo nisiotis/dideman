@@ -1159,7 +1159,7 @@ class XMLWriteE7Action(object):
             try:
                 xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
             except:
-                xml_file.write(u"\t\t<f_kathestosapasxolisis></f_kathestosapasxolisis>\n")
+                xml_file.write(u"\t\t<f_kathestosapasxolisis>0</f_kathestosapasxolisis>\n")
             xml_file.write(u"\t\t<f_oros>0</f_oros>\n")
             xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
             try:
@@ -1192,7 +1192,10 @@ class XMLWriteE7Action(object):
             except:
                 xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
                 xml_file.write(u"\t\t<f_lixisymbashdate>01/01/2001</f_lixisymbashdate>\n")
+                xml_file.write(u"\t\t<f_apolysisdate>01/01/2001</f_apolysisdate>")
+                
                 #xml_file.write(u"\t\t<f_lastdaydate>01/01/2001</f_lastdaydate>\n")
+
             xml_file.write(u"\t\t<f_comments/>\n")
             xml_file.write(u"\t\t<f_logosperatosis>0</f_logosperatosis>\n")
             xml_file.write(u"\t\t<f_logosperatosiscomments/>\n")
@@ -1203,7 +1206,7 @@ class XMLWriteE7Action(object):
             xml_file.write(u"\t</AnaggeliaE7>\n")
 
         xml_file.write(footer)
-        with open(os.path.join(settings.MEDIA_ROOT, 'xsd', 'E7_v1.xsd'), 'r') as f:
+        with open(os.path.join(settings.MEDIA_ROOT, 'xsd', 'E7_v2.xsd'), 'r') as f:
             schema_root = etree.XML(f.read())
         res = ''
         schema = etree.XMLSchema(schema_root)

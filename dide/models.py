@@ -590,7 +590,7 @@ class Employee(models.Model):
     address_city = models.CharField(u'Πόλη', max_length=30, null=True, blank=True)    
     identity_number = NullableCharField(u'Αρ. Δελτίου Ταυτότητας', max_length=8, null=True, unique=True, blank=True)
     transfer_area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης', null=True, blank=True)
-    recognised_experience = models.CharField(u'Προϋπηρεσία (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
+    recognised_experience = models.CharField(u'Συνολική προϋπηρεσία (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     salary_experience = models.CharField(u'Μισθολογική Προϋπηρεσία (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     # the following field needs to be added to the recognised experience
     recognised_experience_n4354_2015 = models.CharField(u'Προϋπηρεσία Ν. 4354/2015-ΝΠΙΔ (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
@@ -1033,7 +1033,7 @@ class Permanent(Employee):
         return (Date(self.date_hired) -
                 DateInterval(self.recognised_experience) +
                 DateInterval(days=self.total_not_service()))
-    payment_start_date_auto.short_description =  u'Μισθολογική αφετηρία (αυτόματη)'
+    payment_start_date_auto.short_description =  u'Αυτόματη αφετηρία διορισμού'
 
     def organization_serving(self):
         return Employee.organization_serving(self) or self.permanent_post()
