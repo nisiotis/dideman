@@ -24,11 +24,39 @@ class Command(BaseCommand):
     )
     
     help = 'XLS database import.'
-    
+    def find_model_field(self, model, df):
+        field_name = ""
+        for f in model._meta.fields:
+            if f.name == df:
+                field_name = f.name
+        return field_name
+
     def handle(self, *args, **options):
-    
-        print options
-        
+         if options['f'] != '':
+            try:
+                workbook = xlrd.open_workbook(options['f'])
+            except:
+                print "--f <file>: xls file required / not found"
+                exit()
+            if options['df'] != '':
+                if self.find_model_field(Permanent, options['df']) != "":
+                    worksheet = workbook.sheet_by_index(0)
+                    curr_row = 0
+                    idx = options['ci'] if options['ci'] else 1
+                    try:
+                        while curr_row < worksheet.nrows:
+                            print worksheet.cell_value(curr_row,0), worksheet.cell_value(curr_row,idx)
+                            curr_row += 1
+                    except:
+                        print "Error in reading xls file"
+                        exit()
+                else:
+                    print "--df <datafield> not found"
+                    exit()
+            else:
+                print "--df <field>: field to import required / not found"
+                exit()
+
         #for item in args:
             #workbook = xlrd.open_workbook(item)
             #worksheet = workbook.sheet_by_index(0)
@@ -51,7 +79,6 @@ class Command(BaseCommand):
             #        p.save()
             #    except Exception as ex:
             #        print(ex)
-            #    curr_row += 1
             #print curr_row
 
         #if args == ():
