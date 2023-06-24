@@ -51,7 +51,7 @@ class Command(BaseCommand):
                             
                             print worksheet.cell_value(curr_row,0), cell.value, cell.ctype
                             curr_row += 1
-                        print self.find_model_field(Permanent, options['df']).get_internal_type()
+                        print "%s %s" % (self.find_model_field(Permanent, options['df']).name, self.find_model_field(Permanent, options['df']).get_internal_type())
                     except:
                         print "Error in reading xls file"
                         exit()
