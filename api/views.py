@@ -87,7 +87,7 @@ def schoolposts(request):
                     "sector": sch_sector,
                     "error": "" }
 
-                return HttpResponse(json.dumps(data), mimetype='application/json')
+                return HttpResponse(json.dumps(data), content_type='application/json')
             else:
                 return HttpResponse(json.dumps({"data":[], "error": "parameters error"}))
 
