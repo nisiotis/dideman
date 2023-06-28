@@ -118,7 +118,7 @@ def index(self, request, extra_context=None):
     y1 = datetime.date.today().year if datetime.date.today().month > 8 and datetime.date.today().month <= 12 else datetime.date.today().year - 1
     y2 = datetime.date.today().year if datetime.date.today().month >= 1 and datetime.date.today().month < 9 else datetime.date.today().year + 1
 
-    tot_non = NonPermanent.objects.substitutes_in_date_range(date_from='%d-09-01' % y1, date_to='%d-08-31' % y2).count() 
+    tot_non = NonPermanent.objects.substitutes_in_date_range(date_from='%d-09-01' % y1, date_to='%d-08-31' % y2) 
 
     tot_priv = PrivateTeacher.objects.filter(active__exact=1).count()
 
@@ -128,7 +128,7 @@ def index(self, request, extra_context=None):
         'title': _('Site administration'),
         'app_list': app_list,
         'total_permanent': '%d' % tot_perm,
-        'total_nonpermanent': '%d' % tot_non,
+        'total_nonpermanent': '%d' % tot_non.count(),
         'total_private': '%d' % tot_priv,
         'total_administrative': '%d' % tot_admin,
         'yf': y1,
@@ -150,7 +150,10 @@ def index(self, request, extra_context=None):
                     if model.__name__ in ("Permanent", "NonPermanent", "Administrative"):
                         results[model._meta.verbose_name] = model.objects.exclude(photo__exact='').exclude(photo__isnull=True)
                         total_results += len(results[model._meta.verbose_name])
-            if request.POST['q'] == '/dublicates':
+            if request.POST['q'] == '/nonpermanent':
+                results['Ενεργοί αναπληρωτές'] = tot_non
+                total_results = tot_non.count()
+            elif request.POST['q'] == '/dublicates':
                 results['Διπλές Εγγραφές'] = dbls
                 total_results = l
             elif request.POST['q'] == '/lastedit':
