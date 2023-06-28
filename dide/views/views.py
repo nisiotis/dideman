@@ -24,15 +24,18 @@ import datetime, base64
 
 def find_duplicates():
     l = []
-    p = Permanent.objects.all()
-    n = NonPermanent.objects.all()
-    for pitem in p:
-        for nitem in n:
+    r = 0
+    pl = Permanent.objects.all()
+    nl = NonPermanent.objects.exclude(vat_number=None)
+
+    for pitem in pl:
+        for nitem in nl:
             if (pitem.firstname == nitem.firstname) and (pitem.lastname == nitem.lastname) and (pitem.fathername == nitem.fathername) and (pitem.profession == nitem.profession):
                 l.append(pitem)
+                r += 1
                 l.append(nitem)
 
-    return l
+    return l, r
 
 @never_cache
 def index(self, request, extra_context=None):
@@ -120,7 +123,7 @@ def index(self, request, extra_context=None):
     tot_priv = PrivateTeacher.objects.filter(active__exact=1).count()
 
     tot_admin = Administrative.objects.filter(currently_serves=1).count()
-    dbls = find_duplicates()
+    dbls, l = find_duplicates()
     context = {
         'title': _('Site administration'),
         'app_list': app_list,
@@ -134,7 +137,7 @@ def index(self, request, extra_context=None):
         'photo_total': tot_pho,
         'today_mod_total': tot_day_mod,
         'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
-        'total_dbl': len(dbls)/2,
+        'total_dbl': l,
 
     }
     context.update(extra_context or {})
@@ -149,7 +152,7 @@ def index(self, request, extra_context=None):
                         total_results += len(results[model._meta.verbose_name])
             if request.POST['q'] == '/dublicates':
                 results['Διπλές Εγγραφές'] = dbls
-                total_results = len(dbls)/2
+                total_results = l
             elif request.POST['q'] == '/lastedit':
                 for model in search_model:
                     if model.__name__ in ("Permanent", "NonPermanent", "Administrative", "PrivateTeacher"):
@@ -159,7 +162,7 @@ def index(self, request, extra_context=None):
                         total_results += len(results[model._meta.verbose_name])
             else:
                 for model in search_model:
-                    #results = []
+                    
                     if model.__name__ == "Permanent":
                         results[model._meta.verbose_name] = model.objects.filter(Q(lastname__istartswith=request.POST['q'].upper())
                         | Q(vat_number__istartswith=request.POST['q'])
