@@ -48,8 +48,9 @@ def schoolposts(request):
                 prm = Permanent.objects.permanent_post_in_organization(school_found)\
                                    .filter(currently_serves=True, has_permanent_post=True)
             elif request.GET['service'] == "operational" and sch is not None:
-                prm = Permanent.objects.serving_in_organization(school_found)\
-                                   .filter(currently_serves=True, has_permanent_post=True)
+                prm = Permanent.objects.serving_in_organization_api(school_found)\
+                                   .filter(currently_serves=True)
+                                           #, has_permanent_post=True)
             else:
                 prm = None
             if sch is not None and prm is not None:

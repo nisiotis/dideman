@@ -848,6 +848,13 @@ class PermanentManager(models.Manager):
         ids = [row[0] for row in cursor.fetchall()]
         return self.filter(parent_id__in=ids)
 
+    def serving_in_organization_api(self, org_id):
+        cursor = connection.cursor()
+        cursor.execute(
+            sql.serving_in_organization.format(org_id, datetime.date(datetime.date.today().year, 9, 1)))
+        ids = [row[0] for row in cursor.fetchall()]
+        return self.filter(parent_id__in=ids)
+
     def serving_in_island(self, island_id):
         cursor = connection.cursor()
         cursor.execute(
