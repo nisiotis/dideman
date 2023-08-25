@@ -155,7 +155,7 @@ class PrivateTeacher(dide.Employee):
                 return d.strftime("%d-%m-%Y")
             else:
                 x360, x300 = self._total_days()
-                days = (when - DateInterval(x360) - self.postgrad_extra()).total300() - x300
+                days =  (when - DateInterval(x360) - self.postgrad_extra()).total300() - x300
                 d = self.current_placement_date + datetime.timedelta(days=int(days * (18 / self.current_hours) * (365/300)))
                 return d.strftime("%d-%m-%Y")
         else:

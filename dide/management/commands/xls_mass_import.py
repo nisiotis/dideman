@@ -23,14 +23,14 @@ class Command(BaseCommand):
             while curr_row < worksheet.nrows:
                 #curr_row += 1
                 #print worksheet.cell_value(curr_row,6), worksheet.cell_value(curr_row,7), worksheet.cell_value(curr_row,10), worksheet.cell_value(curr_row,13)
-                nonp = NonPermanent.objects.filter(vat_number = unicode(worksheet.cell_value(curr_row,0)))
+                nonp = NonPermanent.objects.filter(vat_number = unicode(worksheet.cell_value(curr_row,0))[:9])
                 if nonp:
                     print "FOUND ", nonp
                     np += 1
                     vat_to_in = None
                     id_no = None
                 else:
-                    vat_to_in = unicode(worksheet.cell_value(curr_row,0))
+                    vat_to_in = unicode(worksheet.cell_value(curr_row,0))[:9]
                     id_no = unicode(worksheet.cell_value(curr_row,12))
                 p = Permanent(vat_number=vat_to_in,
                               registration_number=unicode(worksheet.cell_value(curr_row,1))[:6],
@@ -48,15 +48,15 @@ class Command(BaseCommand):
                               birth_date=datetime(*xlrd.xldate_as_tuple(worksheet.cell_value(curr_row,13),0))) #fix
                 
                 try:
-                    #print p.registration_number, p.lastname, p.transfer_area, p.profession, p.email, p.date_hired, p.birth_date
+                    print p.registration_number, p.lastname
                     p.save()
                 except Exception as ex:
                     print(ex)
 
                 curr_row += 1
                 
-            print curr_row - 1
+            print "TOTAL IN EXCEL", curr_row - 1
             if np > 0:
-                print "FOUND NONP", np
+                print "FOUND NONPERMANENT", np
         if args == ():
             print "No arguments found"
