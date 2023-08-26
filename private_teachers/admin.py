@@ -43,7 +43,7 @@ class PrivateTeacherAdmin(DideAdmin):
                     'lastname', 'firstname', 'fathername', 'sex', 'profession',
                     'profession_description', 'series_number',
                     'total_experience', 'total_service', 'total_service_today', 'total_service_311215', 
-                    'rank',# 'next_rank_date',
+                    'rank', 'next_rank_date',
                     'school', 'current_placement_date', 'current_hours',
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'birth_date', 'not_service_days',

@@ -336,7 +336,7 @@ class TemporaryPositionAllAreasAdmin(ApplicationAdmin):
 
 economic_fieldset = (u'Οικονομικά στοιχεία', {
         'fields': ['vat_number', 'tax_office', 'bank', 'bank_account_number',
-                   'iban', 'social_security_registration_number', 'ama', 'before_93',
+                   'iban', 'ama', 'before_93', # 'social_security_registration_number', 'ama', 'before_93',
                    'has_family_subsidy', 'other_social_security',
                    'organization_paying', 'show_mass_pay']})
 
@@ -367,7 +367,7 @@ class EmployeeAdmin(DideAdmin):
                            'profession_description',
                            'identity_number', 'telephone_number1',
                            'telephone_number2', 'email', 'marital_status',
-                           'birth_date', 'hours_current',
+                           'birth_date', 'social_security_registration_number', 'hours_current',
                            'organization_serving', 'date_created']}),
         economic_fieldset]
     readonly_fields = ['last_placement', 'organization_serving',
@@ -479,7 +479,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'address_postcode','address_city', 'identity_number',
                     'inaccessible_school', 'telephone_number1',
                     'telephone_number2', 'email', 'marital_status',
-                    'birth_date', 'date_created', 'educated']}), #Removed 'hours_current',
+                    'birth_date', 'social_security_registration_number', 'date_created', 'educated']}), #Removed 'hours_current',
         ('Στοιχεία Προϋπηρεσίας', {
                 'fields': ['currently_serves',
                            'recognised_experience',
@@ -557,7 +557,7 @@ class AdministrativeAdmin(PermanentAdmin):
                         'address', 'address_postcode','address_city',
                         'telephone_number1',
                         'telephone_number2', 'email', 'marital_status',
-                        'birth_date', 'hours_current', 'date_created']}),
+                        'birth_date', 'social_security_registration_number', 'hours_current', 'date_created']}),
             ('Στοιχεία Προϋπηρεσίας', {
                     'fields': ['currently_serves',
                                'recognised_experience',
@@ -713,7 +713,7 @@ class NonPermanentAdmin(EmployeeAdmin):
                     'study_years', 'show_exp_report',
                     'identity_number', 'address', 'address_postcode','address_city',
                     'telephone_number1',
-                    'telephone_number2', 'email', 'marital_status', 'birth_date',
+                       'telephone_number2', 'email', 'marital_status', 'birth_date', 'social_security_registration_number',
                     'date_created', 'pedagogical_sufficiency', 'educational_level',
             'ergani_new',        
             'social_security_number', 'citizenship_code']}),
