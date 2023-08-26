@@ -149,7 +149,6 @@ class PrivateTeacher(dide.Employee):
         interval = when - total_service
         if self.current_hours:
             if self.current_hours >= 18:
-                import pdb; pdb.set_trace()
                 di = datetime.date.today() + datetime.timedelta(days=interval.total)
                 return di.strftime("%d-%m-%Y")
             else:
