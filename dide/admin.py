@@ -340,10 +340,14 @@ economic_fieldset = (u'Οικονομικά στοιχεία', {
                    'has_family_subsidy', 'other_social_security',
                    'organization_paying', 'show_mass_pay']})
 
-to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
-to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
-to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
-to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
+#to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
+#to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
+#to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
+#to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
+to_permanent = None
+to_non_permanent = None
+to_private_teacher = None
+to_administrative = None
 
 class EmployeeAdmin(DideAdmin):
 
@@ -507,7 +511,7 @@ class PermanentAdmin(EmployeeAdmin):
          'rank', 'ranknew', 'profession_description', 'calculable_not_service',
          'date_created', 'educational_service']
 
-    actions = sorted([#to_private_teacher, to_administrative,
+    actions = sorted([to_private_teacher, to_administrative,
       CSVReport(add=['permanent_post', 'organization_serving', 'date_hired',
                                      'permanent_post_island',
                                      'temporary_position',
@@ -577,7 +581,7 @@ class AdministrativeAdmin(PermanentAdmin):
              'rank', 'ranknew', 'profession_description', 'calculable_not_service',
              'date_created']
 
-    actions = sorted([#to_permanent, to_private_teacher,
+    actions = sorted([to_permanent, to_private_teacher,
       CSVReport(add=['permanent_post', 
                                     'organization_serving',
                                     'permanent_post_island',
@@ -729,7 +733,7 @@ class NonPermanentAdmin(EmployeeAdmin):
                    SubstituteOrderFilter, 'profession__unified_profession',
                    NonPermanentOrganizationServingFilter,
                    NonPermanentWithTotalExtraPosition]
-    actions = sorted([#to_permanent, to_administrative, to_private_teacher,
+    actions = sorted([to_permanent, to_administrative, to_private_teacher,
                     CSVReport(add=['current_placement', 'organization_serving', 'profession__description', 'order', 'type'],
                         exclude=['photo','photo_type']),
                   ] + nonpermanent_docx_reports + [XMLWriteE3Action(u'Δημιουργία Εργάνη XML E3')] + [XMLWriteE7Action(u'Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
