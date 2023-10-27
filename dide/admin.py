@@ -340,14 +340,14 @@ economic_fieldset = (u'Οικονομικά στοιχεία', {
                    'has_family_subsidy', 'other_social_security',
                    'organization_paying', 'show_mass_pay']})
 
-#to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
-#to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
-#to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
-#to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
-to_permanent = None
-to_non_permanent = None
-to_private_teacher = None
-to_administrative = None
+to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
+to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
+to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
+to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
+#to_permanent = None
+#to_non_permanent = None
+#to_private_teacher = None
+#to_administrative = None
 
 class EmployeeAdmin(DideAdmin):
 

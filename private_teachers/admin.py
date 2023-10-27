@@ -7,15 +7,15 @@ from dideman.dide.admin import DegreeInline
 from dideman.dide.actions import EmployeeBecome
 from dideman.dide.models import Permanent, NonPermanent, Administrative, Promotion
 
-#to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
-#to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
-#to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
-#to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
+to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
+to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
+to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
+to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
 
-to_permanent = None
-to_non_permanent = None
-to_private_teacher = None
-to_administrative = None
+#to_permanent = None
+#to_non_permanent = None
+#to_private_teacher = None
+#to_administrative = None
 
 class LeaveWithoutPayInline(admin.TabularInline):
     model = LeaveWithoutPay
@@ -37,7 +37,7 @@ class PrivateTeacherAdmin(DideAdmin):
     actions = [to_permanent, to_non_permanent, to_administrative,
         CSVReport(add=["total_experience", "total_service", "rank",
                               "next_rank_date", 'total_service_311215'])]
-        list_display = ['lastname', 'firstname', 'profession', 'school', 'total_service_311215', 'active']
+    list_display = ['lastname', 'firstname', 'profession', 'school', 'total_service_311215', 'active']
     list_filter = ['profession__unified_profession', 'school', 'active']
     search_fields = ('lastname', 'identity_number')
 

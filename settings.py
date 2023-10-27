@@ -6,7 +6,7 @@ DEBUG = True
 ADMINS = (
      ('ICT Department', 'ictdep@dide.dod.sch.gr'),
 )
-ALLOWED_HOSTS = ['its.dod.sch.gr','its.dide.dod.sch.gr','10.103.254.11', '81.186.76.92']
+ALLOWED_HOSTS = ['its.dod.sch.gr','its.dide.dod.sch.gr','10.103.254.11', '81.186.76.92', '79.129.164.156']
 
 MANAGERS = ADMINS
 
