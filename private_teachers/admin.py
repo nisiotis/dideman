@@ -34,7 +34,7 @@ class PrivateTeacherAdmin(DideAdmin):
         js = ('js/dide.js', )
 
 
-    actions = [to_permanent, to_non_permanent, to_administrative,
+    actions = [#to_permanent, to_non_permanent, to_administrative,
         CSVReport(add=["total_experience", "total_service", "rank",
                               "next_rank_date", 'total_service_311215'])]
     list_display = ['lastname', 'firstname', 'profession', 'school', 'total_service_311215', 'active']
