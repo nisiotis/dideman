@@ -475,7 +475,8 @@ class PermanentAdmin(EmployeeAdmin):
                 'transfer_area',
                     'lastname', 'firstname', 'fathername', 'mothername', 'notes',
                     'sex', 'registration_number', 'profession',
-                    'profession_description', 'permanent_post',
+                    'profession_description', 'second_profession', 'second_profession_description',
+                    'permanent_post',
                     'temporary_position', 'organization_serving',
                     'study_years', 'serving_type', 'date_hired',
                     'order_hired', 'is_permanent',
@@ -508,7 +509,7 @@ class PermanentAdmin(EmployeeAdmin):
     readonly_fields = EmployeeAdmin.readonly_fields + \
         ['permanent_post', 'temporary_position', 'hours', 'hours_next', 'total_service',
          'formatted_recognised_experience', 'formatted_recognised_experience_n4452_2017', 'payment_start_date_auto',
-         'rank', 'ranknew', 'profession_description', 'calculable_not_service',
+         'rank', 'ranknew', 'profession_description','second_profession_description', 'calculable_not_service',
          'date_created', 'educational_service']
 
     actions = sorted([#to_private_teacher, to_administrative,

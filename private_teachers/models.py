@@ -190,16 +190,19 @@ class WorkingPeriod(models.Model):
     comments = models.CharField(u'Σχόλια', max_length=255, null=True, blank=True)
 
     def range_experience(self, arange):
-        if self.hours_weekly >= self.full_week:
-            return arange.total
-        else:
-            dr = self.date_range()
-            if self.hours_total:
-                hours = self.hours_total * (arange.total / dr.total)
-                return (hours / self.full_week) * 6
+        try:
+            if self.hours_weekly >= self.full_week:
+                return arange.total
             else:
-                days = arange.total * (300 / 360)
-                return days * (self.hours_weekly / self.full_week)
+                dr = self.date_range()
+                if self.hours_total:
+                    hours = self.hours_total * (arange.total / dr.total)
+                    return (hours / self.full_week) * 6
+                else:
+                    days = arange.total * (300 / 360)
+                    return days * (self.hours_weekly / self.full_week)
+        except:
+            return 0
 
     def date_range(self):
         return DateRange(Date(self.date_from), Date(self.date_to))

@@ -588,7 +588,7 @@ class Employee(models.Model):
     address = models.CharField(u'Διεύθυνση - Οδός, Αριθμός', max_length=200, null=True, blank=True)
     address_postcode = models.CharField(u'Ταχ. Κωδικός', max_length=6, null=True, blank=True)
     address_city = models.CharField(u'Πόλη', max_length=30, null=True, blank=True)    
-    identity_number = NullableCharField(u'Αρ. Δελτίου Ταυτότητας', max_length=8, null=True, unique=True, blank=True)
+    identity_number = NullableCharField(u'Αρ. Δελτίου Ταυτότητας', max_length=9, null=True, unique=True, blank=True)
     transfer_area = models.ForeignKey(TransferArea, verbose_name=u'Περιοχή Μετάθεσης', null=True, blank=True)
     recognised_experience = models.CharField(u'Συνολική προϋπηρεσία (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
     salary_experience = models.CharField(u'Μισθολογική Προϋπηρεσία (ΕΕΜΜΗΗ)', null=True, blank=True, default='000000', max_length=8)
@@ -614,6 +614,7 @@ class Employee(models.Model):
     birth_date = models.DateField(u'Ημερομηνία Γέννησης',null=True, blank=True)
     hours_current = models.IntegerField(u'Τρέχων Ωράριο', max_length=2, null=True, blank=True)
     profession = models.ForeignKey(Profession, verbose_name=u'Ειδικότητα', related_name='employees')
+    second_profession = models.ForeignKey(Profession, verbose_name=u'Δεύτερη Ειδικότητα',null=True, blank=True)
     placements = models.ManyToManyField(Organization, through='Placement', verbose_name=u'Σχολείο/Φορέας')
     leaves = models.ManyToManyField(Leave, through='EmployeeLeave')
     extra_professions = models.ManyToManyField(Profession, through='EmployeeProfession')
@@ -643,6 +644,13 @@ class Employee(models.Model):
     def profession_description(self):
         return self.profession.description
     profession_description.short_description = u'Λεκτικό ειδικότητας'
+
+    def second_profession_description(self):
+        if self.second_profession:
+            return self.second_profession.description 
+        else: 
+            return None
+    second_profession_description.short_description = u'Λεκτικό δεύτερης ειδικότητας'
 
     def last_placement(self):
         return first_or_none(Placement.objects.filter(
