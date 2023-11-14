@@ -476,7 +476,7 @@ class PermanentAdmin(EmployeeAdmin):
                     'lastname', 'firstname', 'fathername', 'mothername', 'notes',
                     'sex', 'registration_number', 'profession',
                     'profession_description', 'second_profession', 'second_profession_description',
-                    'permanent_post',
+                    'second_profession_order', 'permanent_post',
                     'temporary_position', 'organization_serving',
                     'study_years', 'serving_type', 'date_hired',
                     'order_hired', 'is_permanent',

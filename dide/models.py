@@ -615,6 +615,7 @@ class Employee(models.Model):
     hours_current = models.IntegerField(u'Τρέχων Ωράριο', max_length=2, null=True, blank=True)
     profession = models.ForeignKey(Profession, verbose_name=u'Ειδικότητα', related_name='employees')
     second_profession = models.ForeignKey(Profession, verbose_name=u'Δεύτερη Ειδικότητα',null=True, blank=True)
+    second_profession_order = models.CharField(u'Απόφαση απόδοσης δεύτερης ειδικότητας', max_length=100, null=True, blank=True)
     placements = models.ManyToManyField(Organization, through='Placement', verbose_name=u'Σχολείο/Φορέας')
     leaves = models.ManyToManyField(Leave, through='EmployeeLeave')
     extra_professions = models.ManyToManyField(Profession, through='EmployeeProfession')
