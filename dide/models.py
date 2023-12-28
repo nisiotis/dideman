@@ -618,7 +618,7 @@ class Employee(models.Model):
     second_profession_order = models.CharField(u'Απόφαση απόδοσης δεύτερης ειδικότητας', max_length=100, null=True, blank=True)
     placements = models.ManyToManyField(Organization, through='Placement', verbose_name=u'Σχολείο/Φορέας')
     leaves = models.ManyToManyField(Leave, through='EmployeeLeave')
-    extra_professions = models.ManyToManyField(Profession, through='EmployeeProfession')
+    #extra_professions = models.ManyToManyField(Profession, through='EmployeeProfession')
     responsibilities = models.ManyToManyField(Responsibility, through='EmployeeResponsibility')
     studies = models.ManyToManyField(DegreeCategory, through='EmployeeDegree')
     study_years = models.IntegerField(u'Έτη φοίτησης', max_length=1, null=True, blank=True,
@@ -1716,7 +1716,7 @@ class NonPermanentLeave(models.Model):
 
     class Meta:
         verbose_name = u'Άδεια Αναπληρωτή/Ωρoμίσθιου'
-        verbose_name_plural = u'Άδειες Αναπληρωτή/Ωρoμίσθιου'
+        verbose_name_plural = u'Άδειες Αναπληρωτών/Ωρoμισθίων'
         ordering = ['-date_to']
 
     non_permanent = models.ForeignKey(NonPermanent, verbose_name=u'Υπάλληλος')
@@ -1925,7 +1925,37 @@ class EmployeeLeave(models.Model):
     def __unicode__(self):
         return unicode(self.employee) + '-' + unicode(self.date_from)
 
+    
+class PermanentLeaveManager(models.Manager):        
+    def get_queryset(self):
+	ids = Permanent.objects.all().values_list("parent_id", flat=True)
+        return super(PermanentLeaveManager, self).get_queryset().filter(employee_id__in=ids)
+    
+class PermanentLeave(EmployeeLeave):
 
+    class Meta:
+        proxy = True
+	verbose_name = u'Άδεια Μόνιμου Εκπαιδευτικού'
+	verbose_name_plural = u'Άδειες Μόνιμων Εκπαιδευτικών'
+
+    objects = PermanentLeaveManager()
+
+    
+class AdministrativeLeaveManager(models.Manager):
+    def get_queryset(self):
+        ids = Administrative.objects.all().values_list("parent_id", flat=True)
+        return super(AdministrativeLeaveManager, self).get_queryset().filter(employee_id__in=ids)
+
+class AdministrativeLeave(EmployeeLeave):
+
+    class Meta:
+        proxy = True
+	verbose_name = u'Άδεια Διοικητικού'
+        verbose_name_plural = u'Άδειες Διοικητικών'
+
+    objects = AdministrativeLeaveManager()
+    
+    
 class EmployeeResponsibility(models.Model):
 
     class Meta:

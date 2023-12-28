@@ -119,12 +119,20 @@ def employeeleave(request):
     from dideman.dide.models import EmployeeLeave
     return render_template(request, EmployeeLeave, EmployeeLeaveAdmin)
 
+def permanentleave(request):
+    from dideman.dide.admin import PermanentLeaveAdmin
+    from dideman.dide.models import PermanentLeave
+    return render_template(request, PermanentLeave, PermanentLeaveAdmin)
+
+def administrativeleave(request):
+    from dideman.dide.admin import AdministrativeLeaveAdmin
+    from dideman.dide.models import AdministrativeLeave
+    return render_template(request, AdministrativeLeave, AdministrativeLeaveAdmin)
 
 def otherorganization(request):
     from dideman.dide.admin import OtherOrganizationAdmin
     from dideman.dide.models import OtherOrganization
     return render_template(request, OtherOrganization, OtherOrganizationAdmin)
-
 
 def temporaryposition(request):
     from dideman.dide.admin import TemporaryPositionAdmin

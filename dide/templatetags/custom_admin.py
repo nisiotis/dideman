@@ -25,7 +25,9 @@ def free_date_filter(cl, spec):
             'url_to_value': spec.url_to_value,
             'parameter_name': spec.parameter_name, 'cl': cl}
 
-@register.inclusion_tag('admin/dide/employeeleave/submit_line.html', takes_context=True)
+@register.inclusion_tag('admin/dide/administrativeleave/submit_line.html', takes_context=True)
+@register.inclusion_tag('admin/dide/permanentleave/submit_line.html', takes_context=True)
+@register.inclusion_tag('admin/dide/nonpermanentleave/submit_line.html', takes_context=True)
 def submit_row(context):
     """
     Displays the row of buttons for delete and save.
@@ -34,12 +36,14 @@ def submit_row(context):
     change = context['change']
     is_popup = context['is_popup']
     save_as = context['save_as']
-
-    if context['opts'].object_name == "NonPermanentLeave":
+    
     #if context['original'].__class__.__name__ == "NonPermanentLeave":
-        sub_url = "nonpermanentleave"
+    if context['opts'].object_name == "PermanentLeave":
+        sub_url = "permanentleave"
+    elif context['opts'].object_name == "AdministrativeLeave":
+        sub_url = "administrativeleave"
     else:
-        sub_url = "employeeleave"
+        sub_url = "nonpermanentleave"
     
     return {
         'sub_url': sub_url,

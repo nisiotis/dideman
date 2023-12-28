@@ -1,0 +1,13 @@
+{% load i18n %}
+<div style="position: fixed; width: 100%; bottom: 0; left: 0; z-index: 10001; background-color: white;">
+<div style="margin-left: 10px; margin-right: 10px;">
+<div class="submit-row" style="margin: 0 0 5px 0;">
+{% if show_save %}<input type="submit" value="{% trans 'Save' %}" class="default" name="_save" {{ onclick_attrib }}/>{% endif %}
+{% if show_delete_link %}<p class="deletelink-box"><a href="delete/" class="deletelink">{% trans "Delete" %}</a></p>{% endif %}
+{% if show_save_as_new %}<input type="submit" value="{% trans 'Save as new' %}" name="_saveasnew" {{ onclick_attrib }}/>{%endif%}
+{% if show_save_and_add_another %}<input type="submit" value="{% trans 'Save and add another' %}" name="_addanother" {{ onclick_attrib }} />{% endif %}
+{% if show_save_and_continue %}<input type="submit" value="{% trans 'Save and continue editing' %}" name="_continue" {{ onclick_attrib }}/>{% endif %}
+{% if show_print %} <input type="submit" value="Εκτύπωση" name="_print" onclick="document.location='/admin/dide/{{sub_url}}/print/{{object_id}}';return false;"/>{%endif%}
+</div>
+</div>
+</div>

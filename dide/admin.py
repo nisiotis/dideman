@@ -16,7 +16,8 @@ from filters import *
 from applications.filters import FinalisedFilter
 from models import (
                     GeoSchool, 
-                    TransferArea, Island, Leave, Responsibility, Profession,
+                    TransferArea, Island, Leave, AdministrativeLeave, PermanentLeave,
+                    Responsibility, Profession,
                     Promotion, PromotionNew, NonPermanentType, Administrative,
                     NonPermanent, Permanent, Employee, DegreeCategory,
                     SchoolType, School, OtherOrganization, PlacementType,
@@ -344,10 +345,7 @@ to_permanent = EmployeeBecome('Μετατροπή σε Μόνιμο', Permanent)
 to_non_permanent = EmployeeBecome('Μετατροπή σε Αναπληρωτή', NonPermanent)
 to_private_teacher = EmployeeBecome('Μετατροπή σε Ιδιωτικό', PrivateTeacher)
 to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό', Administrative)
-#to_permanent = None
-#to_non_permanent = None
-#to_private_teacher = None
-#to_administrative = None
+
 
 class EmployeeAdmin(DideAdmin):
 
@@ -407,7 +405,6 @@ class OtherOrganizationAdmin(DideAdmin):
 class LeaveAdmin(DideAdmin):
     search_fields = ('name', )
     list_display = ('name', 'type', 'for_non_permanents')
-
 
 class SchoolCommissionAdmin(DideAdmin):
     form = SchoolCommissionForm
@@ -695,6 +692,112 @@ class EmployeeLeaveAdmin(DideAdmin):
                           name='dide_employeeleave_print'))
 
 
+class AdministrativeLeaveForm(ModelForm):
+
+    class Meta:
+        model = AdministrativeLeave
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(AdministrativeLeaveForm, self).__init__(*args, **kwargs)
+        self.fields['employee'] = AdministrativeChoiceField(label=u'Υπάλληλος')
+        self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=False)
+
+class AdministrativeChoiceField(ModelChoiceField):
+    def __init__(self, *args, **kwargs):
+	self.choices = Administrative.objects.choices()
+        return super(AdministrativeChoiceField, self).__init__(Employee.objects, *args, **kwargs)
+
+
+class AdministrativeLeaveAdmin(DideAdmin):
+
+    class Media:
+        css = {'all': ('/static/admin/css/widgets.css',)}
+        js = ('/static/admin/js/calendar.js',
+              '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
+    form = AdministrativeLeaveForm
+    search_fields = ('employee__lastname',
+                     'employee__permanent__registration_number')
+    list_display = ('employee', 'profession', 'category', 'date_from',
+                    'date_to', 'duration')
+    list_filter = (AdministrativeLeaveFilter, 'employee__profession__unified_profession',
+                   LeaveDateToFilter, LeaveDateFromFilter)
+    actions = [CSVReport(add=['employee__profession__id',
+                              'organization_serving', 'permanent_post'])] + \
+        sorted(leave_docx_reports, key=lambda k: k.short_description)
+
+    def print_leave(self, request, employeeleave_id):
+        from django.http import HttpResponse
+        leave_qs = AdministrativeLeave.objects.filter(pk=employeeleave_id)
+	if (len(leave_qs) != 1):
+            return HttpResponse(u'Η άδεια δεν βρέθηκε')
+	leave = leave_qs[0]
+
+	for r in leave_docx_reports:
+            if r.short_description == leave.leave.name:
+                return r(self, request, leave_qs)
+        return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
+
+    def get_urls(self):
+        from django.conf.urls import patterns, url
+        return super(AdministrativeLeaveAdmin, self).get_urls() + \
+            patterns('', url(r'^print/(\d+)$',
+                          self.admin_site.admin_view(self.print_leave),
+                          name='dide_administrativeleave_print'))
+
+class PermanentLeaveForm(ModelForm):
+
+    class Meta:
+        model = PermanentLeave
+	fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+	super(PermanentLeaveForm, self).__init__(*args, **kwargs)
+        self.fields['employee'] = PermanentChoiceField(label=u'Μόνιμος εκπαιδευτικός')
+        self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=False)
+
+class PermanentChoiceField(ModelChoiceField):
+    def __init__(self, *args, **kwargs):
+        self.choices = Permanent.objects.choices()	
+	return super(PermanentChoiceField, self).__init__(Employee.objects, *args, **kwargs)
+
+class PermanentLeaveAdmin(DideAdmin): 
+
+    class Media:
+        css = {'all': ('/static/admin/css/widgets.css',)}
+        js = ('/static/admin/js/calendar.js',
+              '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
+    form = PermanentLeaveForm
+    search_fields = ('employee__lastname',
+                     'employee__permanent__registration_number')
+    list_display = ('employee', 'profession', 'category', 'date_from',
+                    'date_to', 'duration')
+    list_filter = (PermanentLeaveFilter, 'employee__profession__unified_profession',
+                   LeaveDateToFilter, LeaveDateFromFilter)
+    actions = [CSVReport(add=['employee__profession__id',
+                              'organization_serving', 'permanent_post'])] + \
+        sorted(leave_docx_reports, key=lambda k: k.short_description)
+    
+    def print_leave(self, request, employeeleave_id):
+        from django.http import HttpResponse
+        leave_qs = PermanentLeave.objects.filter(pk=employeeleave_id)
+	if (len(leave_qs) != 1):
+            return HttpResponse(u'Η άδεια δεν βρέθηκε')
+	leave = leave_qs[0]
+
+	for r in leave_docx_reports:
+            if r.short_description == leave.leave.name:
+                return r(self, request, leave_qs)
+        return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
+
+    def get_urls(self):
+        from django.conf.urls import patterns, url
+        return super(PermanentLeaveAdmin, self).get_urls() + \
+            patterns('', url(r'^print/(\d+)$',
+                          self.admin_site.admin_view(self.print_leave),
+                          name='dide_permanentleave_print'))
+
+    
 class NonPermanentAdmin(EmployeeAdmin):
 
     class Media:
@@ -760,7 +863,8 @@ class GeoSchoolAdmin(admin.ModelAdmin):
 map(lambda t: admin.site.register(*t), (
     (GeoSchool, GeoSchoolAdmin),
     (Settings, SettingsAdmin),
-    (Leave, LeaveAdmin),
+    (AdministrativeLeave, AdministrativeLeaveAdmin),
+    (PermanentLeave, PermanentLeaveAdmin),
     (Permanent, PermanentAdmin),
     (Administrative, AdministrativeAdmin),
     (Profession, ProfessionAdmin),
@@ -771,7 +875,7 @@ map(lambda t: admin.site.register(*t), (
     (NonPermanent, NonPermanentAdmin),
     (NonPermanentType, NonPermanentTypeAdmin),
     (PlacementType, PlacementTypeAdmin),
-    (EmployeeLeave, EmployeeLeaveAdmin),
+#    (EmployeeLeave, EmployeeLeaveAdmin),
     (NonPermanentLeave, NonPermanentLeaveAdmin),
     (MoveInside, MoveInsideAdmin),
     (TemporaryPosition, TemporaryPositionAdmin),

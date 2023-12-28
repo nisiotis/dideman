@@ -4,6 +4,7 @@ from overrides.admin import DideAdmin
 from django.contrib.admin.filters import SimpleListFilter, FieldListFilter
 from models import (Organization, School, Permanent, DegreeCategory,
                     NonPermanent, EmployeeLeave, TransferArea, Island,
+                    AdministrativeLeave, PermanentLeave,
                     SubstituteMinistryOrder, Leave, NonPermanentLeave)
 import django.contrib.admin.views.main as views
 import datetime
@@ -42,10 +43,28 @@ class PermanentLeaveFilter(ModifierSimpleListFilter):
         val = query_dict.get(self.parameter_name, None)
         if val:
             return queryset & \
-                EmployeeLeave.objects.filter(leave__id=int(val))
+                PermanentLeave.objects.filter(leave__id=int(val))
         else:
             return queryset
-    
+
+class AdministrativeLeaveFilter(ModifierSimpleListFilter):
+    title = u'Κατηγορία άδειας'
+    parameter_name = 'leave__id'
+    list_view = True
+
+    def lookups(self, request, model_admin):
+	leaves = Leave.objects.filter(for_non_permanents=False)
+        return ((l.id, l.name) for l in leaves)
+
+    def filter_param(self, queryset, query_dict):
+	val = query_dict.get(self.parameter_name, None)
+	if val:
+            return queryset & \
+                AdministrativeLeave.objects.filter(leave__id=int(val))
+        else:
+            return queryset
+
+
 class NonPermanentLeaveFilter(ModifierSimpleListFilter):
     title = u'Κατηγορία άδειας'
     parameter_name = 'leave__id'
