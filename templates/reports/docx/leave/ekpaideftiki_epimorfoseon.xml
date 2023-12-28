@@ -34,6 +34,6 @@
         </w:p>
         <w:p w:rsidR="004079CD" w:rsidRPr="004079CD" w:rsidRDefault="004079CD" w:rsidP="004079CD">
             <w:r w:rsidRPr="004079CD">
-                <w:t xml:space="preserve">Χορηγούμε στην {{ rec.recipient }} του {{ rec.employee__fathername }}, υπάλληλο κλάδου {{ rec.profession }} του {{ rec.employee__subclass__organization_serving }} ειδική άδεια {{ rec.duration }} εργάσιμων ημερών, από {{ rec.date_from }} έως {{ rec.date_to }} με αποδοχές για τους λόγους που αναφέρει στην αίτησή του/της.</w:t>
+		    <w:t xml:space="preserve">Χορηγούμε στον/στην {{ rec.recipient }} του {{ rec.employee__fathername }}, υπάλληλο κλάδου {{ rec.profession }} του {{ rec.employee__subclass__organization_serving }} ειδική άδεια {{ rec.duration }} εργάσιμων ημερών, από {{ rec.date_from }} έως {{ rec.date_to }} με αποδοχές για τους λόγους που αναφέρει στην αίτησή του/της.</w:t>
             </w:r>
         </w:p>
