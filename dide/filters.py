@@ -71,7 +71,7 @@ class NonPermanentLeaveFilter(ModifierSimpleListFilter):
     list_view = True
     
     def lookups(self, request, model_admin):
-        leaves = Leave.objects.filter(for_non_permanents=True)
+        leaves = Leave.objects.filter(for_non_permanents=False)
         return ((l.id, l.name) for l in leaves)
 
     def filter_param(self, queryset, query_dict):

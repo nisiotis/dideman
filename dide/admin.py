@@ -22,7 +22,7 @@ from models import (
                     NonPermanent, Permanent, Employee, DegreeCategory,
                     SchoolType, School, OtherOrganization, PlacementType,
                     Placement, EmployeeLeave, EmployeeResponsibility,
-                    NonPermanentLeave, LeavePeriod,
+                    NonPermanentLeave,# LeavePeriod,
                     EmployeeDegree, Child, Loan, SocialSecurity,
                     LoanCategory, Service, Settings, ApplicationSet,
                     MoveInside, TemporaryPosition,
@@ -263,9 +263,9 @@ class LeaveInline(admin.TabularInline):
     extra = 0
 
 
-class LeavePeriodInline(admin.TabularInline):
-    model = LeavePeriod
-    extra = 0
+#class LeavePeriodInline(admin.TabularInline):
+#    model = LeavePeriod
+#    extra = 0
 
 
 class DegreeInline(admin.TabularInline):
@@ -626,24 +626,25 @@ class NonPermanentLeaveForm(ModelForm):
         super(NonPermanentLeaveForm, self).__init__(*args, **kwargs)
         self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=True)
 
+
 class NonPermanentLeaveAdmin(DideAdmin):
-    inlines = [LeavePeriodInline]
+    #inlines = [LeavePeriodInline]
     search_fields = ('non_permanent__lastname',
                      'non_permanent__vat_number')
-    list_display = ('non_permanent', 'leave', 'date_from', 'date_to', 'duration')
-    list_filter = (NonPermanentLeaveFilter, 'non_permanent__profession__unified_profession',
+    list_display = ('employee', 'leave', 'date_from', 'date_to', 'duration')
+    list_filter = (NonPermanentLeaveFilter,# 'non_permanent__profession__unified_profession',
                    LeaveDateToFilter, LeaveDateFromFilter)
     actions = [CSVReport(add=['non_permanent__profession__id', 'non_permanent__organization_serving'])]
     form = NonPermanentLeaveForm
     
     def print_leave(self, request, employeeleave_id):
         from django.http import HttpResponse
-        from reports.non_permanent_leave import non_permanent_leave_docx_reports
+        #from reports.permanentleave import leave_docx_reports
         leave_qs = NonPermanentLeave.objects.filter(pk=employeeleave_id)
         if len(leave_qs) != 1:
             return HttpResponse(u'Η άδεια δεν βρέθηκε')
         leave = leave_qs[0]
-        for r in non_permanent_leave_docx_reports:
+        for r in leave_docx_reports:
             if r.short_description == leave.leave.name:
                 return r(self, request, leave_qs)
         return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
@@ -651,8 +652,7 @@ class NonPermanentLeaveAdmin(DideAdmin):
     def get_urls(self):
         from django.conf.urls import patterns, url      
         return patterns('', url(r'^print/([0-9]+)/$',
-                          self.admin_site.admin_view(self.print_leave))) + super(NonPermanentLeaveAdmin, self).get_urls();
-            
+                          self.admin_site.admin_view(self.print_leave))) + super(NonPermanentLeaveAdmin, self).get_urls();            
 
 
 class EmployeeLeaveAdmin(DideAdmin):
@@ -889,7 +889,8 @@ map(lambda t: admin.site.register(*t), (
     (NonPermanentInsuranceFile, NonPermanentInsuranceFileAdmin),
     (RankCode, RankCodeAdmin),
     (PaymentCode, PaymentCodeAdmin),
-    (SocialSecurity, SocialSecurityAdmin)
+    (SocialSecurity, SocialSecurityAdmin),
+    (Leave, LeaveAdmin)
 
 ))
 
