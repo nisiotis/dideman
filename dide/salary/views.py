@@ -38,6 +38,7 @@ import os.path
 import mimetypes
 from cStringIO import StringIO
 
+pay_list = 20
 pay_pdf = {}
 
 @csrf_protect
@@ -298,7 +299,7 @@ def view(request):
 
         o_year_t = [(k, "{:12.2f}".format(v)) for k, v in year_t.iteritems()]
         o_year_t.sort(reverse=True)
-        paginator = Paginator(pay, 15)
+        paginator = Paginator(pay, pay_list)
 
         page = request.GET.get('page')
         try:
