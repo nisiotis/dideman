@@ -981,9 +981,11 @@ class Permanent(Employee):
          μεχρι 15 ετη -->23
          μεχρι 20 ετη -->22
         """
+
         # Modified by nisiotis as suggested by mi235
         upl = self.unified_profession()
         cat = self.profession.category()
+        CL = self.unified_profession()
         years = self.educational_service().years
         pe = [(5, 23), (11, 21), (19, 20), (50, 18)]
         te = [(6, 24), (12, 21), (19, 20), (50, 18)]
@@ -1001,9 +1003,9 @@ class Permanent(Employee):
 
     # επόμενη μείωση ωραρίου σε διάστημα 
     def hours_next(self):
+
 	# Modified by nisiotis as suggested by mi235
         upl = self.unified_profession()
-
         cat = self.profession.category()
         years = self.educational_service().years
         months = self.educational_service().months
@@ -1012,14 +1014,17 @@ class Permanent(Employee):
         te = [(6, 24), (12, 21), (19, 20), (50, 18)]
         eep = [(4, 25), (9, 24), (14, 23), (19, 22), (50, 22)]
         get_hours = lambda sy, l: next((y, h) for y, h in l if sy <= y)[0]
+
         if upl in [u'ΠΕ21', u'ΠΕ22', u'ΠΕ23', u'ΠΕ25', u'ΠΕ28', u'ΠΕ29', u'ΠΕ30', u'ΠΕ31']:
             dt = DateInterval(days=30 - days, months=11 - months, years=get_hours(years, eep) - years)        
+
         elif cat == u'ΠΕ':
             dt = DateInterval(days=30-days, months=11-months, years=get_hours(years, pe)-years)
         elif cat == u'ΤΕ':
             dt = DateInterval(days=30-days, months=11-months, years=get_hours(years, te)-years)
         else:
             dt = None # DateInterval(days=0, months=0, years=0)
+
         #if self.hours() == 18:
         #    return None #DateInterval(days=0, months=0, years=0)
         #else:
@@ -1291,7 +1296,9 @@ class NonPermanentType(models.Model):
 
 class NonPermanentManager(models.Manager):
     def substitutes_in_transfer_area(self, area_id):
-        ids = [s.substitute_id for s in OrderedSubstitution.objects.filter(transfer_area=area_id)]
+        ids = []
+        for s in OrderedSubstitution.objects.filter(transfer_area=area_id):
+            ids.append(s.substitute_id)
         return self.filter(parent_id__in=ids)
 
     def substitutes_in_order(self, order_id):
