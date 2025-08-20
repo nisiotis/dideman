@@ -1580,6 +1580,7 @@ class Placement(models.Model):
     order_pysde = models.CharField(u'Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
     # New field to add for the type of experience
     teaching_service = models.NullBooleanField(u'Είναι διδακτική προϋπηρεσία;', null=True, default=True)
+    reduce_hours = models.NullBooleanField(u'Προσμέτρηση για μείωση ωραρίου', null=True, default=True)
 
     def natural_key(self):
         return (self.employee, self.organization, self.date_from)

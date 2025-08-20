@@ -32,6 +32,7 @@ def schools(request):
             sch = School.objects.all().exclude(email__exact='')
             data = {"data":
                     [{"name": unicode(k.name),
+                      "area": unicode(k.transfer_area),
                       "email": k.email,
                       "code": k.code} for k in sch],
                     "error": "" }
