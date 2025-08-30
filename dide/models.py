@@ -2189,3 +2189,11 @@ class GeoSchool(School):
         verbose_name_plural = u'Σχολεία - Γεωγραφική Απεικόνιση'
         proxy = True
         managed = False
+
+class ImportExport(Employee):
+
+    class Meta:
+        verbose_name = u'Εισαγωγή - Εξαγωγή Δεδομένων'
+        verbose_name_plural = u'Εισαγωγή - Εξαγωγή Δεδομένων'
+        proxy = True
+        managed = False

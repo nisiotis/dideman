@@ -15,7 +15,7 @@ from overrides.admin import DideAdmin
 from filters import *
 from applications.filters import FinalisedFilter
 from models import (
-                    GeoSchool, 
+                    GeoSchool, ImportExport,
                     TransferArea, Island, Leave, AdministrativeLeave, PermanentLeave,
                     Responsibility, Profession,
                     Promotion, PromotionNew, NonPermanentType, Administrative,
@@ -859,8 +859,11 @@ class GeoSchoolAdmin(admin.ModelAdmin):
     pass
 
 
+class ImportExportAdmin(admin.ModelAdmin):
+    pass
 
 map(lambda t: admin.site.register(*t), (
+    (ImportExport, ImportExportAdmin),
     (GeoSchool, GeoSchoolAdmin),
     (Settings, SettingsAdmin),
     (AdministrativeLeave, AdministrativeLeaveAdmin),

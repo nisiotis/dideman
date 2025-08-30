@@ -246,6 +246,21 @@ def nonpermanent_list(request):
 
 @csrf_protect
 @staff_member_required
+def import_export_view(request):
+    #r = render_to_response('404.html', {},
+    #                              context_instance=RequestContext(request))
+    #r.status_code = 404
+    #return response
+    #r = render_to_response('admin/schools_geo_list.html', context, RequestContext(request))
+    #return HttpResponse(r)
+    #response = render_to_response('admin/404.html', {},
+    #                              context_instance=RequestContext(request))
+    #response.status_code = 404
+    #return response
+    return handler500(request)
+
+@csrf_protect
+@staff_member_required
 def school_geo_view(request):
     sch = School.objects.all().exclude(google_maps_x__isnull=True).exclude(google_maps_x__exact='').exclude(google_maps_y__isnull=True).exclude(google_maps_y__exact='')
     sch_units = []
@@ -289,14 +304,14 @@ def school_geo_view(request):
 
 
 def handler404(request):
-    response = render_to_response('404.html', {},
+    response = render_to_response('admin/404.html', {},
                                   context_instance=RequestContext(request))
     response.status_code = 404
     return response
 
 
 def handler500(request):
-    response = render_to_response('500.html', {},
+    response = render_to_response('admin/500.html', {},
                                   context_instance=RequestContext(request))
     response.status_code = 500
     return response

@@ -3,6 +3,9 @@ from django.contrib import admin
 #from dideman.dide.employee.decorators import match_required
 admin.autodiscover()
 
+handler404 = 'dideman.dide.views.handler404'
+handler500 = 'dideman.dide.views.handler500'
+
 urlpatterns = patterns(
     '',
 
@@ -12,6 +15,8 @@ urlpatterns = patterns(
         'dideman.dide.views.views.photo_update'),
     url(r'^admin/dide/nonpermanent/list/$',
         'dideman.dide.views.views.nonpermanent_list'),
+    url(r'^admin/dide/importexport/$', 
+        'dideman.dide.views.views.import_export_view'),
     url(r'^admin/dide/geoschool/$',
         'dideman.dide.views.views.school_geo_view'),
     url(r'^admin/', include(admin.site.urls)),
