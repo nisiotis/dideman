@@ -18,10 +18,15 @@
 
 <input type="file" id="xls_upload" name="xls_upload">
 <input type="submit" value="Μεταφώρτωση" id="upload" name="upload">
+{% if data %}
+<input type="button" value="Αποθήκευση" id="save_file" name="save_file">
+{% endif %}
+<p>Αυστηρά καθορισμένο αρχείο Excel τύπου «Excel 1997-2004 Workbook (.xls)» με τα δεδομένα στο πρώτο φύλλο με την πρώτη στήλη να περιέχει το πεδίο-κλειδί «vat_number».
+</p>
 <div>
 
 {% if data %}
-<p>Παρακάτω εμφανίζονται {{ data|length }} εγγραφές του αρχείου {{import_file}} </p>
+<p>Παρακάτω εμφανίζονται {{ data|length }} εγγραφές του αρχείου {{import_file}}  </p>
 {% endif %}
 <table>
   <tr>
