@@ -1,0 +1,55 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static admin_list %}
+{% load url from future %}
+{% load admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {{ app_label|capfirst|escape }}
+
+</div>
+{% endblock %}
+
+{% block content %}
+
+<form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+
+<input type="file" id="xls_upload" name="xls_upload">
+<input type="submit" value="Μεταφώρτωση" id="upload" name="upload">
+<div>
+
+{% if data %}
+<p>Παρακάτω εμφανίζονται {{ data|length }} εγγραφές του αρχείου {{import_file}} </p>
+{% endif %}
+<table>
+  <tr>
+    <td></td>
+    {% for i in cols %}
+    <td><select style="width: 100px;">
+	<option>---</option>
+	{% for o in fields %}<option>{{ o }}</option>{% endfor %}
+    </select></td>
+    {% endfor %}
+  </tr>
+  {% for o in data %}
+  <tr>
+    <td><input type="checkbox" value="{{ o.0 }}"></td>
+{% for key, value in o.items%}
+<td style="white-space:nowrap;">{{ value }}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+
+{% for obj in queryset %}
+<input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}" />
+{% endfor %}
+<input type="hidden" name="action" value="{{ action_name }}" />
+<input type="hidden" name="post" value="yes" />
+</div>
+</form>
+
+
+{% endblock %}

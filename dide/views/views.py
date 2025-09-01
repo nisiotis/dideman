@@ -20,6 +20,8 @@ from django.conf.urls import *
 from django.core.urlresolvers import reverse, NoReverseMatch
 from cStringIO import StringIO
 import datetime, base64
+import os
+import xlrd
 
 
 def find_duplicates():
@@ -247,18 +249,47 @@ def nonpermanent_list(request):
 @csrf_protect
 @staff_member_required
 def import_export_view(request):
-    #r = render_to_response('404.html', {},
-    #                              context_instance=RequestContext(request))
-    #r.status_code = 404
-    #return response
-    #r = render_to_response('admin/schools_geo_list.html', context, RequestContext(request))
-    #return HttpResponse(r)
-    #response = render_to_response('admin/404.html', {},
-    #                              context_instance=RequestContext(request))
-    #response.status_code = 404
-    #return response
-    return handler500(request)
-
+    if request.POST:
+        print "post"
+        importfile = ""
+        if 'xls_upload' in request._files:
+            mf = Permanent._meta.fields
+            importfile = request._files['xls_upload']
+            workbook = xlrd.open_workbook(file_contents=importfile.read())
+            worksheet = workbook.sheet_by_index(0)
+            curr_row = 1
+            xlsdata = []
+            ncols = worksheet.ncols
+            while curr_row < worksheet.nrows:
+                
+                d = {}
+                for i in range(ncols):
+                    d[i] = unicode(worksheet.cell_value(curr_row,i))
+                    
+                xlsdata.append(d)
+                curr_row += 1
+            context = {
+                "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+	        "opts": [],
+                "import_file": importfile.name, 
+                "fields": mf,
+                "cols": range(ncols),
+                "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+                "data": xlsdata,
+                "errors": [],
+        }
+    else:
+        context = {
+            "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+            "opts": [],
+            "form": [],
+            "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+            "errors": [],
+        }
+        
+    r = render_to_response('admin/importexport.html', context, RequestContext(request))
+    return r
+    
 @csrf_protect
 @staff_member_required
 def school_geo_view(request):
