@@ -3,7 +3,27 @@
 {% load i18n admin_static admin_list %}
 {% load url from future %}
 {% load admin_urls %}
+{% block extrahead %}
+{% if data %}
+<script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
+<!--<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+-->
+<script type="text/javascript">
+  
+$(document).ready(function () {
+    $('#selectall').click(function () {
+        $('.selectedId').prop('checked', this.checked);
+    });
 
+    $('.selectedId').change(function () {
+        var check = ($('.selectedId').filter(":checked").length == $('.selectedId').length);
+        $('#selectall').prop("checked", check);
+    });
+});
+
+</script>
+{% endif %}
+{% endblock %}
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
@@ -15,46 +35,88 @@
 {% block content %}
 
 <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+{% if not imported %}
 
 <input type="file" id="xls_upload" name="xls_upload">
-<input type="submit" value="Μεταφώρτωση" id="upload" name="upload">
-{% if data %}
-<input type="button" value="Αποθήκευση" id="save_file" name="save_file">
+<button type="submit" value="Μεταφώρτωση" id="upload" name="upload" formaction="?upload=True">Μεταφώρτωση</button>
 {% endif %}
+{% if data %}
+<button type="submit" value="Αποθήκευση" id="save_file" name="save_file" formaction="?save=True">Αποθήκευση</button>
+{% endif %}
+
+{% if dataselected %}
+<button type="submit" value="Οριστικοποίηση" id="final" name="final" formaction="?final=True">Οριστικοποίηση</button>
+{% endif %}
+
+{% if not imported %}
 <p>Αυστηρά καθορισμένο αρχείο Excel τύπου «Excel 1997-2004 Workbook (.xls)» με τα δεδομένα στο πρώτο φύλλο με την πρώτη στήλη να περιέχει το πεδίο-κλειδί «vat_number».
 </p>
+
+{% endif %}
 <div>
 
 {% if data %}
-<p>Παρακάτω εμφανίζονται {{ data|length }} εγγραφές του αρχείου {{import_file}}  </p>
-{% endif %}
+<p>Παρακάτω εμφανίζονται {{ data|length }} εγγραφές του αρχείου {{ import_file }}  </p>
+<input type="hidden" name="datalength" id="datalength" value="{{ data|length }}">
+<input type="hidden" name="columns" id="columns" value="{{ cols|length }}">
+<input type="hidden" name="imported_file" id="imported_file" value="{{ import_file }}">
+
 <table>
   <tr>
-    <td></td>
+    <td>{% if data %}<input id="selectall" name="selectall" type="checkbox">{% endif %}</td>
     {% for i in cols %}
-    <td><select style="width: 100px;">
-	<option>---</option>
-	{% for o in fields %}<option>{{ o }}</option>{% endfor %}
+    <td><select name="field_{{ i }}" id="field_{{ i }}" style="width: 100px;">
+	<option value="">---</option>
+	{% for o in fields %}<option value="{{ o }}">{{ o }}</option>{% endfor %}
     </select></td>
     {% endfor %}
   </tr>
   {% for o in data %}
+  {% with r=iterator.next %}
   <tr>
-    <td><input type="checkbox" value="{{ o.0 }}"></td>
-{% for key, value in o.items%}
-<td style="white-space:nowrap;">{{ value }}</td>
-{% endfor %}
-</tr>
+    <td><input class="selectedId" id="check_{{ r }}" name="check_{{ r }}" type="checkbox" value="{{ o.0 }}"></td>
+{% for key, value in o.items %}
+<td style="white-space:nowrap;"><input id="row_{{ r }}_item_{{ forloop.counter }}" name="row_{{ r }}_item_{{ forloop.counter }}" type="hidden" value="{{ value }}" >{{ value }}</td>
+    
+  {% endfor %}
+  </tr>
+  {% endwith %}
 {% endfor %}
 </table>
+{% endif %}
 
-{% for obj in queryset %}
-<input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}" />
+{% if dataselected %}
+<p>Παρακάτω εμφανίζονται {{ dataselected|length }} εγγραφές του αρχείου {{ imported_file }} που επιλέχθηκαν. </p>
+<input type="hidden" name="datalength" id="datalength" value="{{ seldata|length }}">
+{% endif %}
+{% if dublicates > 0 %}
+<p>Εμφανίζονται {{ dublicates }} εγγραφές με κόκκινο που εχουν βρεθεί στη βάση.</p>
+{% endif %}
+<table>
+    <tr>
+      <td></td>
+    {% for f in field_titles %}
+    <td>{{ f }}:</td>
+    {% endfor %}
+  </tr>
+
+  {% for o in dataselected %}
+  {% with r=iterator.next %}
+    <tr {% for key, value in o.items %}{% if key == 'found' and value != '' %}style="color:red;" {% endif %}{% endfor %}>
+      <td><select name="select_{{ r }}" id="select_{{ r }}"><option selected value=0>Εισαγωγή</option><option value=1>Παράκαμψη</option></select> </td>
+    {% for key, value in o.items %}
+    {% if key != 'found' %}
+<td style="white-space:nowrap;"><input id="row_{{ r }}_item_{{ forloop.counter }}" name="row_{{ r }}_item_{{ forloop.counter }}" type="hidden" value="{{ value }}" >{{ value }}</td>
+{% else %}
+<td style="white-space:nowrap;"><input id="found_item_{{ r }}" name="found_item_{{ r }}" type="hidden" value="{{ value }}" ></td>
+
+{% endif %}
+
+  {% endfor %}
+  </tr>
+  {% endwith %}
 {% endfor %}
-<input type="hidden" name="action" value="{{ action_name }}" />
-<input type="hidden" name="post" value="yes" />
-</div>
-</form>
+</table>
 
 
 {% endblock %}

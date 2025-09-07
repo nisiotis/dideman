@@ -20,7 +20,7 @@ from django.conf.urls import *
 from django.core.urlresolvers import reverse, NoReverseMatch
 from cStringIO import StringIO
 import datetime, base64
-import os
+import os, itertools
 import xlrd
 
 
@@ -249,44 +249,101 @@ def nonpermanent_list(request):
 @csrf_protect
 @staff_member_required
 def import_export_view(request):
+    context = {
+        "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+        "opts": [],
+        "form": [],
+        "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+        "errors": [],
+    }
+
     if request.POST:
-        print "post"
-        importfile = ""
-        if 'xls_upload' in request._files:
+        if "final" in request.GET:
+	    context = {
+                    "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+                    "opts": [],
+                    "imported": [1, 2, 3],
+		  
+                    "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+                  
+                    "errors": [],
+
+                }
+
+
+            
+        if "save" in request.GET:
+            sel_rows = 0
+            ds = []
+            fset = []
             mf = Permanent._meta.fields
-            importfile = request._files['xls_upload']
-            workbook = xlrd.open_workbook(file_contents=importfile.read())
-            worksheet = workbook.sheet_by_index(0)
-            curr_row = 1
-            xlsdata = []
-            ncols = worksheet.ncols
-            while curr_row < worksheet.nrows:
-                
-                d = {}
-                for i in range(ncols):
-                    d[i] = unicode(worksheet.cell_value(curr_row,i))
+            dbl = 0
+            if 'datalength' in request.POST:
+                for i in range(0,int(request.POST['columns'])):
+                    if len(request.POST['field_'+str(i)]) > 0:
+                        
+                        fset.append(request.POST['field_'+str(i)])
+                        
+                for i in range(0,int(request.POST['datalength'])):
+                    if "check_"+str(i) in request.POST:
+                        sel_rows += 1
+                        d = {}
+                        for j in range(1,int(request.POST['columns'])+1):
+                            if len(request.POST['field_'+str(j-1)]) > 0:
+                                d[j] = request.POST['row_'+str(i)+'_item_'+str(j)]
+
+                        e = Employee.objects.filter(vat_number=request.POST['check_'+str(i)])
+
+                        if e:
+                            d['found'] = e[0].vat_number
+                            dbl += 1
+                        else:
+                            d['found'] = ''
+                        ds.append(d)
                     
-                xlsdata.append(d)
-                curr_row += 1
-            context = {
-                "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-	        "opts": [],
-                "import_file": importfile.name, 
-                "fields": mf,
-                "cols": range(ncols),
-                "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-                "data": xlsdata,
-                "errors": [],
-        }
-    else:
-        context = {
-            "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-            "opts": [],
-            "form": [],
-            "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-            "errors": [],
-        }
-        
+                
+                context = {
+                    "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+                    "opts": [],
+                    "dataselected": ds,
+                    "dublicates": dbl,
+                    "imported_file": request.POST['imported_file'],
+                    "cols": range(1, int(request.POST['columns'])+1),
+                    "iterator": itertools.count(),
+                    "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+                    "field_titles": fset,
+                    "errors": [],
+                    
+                }
+        if "upload" in request.GET:
+            print "upload"
+            importfile = ""
+            if 'xls_upload' in request._files:
+                mf = Permanent._meta.fields
+                importfile = request._files['xls_upload']
+                workbook = xlrd.open_workbook(file_contents=importfile.read())
+                worksheet = workbook.sheet_by_index(0)
+                curr_row = 1
+                xlsdata = []
+                ncols = worksheet.ncols
+                while curr_row < worksheet.nrows:
+                    d = {}
+                    for i in range(ncols):
+                        d[i] = unicode(worksheet.cell_value(curr_row,i))
+                    xlsdata.append(d)
+                    curr_row += 1
+                context = {
+                    "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+	            "opts": [],
+                    "import_file": importfile.name, 
+                    "fields": mf,
+                    "cols": range(ncols),
+                    "iterator": itertools.count(),
+                    "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+                    "data": xlsdata,
+                    "errors": [],
+                }
+         
     r = render_to_response('admin/importexport.html', context, RequestContext(request))
     return r
     
