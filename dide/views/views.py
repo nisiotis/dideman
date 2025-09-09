@@ -267,7 +267,7 @@ def import_export_view(request):
                 for i in range(0,int(request.POST['datalength'])):
                     p = Permanent()
                     if int(request.POST['select_'+str(i)]) == 0:
-                        for j in range(1,int(request.POST['fieldlength'])):
+                        for j in range(1,int(request.POST['fieldlength'])+1):
                             if request.POST['row_'+str(i)+'_item_'+str(j)]:
                                 if mf[request.POST['field_item_'+str(j)]] in ("ForeignKey"):
                                     if request.POST['field_item_'+str(j)] in ("profession", "second_profession"):
