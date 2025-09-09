@@ -7,7 +7,7 @@ from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from dideman.dide.models import Employee, NonPermanent, Permanent, School, Placement, Administrative
+from dideman.dide.models import Profession, TransferArea, Employee, NonPermanent, Permanent, School, Placement, Administrative
 from dideman.private_teachers.models import PrivateTeacher
 from dideman.dide.util.settings import SETTINGS
 from django import VERSION as djangoversion
@@ -259,13 +259,66 @@ def import_export_view(request):
 
     if request.POST:
         if "final" in request.GET:
+            perm = []
+            notins = []
+            foundins = []
+            if 'datalength' in request.POST:
+                mf =  {x.name: x.get_internal_type() for x in Permanent._meta.fields}
+                for i in range(0,int(request.POST['datalength'])):
+                    p = Permanent()
+                    if int(request.POST['select_'+str(i)]) == 0:
+                        for j in range(1,int(request.POST['fieldlength'])):
+                            if request.POST['row_'+str(i)+'_item_'+str(j)]:
+                                if mf[request.POST['field_item_'+str(j)]] in ("ForeignKey"):
+                                    if request.POST['field_item_'+str(j)] in ("profession", "second_profession"):
+                                        prof = Profession.objects.get(pk=unicode(request.POST['row_'+str(i)+'_item_'+str(j)]))
+                                        setattr(p, request.POST['field_item_'+str(j)], prof)
+                                    elif request.POST['field_item_'+str(j)] in ("transfer_area"):
+                                        trans = TransferArea.objects.filter(name__istartswith=unicode(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))[0]
+                                        setattr(p, request.POST['field_item_'+str(j)], trans)
+                                    else:
+                                        setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)\
++'_item_'+str(j)]))                      
+                                elif mf[request.POST['field_item_'+str(j)]] in ("IntegerField","OneToOneField"):
+                                    value = ''.join([v for v in request.POST['row_'+str(i)+'_item_'+str(j)] if v.isdigit()])
+                                    setattr(p, request.POST['field_item_'+str(j)], int(value))
+  
+                                elif mf[request.POST['field_item_'+str(j)]] in ("BooleanField", "NullBooleanField"):
+                                    setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))
+                                else:           
+                                    setattr(p, request.POST['field_item_'+str(j)], request.POST['row_'+str(i)+'_item_'+str(j)])
+                        if request.POST['found_item_'+str(i)] == '':
+                            try:
+                                p.save()
+                            
+                                perm.append(p)
+                            except:
+                                notins.append(p)
+                        else:
+                            try:
+                                np = NonPermanent.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
+                                np.vat_number = '';
+                                np.identity_number = "";
+                                np.save()
+                                
+                                p.save()
+                                perm.append(p)
+                                
+                            except:
+                                try:
+                                    fp = Permanent.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
+                                    if fp:
+                                        foundins.append(p)
+                                except:
+                                    notins.append(p)
+
 	    context = {
                     "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
                     "opts": [],
-                    "imported": [1, 2, 3],
-		  
+                    "dataimported": perm,
+		    "notinserted": notins,
                     "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-                  
+                    "foundinserted": foundins,
                     "errors": [],
 
                 }
@@ -276,7 +329,7 @@ def import_export_view(request):
             sel_rows = 0
             ds = []
             fset = []
-            mf = Permanent._meta.fields
+            mf = [x.name for x in Permanent._meta.fields]
             dbl = 0
             if 'datalength' in request.POST:
                 for i in range(0,int(request.POST['columns'])):
@@ -319,7 +372,7 @@ def import_export_view(request):
             print "upload"
             importfile = ""
             if 'xls_upload' in request._files:
-                mf = Permanent._meta.fields
+                mf = [x.name for x in Permanent._meta.fields]
                 importfile = request._files['xls_upload']
                 workbook = xlrd.open_workbook(file_contents=importfile.read())
                 worksheet = workbook.sheet_by_index(0)

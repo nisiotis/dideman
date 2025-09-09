@@ -35,7 +35,7 @@ $(document).ready(function () {
 {% block content %}
 
 <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
-{% if not imported %}
+{% if not dataimported %}
 
 <input type="file" id="xls_upload" name="xls_upload">
 <button type="submit" value="Μεταφώρτωση" id="upload" name="upload" formaction="?upload=True">Μεταφώρτωση</button>
@@ -48,7 +48,7 @@ $(document).ready(function () {
 <button type="submit" value="Οριστικοποίηση" id="final" name="final" formaction="?final=True">Οριστικοποίηση</button>
 {% endif %}
 
-{% if not imported %}
+{% if not dataimported %}
 <p>Αυστηρά καθορισμένο αρχείο Excel τύπου «Excel 1997-2004 Workbook (.xls)» με τα δεδομένα στο πρώτο φύλλο με την πρώτη στήλη να περιέχει το πεδίο-κλειδί «vat_number».
 </p>
 
@@ -87,7 +87,9 @@ $(document).ready(function () {
 
 {% if dataselected %}
 <p>Παρακάτω εμφανίζονται {{ dataselected|length }} εγγραφές του αρχείου {{ imported_file }} που επιλέχθηκαν. </p>
-<input type="hidden" name="datalength" id="datalength" value="{{ seldata|length }}">
+<input type="hidden" name="datalength" id="datalength" value="{{ dataselected|length }}">
+<input type="hidden" name="fieldlength" id="fieldlength" value="{{ field_titles|length }}">
+
 {% endif %}
 {% if dublicates > 0 %}
 <p>Εμφανίζονται {{ dublicates }} εγγραφές με κόκκινο που εχουν βρεθεί στη βάση.</p>
@@ -96,7 +98,7 @@ $(document).ready(function () {
     <tr>
       <td></td>
     {% for f in field_titles %}
-    <td>{{ f }}:</td>
+    <td><input id="field_item_{{ forloop.counter }}" name="field_item_{{ forloop.counter }}" type="hidden" value="{{ f }}" >{{ f }}:</td>
     {% endfor %}
   </tr>
 
@@ -117,6 +119,40 @@ $(document).ready(function () {
   {% endwith %}
 {% endfor %}
 </table>
+
+{% if notinserted %}
+<p>Παρακάτω εμφανίζονται {{ notinserted|length }} εγγραφές που δεν αποθηκεύθηκαν. </p>
+<table>
+  {% for o in notinserted %}
+    <tr>
+      <td><img src="/static/admin/img/icon_alert.gif" alt="False"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td>
+   </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+
+{% if dataimported %}
+<p>Παρακάτω εμφανίζονται {{ dataimported|length }} εγγραφές που αποθηκεύθηκαν με επιτυχία. </p>
+<table>
+  {% for o in dataimported%}
+    <tr>
+      <td><img src="/static/admin/img/icon-yes.gif" alt="True"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td>
+   </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if foundinserted %}
+<p>Παρακάτω εμφανίζονται {{ foundinserted|length }} εγγραφές που βρέθηκαν ως μόνιμοι και αγνοήθηκαν. </p>
+<table>
+  {% for o in foundinserted %}
+    <tr>
+      <td><img src="/static/admin/img/icon_alert.gif" alt="False"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td>
+   </tr>
+  {% endfor %}
+</table>
+{% endif %}
 
 
 {% endblock %}
