@@ -271,20 +271,37 @@ def import_export_view(request):
                             if request.POST['row_'+str(i)+'_item_'+str(j)]:
                                 if mf[request.POST['field_item_'+str(j)]] in ("ForeignKey"):
                                     if request.POST['field_item_'+str(j)] in ("profession", "second_profession"):
-                                        prof = Profession.objects.get(pk=unicode(request.POST['row_'+str(i)+'_item_'+str(j)]))
-                                        setattr(p, request.POST['field_item_'+str(j)], prof)
+                                        try:
+                                            prof = Profession.objects.get(pk=unicode(request.POST['row_'+str(i)+'_item_'+str(j)]))
+                                            setattr(p, request.POST['field_item_'+str(j)], prof)
+                                        except:
+                                            prof = None
+                                    
                                     elif request.POST['field_item_'+str(j)] in ("transfer_area"):
-                                        trans = TransferArea.objects.filter(name__istartswith=unicode(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))[0]
+                                        try:
+                                            trans = TransferArea.objects.filter(name__istartswith=unicode(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))[0]
+                                        except:
+                                            trans = None
                                         setattr(p, request.POST['field_item_'+str(j)], trans)
                                     else:
-                                        setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)\
-+'_item_'+str(j)]))                      
+                                        try:
+                                            setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)]))
+                                        except:
+                                            setattr(p, request.POST['field_item_'+str(j)], None)
+                                            
                                 elif mf[request.POST['field_item_'+str(j)]] in ("IntegerField","OneToOneField"):
-                                    value = ''.join([v for v in request.POST['row_'+str(i)+'_item_'+str(j)] if v.isdigit()])
-                                    setattr(p, request.POST['field_item_'+str(j)], int(value))
-  
+                                    try:
+                                        value = ''.join([v for v in request.POST['row_'+str(i)+'_item_'+str(j)] if v.isdigit()])
+                                        setattr(p, request.POST['field_item_'+str(j)], int(value))
+                                    except:
+                                        setattr(p, request.POST['field_item_'+str(j)], None)
+
                                 elif mf[request.POST['field_item_'+str(j)]] in ("BooleanField", "NullBooleanField"):
-                                    setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))
+                                    try:
+                                        setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))
+                                    except:
+                                        setattr(p, request.POST['field_item_'+str(j)], None)
+
                                 else:           
                                     setattr(p, request.POST['field_item_'+str(j)], request.POST['row_'+str(i)+'_item_'+str(j)])
                         if request.POST['found_item_'+str(i)] == '':
