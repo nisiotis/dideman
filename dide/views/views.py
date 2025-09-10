@@ -360,7 +360,7 @@ def import_export_view(request):
                         d = {}
                         for j in range(1,int(request.POST['columns'])+1):
                             if len(request.POST['field_'+str(j-1)]) > 0:
-                                d[j] = request.POST['row_'+str(i)+'_item_'+str(j)]
+                                d[j] = request.POST['row_'+str(i)+'_item_'+str(j)].strip()
 
                         e = Employee.objects.filter(vat_number=request.POST['check_'+str(i)])
 
