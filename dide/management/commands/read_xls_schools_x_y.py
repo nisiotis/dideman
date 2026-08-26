@@ -1,58 +1,34 @@
 # -*- coding: utf-8 -*-
-from django.core.management.base import BaseCommand, CommandError
-from django.db import connection, transaction
-from dide.models import School
-from dideman import settings
-from dideman.dide.util.settings import SETTINGS
-from django.utils.encoding import force_unicode
-from datetime import datetime
-import os
-import xlrd
+from django.db import connection
+from dideman.dide.models import School
+from ._import_common import XlsFileCommand, cell_unicode
 
-class Command(BaseCommand):
-    args = '<file ...>'
-    help = 'XML database import.'
 
-    def handle(self, *args, **options):
-        for item in args:
-            schools = School.objects.all()
-            workbook = xlrd.open_workbook(item)
-            worksheet = workbook.sheet_by_index(0)
-            curr_row = 0
-            ins_row = 0
+class Command(XlsFileCommand):
+    help = 'Update School map coordinates (google_maps_x/y) from an xls file.'
+
+    def on_file_start(self, workbook, worksheet, options):
+        self.updated = 0
+
+    def process_row(self, workbook, worksheet, row, options):
+        email = cell_unicode(worksheet, row, 1)
+        x = cell_unicode(worksheet, row, 2)
+        y = cell_unicode(worksheet, row, 3)
+
+        schools = School.objects.filter(email=email)
+        if len(schools) == 1:
             cursor = connection.cursor()
-            while curr_row < worksheet.nrows:
-                # Cell Types: 0=Empty, 1=Text, 2=Number, 3=Date, 4=Boolean, 5=Error, 6=Blank
-                email = unicode(worksheet.cell_value(curr_row, 1))
-                x = unicode(worksheet.cell_value(curr_row, 2))
-                y = unicode(worksheet.cell_value(curr_row, 3))
+            cursor.execute(
+                "update dide_school set google_maps_x = %s, google_maps_y = %s "
+                "where parent_organization_id = %s", [x, y, schools[0].id])
+            self.updated += 1
+        elif schools:
+            print "Not sole:"
+            for sch in schools:
+                print "%s" % sch.email
+        else:
+            print "%s Not found" % email
 
-                try:
-                    sch = schools.filter(email=email)
-                except:
-                    print "Error: %s %s %s\n" % (firstname, lastname, fathername)
-                    sch = []
-                if sch:
-                    if len(sch) == 1:
-                        strsql = "update dide_school set google_maps_x = '%s', google_maps_y = '%s' where parent_organization_id=%s" % (x, y, sch[0].id)
-                        #print strsql 
-                        cursor.execute(strsql)
-                        ins_row +=1
-                    else:
-                        print "Not sole:"
-                        for item in sch:
-                           print "%s" % item.email 
-                else:
-                    print "%s Not found" % email
-
-                curr_row += 1
-        
-            print "Total %s" % curr_row
-            print "Inserted %s" % ins_row
-            transaction.commit_unless_managed()
-            cursor.close()
-                
-        
-        
-        if args == ():
-            print "No arguments found"
+    def on_file_end(self, workbook, worksheet, total_rows, options):
+        print "Total %s" % total_rows
+        print "Inserted %s" % self.updated

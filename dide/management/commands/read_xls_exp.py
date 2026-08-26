@@ -1,46 +1,26 @@
 # -*- coding: utf-8 -*-
-from django.core.management.base import BaseCommand, CommandError
-from django.db import connection, transaction
-from dideman.dide.models import (RankCode, Permanent, PromotionNew)
-from dideman import settings
-from dideman.dide.util.settings import SETTINGS
-from django.utils.encoding import force_unicode
-from datetime import datetime
-import os
-import xlrd
+from dideman.dide.models import Permanent
+from ._import_common import XlsFileCommand, cell_unicode
 
-class Command(BaseCommand):
-    args = '<file ...>'
-    help = 'XML database import.'
 
-    def handle(self, *args, **options):
-        for item in args:
-            
-            workbook = xlrd.open_workbook(item)
-            worksheet = workbook.sheet_by_index(0)
-            curr_row = 1
-            ins_row = 0
-            #cursor = connection.cursor()
-            while curr_row < worksheet.nrows:
-                # Cell Types: 0=Empty, 1=Text, 2=Number, 3=Date, 4=Boolean, 5=Error, 6=Blank
+class Command(XlsFileCommand):
+    help = 'Update non_educational_experience on Permanent employees from an xls file.'
+    start_row = 1
 
-                try:
-                    o = Permanent.objects.filter(registration_number=unicode(worksheet.cell_value(curr_row,0)))
-                    p = Permanent.objects.get(id=o[0].id)
+    def on_file_start(self, workbook, worksheet, options):
+        self.inserted = 0
 
-                    p.non_educational_experience = unicode(worksheet.cell_value(curr_row, 7))
-                    p.save()
-                    print "Inserted %s %s (%s)" % (p.firstname, p.lastname, p.non_educational_experience)
-                    ins_row += 1
+    def process_row(self, workbook, worksheet, row, options):
+        registration_number = cell_unicode(worksheet, row, 0)
+        try:
+            permanent = Permanent.objects.get(registration_number=registration_number)
+            permanent.non_educational_experience = cell_unicode(worksheet, row, 7)
+            permanent.save()
+            print "Inserted %s %s (%s)" % (permanent.firstname, permanent.lastname,
+                                           permanent.non_educational_experience)
+            self.inserted += 1
+        except Exception as ex:
+            print(ex)
 
-                except Exception as ex:
-                    print(ex)
-                #except:
-                #    print p
-
-                curr_row += 1
-
-        print "Rows inserted: %s" % ins_row        
-
-        if args == ():
-            print "No arguments found"
+    def on_file_end(self, workbook, worksheet, total_rows, options):
+        print "Rows inserted: %s" % self.inserted

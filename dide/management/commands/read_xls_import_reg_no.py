@@ -1,34 +1,21 @@
 # -*- coding: utf-8 -*-
-from django.core.management.base import BaseCommand, CommandError
-from django.db import connection, transaction
-from dide.models import (TransferArea, Profession, Permanent)
-from dideman import settings
-from dideman.dide.util.settings import SETTINGS
-from django.utils.encoding import force_unicode
-from datetime import datetime
-import os
-import xlrd
+from dideman.dide.models import Permanent
+from ._import_common import XlsFileCommand, cell_unicode
 
-class Command(BaseCommand):
-    args = '<file ...>'
-    help = 'XLS database import.'
 
-    def handle(self, *args, **options):
-        for item in args:
-            workbook = xlrd.open_workbook(item)
-            worksheet = workbook.sheet_by_index(0)
-            curr_row = 0
-            while curr_row < worksheet.nrows:
-                print unicode(worksheet.cell_value(curr_row,1))
-                try:
-                    p = Permanent.objects.get(vat_number=unicode(worksheet.cell_value(curr_row,1)))                
-                    p.registration_number = unicode(worksheet.cell_value(curr_row,2))
-                    print p.registration_number
-                    p.save()
-                except Exception as ex:
-                    print(ex)
-                curr_row += 1
-            print curr_row
+class Command(XlsFileCommand):
+    help = 'Update Permanent.registration_number by matching vat_number from an xls file.'
 
-        if args == ():
-            print "No arguments found"
+    def process_row(self, workbook, worksheet, row, options):
+        vat_number = cell_unicode(worksheet, row, 1)
+        print vat_number
+        try:
+            p = Permanent.objects.get(vat_number=vat_number)
+            p.registration_number = cell_unicode(worksheet, row, 2)
+            print p.registration_number
+            p.save()
+        except Exception as ex:
+            print(ex)
+
+    def on_file_end(self, workbook, worksheet, total_rows, options):
+        print total_rows

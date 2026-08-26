@@ -1,58 +1,48 @@
 # -*- coding: utf-8 -*-
-from django.core.management.base import BaseCommand, CommandError
-from django.db import connection, transaction
-from dideman.dide.models import (TransferArea, Profession, NonPermanent)
-from dideman import settings
-from dideman.dide.util.settings import SETTINGS
-from django.utils.encoding import force_unicode
-from datetime import datetime
-import os
-import xlrd
+from dideman.dide.models import NonPermanent, Profession, TransferArea
+from ._import_common import XlsFileCommand, cell_unicode
 
-class Command(BaseCommand):
-    args = '<file ...>'
-    help = 'XLS database import.'
 
-    def handle(self, *args, **options):
-        for item in args:
-            workbook = xlrd.open_workbook(item)
-            worksheet = workbook.sheet_by_index(0)
-            curr_row = 1
-            er_r = 0
-            while curr_row < worksheet.nrows:
-                np = NonPermanent(email=unicode(worksheet.cell_value(curr_row,0)),
-                                  telephone_number1=unicode(worksheet.cell_value(curr_row,1)).replace(".0",""),
-                                  vat_number=unicode(worksheet.cell_value(curr_row,2))[:9], 
-                                  lastname=unicode(worksheet.cell_value(curr_row,3)),
-                                  firstname=unicode(worksheet.cell_value(curr_row,4)),
-                                  fathername=unicode(worksheet.cell_value(curr_row,5)),
-                                  mothername=unicode(worksheet.cell_value(curr_row,6)),
-                                  profession_code_oaed=unicode(worksheet.cell_value(curr_row,7)).replace(".0",""),
-                                  profession=Profession.objects.get(pk=unicode(worksheet.cell_value(curr_row,8))),
-                                  transfer_area=TransferArea.objects.get(pk=int(worksheet.cell_value(curr_row,9))),
-                                  identity_number=unicode(worksheet.cell_value(curr_row,10)).replace(" ",""),
-                                  birth_date=unicode(worksheet.cell_value(curr_row,11)),
-                                  social_security_registration_number=unicode(worksheet.cell_value(curr_row,12))[:11].replace(".", ""),
-                                  address=unicode(worksheet.cell_value(curr_row,13)),
-                                  address_postcode=unicode(worksheet.cell_value(curr_row,14))[:5],
-                                  address_city=unicode(worksheet.cell_value(curr_row,15)),
-                                  educational_level=int(unicode(worksheet.cell_value(curr_row,16))[:2]),
-                                  tax_office=unicode(worksheet.cell_value(curr_row,17)),
-                                  bank=unicode(worksheet.cell_value(curr_row,18)),
-                                  iban=unicode(worksheet.cell_value(curr_row,19))[:27],
-                                  ama=unicode(worksheet.cell_value(curr_row,20)).replace(".0","")[:10],
-                                  marital_status=int(unicode(worksheet.cell_value(curr_row,21))[:1]))
-                
-                try:
-                    print np
-                    print np.vat_number, np.profession, np.transfer_area, np.identity_number, np.birth_date, np.ama, np.social_security_registration_number
-                    np.clean_fields()
-                    np.save()
-                except Exception as ex:
-                    er_r += 1
-                    print(ex)
-                curr_row += 1
-            print curr_row - 1, " ", er_r
+class Command(XlsFileCommand):
+    help = 'Create NonPermanent employees from an xls file.'
+    start_row = 1
 
-        if args == ():
-            print "No arguments found"
+    def on_file_start(self, workbook, worksheet, options):
+        self.errors = 0
+
+    def process_row(self, workbook, worksheet, row, options):
+        np = NonPermanent(
+            email=cell_unicode(worksheet, row, 0),
+            telephone_number1=cell_unicode(worksheet, row, 1).replace(".0", ""),
+            vat_number=cell_unicode(worksheet, row, 2)[:9],
+            lastname=cell_unicode(worksheet, row, 3),
+            firstname=cell_unicode(worksheet, row, 4),
+            fathername=cell_unicode(worksheet, row, 5),
+            mothername=cell_unicode(worksheet, row, 6),
+            profession_code_oaed=cell_unicode(worksheet, row, 7).replace(".0", ""),
+            profession=Profession.objects.get(pk=cell_unicode(worksheet, row, 8)),
+            transfer_area=TransferArea.objects.get(pk=int(worksheet.cell_value(row, 9))),
+            identity_number=cell_unicode(worksheet, row, 10).replace(" ", ""),
+            birth_date=cell_unicode(worksheet, row, 11),
+            social_security_registration_number=cell_unicode(worksheet, row, 12)[:11].replace(".", ""),
+            address=cell_unicode(worksheet, row, 13),
+            address_postcode=cell_unicode(worksheet, row, 14)[:5],
+            address_city=cell_unicode(worksheet, row, 15),
+            educational_level=int(cell_unicode(worksheet, row, 16)[:2]),
+            tax_office=cell_unicode(worksheet, row, 17),
+            bank=cell_unicode(worksheet, row, 18),
+            iban=cell_unicode(worksheet, row, 19)[:27],
+            ama=cell_unicode(worksheet, row, 20).replace(".0", "")[:10],
+            marital_status=int(cell_unicode(worksheet, row, 21)[:1]))
+        try:
+            print np
+            print np.vat_number, np.profession, np.transfer_area, np.identity_number, \
+                np.birth_date, np.ama, np.social_security_registration_number
+            np.clean_fields()
+            np.save()
+        except Exception as ex:
+            self.errors += 1
+            print(ex)
+
+    def on_file_end(self, workbook, worksheet, total_rows, options):
+        print total_rows - 1, " ", self.errors
