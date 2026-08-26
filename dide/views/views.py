@@ -15,10 +15,12 @@ from django.utils.translation import ugettext as _
 from django.utils import six
 from django.utils.text import capfirst
 from django.views.decorators.cache import never_cache
+from django.utils.cache import add_never_cache_headers
 from django.db.models import Q
 from django.conf.urls import *
 from django.core.urlresolvers import reverse, NoReverseMatch
 from cStringIO import StringIO
+import csv
 import datetime, base64
 import os, itertools
 import xlrd
@@ -246,15 +248,35 @@ def nonpermanent_list(request):
     return HttpResponse(r)
 
 
+# Import/Export: only offer models that make sense to bulk-create from
+# a spreadsheet, plus their common ancestor and siblings for reporting.
+IMPORT_MODELS = [('Permanent', Permanent), ('NonPermanent', NonPermanent)]
+EXPORT_MODELS = [('Employee', Employee), ('Permanent', Permanent),
+                 ('NonPermanent', NonPermanent), ('Administrative', Administrative)]
+
+
+def _model_choices(models):
+    return [(key, model._meta.verbose_name) for key, model in models]
+
+
+def _import_model(name):
+    return dict(IMPORT_MODELS).get(name, Permanent)
+
+
 @csrf_protect
 @staff_member_required
 def import_export_view(request):
+    import_model_name = request.POST.get('import_model', 'Permanent')
+    model = _import_model(import_model_name)
+
     context = {
         "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
         "opts": [],
         "form": [],
         "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
         "errors": [],
+        "import_model": import_model_name,
+        "import_model_choices": _model_choices(IMPORT_MODELS),
     }
 
     if request.POST:
@@ -263,9 +285,9 @@ def import_export_view(request):
             notins = []
             foundins = []
             if 'datalength' in request.POST:
-                mf =  {x.name: x.get_internal_type() for x in Permanent._meta.fields}
+                mf = {x.name: x.get_internal_type() for x in model._meta.fields}
                 for i in range(0,int(request.POST['datalength'])):
-                    p = Permanent()
+                    p = model()
                     if int(request.POST['select_'+str(i)]) == 0:
                         for j in range(1,int(request.POST['fieldlength'])+1):
                             if request.POST['row_'+str(i)+'_item_'+str(j)]:
@@ -276,7 +298,7 @@ def import_export_view(request):
                                             setattr(p, request.POST['field_item_'+str(j)], prof)
                                         except:
                                             prof = None
-                                    
+
                                     elif request.POST['field_item_'+str(j)] in ("transfer_area"):
                                         try:
                                             trans = TransferArea.objects.filter(name__istartswith=unicode(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))[0]
@@ -288,7 +310,7 @@ def import_export_view(request):
                                             setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)]))
                                         except:
                                             setattr(p, request.POST['field_item_'+str(j)], None)
-                                            
+
                                 elif mf[request.POST['field_item_'+str(j)]] in ("IntegerField","OneToOneField"):
                                     try:
                                         value = ''.join([v for v in request.POST['row_'+str(i)+'_item_'+str(j)] if v.isdigit()])
@@ -302,25 +324,29 @@ def import_export_view(request):
                                     except:
                                         setattr(p, request.POST['field_item_'+str(j)], None)
 
-                                else:           
+                                else:
                                     setattr(p, request.POST['field_item_'+str(j)], request.POST['row_'+str(i)+'_item_'+str(j)])
                         if request.POST['found_item_'+str(i)] == '':
                             try:
                                 p.save()
-                            
+
                                 perm.append(p)
                             except:
                                 notins.append(p)
-                        else:
+                        elif model is Permanent:
+                            # An existing NonPermanent with this vat_number is
+                            # assumed to be getting promoted to Permanent:
+                            # deactivate their substitute record and save the
+                            # new Permanent one.
                             try:
                                 np = NonPermanent.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
                                 np.vat_number = '';
                                 np.identity_number = "";
                                 np.save()
-                                
+
                                 p.save()
                                 perm.append(p)
-                                
+
                             except:
                                 try:
                                     fp = Permanent.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
@@ -328,32 +354,34 @@ def import_export_view(request):
                                         foundins.append(p)
                                 except:
                                     notins.append(p)
+                        else:
+                            # Importing NonPermanent: never deactivate an
+                            # existing record on a vat_number clash, just
+                            # report it and skip the row.
+                            try:
+                                existing = Employee.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
+                                if existing:
+                                    foundins.append(p)
+                            except:
+                                notins.append(p)
 
-	    context = {
-                    "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-                    "opts": [],
-                    "dataimported": perm,
-		    "notinserted": notins,
-                    "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-                    "foundinserted": foundins,
-                    "errors": [],
+            context.update({
+                "dataimported": perm,
+                "notinserted": notins,
+                "foundinserted": foundins,
+            })
 
-                }
-
-
-            
         if "save" in request.GET:
             sel_rows = 0
             ds = []
             fset = []
-            mf = [x.name for x in Permanent._meta.fields]
             dbl = 0
             if 'datalength' in request.POST:
                 for i in range(0,int(request.POST['columns'])):
                     if len(request.POST['field_'+str(i)]) > 0:
-                        
+
                         fset.append(request.POST['field_'+str(i)])
-                        
+
                 for i in range(0,int(request.POST['datalength'])):
                     if "check_"+str(i) in request.POST:
                         sel_rows += 1
@@ -370,26 +398,20 @@ def import_export_view(request):
                         else:
                             d['found'] = ''
                         ds.append(d)
-                    
-                
-                context = {
-                    "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-                    "opts": [],
+
+
+                context.update({
                     "dataselected": ds,
                     "dublicates": dbl,
                     "imported_file": request.POST['imported_file'],
                     "cols": range(1, int(request.POST['columns'])+1),
                     "iterator": itertools.count(),
-                    "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
                     "field_titles": fset,
-                    "errors": [],
-                    
-                }
+                })
         if "upload" in request.GET:
-            print "upload"
             importfile = ""
             if 'xls_upload' in request._files:
-                mf = [x.name for x in Permanent._meta.fields]
+                mf = [x.name for x in model._meta.fields]
                 importfile = request._files['xls_upload']
                 workbook = xlrd.open_workbook(file_contents=importfile.read())
                 worksheet = workbook.sheet_by_index(0)
@@ -402,21 +424,99 @@ def import_export_view(request):
                         d[i] = unicode(worksheet.cell_value(curr_row,i))
                     xlsdata.append(d)
                     curr_row += 1
-                context = {
-                    "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
-	            "opts": [],
-                    "import_file": importfile.name, 
+                context.update({
+                    "import_file": importfile.name,
                     "fields": mf,
                     "cols": range(ncols),
                     "iterator": itertools.count(),
-                    "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
                     "data": xlsdata,
-                    "errors": [],
-                }
-         
+                })
+
     r = render_to_response('admin/importexport.html', context, RequestContext(request))
     return r
-    
+
+
+def _export_field_value(obj, field):
+    """Render one field's value for CSV export, in the same iso-8859-7
+    (Greek/Windows) encoding the admin's CSV report actions already use,
+    so exported files open cleanly in Excel."""
+    try:
+        value = getattr(obj, field.name)
+    except Exception:
+        return ''
+    if field.choices:
+        display = getattr(obj, 'get_%s_display' % field.name, None)
+        if display:
+            try:
+                value = display()
+            except Exception:
+                pass
+    if value is None or value == '':
+        return ''
+    if isinstance(value, bool):
+        return str(int(value))
+    if isinstance(value, unicode):
+        return value.encode('iso8859-7', 'ignore')
+    if hasattr(value, '__unicode__'):
+        return unicode(value).encode('iso8859-7', 'ignore')
+    return str(value)
+
+
+def _export_csv_response(model, field_names):
+    # keep the model's own field order rather than whatever order the
+    # checkboxes happened to post in
+    fields = [f for f in model._meta.fields if f.name in field_names]
+
+    response = HttpResponse()
+    response['Content-Type'] = 'text/csv; charset=iso-8859-7'
+    response['Content-Disposition'] = 'attachment; filename=export_%s_%s.csv' % (
+        model.__name__, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+    add_never_cache_headers(response)
+
+    writer = csv.writer(response, delimiter=';', quotechar='"',
+                        quoting=csv.QUOTE_NONNUMERIC)
+    writer.writerow([unicode(f.verbose_name).encode('iso8859-7', 'ignore') for f in fields])
+    for obj in model.objects.all():
+        writer.writerow([_export_field_value(obj, f) for f in fields])
+    return response
+
+
+@csrf_protect
+@staff_member_required
+def export_view(request):
+    export_model_name = request.POST.get('export_model')
+    model = dict(EXPORT_MODELS).get(export_model_name)
+
+    context = {
+        "title": u'Εξαγωγή Δεδομένων',
+        "opts": [],
+        "app_label": u'Εξαγωγή Δεδομένων',
+        "errors": [],
+        "export_model_choices": _model_choices(EXPORT_MODELS),
+    }
+
+    if request.POST and model:
+        field_choices = [(f.name, unicode(f.verbose_name)) for f in model._meta.fields]
+
+        if "download" in request.GET:
+            selected_fields = request.POST.getlist('export_fields')
+            if selected_fields:
+                return _export_csv_response(model, selected_fields)
+            context.update({
+                "errors": [u'Επιλέξτε τουλάχιστον ένα πεδίο προς εξαγωγή.'],
+                "export_model": export_model_name,
+                "export_field_choices": field_choices,
+            })
+        elif "fields" in request.GET:
+            context.update({
+                "export_model": export_model_name,
+                "export_field_choices": field_choices,
+            })
+
+    r = render_to_response('admin/export.html', context, RequestContext(request))
+    return r
+
+
 @csrf_protect
 @staff_member_required
 def school_geo_view(request):

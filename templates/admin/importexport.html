@@ -34,8 +34,20 @@ $(document).ready(function () {
 
 {% block content %}
 
+<p><strong>Εισαγωγή</strong> | <a href="/admin/dide/importexport/export/">Εξαγωγή</a></p>
+
 <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
 {% if not dataimported %}
+
+{% if not data and not dataselected %}
+<select name="import_model" id="import_model">
+{% for key, label in import_model_choices %}
+<option value="{{ key }}"{% if key == import_model %} selected{% endif %}>{{ label }}</option>
+{% endfor %}
+</select>
+{% endif %}
+{% if data %}<input type="hidden" name="import_model" value="{{ import_model }}">{% endif %}
+{% if dataselected %}<input type="hidden" name="import_model" value="{{ import_model }}">{% endif %}
 
 <input type="file" id="xls_upload" name="xls_upload">
 <button type="submit" value="Μεταφώρτωση" id="upload" name="upload" formaction="?upload=True">Μεταφώρτωση</button>
@@ -52,7 +64,7 @@ $(document).ready(function () {
 <p>Αυστηρά καθορισμένο αρχείο Excel τύπου «Excel 1997-2004 Workbook (.xls)» με τα δεδομένα στο πρώτο φύλλο με την πρώτη στήλη να περιέχει το πεδίο-κλειδί «vat_number».
 </p>
 <p>
-Ελάχιστα στοιχεία για την εισαγωγή: «Επώνυμο», «Όνομα», «Όνομα Πατέρα», «Αρ. Μητρώου» και «Ειδικότητα».
+Ελάχιστα στοιχεία για την εισαγωγή: «Επώνυμο», «Όνομα», «Όνομα Πατέρα» και «Ειδικότητα» (και «Αρ. Μητρώου» όταν εισάγετε Μόνιμους).
 </p>
 
 {% endif %}
@@ -147,7 +159,7 @@ $(document).ready(function () {
 {% endif %}
 
 {% if foundinserted %}
-<p>Παρακάτω εμφανίζονται {{ foundinserted|length }} εγγραφές που βρέθηκαν ως μόνιμοι και αγνοήθηκαν. </p>
+<p>Παρακάτω εμφανίζονται {{ foundinserted|length }} εγγραφές που βρέθηκαν ήδη καταχωρημένες και αγνοήθηκαν.</p>
 <table>
   {% for o in foundinserted %}
     <tr>
