@@ -39,18 +39,20 @@ $(document).ready(function () {
 <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
 {% if not dataimported %}
 
-{% if not data and not dataselected %}
+{% if data or dataselected %}
+<p>Τύπος εγγραφών: <strong>{{ import_model_label }}</strong>
+<input type="hidden" name="import_model" value="{{ import_model }}"></p>
+{% else %}
+<p><label for="import_model">Τύπος εγγραφών προς εισαγωγή:</label>
 <select name="import_model" id="import_model">
 {% for key, label in import_model_choices %}
 <option value="{{ key }}"{% if key == import_model %} selected{% endif %}>{{ label }}</option>
 {% endfor %}
-</select>
+</select></p>
 {% endif %}
-{% if data %}<input type="hidden" name="import_model" value="{{ import_model }}">{% endif %}
-{% if dataselected %}<input type="hidden" name="import_model" value="{{ import_model }}">{% endif %}
 
-<input type="file" id="xls_upload" name="xls_upload">
-<button type="submit" value="Μεταφώρτωση" id="upload" name="upload" formaction="?upload=True">Μεταφώρτωση</button>
+<p><input type="file" id="xls_upload" name="xls_upload">
+<button type="submit" value="Μεταφώρτωση" id="upload" name="upload" formaction="?upload=True">Μεταφώρτωση</button></p>
 {% endif %}
 {% if data %}
 <button type="submit" value="Αποθήκευση" id="save_file" name="save_file" formaction="?save=True">Αποθήκευση</button>

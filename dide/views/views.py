@@ -402,6 +402,7 @@ def import_export_view(request):
         "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
         "errors": [],
         "import_model": import_model_name,
+        "import_model_label": model._meta.verbose_name,
         "import_model_choices": _model_choices(IMPORT_MODELS),
     }
 
