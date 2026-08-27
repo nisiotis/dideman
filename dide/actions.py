@@ -770,482 +770,372 @@ def manage_len(f, l):
     return u"%s%s" % (f, (" " * (l-sl)))
 
 
-class XMLWriteE3Action(object):
+def xml_escape(value):
+    if value is None:
+        return u''
+    return unicode(value).replace(u'&', u'&amp;') \
+                         .replace(u'<', u'&lt;') \
+                         .replace(u'>', u'&gt;')
+
+
+def try_value(fn, default=u''):
+    """Evaluate fn(), falling back to default on any error or None."""
+    try:
+        v = fn()
+    except Exception:
+        return default
+    return default if v is None else v
+
+
+def format_ergani_date(d, default=u'01/01/2001'):
+    if not d:
+        return default
+    return u'%02d/%02d/%s' % (d.day, d.month, d.year)
+
+
+def parse_amount(value):
+    """Read a money value that may be stored in either notation.
+
+    The pay fields are free-text CharFields, so the same column holds
+    '1688', '1688.00', '1688,00' and '1.688,00' depending on who typed
+    it. Returns a float, or None when nothing numeric can be read.
+    """
+    s = unicode(value if value is not None else u'').strip()
+    if not s:
+        return None
+    if u',' in s and u'.' in s:
+        # 1.688,00 -- dot groups thousands, comma is the decimal mark
+        s = s.replace(u'.', u'').replace(u',', u'.')
+    elif u',' in s:
+        s = s.replace(u',', u'.')
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def format_ergani_amount(value):
+    """Greek money format with thousands separator: 1688 -> u'1.688,00'.
+
+    Mirrors format_apodoxes() from the E7N converter script.
+    """
+    f = parse_amount(value)
+    if f is None:
+        return u'0,00'
+    s = u'{:,.2f}'.format(f)
+    return s.replace(u',', u'X').replace(u'.', u',').replace(u'X', u'.')
+
+
+def format_legacy_amount(value):
+    """Greek money format without thousands separator: 1688 -> u'1688,00'.
+
+    The E3N converter passes f_apodoxes / f_hour_apodoxes straight through
+    from the old file, so E3N keeps the plain formatting rather than the
+    grouped one E7N applies.
+    """
+    f = parse_amount(value)
+    if f is None:
+        return u'0,00'
+    return u'{:.2f}'.format(f).replace(u'.', u',')
+
+
+def write_ergani_fields(out, fields, indent):
+    """Serialize an ordered list of (tag, value) pairs.
+
+    A value that is itself a list/tuple of pairs is written as a nested
+    element, which is how E3N carries EpikourikiSelections.
+    """
+    for tag, value in fields:
+        if isinstance(value, (list, tuple)):
+            out.write(u'%s<%s>\n' % (indent, tag))
+            write_ergani_fields(out, value, indent + u'\t')
+            out.write(u'%s</%s>\n' % (indent, tag))
+        else:
+            text = xml_escape(value)
+            if text == u'':
+                out.write(u'%s<%s/>\n' % (indent, tag))
+            else:
+                out.write(u'%s<%s>%s</%s>\n' % (indent, tag, text, tag))
+
+
+def render_ergani_document(root_tag, record_tag, namespace, records,
+                           schema_location=None):
+    """Build a complete Ε.Ρ.Γ.Α.Ν.Η. document.
+
+    The announcement elements carry xmlns="" so that, as in the converter
+    scripts, only the root sits in the E3N/E7N namespace and every field
+    below it is in no namespace at all.
+    """
+    out = StrIO.StringIO()
+    out.write(u'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n')
+    root_attrs = u'xmlns="%s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' % namespace
+    if schema_location:
+        root_attrs += u' xsi:schemaLocation="%s %s"' % (namespace, schema_location)
+    out.write(u'<%s %s>\n' % (root_tag, root_attrs))
+    for fields in records:
+        out.write(u'\t<%s xmlns="">\n' % record_tag)
+        write_ergani_fields(out, fields, u'\t\t')
+        out.write(u'\t</%s>\n' % record_tag)
+    out.write(u'</%s>\n' % root_tag)
+    return out
+
+
+# Πεδία που πρόσθεσε το E3N και δεν προκύπτουν από την βάση.
+# Ακολουθεί τις τιμές του convertE3.py.
+E3N_DEFAULTS = [
+    ('f_trial_period', u'0'),
+    ('f_trial_date_to', u''),
+    ('f_basics_acceptance', u'1'),  # με αποδοχή όρων από myergani
+    ('f_file', u''),
+    ('f_file_symbash', u''),
+    ('f_comments', u''),
+    ('f_foreign_file', u''),
+    ('f_young_file', u''),
+    ('f_xronos_katavolis_apodoxon', u'καθε 10 επομενου μήνα '),
+    ('f_ipoxreotiki_katartisi', u'0'),
+    ('f_efarmoste_sillogiki_simbasi', u'0'),
+    ('f_efarmoste_sillogiki_simbasi_comments', u''),
+    ('f_kyria_asfalisi', u'001'),
+    # Το EpikourikiSelections παρεμβάλλεται εδώ, αμέσως μετά το
+    # f_kyria_asfalisi, όπως το παράγει ο convertE3.py.
+    ('EpikourikiSelections',
+     [('EpikourikiSelectionsE3N', [('f_kod_epikourikis', u'001')])]),
+    ('f_prosthetes_asfalistikes', u''),
+    ('f_mh_provlepsimo_programma', u'0'),
+    ('f_paraggelia_hmeres_hours', u''),
+    ('f_paraggelia_min_notification', u''),
+    ('f_paraggelia_notes', u''),
+    ('f_topos_ergasias', u'0'),
+    ('f_topos_ergasias_comment', u''),
+]
+
+
+class ErganiXMLAction(object):
+    """Common plumbing for the E3N / E7N announcement exports.
+
+    Subclasses provide the document identity and build the field list for
+    one employee; everything else -- serialization, schema validation and
+    the download / error response -- is shared.
+    """
+
+    root_tag = None
+    record_tag = None
+    namespace = None
+    schema_file = None
+    file_prefix = None
+
     def __init__(self, short_description):
         self.short_description = short_description
+
+    def record_fields(self, o):
+        raise NotImplementedError
+
+    def validate(self, request, xml_value):
+        """Validate against the XSD when it is available.
+
+        Returns (ok, errors). The E3N/E7N schemas are distributed
+        separately, so when the file is absent the document is still
+        produced and the operator is told it went out unvalidated rather
+        than being blocked.
+        """
+        schema_path = os.path.join(settings.MEDIA_ROOT, 'xsd', self.schema_file)
+        if not os.path.exists(schema_path):
+            messages.warning(
+                request,
+                u'Το αρχείο δεν ελέγχθηκε: λείπει το σχήμα %s από τον φάκελο xsd.'
+                % self.schema_file)
+            return True, ''
+        with open(schema_path, 'r') as f:
+            schema = etree.XMLSchema(etree.XML(f.read()))
+        exml = etree.XML(bytes(bytearray(xml_value, encoding='utf-8')))
+        if schema.validate(exml):
+            return True, ''
+        return False, u''.join([u'Γραμμή %s: %s' % (e.line, e.message)
+                                for e in schema.error_log])
+
+    def __call__(self, modeladmin, request, queryset):
+        opts = modeladmin.model._meta
+        app_label = opts.app_label
+
+        using = router.db_for_write(modeladmin.model)
+        changeable_objects, perms_needed, protected = get_deleted_objects(
+            queryset, opts, request.user, modeladmin.admin_site, using)
+
+        xml_file = render_ergani_document(
+            self.root_tag, self.record_tag, self.namespace,
+            [self.record_fields(o) for o in queryset],
+            schema_location=self.schema_file)
+        xml_value = xml_file.getvalue()
+
+        ok, res = self.validate(request, xml_value)
+        if ok:
+            self.response = HttpResponse(xml_value)
+            self.response['Content-Type'] = 'text/xml'
+            self.response['Content-Disposition'] = 'attachment; ' + \
+                'filename=%s_list_of_%s.xml' % (self.file_prefix, len(queryset))
+            add_never_cache_headers(self.response)
+            self.response.close()
+            self.response.flush()
+            return self.response
+
+        messages.error(request,
+                       u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)
+        context = {
+            "title": 'Σφάλμα εξαγωγής XML',
+            'queryset': queryset,
+            "opts": opts,
+            "app_label": app_label,
+            'action_title': self.short_description,
+            'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
+            'changeable_objects': [changeable_objects],
+            'action_name': self.__name__,
+            'xml_file': xml_value.replace('\t', '    ').split('\n'),
+        }
+        return TemplateResponse(request,
+                                'admin/ergani_xml_error_results.html',
+                                context,
+                                current_app=modeladmin.admin_site.name)
+
+    def identity_fields(self, o):
+        """The person block shared by E3N and E7N, in schema order."""
+        children = Child.objects.filter(employee=o.parent.id).count()
+        return [
+            ('f_aa_pararthmatos', u'0'),
+            ('f_rel_protocol', u''),
+            ('f_rel_date', u''),
+            ('f_ypiresia_sepe', SETTINGS['ergani_sepe']),
+            ('f_ypiresia_oaed', SETTINGS['ergani_oaed']),
+            ('f_kad_pararthmatos', SETTINGS['ergani_kad_parartimatos']),
+            ('f_kallikratis_pararthmatos', SETTINGS['ergani_kallikratis']),
+            ('f_eponymo', manage_len(o.parent.lastname or u'', 50)),
+            ('f_onoma', manage_len(o.parent.firstname or u'', 30)),
+            ('f_onoma_patros', manage_len(o.parent.fathername or u'', 30)),
+            ('f_onoma_mitros', manage_len(o.parent.mothername or u'', 30)),
+            ('f_birthdate', format_ergani_date(o.parent.birth_date, u'01/01/1901')),
+            ('f_sex', u'0' if o.parent.sex == u'Άνδρας' else u'1'),
+            ('f_yphkoothta', o.parent.citizenship_code or u''),
+            ('f_typos_taytothtas', u'ΔAT'),
+            ('f_ar_taytothtas', o.parent.identity_number or u''),
+            ('f_ekdousa_arxh', u''),
+            ('f_date_ekdosis', u''),
+            ('f_date_ekdosis_lixi', u''),
+            ('f_res_permit_inst', u''),
+            ('f_res_permit_inst_type', u''),
+            ('f_res_permit_inst_ar', u''),
+            ('f_res_permit_inst_lixi', u''),
+            ('f_res_permit_ap', u''),
+            ('f_res_permit_ap_type', u''),
+            ('f_res_permit_ap_ar', u''),
+            ('f_res_permit_ap_lixi', u''),
+            ('f_res_permit_visa', u''),
+            ('f_res_permit_visa_ar', u''),
+            ('f_res_permit_visa_from', u''),
+            ('f_res_permit_visa_to', u''),
+            ('f_marital_status', o.parent.marital_status or u'0'),
+            ('f_arithmos_teknon', children),
+            ('f_afm', o.parent.vat_number or u''),
+            ('f_doy', u''),
+            ('f_amika', u''),
+            ('f_amka', o.parent.social_security_registration_number or u''),
+            ('f_code_anergias', u''),
+            ('f_ar_vivliou_anilikou', u''),
+            ('f_epipedo_morfosis', o.educational_level),
+        ]
+
+
+class XMLWriteE3Action(ErganiXMLAction):
+    """Αναγγελία πρόσληψης Ε3 (πρότυπο E3N)."""
+
+    root_tag = 'AnaggeliesE3N'
+    record_tag = 'AnaggeliaE3N'
+    namespace = 'http://www.yeka.gr/E3N'
+    schema_file = 'E3N_v1.xsd'
+    file_prefix = 'ergani_e3n'
+
+    def __init__(self, short_description):
+        super(XMLWriteE3Action, self).__init__(short_description)
         self.__name__ = 'create_xml_e3_for_erganh'
 
-    def __call__(self, modeladmin, request, queryset):
-        opts = modeladmin.model._meta
-        app_label = opts.app_label
+    def record_fields(self, o):
+        placement = try_value(lambda: o.current_placement(), None)
+        sub = try_value(lambda: placement.substituteplacement, None)
+        start = try_value(lambda: sub.date_from_show or sub.date_from, None)
+        end = try_value(lambda: placement.date_to, None)
+        hours = parse_amount(try_value(lambda: sub.week_hours, None))
+        week_hours = u'{:3.1f}'.format(hours).replace(u'.', u',') \
+            if hours is not None else u'23,0'
 
-        using = router.db_for_write(modeladmin.model)
-        changeable_objects, perms_needed, protected = get_deleted_objects(
-            queryset, opts, request.user, modeladmin.admin_site, using)
-
-        header = ""
-        header += "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-        header += "<ns1:AnaggeliesE3 xmlns:ns1=\"http://www.yeka.gr/E3\">\n"
-
-        footer = "</ns1:AnaggeliesE3>\n"
-
-        xml_file = StrIO.StringIO()
-        xml_file.write(header)
-
-        for o in queryset:
-            c = Child.objects.filter(employee=o.parent.id).count()
-            xml_file.write(u"\t<AnaggeliaE3>\n")
-            xml_file.write(u"\t\t<f_aa_pararthmatos>0</f_aa_pararthmatos>\n")
-            xml_file.write(u"\t\t<f_rel_protocol/>\n")
-            xml_file.write(u"\t\t<f_rel_date/>\n")
-            xml_file.write(u"\t\t<f_ypiresia_sepe>%s</f_ypiresia_sepe>\n" % SETTINGS['ergani_sepe'])
-            xml_file.write(u"\t\t<f_ypiresia_oaed>%s</f_ypiresia_oaed>\n" % SETTINGS['ergani_oaed'])
-            xml_file.write(u"\t\t<f_ergodotikh_organwsh/>\n")
-            xml_file.write(u"\t\t<f_kad_kyria>%s</f_kad_kyria>\n" % SETTINGS['ergani_kad_kyria'])
-            xml_file.write(u"\t\t<f_kad_deyt_1/>\n")
-            xml_file.write(u"\t\t<f_kad_deyt_2/>\n")
-            xml_file.write(u"\t\t<f_kad_deyt_3/>\n")
-            xml_file.write(u"\t\t<f_kad_deyt_4/>\n")
-            xml_file.write(u"\t\t<f_kad_pararthmatos>%s</f_kad_pararthmatos>\n" % SETTINGS['ergani_kad_parartimatos'])
-            xml_file.write(u"\t\t<f_kallikratis_pararthmatos>%s</f_kallikratis_pararthmatos>\n" % SETTINGS['ergani_kallikratis'])
-            xml_file.write(u"\t\t<f_eponymo>%s</f_eponymo>\n" % manage_len(o.parent.lastname, 50))
-            xml_file.write(u"\t\t<f_onoma>%s</f_onoma>\n" % manage_len(o.parent.firstname, 30))
-            
-            xml_file.write(u"\t\t<f_eponymo_patros/>\n")
-            xml_file.write(u"\t\t<f_onoma_patros>%s</f_onoma_patros>\n" % manage_len(o.parent.fathername, 30))
-            xml_file.write(u"\t\t<f_eponymo_mitros/>\n")
-            xml_file.write(u"\t\t<f_onoma_mitros>%s</f_onoma_mitros>\n" % manage_len(o.parent.mothername, 30))
-            xml_file.write(u"\t\t<f_topos_gennhshs/>\n")
-            if o.parent.birth_date:
-                xml_file.write(u"\t\t<f_birthdate>%s/%s/%s</f_birthdate>\n" % ('{:02d}'.format(o.parent.birth_date.day), '{:02d}'.format(o.parent.birth_date.month), o.parent.birth_date.year))
-            else:
-                xml_file.write(u"\t\t<f_birthdate>01/01/1901</f_birthdate>\n")
-            if o.parent.sex == u"Άνδρας":
-                xml_file.write(u"\t\t<f_sex>0</f_sex>\n")
-            else:
-                xml_file.write(u"\t\t<f_sex>1</f_sex>\n")
-            xml_file.write(u"\t\t<f_yphkoothta>%s</f_yphkoothta>\n" % o.parent.citizenship_code)
-            xml_file.write(u"\t\t<f_typos_taytothtas>ΔAT</f_typos_taytothtas>\n")
-            xml_file.write(u"\t\t<f_ar_taytothtas>%s</f_ar_taytothtas>\n" % o.parent.identity_number)
-            xml_file.write(u"\t\t<f_ekdousa_arxh/>\n")
-            xml_file.write(u"\t\t<f_date_ekdosis/>\n")
-            xml_file.write(u"\t\t<f_date_ekdosis_lixi/>\n")
-            xml_file.write(u"\t\t<f_res_permit_inst/>\n")
-            xml_file.write(u"\t\t<f_res_permit_inst_type/>\n")
-            xml_file.write(u"\t\t<f_res_permit_inst_ar/>\n")
-            xml_file.write(u"\t\t<f_res_permit_inst_lixi/>\n")
-            xml_file.write(u"\t\t<f_res_permit_ap/>\n")
-            xml_file.write(u"\t\t<f_res_permit_ap_type/>\n")
-            xml_file.write(u"\t\t<f_res_permit_ap_ar/>\n")
-            xml_file.write(u"\t\t<f_res_permit_ap_lixi/>\n")
-            xml_file.write(u"\t\t<f_res_permit_visa/>\n")
-            xml_file.write(u"\t\t<f_res_permit_visa_ar/>\n")
-            xml_file.write(u"\t\t<f_res_permit_visa_from/>\n")
-            xml_file.write(u"\t\t<f_res_permit_visa_to/>\n")
-            if o.parent.marital_status:
-                xml_file.write(u"\t\t<f_marital_status>%s</f_marital_status>\n" % o.parent.marital_status)
-            else:
-                xml_file.write(u"\t\t<f_marital_status>0</f_marital_status>\n")
-
-            xml_file.write(u"\t\t<f_arithmos_teknon>%s</f_arithmos_teknon>\n" % str(c))
-            xml_file.write(u"\t\t<f_afm>%s</f_afm>\n" % o.parent.vat_number)
-            xml_file.write(u"\t\t<f_doy/>\n")
-            xml_file.write(u"\t\t<f_amika/>\n")
-            xml_file.write(u"\t\t<f_amka>%s</f_amka>\n" % o.parent.social_security_registration_number)
-            xml_file.write(u"\t\t<f_code_anergias/>\n")
-            xml_file.write(u"\t\t<f_ar_vivliou_anilikou/>\n")
-            xml_file.write(u"\t\t<f_dieythinsi/>\n")
-            xml_file.write(u"\t\t<f_kallikratis/>\n")
-            
-
-            
-            xml_file.write(u"\t\t<f_tk/>\n")
-            xml_file.write(u"\t\t<f_til/>\n")
-            xml_file.write(u"\t\t<f_fax/>\n")
-            xml_file.write(u"\t\t<f_email/>\n")
-            xml_file.write(u"\t\t<f_epipedo_morfosis>%s</f_epipedo_morfosis>\n" % o.educational_level)
-            xml_file.write(u"\t\t<f_professional_education/>\n")
-            xml_file.write(u"\t\t<f_expertise_field/>\n")
-            xml_file.write(u"\t\t<f_subject_area/>\n")
-            xml_file.write(u"\t\t<f_subject_group/>\n")
-            xml_file.write(u"\t\t<f_education_agency/>\n")
-            xml_file.write(u"\t\t<f_education_date_from/>\n")
-            xml_file.write(u"\t\t<f_education_date_to/>\n")
-            xml_file.write(u"\t\t<f_duration/>\n")
-            xml_file.write(u"\t\t<f_education_year/>\n")
-            xml_file.write(u"\t\t<f_fl1/>\n")
-            xml_file.write(u"\t\t<f_fl2/>\n")
-            xml_file.write(u"\t\t<f_fl3/>\n")
-            xml_file.write(u"\t\t<f_fl4/>\n")
-            xml_file.write(u"\t\t<f_pc/>\n")
-            xml_file.write(u"\t\t<f_pc_other/>\n")
-
-            try:
-                f_d = ""
-                if o.current_placement().substituteplacement.date_from_show:
-                    f_d = o.current_placement().substituteplacement.date_from_show
-                else:
-                    f_d = o.current_placement().substituteplacement.date_from
-                xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(f_d.day),
-                                                                                       '{:02d}'.format(f_d.month),
-                                                                                       f_d.year))
-            except:
-                xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
-            xml_file.write(u"\t\t<f_proslipsitime>%s</f_proslipsitime>\n" % (datetime.datetime.now() + timedelta(hours=2)).strftime('%H:%m'))
-            
-            xml_file.write(u"\t\t<f_apoxwrisitime>20:00</f_apoxwrisitime>\n") # added for xsd v4
-            xml_file.write(u"\t\t<f_orario>%s</f_orario>\n" % manage_len(' ', 100))
-            xml_file.write(u"\t\t<f_wresexternal/>\n")
-            try:
-                if o.current_placement().substituteplacement.week_hours:
-                    xml_file.write(u"\t\t<f_week_hours>%s</f_week_hours>\n" % str('{:3.1f}'.format(float(o.current_placement().substituteplacement.week_hours))).replace('.',','))
-                else:
-                    xml_file.write(u"\t\t<f_week_hours>23,0</f_week_hours>\n")
-            except:
-                xml_file.write(u"\t\t<f_week_hours>23,0</f_week_hours>\n")
-
-            xml_file.write(u"\t\t<f_orariodialeima/>\n")
-            xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
-            try:
-                xml_file.write(u"\t\t<f_proipiresia>%s</f_proipiresia>\n" % o.current_placement().substituteplacement.work_experience_years)
-            except:
-                xml_file.write(u"\t\t<f_proipiresia></f_proipiresia>\n")
-            try:
-                if o.current_placement().substituteplacement.last_total_grosspay:
-                    fstr = str(o.current_placement().substituteplacement.last_total_grosspay).replace('.',',')
-                    if fstr.find(',') != -1:
-                        xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % fstr)
-                    else:
-                        xml_file.write(u"\t\t<f_apodoxes>%s,00</f_apodoxes>\n" % fstr)
-                else:
-                    xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
-            except:
-                xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
-
-            try:
-                if o.current_placement().substituteplacement.last_hourspay:
-                    xml_file.write(u"\t\t<f_hour_apodoxes>%s</f_hour_apodoxes>\n" % str(o.current_placement().substituteplacement.last_hourspay).replace('.',','))
-                else:
-                    xml_file.write(u"\t\t<f_hour_apodoxes>0,00</f_hour_apodoxes>\n")
-            except:
-                xml_file.write(u"\t\t<f_hour_apodoxes>0,00</f_hour_apodoxes>\n")
-            
-            if o.ergani_new == True:
-                xml_file.write(u"\t\t<f_protiergasia>1</f_protiergasia>\n")
-            else:
-                xml_file.write(u"\t\t<f_protiergasia>0</f_protiergasia>\n")
-
-            xml_file.write(u"\t\t<f_sxeshapasxolisis>1</f_sxeshapasxolisis>\n")
-
-            try:
-                f_d = ""
-                if o.current_placement().substituteplacement.date_from_show:
-                    f_d = o.current_placement().substituteplacement.date_from_show
-                else:
-                    f_d = o.current_placement().substituteplacement.date_from
-                xml_file.write(u"\t\t<f_orismenou_apo>%s/%s/%s</f_orismenou_apo>\n" % ('{:02d}'.format(f_d.day),
-                                                                                       '{:02d}'.format(f_d.month),
-                                                                                       f_d.year))
-                xml_file.write(u"\t\t<f_orismenou_ews>%s/%s/%s</f_orismenou_ews>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
-                                                                                       '{:02d}'.format(o.current_placement().date_to.month), o.current_placement().date_to.year))
-
-            except:
-                xml_file.write(u"\t\t<f_orismenou_apo>01/01/2001</f_orismenou_apo>\n")
-                xml_file.write(u"\t\t<f_orismenou_ews>01/01/2001</f_orismenou_ews>\n")
-            try:
-                xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
-            except:
-                xml_file.write(u"\t\t<f_kathestosapasxolisis></f_kathestosapasxolisis>\n")
-            xml_file.write(u"\t\t<f_xaraktirismos>1</f_xaraktirismos>\n")
-            xml_file.write(u"\t\t<f_special_case/>\n")
-            xml_file.write(u"\t\t<f_apoalliperioxi/>\n")
-            xml_file.write(u"\t\t<f_nationalityalli/>\n")
-            xml_file.write(u"\t\t<f_kallikratisalli/>\n")
-
-            # added for xsd v4
-            xml_file.write(u"\t\t<f_working_time_digital_organization>0</f_working_time_digital_organization>\n")
-            xml_file.write(u"\t\t<f_full_employment_hours>030,0</f_full_employment_hours>\n")
-            xml_file.write(u"\t\t<f_week_days>5</f_week_days>\n")
-            xml_file.write(u"\t\t<f_euelikto_wrario_minutes>0</f_euelikto_wrario_minutes>\n")
-            xml_file.write(u"\t\t<f_working_card>0</f_working_card>\n")
-            xml_file.write(u"\t\t<f_dialeimma_minutes>0</f_dialeimma_minutes>\n")
-            xml_file.write(u"\t\t<f_dialeimma_entos_wrariou>0</f_dialeimma_entos_wrariou>\n")
-            # ---
-
-            xml_file.write(u"\t\t<f_topothetisiepistoli>0</f_topothetisiepistoli>\n")
-            xml_file.write(u"\t\t<f_topothetisioaed>0</f_topothetisioaed>\n")
-            xml_file.write(u"\t\t<f_programaoaed/>\n")
-            xml_file.write(u"\t\t<f_replaceprograma/>\n")
-            xml_file.write(u"\t\t<f_replaceprograma_afm/>\n")
-            xml_file.write(u"\t\t<f_replaceprograma_amka/>\n")
-            try:
-                if o.current_placement().substituteplacement.oaed_nopay == False:
-                    xml_file.write(u"\t\t<f_epidomaoaed>0</f_epidomaoaed>\n")
-                    xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed/>\n")            
-                else:
-                    xml_file.write(u"\t\t<f_epidomaoaed>1</f_epidomaoaed>\n")
-                    xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed>%s</f_epidoma_ypiresia_oaed>\n" % o.current_placement().substituteplacement.oaed_nopay_from)
-            except:
-                xml_file.write(u"\t\t<f_epidomaoaed>0</f_epidomaoaed>\n")
-                xml_file.write(u"\t\t<f_epidoma_ypiresia_oaed/>\n")            
-            
-            xml_file.write(u"\t\t<f_sk_protocol/>\n")
-            xml_file.write(u"\t\t<f_sk_date/>\n")
-            xml_file.write(u"\t\t<f_comments/>\n")
-            xml_file.write(u"\t\t<f_eponymo_idiotitas>%s</f_eponymo_idiotitas>\n" % manage_len(SETTINGS['ergani_lastname_proistamenou'], 100))
-            xml_file.write(u"\t\t<f_onoma_idiotitas>%s</f_onoma_idiotitas>\n" % manage_len(SETTINGS['ergani_firstname_proistamenou'], 50))
-            xml_file.write(u"\t\t<f_idiotita_idiotitas>%s</f_idiotita_idiotitas>\n" % manage_len(SETTINGS['ergani_idiotita_proistamenou'], 50))
-            xml_file.write(u"\t\t<f_dieythinsi_idiotitas>%s</f_dieythinsi_idiotitas>\n" % manage_len(SETTINGS['ergani_address_proistamenou'], 70))
-            xml_file.write(u"\t\t<f_afm_idiotitas>%s</f_afm_idiotitas>\n" % SETTINGS['ergani_afm_rep_oaed'])
-            xml_file.write(u"\t\t<f_afm_proswpoy>%s</f_afm_proswpoy>\n" % SETTINGS['ergani_afm_rep_oaed'])
-            xml_file.write(u"\t\t<f_file/>\n")
-            xml_file.write(u"\t\t<f_foreign_file/>\n")
-            xml_file.write(u"\t\t<f_young_file/>\n")
-            xml_file.write(u"\t</AnaggeliaE3>\n")
-
-        xml_file.write(footer)
-        with open(os.path.join(settings.MEDIA_ROOT, 'xsd', 'E3_v6.xsd'), 'r') as f:
-            schema_root = etree.XML(f.read())
-        res = ''
-        schema = etree.XMLSchema(schema_root)
-        
-        xml = bytes(bytearray(xml_file.getvalue(), encoding='utf-8'))
-        exml = etree.XML(xml)
-        
-        if schema.validate(exml): 
-            self.response = HttpResponse(xml_file.getvalue())
-            self.response['Content-Type'] = 'text/xml'
-            self.response['Content-Disposition'] = 'attachment; ' + \
-                'filename=ergani_e3_list_of_%s.xml' % len(queryset)
-            add_never_cache_headers(self.response)
-            self.response.close()
-            self.response.flush()
-            return self.response
-
-        else:
-            for error in schema.error_log:
-                res += u'Γραμμή %s: %s' % (error.line, error.message)
-            messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)            
-            context = {
-                "title": 'Σφάλμα εξαγωγής XML',
-                #"objects_name": objects_name,
-                'queryset': queryset,
-                "opts": opts,
-                "app_label": app_label,
-                'action_title': self.short_description,
-                'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
-                'changeable_objects': [changeable_objects],
-                'action_name': self.__name__,
-                'xml_file': xml_file.getvalue().replace('\t','    ').split('\n'),
-            }
-            # Display the error page
-            return TemplateResponse(request,
-                                    'admin/ergani_xml_error_results.html',
-                                    context,
-                                    current_app=modeladmin.admin_site.name)
-            
-        xml_file.close()
+        return self.identity_fields(o) + [
+            ('f_proslipsidate', format_ergani_date(start)),
+            ('f_proslipsitime',
+             (datetime.datetime.now() + timedelta(hours=2)).strftime('%H:%M')),
+            ('f_apoxwrisitime', u'20:00'),
+            ('f_week_hours', week_hours),
+            ('f_eidikothta', o.profession_code_oaed or u''),
+            ('f_eidikothta_anal', u''),
+            ('f_proipiresia', try_value(lambda: sub.work_experience_years)),
+            ('f_apodoxes',
+             format_legacy_amount(try_value(lambda: sub.last_total_grosspay, 0))),
+            ('f_hour_apodoxes',
+             format_legacy_amount(try_value(lambda: sub.last_hourspay, 0))),
+            ('f_sxeshapasxolisis', u'1'),
+            ('f_orismenou_apo', format_ergani_date(start)),
+            ('f_orismenou_ews', format_ergani_date(end)),
+            ('f_kathestosapasxolisis', try_value(lambda: o.type().work_mode)),
+            ('f_xaraktirismos', u'1'),
+            ('f_special_case', u''),
+            ('f_responsible_position', u''),
+            ('f_working_time_digital_organization', u'0'),
+            ('f_full_employment_hours', u'030,0'),
+            ('f_week_days', u'5'),
+            ('f_euelikto_wrario_minutes', u'0'),
+            ('f_working_card', u'0'),
+            ('f_dialeimma_minutes', u'0'),
+            ('f_dialeimma_entos_wrariou', u'0'),
+            ('f_topothetisioaed', u'0'),
+            ('f_programaoaed', u''),
+            ('f_replaceprograma', u''),
+            ('f_replaceprograma_afm', u''),
+            ('f_replaceprograma_amka', u''),
+        ] + E3N_DEFAULTS
 
 
-class XMLWriteE7Action(object):
+class XMLWriteE7Action(ErganiXMLAction):
+    """Αναγγελία λύσης σύμβασης Ε7 (πρότυπο E7N)."""
+
+    root_tag = 'AnaggeliesE7N'
+    record_tag = 'AnaggeliaE7N'
+    namespace = 'http://www.yeka.gr/E7N'
+    schema_file = 'E7N_v1.xsd'
+    file_prefix = 'ergani_e7n'
+
     def __init__(self, short_description):
-        self.short_description = short_description
+        super(XMLWriteE7Action, self).__init__(short_description)
         self.__name__ = 'create_xml_e7_for_erganh'
 
-    def __call__(self, modeladmin, request, queryset):
-        opts = modeladmin.model._meta
-        app_label = opts.app_label
+    def record_fields(self, o):
+        placement = try_value(lambda: o.current_placement(), None)
+        sub = try_value(lambda: placement.substituteplacement, None)
+        start = try_value(lambda: sub.date_from_show or sub.date_from, None)
+        end = try_value(lambda: placement.date_to, None)
 
-        using = router.db_for_write(modeladmin.model)
-        changeable_objects, perms_needed, protected = get_deleted_objects(
-            queryset, opts, request.user, modeladmin.admin_site, using)
-
-        header = ""
-        header += "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-        header += "<ns1:AnaggeliesE7 xmlns:ns1=\"http://www.yeka.gr/E7\">\n"
-        
-        footer = "</ns1:AnaggeliesE7>\n"
-
-        xml_file = StrIO.StringIO()
-        xml_file.write(header)
-        
-        for o in queryset:
-            c = Child.objects.filter(employee=o.parent.id).count()
-            xml_file.write(u"\t<AnaggeliaE7>\n")
-            xml_file.write(u"\t\t<f_aa_pararthmatos>0</f_aa_pararthmatos>\n")
-            xml_file.write(u"\t\t<f_rel_protocol/>\n")
-            xml_file.write(u"\t\t<f_rel_date/>\n")
-            xml_file.write(u"\t\t<f_ypiresia_sepe>%s</f_ypiresia_sepe>\n" % SETTINGS['ergani_sepe'])
-            xml_file.write(u"\t\t<f_ypiresia_oaed>%s</f_ypiresia_oaed>\n" % SETTINGS['ergani_oaed'])
-            xml_file.write(u"\t\t<f_ergodotikh_organwsh/>\n")
-            xml_file.write(u"\t\t<f_kad_kyria>%s</f_kad_kyria>\n" % SETTINGS['ergani_kad_kyria'])
-            xml_file.write(u"\t\t<f_kad_deyt_1/>\n")
-            xml_file.write(u"\t\t<f_kad_deyt_2/>\n")
-            xml_file.write(u"\t\t<f_kad_deyt_3/>\n")
-            xml_file.write(u"\t\t<f_kad_deyt_4/>\n")
-            xml_file.write(u"\t\t<f_kad_pararthmatos>%s</f_kad_pararthmatos>\n" % SETTINGS['ergani_kad_parartimatos'])
-            xml_file.write(u"\t\t<f_kallikratis_pararthmatos>%s</f_kallikratis_pararthmatos>\n" % SETTINGS['ergani_kallikratis'])
-            xml_file.write(u"\t\t<f_eponymo>%s</f_eponymo>\n" % manage_len(o.parent.lastname, 50))
-            xml_file.write(u"\t\t<f_onoma>%s</f_onoma>\n" % manage_len(o.parent.firstname, 30))
-            
-            xml_file.write(u"\t\t<f_eponymo_patros/>\n")
-            xml_file.write(u"\t\t<f_onoma_patros>%s</f_onoma_patros>\n" % manage_len(o.parent.fathername, 30))
-            xml_file.write(u"\t\t<f_eponymo_mitros/>\n")
-            xml_file.write(u"\t\t<f_onoma_mitros>%s</f_onoma_mitros>\n" % manage_len(o.parent.mothername, 30))
-            xml_file.write(u"\t\t<f_topos_gennhshs/>\n")
-            if o.parent.birth_date:
-                xml_file.write(u"\t\t<f_birthdate>%s/%s/%s</f_birthdate>\n" % ('{:02d}'.format(o.parent.birth_date.day), '{:02d}'.format(o.parent.birth_date.month), o.parent.birth_date.year))
-            else:
-                xml_file.write(u"\t\t<f_birthdate>01/01/1901</f_birthdate>\n")
-            if o.parent.sex == u"Άνδρας":
-                xml_file.write(u"\t\t<f_sex>0</f_sex>\n")
-            else:
-                xml_file.write(u"\t\t<f_sex>1</f_sex>\n")
-            xml_file.write(u"\t\t<f_yphkoothta>%s</f_yphkoothta>\n" % o.parent.citizenship_code)
-
-            xml_file.write(u"\t\t<f_typos_taytothtas>ΔAT</f_typos_taytothtas>\n")
-            xml_file.write(u"\t\t<f_ar_taytothtas>%s</f_ar_taytothtas>\n" % o.parent.identity_number)
-            xml_file.write(u"\t\t<f_ekdousa_arxh/>\n")
-            xml_file.write(u"\t\t<f_date_ekdosis/>\n")
-            xml_file.write(u"\t\t<f_date_ekdosis_lixi/>\n")
-            xml_file.write(u"\t\t<f_res_permit_inst/>\n")
-            xml_file.write(u"\t\t<f_res_permit_inst_type/>\n")
-            xml_file.write(u"\t\t<f_res_permit_inst_ar/>\n")
-            xml_file.write(u"\t\t<f_res_permit_inst_lixi/>\n")
-            xml_file.write(u"\t\t<f_res_permit_ap/>\n")
-            xml_file.write(u"\t\t<f_res_permit_ap_type/>\n")
-            xml_file.write(u"\t\t<f_res_permit_ap_ar/>\n")
-            xml_file.write(u"\t\t<f_res_permit_ap_lixi/>\n")
-            xml_file.write(u"\t\t<f_res_permit_visa/>\n")
-            xml_file.write(u"\t\t<f_res_permit_visa_ar/>\n")
-            xml_file.write(u"\t\t<f_res_permit_visa_from/>\n")
-            xml_file.write(u"\t\t<f_res_permit_visa_to/>\n")
-            if o.parent.marital_status:
-                xml_file.write(u"\t\t<f_marital_status>%s</f_marital_status>\n" % o.parent.marital_status)
-            else:
-                xml_file.write(u"\t\t<f_marital_status>0</f_marital_status>\n")
-
-            xml_file.write(u"\t\t<f_arithmos_teknon>%s</f_arithmos_teknon>\n" % str(c))
-            xml_file.write(u"\t\t<f_afm>%s</f_afm>\n" % o.parent.vat_number)
-            xml_file.write(u"\t\t<f_doy/>\n")
-            xml_file.write(u"\t\t<f_amika/>\n")
-            xml_file.write(u"\t\t<f_amka>%s</f_amka>\n" % o.parent.social_security_registration_number)
-            xml_file.write(u"\t\t<f_code_anergias/>\n")
-            xml_file.write(u"\t\t<f_ar_vivliou_anilikou/>\n")
-            xml_file.write(u"\t\t<f_dieythinsi/>\n")
-            xml_file.write(u"\t\t<f_kallikratis/>\n")            
-            xml_file.write(u"\t\t<f_tk/>\n")
-            xml_file.write(u"\t\t<f_til/>\n")
-            xml_file.write(u"\t\t<f_fax/>\n")
-            xml_file.write(u"\t\t<f_email/>\n")
-            xml_file.write(u"\t\t<f_epipedo_morfosis>%s</f_epipedo_morfosis>\n" % o.educational_level)
-            xml_file.write(u"\t\t<f_professional_education/>\n")
-            xml_file.write(u"\t\t<f_expertise_field/>\n")
-            xml_file.write(u"\t\t<f_subject_area/>\n")
-            xml_file.write(u"\t\t<f_subject_group/>\n")
-            xml_file.write(u"\t\t<f_education_agency/>\n")
-            xml_file.write(u"\t\t<f_education_date_from/>\n")
-            xml_file.write(u"\t\t<f_education_date_to/>\n")
-            xml_file.write(u"\t\t<f_duration/>\n")
-            xml_file.write(u"\t\t<f_education_year/>\n")
-            xml_file.write(u"\t\t<f_fl1/>\n")
-            xml_file.write(u"\t\t<f_fl2/>\n")
-            xml_file.write(u"\t\t<f_fl3/>\n")
-            xml_file.write(u"\t\t<f_fl4/>\n")
-            xml_file.write(u"\t\t<f_pc/>\n")
-            xml_file.write(u"\t\t<f_pc_other/>\n")
-            xml_file.write(u"\t\t<f_xaraktirismos>1</f_xaraktirismos>\n")
-            xml_file.write(u"\t\t<f_sxeshapasxolisis>1</f_sxeshapasxolisis>\n")
-            try:
-                xml_file.write(u"\t\t<f_kathestosapasxolisis>%s</f_kathestosapasxolisis>\n" % o.type().work_mode)
-            except:
-                xml_file.write(u"\t\t<f_kathestosapasxolisis>0</f_kathestosapasxolisis>\n")
-            xml_file.write(u"\t\t<f_oros>0</f_oros>\n")
-            xml_file.write(u"\t\t<f_eidikothta>%s</f_eidikothta>\n" % o.profession_code_oaed)
-            try:
-                if o.current_placement().substituteplacement.last_total_grosspay:
-                    xml_file.write(u"\t\t<f_apodoxes>%s</f_apodoxes>\n" % str(o.current_placement().substituteplacement.last_total_grosspay).replace('.',','))
-                else:
-                    xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
-            except:
-                xml_file.write(u"\t\t<f_apodoxes>0,00</f_apodoxes>\n")
-
-            try:
-                f_d = ""
-                if o.current_placement().substituteplacement.date_from_show:
-                    f_d = o.current_placement().substituteplacement.date_from_show
-                else:
-                    f_d = o.current_placement().substituteplacement.date_from
-                xml_file.write(u"\t\t<f_proslipsidate>%s/%s/%s</f_proslipsidate>\n" % ('{:02d}'.format(f_d.day),
-                                                                                       '{:02d}'.format(f_d.month),
-                                                                                       f_d.year))
-                xml_file.write(u"\t\t<f_lixisymbashdate>%s/%s/%s</f_lixisymbashdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
-                                                                                  '{:02d}'.format(o.current_placement().date_to.month),
-                                                                                  o.current_placement().date_to.year))
-                xml_file.write(u"\t\t<f_apolysisdate>%s/%s/%s</f_apolysisdate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
-                                                                                  '{:02d}'.format(o.current_placement().date_to.month),
-                                                                                  o.current_placement().date_to.year))
-                #xml_file.write(u"\t\t<f_lastdaydate>%s/%s/%s</f_lastdaydate>\n" % ('{:02d}'.format(o.current_placement().date_to.day),
-                #                                                                  '{:02d}'.format(o.current_placement().date_to.month),
-                #                                                                  o.current_placement().date_to.year))
-                
-            except:
-                xml_file.write(u"\t\t<f_proslipsidate>01/01/2001</f_proslipsidate>\n")
-                xml_file.write(u"\t\t<f_lixisymbashdate>01/01/2001</f_lixisymbashdate>\n")
-                xml_file.write(u"\t\t<f_apolysisdate>01/01/2001</f_apolysisdate>")
-                
-                #xml_file.write(u"\t\t<f_lastdaydate>01/01/2001</f_lastdaydate>\n")
-
-            xml_file.write(u"\t\t<f_comments/>\n")
-            xml_file.write(u"\t\t<f_logosperatosis>0</f_logosperatosis>\n")
-            xml_file.write(u"\t\t<f_logosperatosiscomments/>\n")
-            xml_file.write(u"\t\t<f_afm_proswpoy>%s</f_afm_proswpoy>\n" % SETTINGS['ergani_afm_rep_oaed'])
-            xml_file.write(u"\t\t<f_file/>\n")
-            xml_file.write(u"\t\t<f_foreign_file/>\n")
-            xml_file.write(u"\t\t<f_young_file/>\n")
-            xml_file.write(u"\t</AnaggeliaE7>\n")
-
-        xml_file.write(footer)
-        with open(os.path.join(settings.MEDIA_ROOT, 'xsd', 'E7_v2.xsd'), 'r') as f:
-            schema_root = etree.XML(f.read())
-        res = ''
-        schema = etree.XMLSchema(schema_root)
-
-        xml = bytes(bytearray(xml_file.getvalue(), encoding='utf-8'))
-        exml = etree.XML(xml)
-
-        if schema.validate(exml):
-            self.response = HttpResponse(xml_file.getvalue())
-            self.response['Content-Type'] = 'text/xml'
-            self.response['Content-Disposition'] = 'attachment; ' + \
-                'filename=ergani_e7_list_of_%s.xml' % len(queryset)
-            add_never_cache_headers(self.response)
-            self.response.close()
-            self.response.flush()
-            return self.response
-
-        else:
-            for error in schema.error_log:
-                res += u'Γραμμή %s: %s' % (error.line, error.message)
-            messages.error(request, u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)            
-            context = {
-                "title": 'Σφάλμα εξαγωγής XML',
-                #"objects_name": objects_name,
-                'queryset': queryset,
-                "opts": opts,
-                "app_label": app_label,
-                'action_title': self.short_description,
-                'action_checkbox_name': helpers.ACTION_CHECKBOX_NAME,
-                'changeable_objects': [changeable_objects],
-                'action_name': self.__name__,
-                'xml_file': xml_file.getvalue().replace('\t','    ').split('\n'),
-            }
-            # Display the error page
-            return TemplateResponse(request,
-                                    'admin/ergani_xml_error_results.html',
-                                    context,
-                                    current_app=modeladmin.admin_site.name)            
-        xml_file.close()
+        return self.identity_fields(o) + [
+            ('f_xaraktirismos', u'1'),
+            ('f_sxeshapasxolisis', u'1'),
+            ('f_kathestosapasxolisis', try_value(lambda: o.type().work_mode, u'0')),
+            ('f_oros', u'0'),
+            ('f_eidikothta', o.profession_code_oaed or u''),
+            ('f_apodoxes',
+             format_ergani_amount(try_value(lambda: sub.last_total_grosspay, 0))),
+            ('f_proslipsidate', format_ergani_date(start)),
+            ('f_lixisymbashdate', format_ergani_date(end)),
+            ('f_apolysisdate', format_ergani_date(end)),
+            ('f_comments', u''),
+            ('f_logosperatosis', u'0'),
+            ('f_logosperatosiscomments', u''),
+            ('f_foreign_file', u''),
+            ('f_young_file', u''),
+        ]
 
 
 class XMLReadAction(object):
