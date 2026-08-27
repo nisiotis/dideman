@@ -729,10 +729,26 @@ def _export_field_value(obj, field):
     return str(value)
 
 
+# Πεδία που δεν έχουν νόημα σε αρχείο CSV: η φωτογραφία είναι base64
+# μερικών δεκάδων KB ανά εγγραφή και οι σημειώσεις είναι ελεύθερο
+# κείμενο με αλλαγές γραμμής. Ο τύπος φωτογραφίας δεν χρησιμεύει χωρίς
+# την ίδια την φωτογραφία -- ίδιος αποκλεισμός με το CSVReport του admin.
+EXPORT_EXCLUDED_TYPES = ('TextField', 'BinaryField', 'FileField', 'ImageField')
+EXPORT_EXCLUDED_NAMES = ('photo_type',)
+
+
+def exportable_fields(model):
+    """The model fields that may appear in an export, in model order."""
+    return [f for f in model._meta.fields
+            if f.get_internal_type() not in EXPORT_EXCLUDED_TYPES
+            and f.name not in EXPORT_EXCLUDED_NAMES]
+
+
 def _export_csv_response(model, field_names):
     # keep the model's own field order rather than whatever order the
-    # checkboxes happened to post in
-    fields = [f for f in model._meta.fields if f.name in field_names]
+    # checkboxes happened to post in, and filter against the exportable
+    # set so a hand-made POST cannot ask for an excluded field
+    fields = [f for f in exportable_fields(model) if f.name in field_names]
 
     response = HttpResponse()
     response['Content-Type'] = 'text/csv; charset=iso-8859-7'
@@ -763,10 +779,13 @@ def export_view(request):
     }
 
     if request.POST and model:
-        field_choices = [(f.name, unicode(f.verbose_name)) for f in model._meta.fields]
+        field_choices = [(f.name, unicode(f.verbose_name))
+                         for f in exportable_fields(model)]
 
         if "download" in request.GET:
-            selected_fields = request.POST.getlist('export_fields')
+            allowed = set(f.name for f in exportable_fields(model))
+            selected_fields = [name for name in request.POST.getlist('export_fields')
+                               if name in allowed]
             if selected_fields:
                 return _export_csv_response(model, selected_fields)
             context.update({
