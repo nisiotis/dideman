@@ -19,6 +19,8 @@ from django.utils.cache import add_never_cache_headers
 from django.db.models import Q
 from django.conf.urls import *
 from django.core.urlresolvers import reverse, NoReverseMatch
+from django.core.exceptions import PermissionDenied
+from dideman.lib.common import without_accented
 from cStringIO import StringIO
 import csv
 import datetime, base64
@@ -26,18 +28,38 @@ import os, itertools
 import xlrd
 
 
+def identity_key(lastname, firstname, fathername, profession_id):
+    """The combination that in practice identifies one person.
+
+    Names are compared case-insensitively, without surrounding
+    whitespace and without tonos, so that 'ΆΝΝΑ' and 'ΑΝΝΑ ' count as
+    the same person.
+    """
+    def norm(v):
+        return without_accented(unicode(v if v is not None else u'').strip().upper())
+    return (norm(lastname), norm(firstname), norm(fathername), norm(profession_id))
+
+
 def find_duplicates():
+    """Permanent/NonPermanent pairs that look like the same person.
+
+    Grouped by identity key rather than compared pairwise, so this is
+    linear in the number of employees instead of quadratic.
+    """
+    permanents = {}
+    for p in Permanent.objects.all():
+        permanents.setdefault(
+            identity_key(p.lastname, p.firstname, p.fathername, p.profession_id),
+            []).append(p)
+
     l = []
     r = 0
-    pl = Permanent.objects.all()
-    nl = NonPermanent.objects.exclude(vat_number=None)
-
-    for pitem in pl:
-        for nitem in nl:
-            if (pitem.firstname == nitem.firstname) and (pitem.lastname == nitem.lastname) and (pitem.fathername == nitem.fathername) and (pitem.profession == nitem.profession):
-                l.append(pitem)
-                r += 1
-                l.append(nitem)
+    for n in NonPermanent.objects.exclude(vat_number=None):
+        key = identity_key(n.lastname, n.firstname, n.fathername, n.profession_id)
+        for p in permanents.get(key, []):
+            l.append(p)
+            r += 1
+            l.append(n)
 
     return l, r
 
@@ -601,6 +623,100 @@ def export_view(request):
 
     r = render_to_response('admin/export.html', context, RequestContext(request))
     return r
+
+
+
+
+# Οι τέσσερις κατηγορίες υπαλλήλων. Όλες κληρονομούν από το Employee, οπότε
+# μία εγγραφή Employee μπορεί να εμφανίζεται σε περισσότερες από μία.
+def employee_role_models():
+    return [(u'Μόνιμος', Permanent),
+            (u'Αναπληρωτής/Ωρομίσθιος', NonPermanent),
+            (u'Διοικητικός', Administrative),
+            (u'Ιδιωτικός Εκπαιδευτικός', PrivateTeacher)]
+
+
+def admin_change_url(app_label, model_name, pk):
+    try:
+        return reverse('admin:%s_%s_change' % (app_label, model_name), args=[pk])
+    except NoReverseMatch:
+        return None
+
+
+@csrf_protect
+@staff_member_required
+def duplicate_employees_view(request):
+    """Εντοπισμός διπλοεγγραφών εκπαιδευτικών.
+
+    Δύο ξεχωριστά προβλήματα εμφανίζονται μαζί:
+
+    * μία εγγραφή Employee που συνδέεται με περισσότερες από μία
+      κατηγορίες (π.χ. είναι ταυτόχρονα Μόνιμος και Αναπληρωτής), και
+    * περισσότερες εγγραφές Employee, με διαφορετικό id, που αφορούν
+      το ίδιο πρόσωπο (ίδιο επώνυμο, όνομα, πατρώνυμο και ειδικότητα).
+    """
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    # Ένα ερώτημα ανά κατηγορία για τα ids, αντί για ένα ανά υπάλληλο.
+    roles = []
+    for label, model in employee_role_models():
+        opts = model._meta
+        roles.append((label, opts.app_label, opts.model_name,
+                      set(model.objects.values_list('parent_id', flat=True))))
+
+    groups = {}
+    for e in Employee.objects.all().values(
+            'id', 'firstname', 'lastname', 'fathername', 'profession_id',
+            'vat_number', 'identity_number', 'date_created', 'date_modified'):
+        record = dict(e)
+        record['roles'] = [
+            {'label': label,
+             'url': admin_change_url(app_label, model_name, e['id'])}
+            for label, app_label, model_name, ids in roles if e['id'] in ids]
+        record['role_count'] = len(record['roles'])
+        groups.setdefault(
+            identity_key(e['lastname'], e['firstname'],
+                         e['fathername'], e['profession_id']), []).append(record)
+
+    duplicates = []
+    total_records = 0
+    total_multi_role = 0
+    for records in groups.values():
+        multi_role = [r for r in records if r['role_count'] > 1]
+        # Ενδιαφέρουν είτε οι πολλαπλές εγγραφές του ίδιου προσώπου είτε
+        # η μία εγγραφή που ανήκει σε πολλές κατηγορίες.
+        if len(records) < 2 and not multi_role:
+            continue
+        records.sort(key=lambda r: r['id'])
+        first = records[0]
+        duplicates.append({
+            'lastname': first['lastname'],
+            'firstname': first['firstname'],
+            'fathername': first['fathername'],
+            'profession': first['profession_id'],
+            'records': records,
+            'record_count': len(records),
+            'multi_role_count': len(multi_role),
+        })
+        total_records += len(records)
+        total_multi_role += len(multi_role)
+
+    duplicates.sort(key=lambda g: (g['lastname'] or u'', g['firstname'] or u''))
+
+    context = {
+        "title": u'Έλεγχος διπλοεγγραφών',
+        "app_label": u'Έλεγχος διπλοεγγραφών',
+        "opts": [],
+        "errors": [],
+        "duplicates": duplicates,
+        "total_groups": len(duplicates),
+        "total_records": total_records,
+        "total_multi_role": total_multi_role,
+        "role_labels": [label for label, model in employee_role_models()],
+    }
+    return render_to_response('admin/duplicates.html', context,
+                              RequestContext(request))
 
 
 @csrf_protect

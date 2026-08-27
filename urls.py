@@ -19,6 +19,8 @@ urlpatterns = patterns(
         'dideman.dide.views.views.import_export_view'),
     url(r'^admin/dide/importexport/export/$',
         'dideman.dide.views.views.export_view'),
+    url(r'^admin/dide/duplicates/$',
+        'dideman.dide.views.views.duplicate_employees_view'),
     url(r'^admin/dide/geoschool/$',
         'dideman.dide.views.views.school_geo_view'),
     url(r'^admin/', include(admin.site.urls)),

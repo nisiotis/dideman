@@ -1,0 +1,86 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static admin_list %}
+{% load url from future %}
+{% load admin_urls %}
+{% block extrastyle %}
+{{ block.super }}
+<style type="text/css">
+table.dupgroup { margin-bottom: 1.5em; width: 100%; border-collapse: collapse; }
+table.dupgroup caption { text-align: left; font-weight: bold; padding: 4px 0; }
+table.dupgroup th { text-align: left; background: #eee; padding: 3px 6px; white-space: nowrap; }
+table.dupgroup td { padding: 3px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+.badge { background: #ba2121; color: #fff; padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+.badge.ok { background: #70bf2b; }
+.summary { margin-bottom: 1.5em; }
+.summary li { margin-bottom: 3px; }
+</style>
+{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {{ app_label|capfirst|escape }}
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="summary">
+<p>Ελέγχονται οι κατηγορίες: {% for r in role_labels %}{{ r }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>
+<p>Μια εγγραφή θεωρείται διπλή όταν συμπίπτουν <strong>επώνυμο, όνομα, πατρώνυμο και ειδικότητα</strong>
+(χωρίς να λαμβάνονται υπόψη κεφαλαία/πεζά, τόνοι και κενά).</p>
+<ul>
+  <li><strong>{{ total_groups }}</strong> πρόσωπα με πρόβλημα</li>
+  <li><strong>{{ total_records }}</strong> εγγραφές συνολικά σε αυτά</li>
+  <li><strong>{{ total_multi_role }}</strong> εγγραφές που ανήκουν σε περισσότερες από μία κατηγορίες</li>
+</ul>
+</div>
+
+{% if not duplicates %}
+<p>Δεν βρέθηκαν διπλοεγγραφές.</p>
+{% endif %}
+
+{% for g in duplicates %}
+<table class="dupgroup">
+  <caption>
+    {{ g.lastname }} {{ g.firstname }} του {{ g.fathername }} &mdash; {{ g.profession }}
+    {% if g.record_count > 1 %}<span class="badge">{{ g.record_count }} εγγραφές Employee</span>{% endif %}
+    {% if g.multi_role_count %}<span class="badge">{{ g.multi_role_count }} με πολλαπλές κατηγορίες</span>{% endif %}
+  </caption>
+  <tr>
+    <th>Employee id</th>
+    <th>Επώνυμο</th>
+    <th>Όνομα</th>
+    <th>Πατρώνυμο</th>
+    <th>Ειδικότητα</th>
+    <th>Α.Φ.Μ.</th>
+    <th>Α.Δ.Τ.</th>
+    <th>Κατηγορίες</th>
+    <th>Δημιουργήθηκε</th>
+    <th>Ενημερώθηκε</th>
+  </tr>
+  {% for r in g.records %}
+  <tr>
+    <td>{{ r.id }}</td>
+    <td>{{ r.lastname }}</td>
+    <td>{{ r.firstname }}</td>
+    <td>{{ r.fathername }}</td>
+    <td>{{ r.profession_id }}</td>
+    <td>{{ r.vat_number|default_if_none:"" }}</td>
+    <td>{{ r.identity_number|default_if_none:"" }}</td>
+    <td>
+      {% if r.role_count > 1 %}<span class="badge">{{ r.role_count }}</span> {% endif %}
+      {% for role in r.roles %}
+        {% if role.url %}<a href="{{ role.url }}">{{ role.label }}</a>{% else %}{{ role.label }}{% endif %}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+        <em>καμία</em>
+      {% endfor %}
+    </td>
+    <td>{{ r.date_created|date:"d/m/Y" }}</td>
+    <td>{{ r.date_modified|date:"d/m/Y" }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endfor %}
+
+{% endblock %}
