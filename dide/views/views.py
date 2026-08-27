@@ -22,6 +22,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.exceptions import PermissionDenied
 from dideman.lib.common import without_accented
 from cStringIO import StringIO
+from urllib import urlencode
 import csv
 import datetime, base64
 import os, itertools
@@ -62,6 +63,136 @@ def find_duplicates():
             l.append(n)
 
     return l, r
+
+SEARCH_PAGE_SIZE = 25
+
+
+def elided_page_range(paginator, number, on_each_side=3, on_ends=2):
+    """Page numbers around the current one, 0 marking an elision.
+
+    Same shape as the paginator the Django admin change list draws. The
+    gap marker is 0 rather than None because the template compares it,
+    and page numbers start at 1 so 0 is unambiguous.
+    """
+    num_pages = paginator.num_pages
+    if num_pages <= (on_each_side + on_ends) * 2:
+        return list(paginator.page_range)
+
+    page_range = []
+    if number > (on_each_side + on_ends + 1):
+        page_range.extend(range(1, on_ends + 1))
+        page_range.append(0)
+        page_range.extend(range(number - on_each_side, number + 1))
+    else:
+        page_range.extend(range(1, number + 1))
+
+    if number < (num_pages - on_each_side - on_ends):
+        page_range.extend(range(number + 1, number + on_each_side + 1))
+        page_range.append(0)
+        page_range.extend(range(num_pages - on_ends + 1, num_pages + 1))
+    else:
+        page_range.extend(range(number + 1, num_pages + 1))
+    return page_range
+
+
+def search_query_string(q, category):
+    """The q/cat pair that every pagination link has to carry along."""
+    params = [('q', (q or u'').encode('utf-8'))]
+    if category:
+        params.append(('cat', category.encode('utf-8')))
+    return urlencode(params)
+
+
+def search_result_details(label, o):
+    """Flatten one hit into the values the results table shows.
+
+    The four employee models carry different fields, so everything is
+    read defensively: an attribute that does not exist on this category
+    simply comes back empty instead of breaking the whole page.
+    """
+    def attr(name, default=u''):
+        try:
+            v = getattr(o, name)
+            if callable(v):
+                v = v()
+        except Exception:
+            return default
+        return default if v is None else v
+
+    pk = attr('parent_id', None) or o.pk
+    app_label = attr('app_label', None)
+    object_name = attr('object_name', None)
+
+    # Μόνιμοι/Διοικητικοί έχουν Αρ. Μητρώου, ιδιωτικοί Αρ. Επετηρίδας.
+    number = attr('registration_number') or attr('series_number')
+
+    if attr('currently_serves', None) is not None:
+        status = u'Υπηρετεί' if attr('currently_serves') else u'Δεν υπηρετεί'
+    elif attr('active', None) is not None:
+        status = u'Ενεργός' if attr('active') else u'Ανενεργός'
+    else:
+        status = u''
+
+    return {
+        'category': label,
+        'id': pk,
+        'url': admin_change_url(app_label, object_name.lower(), pk)
+               if app_label and object_name else None,
+        'lastname': attr('lastname'),
+        'firstname': attr('firstname'),
+        'fathername': attr('fathername'),
+        'profession': attr('profession'),
+        'profession_description': attr('profession_description'),
+        'number': number,
+        'vat_number': attr('vat_number'),
+        'amka': attr('social_security_registration_number'),
+        'organization': attr('organization_serving'),
+        'employment_type': attr('type'),
+        'telephone': attr('telephone_number1'),
+        'email': attr('email'),
+        'date_modified': attr('date_modified', None),
+        'status': status,
+    }
+
+
+def search_groups(q, search_model, today, active_nonpermanents, duplicates):
+    """Return [(category label, results)] for a search box query."""
+    groups = []
+    if q == '/photo':
+        for model in search_model:
+            if model.__name__ in ("Permanent", "NonPermanent", "Administrative"):
+                groups.append((model._meta.verbose_name,
+                               model.objects.exclude(photo__exact='')
+                                            .exclude(photo__isnull=True)))
+    elif q == '/nonpermanent':
+        groups.append((u'Ενεργοί αναπληρωτές', active_nonpermanents))
+    elif q == '/dublicates':
+        groups.append((u'Διπλές Εγγραφές', duplicates))
+    elif q == '/lastedit':
+        for model in search_model:
+            if model.__name__ in ("Permanent", "NonPermanent",
+                                  "Administrative", "PrivateTeacher"):
+                groups.append((model._meta.verbose_name,
+                               model.objects.filter(
+                                   date_modified__year=today.year,
+                                   date_modified__month=today.month,
+                                   date_modified__day=today.day)))
+    else:
+        for model in search_model:
+            if model.__name__ == "Permanent":
+                groups.append((model._meta.verbose_name,
+                               model.objects.filter(
+                                   Q(lastname__istartswith=q.upper()) |
+                                   Q(vat_number__istartswith=q) |
+                                   Q(registration_number__istartswith=q))))
+            elif model.__name__ in ("NonPermanent", "Administrative",
+                                    "PrivateTeacher"):
+                groups.append((model._meta.verbose_name,
+                               model.objects.filter(
+                                   Q(lastname__istartswith=q.upper()) |
+                                   Q(vat_number__istartswith=q))))
+    return groups
+
 
 @never_cache
 def index(self, request, extra_context=None):
@@ -167,48 +298,56 @@ def index(self, request, extra_context=None):
 
     }
     context.update(extra_context or {})
-    if request.POST:
-        results = {}
-        total_results = 0
-        if request.POST['q'] != '':
-            if request.POST['q'] == '/photo':
-                for model in search_model:
-                    if model.__name__ in ("Permanent", "NonPermanent", "Administrative"):
-                        results[model._meta.verbose_name] = model.objects.exclude(photo__exact='').exclude(photo__isnull=True)
-                        total_results += len(results[model._meta.verbose_name])
-            if request.POST['q'] == '/nonpermanent':
-                results['Ενεργοί αναπληρωτές'] = tot_non
-                total_results = tot_non.count()
-            elif request.POST['q'] == '/dublicates':
-                results['Διπλές Εγγραφές'] = dbls
-                total_results = l
-            elif request.POST['q'] == '/lastedit':
-                for model in search_model:
-                    if model.__name__ in ("Permanent", "NonPermanent", "Administrative", "PrivateTeacher"):
-                        results[model._meta.verbose_name] = model.objects.filter(date_modified__year=today.year,
-                                                date_modified__month=today.month,
-                                                date_modified__day=today.day)
-                        total_results += len(results[model._meta.verbose_name])
-            else:
-                for model in search_model:
-                    
-                    if model.__name__ == "Permanent":
-                        results[model._meta.verbose_name] = model.objects.filter(Q(lastname__istartswith=request.POST['q'].upper())
-                        | Q(vat_number__istartswith=request.POST['q'])
-                        | Q(registration_number__istartswith=request.POST['q']))
-                        total_results += len(results[model._meta.verbose_name])
-                    if model.__name__ in ("NonPermanent", "Administrative", "PrivateTeacher"):
-                        results[model._meta.verbose_name] = model.objects.filter(Q(lastname__istartswith=request.POST['q'].upper())
-                        | Q(vat_number__istartswith=request.POST['q']))
-                        total_results += len(results[model._meta.verbose_name])
+    # Το κουτί αναζήτησης υποβάλλει με POST· οι σύνδεσμοι σελιδοποίησης
+    # ξαναζητούν την ίδια αναζήτηση με GET.
+    q = (request.POST.get('q') if request.method == 'POST'
+         else request.GET.get('q'))
+    if q is not None:
+        q = q.strip()
+        groups = search_groups(q, search_model, today, tot_non, dbls) if q else []
 
+        rows = []
+        counts = []
+        for label, found in groups:
+            found = list(found)
+            if found:
+                counts.append({'label': label, 'count': len(found)})
+            rows.extend([(label, o) for o in found])
+
+        total_results = len(rows)
+
+        # Περιορισμός σε μία κατηγορία, από τους συνδέσμους της σύνοψης.
+        category = request.GET.get('cat', u'')
+        if category:
+            rows = [r for r in rows if r[0] == category]
+
+        rows.sort(key=lambda r: (getattr(r[1], 'lastname', u'') or u'',
+                                 getattr(r[1], 'firstname', u'') or u''))
+
+        paginator = Paginator(rows, SEARCH_PAGE_SIZE)
+        try:
+            page = paginator.page(request.GET.get('page'))
+        except PageNotAnInteger:
+            page = paginator.page(1)
+        except EmptyPage:
+            page = paginator.page(paginator.num_pages)
+
+        # Τα στοιχεία κάθε γραμμής υπολογίζονται μόνο για την τρέχουσα
+        # σελίδα: το organization_serving() κοστίζει ερωτήματα ανά εγγραφή.
         context = {
             'title': _('Search'),
-            'q': request.POST['q'],
+            'q': q,
             't': total_results,
-            'set': results,
+            'shown': len(rows),
+            'category': category,
+            'counts': counts,
+            'page': page,
+            'paginator': paginator,
+            'page_numbers': elided_page_range(paginator, page.number),
+            'base_query': search_query_string(q, category),
+            'results': [search_result_details(label, o) for label, o in page],
         }
-        
+
         context.update(extra_context or {})
         return TemplateResponse(request, 'admin/search.html', context,
                             current_app=self.name)

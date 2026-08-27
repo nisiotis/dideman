@@ -3,39 +3,126 @@
 {% load url from future %}
 {% load admin_urls %}
 
+{% block extrastyle %}
+{{ block.super }}
+<style type="text/css">
+table.results { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+table.results th { text-align: left; background: #eee; padding: 4px 6px; white-space: nowrap; }
+table.results td { padding: 4px 6px; border-bottom: 1px solid #eee; vertical-align: top; }
+table.results tr:hover td { background: #f6f6f6; }
+table.results .sub { color: #999; font-size: 11px; }
+.cats { margin: 0 0 1em 0; padding: 0; }
+.cats li { display: inline-block; list-style: none; margin: 0 6px 4px 0; }
+.cats a, .cats span.on { padding: 2px 8px; border: 1px solid #ccc; border-radius: 3px; text-decoration: none; }
+.cats span.on { background: #79aec8; color: #fff; border-color: #79aec8; }
+.paginator { padding: 8px 0; font-size: 13px; }
+.paginator a, .paginator span.this-page { padding: 2px 6px; }
+.paginator span.this-page { font-weight: bold; background: #79aec8; color: #fff; border-radius: 3px; }
+.searchbar input[type=text] { width: 350px; margin-right: 4px; }
+</style>
+{% endblock %}
+
 {% block breadcrumbs %}
 <div class="breadcrumbs">
   <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  &rsaquo; {% trans 'Search' %}
 </div>
 {% endblock %}
 
 {% block content %}
-<form action="" method="post">{% csrf_token %}
-  <div>
+<div id="content-main">
 
-  </div>
-  <div id="content-main">
-    <input type="hidden" name="action" value="{{ action_name }}" />
-    <input type="hidden" name="post" value="yes" />
-    <h2>Αποτελέσματα του {{q}}: {{ t }}</h2>
-    
-    <div><ul>
-      {% for group, item in set.items %}
-    
-        {% for r in item %}
-          <li style="list-style-type: none; padding: 1px 0;border-bottom: 1px #eee solid;">
-            <h3><a href="{{ r.app_label }}/{{ r.object_name|lower  }}/{{ r.parent_id }}">{{ r.vat_number }} : {{ r.lastname }} {{ r.firstname }} του {{ r.fathername }} {{ r.profession }} 
-            {% if r.organization_serving %} - {{ r.organization_serving }}{% endif %} - {{ group }}</a></h3>
-          </li>
-        {% empty %}
-                    
-        {% endfor %}
+  <form class="searchbar" action="{% url 'admin:index' %}" method="post">{% csrf_token %}
+    <p><input type="text" name="q" value="{{ q }}" id="searchbar">
+    <input type="submit" value="{% trans 'Search' %}"></p>
+  </form>
 
-      {% endfor %}
-    </ul></div>
-    <br />
-    <div class="footer"></div>
-    <div><p><a href="/admin">Επιστροφή</a></p></div>
-    </div>
-</form>
+  <h2>Αποτελέσματα για «{{ q }}»: {{ t }}</h2>
+
+  {% if counts %}
+  <ul class="cats">
+    {% if category %}
+    <li><a href="{% url 'admin:index' %}?q={{ q|urlencode }}">Όλες ({{ t }})</a></li>
+    {% else %}
+    <li><span class="on">Όλες ({{ t }})</span></li>
+    {% endif %}
+    {% for c in counts %}
+    <li>
+      {% if c.label == category %}
+      <span class="on">{{ c.label }} ({{ c.count }})</span>
+      {% else %}
+      <a href="{% url 'admin:index' %}?q={{ q|urlencode }}&amp;cat={{ c.label|urlencode }}">{{ c.label }} ({{ c.count }})</a>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if results %}
+  <p class="paginator">Εμφανίζονται {{ page.start_index }}&ndash;{{ page.end_index }} από {{ shown }}
+  {% if category %}στην κατηγορία «{{ category }}»{% endif %}.</p>
+
+  <table class="results">
+    <tr>
+      <th>Επώνυμο</th>
+      <th>Όνομα</th>
+      <th>Πατρώνυμο</th>
+      <th>Ειδικότητα</th>
+      <th>Αρ. Μητρώου</th>
+      <th>Α.Φ.Μ.</th>
+      <th>Α.Μ.Κ.Α.</th>
+      <th>Θέση υπηρεσίας</th>
+      <th>Κατηγορία</th>
+      <th>Κατάσταση</th>
+      <th>Επικοινωνία</th>
+      <th>Ενημερώθηκε</th>
+    </tr>
+    {% for r in results %}
+    <tr>
+      <td>{% if r.url %}<a href="{{ r.url }}"><strong>{{ r.lastname }}</strong></a>{% else %}<strong>{{ r.lastname }}</strong>{% endif %}</td>
+      <td>{{ r.firstname }}</td>
+      <td>{{ r.fathername }}</td>
+      <td>{{ r.profession }}{% if r.profession_description %}<br><span class="sub">{{ r.profession_description }}</span>{% endif %}</td>
+      <td>{{ r.number }}</td>
+      <td>{{ r.vat_number }}</td>
+      <td>{{ r.amka }}</td>
+      <td>{{ r.organization }}</td>
+      <td>{{ r.category }}{% if r.employment_type %}<br><span class="sub">{{ r.employment_type }}</span>{% endif %}</td>
+      <td>{{ r.status }}</td>
+      <td>{% if r.telephone %}{{ r.telephone }}{% endif %}{% if r.email %}<br><span class="sub">{{ r.email }}</span>{% endif %}</td>
+      <td>{{ r.date_modified|date:"d/m/Y" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  {% if paginator.num_pages > 1 %}
+  <p class="paginator">
+    {% if page.has_previous %}
+    <a href="?{{ base_query }}&amp;page={{ page.previous_page_number }}">&lsaquo; {% trans 'Previous' %}</a>
+    {% endif %}
+
+    {% for n in page_numbers %}
+      {% if not n %}
+      <span>&hellip;</span>
+      {% else %}{% if n == page.number %}
+      <span class="this-page">{{ n }}</span>
+      {% else %}
+      <a href="?{{ base_query }}&amp;page={{ n }}">{{ n }}</a>
+      {% endif %}{% endif %}
+    {% endfor %}
+
+    {% if page.has_next %}
+    <a href="?{{ base_query }}&amp;page={{ page.next_page_number }}">{% trans 'Next' %} &rsaquo;</a>
+    {% endif %}
+
+    <span>&nbsp;&nbsp;{{ paginator.num_pages }} σελίδες, {{ shown }} εγγραφές</span>
+  </p>
+  {% endif %}
+
+  {% else %}
+  <p>Δεν βρέθηκαν αποτελέσματα.</p>
+  {% endif %}
+
+  <p><a href="{% url 'admin:index' %}">Επιστροφή</a></p>
+</div>
 {% endblock %}
