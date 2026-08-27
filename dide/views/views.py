@@ -289,6 +289,106 @@ def _normalize_vat_number(value):
     return digits.zfill(9)[:9]
 
 
+def _fill_required_defaults(obj):
+    """Supply values for NOT NULL columns the spreadsheet did not map.
+
+    Django initialises a new instance with each field's default, so a
+    field only stays None here if it genuinely has no usable value. Two
+    cases matter: fields declared NOT NULL but with an explicit
+    default=None (NonPermanent.pedagogical_sufficiency, Employee.photo)
+    would otherwise make every insert fail with an IntegrityError, so
+    substitute an empty value of the right type. Foreign keys cannot be
+    invented, so their verbose names are returned for the caller to
+    report as an error.
+    """
+    missing = []
+    for f in obj._meta.fields:
+        if f.primary_key or getattr(f, 'auto_now', False) \
+                or getattr(f, 'auto_now_add', False):
+            continue
+        if f.null or getattr(obj, f.attname, None) is not None:
+            continue
+        default = f.get_default() if f.has_default() else None
+        if default is not None:
+            setattr(obj, f.attname, default)
+        elif getattr(f, 'rel', None) is not None:
+            missing.append(unicode(f.verbose_name))
+        elif f.get_internal_type() == "BooleanField":
+            setattr(obj, f.attname, False)
+        elif f.get_internal_type() in ("CharField", "TextField"):
+            setattr(obj, f.attname, '')
+    return missing
+
+
+def _build_import_record(model, mf, request, row):
+    """Build one unsaved instance of `model` from the posted row.
+
+    Returns (instance, warnings); warnings names any column whose value
+    could not be applied, so the row can still be saved on the strength
+    of its remaining fields and the operator can see what was dropped.
+    """
+    p = model()
+    warnings = []
+    for j in range(1, int(request.POST['fieldlength'])+1):
+        field_name = request.POST['field_item_'+str(j)]
+        raw_value = request.POST['row_'+str(row)+'_item_'+str(j)]
+        if not raw_value:
+            continue
+        if field_name not in mf:
+            warnings.append(u"%s: άγνωστο πεδίο" % field_name)
+            continue
+
+        if field_name == 'vat_number':
+            vat = _normalize_vat_number(raw_value)
+            if vat:
+                setattr(p, field_name, vat)
+            else:
+                warnings.append(u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+
+        elif mf[field_name] == "ForeignKey":
+            if field_name in ("profession", "second_profession"):
+                try:
+                    setattr(p, field_name,
+                            Profession.objects.get(pk=unicode(raw_value)))
+                except Exception:
+                    warnings.append(
+                        u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
+            elif field_name == "transfer_area":
+                try:
+                    setattr(p, field_name,
+                            TransferArea.objects.filter(
+                                name__istartswith=unicode(raw_value)[:1])[0])
+                except Exception:
+                    warnings.append(
+                        u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
+            else:
+                try:
+                    setattr(p, field_name, int(raw_value))
+                except Exception:
+                    warnings.append(
+                        u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+
+        elif mf[field_name] in ("IntegerField", "OneToOneField"):
+            try:
+                setattr(p, field_name,
+                        int(''.join(v for v in raw_value if v.isdigit())))
+            except Exception:
+                warnings.append(
+                    u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+
+        elif mf[field_name] in ("BooleanField", "NullBooleanField"):
+            try:
+                setattr(p, field_name, int(raw_value[:1]))
+            except Exception:
+                warnings.append(
+                    u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+
+        else:
+            setattr(p, field_name, raw_value)
+
+    return p, warnings
+
+
 @csrf_protect
 @staff_member_required
 def import_export_view(request):
@@ -307,117 +407,50 @@ def import_export_view(request):
 
     if request.POST:
         if "final" in request.GET:
-            perm = []
+            saved = []
             notins = []
             foundins = []
             if 'datalength' in request.POST:
                 mf = {x.name: x.get_internal_type() for x in model._meta.fields}
                 for i in range(0, int(request.POST['datalength'])):
-                    p = model()
+                    if int(request.POST['select_'+str(i)]) != 0:
+                        continue
+
+                    p, warnings = _build_import_record(model, mf, request, i)
                     # reported back to the template per row
                     p.import_error = ''
-                    p.import_warnings = field_warnings = []
-                    if int(request.POST['select_'+str(i)]) == 0:
-                        for j in range(1, int(request.POST['fieldlength'])+1):
-                            field_name = request.POST['field_item_'+str(j)]
-                            raw_value = request.POST['row_'+str(i)+'_item_'+str(j)]
-                            if not raw_value:
-                                continue
+                    p.import_warnings = warnings
 
-                            if field_name == 'vat_number':
-                                vat = _normalize_vat_number(raw_value)
-                                if vat:
-                                    setattr(p, field_name, vat)
-                                else:
-                                    field_warnings.append(
-                                        u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+                    missing = _fill_required_defaults(p)
+                    if missing:
+                        p.import_error = u'Λείπουν υποχρεωτικά πεδία: %s' % \
+                            u', '.join(missing)
+                        notins.append(p)
+                        continue
 
-                            elif mf[field_name] == "ForeignKey":
-                                if field_name in ("profession", "second_profession"):
-                                    try:
-                                        setattr(p, field_name,
-                                                Profession.objects.get(pk=unicode(raw_value)))
-                                    except Exception:
-                                        field_warnings.append(
-                                            u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
-                                elif field_name == "transfer_area":
-                                    try:
-                                        setattr(p, field_name,
-                                                TransferArea.objects.filter(
-                                                    name__istartswith=unicode(raw_value)[:1])[0])
-                                    except Exception:
-                                        field_warnings.append(
-                                            u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
-                                else:
-                                    try:
-                                        setattr(p, field_name, int(raw_value))
-                                    except Exception:
-                                        field_warnings.append(
-                                            u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+                    # An employee already holding this Α.Φ.Μ. means the row is
+                    # a duplicate: skip it and say which record it clashed
+                    # with, rather than creating a second entry for the same
+                    # person. Checked against the database at save time, so a
+                    # record added since the file was uploaded is still caught.
+                    vat = getattr(p, 'vat_number', None)
+                    if vat:
+                        existing = Employee.objects.filter(vat_number=vat).first()
+                        if existing:
+                            p.import_error = \
+                                u'Υπάρχει ήδη εγγραφή με Α.Φ.Μ. %s: %s' % (vat, existing)
+                            foundins.append(p)
+                            continue
 
-                            elif mf[field_name] in ("IntegerField", "OneToOneField"):
-                                try:
-                                    digits = ''.join(v for v in raw_value if v.isdigit())
-                                    setattr(p, field_name, int(digits))
-                                except Exception:
-                                    field_warnings.append(
-                                        u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
-
-                            elif mf[field_name] in ("BooleanField", "NullBooleanField"):
-                                try:
-                                    setattr(p, field_name, int(raw_value[:1]))
-                                except Exception:
-                                    field_warnings.append(
-                                        u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
-
-                            else:
-                                setattr(p, field_name, raw_value)
-
-                        if request.POST['found_item_'+str(i)] == '':
-                            try:
-                                p.save()
-                                perm.append(p)
-                            except Exception as ex:
-                                p.import_error = unicode(ex)
-                                notins.append(p)
-                        elif model is Permanent:
-                            # An existing NonPermanent with this vat_number is
-                            # assumed to be getting promoted to Permanent:
-                            # deactivate their substitute record and save the
-                            # new Permanent one.
-                            try:
-                                np = NonPermanent.objects.filter(
-                                    vat_number=request.POST['found_item_'+str(i)])[0]
-                                np.vat_number = ''
-                                np.identity_number = ''
-                                np.save()
-
-                                p.save()
-                                perm.append(p)
-                            except Exception:
-                                try:
-                                    fp = Permanent.objects.filter(
-                                        vat_number=request.POST['found_item_'+str(i)])[0]
-                                    p.import_error = u"Υπάρχει ήδη ως Μόνιμος: %s" % fp
-                                    foundins.append(p)
-                                except Exception as ex:
-                                    p.import_error = unicode(ex)
-                                    notins.append(p)
-                        else:
-                            # Importing NonPermanent: never deactivate an
-                            # existing record on a vat_number clash, just
-                            # report it and skip the row.
-                            try:
-                                existing = Employee.objects.filter(
-                                    vat_number=request.POST['found_item_'+str(i)])[0]
-                                p.import_error = u"Υπάρχει ήδη καταχωρημένος: %s" % existing
-                                foundins.append(p)
-                            except Exception as ex:
-                                p.import_error = unicode(ex)
-                                notins.append(p)
+                    try:
+                        p.save()
+                        saved.append(p)
+                    except Exception as ex:
+                        p.import_error = unicode(ex)
+                        notins.append(p)
 
             context.update({
-                "dataimported": perm,
+                "dataimported": saved,
                 "notinserted": notins,
                 "foundinserted": foundins,
             })
