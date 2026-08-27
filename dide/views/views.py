@@ -296,43 +296,58 @@ def import_export_view(request):
                                         try:
                                             prof = Profession.objects.get(pk=unicode(request.POST['row_'+str(i)+'_item_'+str(j)]))
                                             setattr(p, request.POST['field_item_'+str(j)], prof)
-                                        except:
+                                        except Exception as e:
+                                            print "9" + e.message
                                             prof = None
 
                                     elif request.POST['field_item_'+str(j)] in ("transfer_area"):
                                         try:
                                             trans = TransferArea.objects.filter(name__istartswith=unicode(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))[0]
-                                        except:
+                                        except Exception as e:
+                                            print "8" + e.message
                                             trans = None
                                         setattr(p, request.POST['field_item_'+str(j)], trans)
+                                    elif request.POST['field_item_'+str(j)] in ("vat_number"):
+                                        setattr(p, int(float(request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)]))))
+                                        
+                                        #import pdb; pdb.set_trace()
+
                                     else:
                                         try:
                                             setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)]))
-                                        except:
+                                        except Exception as e:
+                                            print "7" + e.message
                                             setattr(p, request.POST['field_item_'+str(j)], None)
 
                                 elif mf[request.POST['field_item_'+str(j)]] in ("IntegerField","OneToOneField"):
                                     try:
                                         value = ''.join([v for v in request.POST['row_'+str(i)+'_item_'+str(j)] if v.isdigit()])
-                                        setattr(p, request.POST['field_item_'+str(j)], int(value))
-                                    except:
+                                        #print value
+                                        setattr(p, request.POST['field_item_'+str(j)], int(float(value)))
+                                        print p.vat_nummber
+                                    except Exception as e:
+                                        print "6" + e.message
                                         setattr(p, request.POST['field_item_'+str(j)], None)
 
                                 elif mf[request.POST['field_item_'+str(j)]] in ("BooleanField", "NullBooleanField"):
                                     try:
                                         setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))
-                                    except:
+                                    except Exception as e:
+                                        print "5" + e.message
                                         setattr(p, request.POST['field_item_'+str(j)], None)
 
                                 else:
                                     setattr(p, request.POST['field_item_'+str(j)], request.POST['row_'+str(i)+'_item_'+str(j)])
                         if request.POST['found_item_'+str(i)] == '':
-                            try:
-                                p.save()
+                            #try:
+                            #import pdb; pdb.set_trace()
+                            print p
+                            p.save()
 
-                                perm.append(p)
-                            except:
-                                notins.append(p)
+                            perm.append(p)
+                            #except Exception as e:
+                            #    print "4" + e.message
+                            notins.append(p)
                         elif model is Permanent:
                             # An existing NonPermanent with this vat_number is
                             # assumed to be getting promoted to Permanent:
@@ -347,12 +362,14 @@ def import_export_view(request):
                                 p.save()
                                 perm.append(p)
 
-                            except:
+                            except Exception as e:
+                                print "3" + e.message
                                 try:
                                     fp = Permanent.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
                                     if fp:
                                         foundins.append(p)
-                                except:
+                                except Exception as e:
+                                    print "2" + e.message
                                     notins.append(p)
                         else:
                             # Importing NonPermanent: never deactivate an
@@ -362,7 +379,8 @@ def import_export_view(request):
                                 existing = Employee.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
                                 if existing:
                                     foundins.append(p)
-                            except:
+                            except Exception as e:
+                                print "1" + e.message
                                 notins.append(p)
 
             context.update({
