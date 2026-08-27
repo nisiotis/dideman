@@ -140,7 +140,7 @@ $(document).ready(function () {
 <table>
   {% for o in notinserted %}
     <tr>
-      <td><img src="/static/admin/img/icon_alert.gif" alt="False"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td>
+      <td><img src="/static/admin/img/icon_alert.gif" alt="False"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td><td style="color:red;">{{ o.import_error }}{% for w in o.import_warnings %}{% if o.import_error %}, {% endif %}{{ w }}{% endfor %}</td>
    </tr>
   {% endfor %}
 </table>
@@ -152,7 +152,7 @@ $(document).ready(function () {
 <table>
   {% for o in dataimported%}
     <tr>
-      <td><img src="/static/admin/img/icon-yes.gif" alt="True"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td>
+      <td><img src="/static/admin/img/icon-yes.gif" alt="True"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td><td style="color:#b8860b;">{% for w in o.import_warnings %}{% if not forloop.first %}, {% endif %}{{ w }}{% endfor %}</td>
    </tr>
   {% endfor %}
 </table>
@@ -163,7 +163,7 @@ $(document).ready(function () {
 <table>
   {% for o in foundinserted %}
     <tr>
-      <td><img src="/static/admin/img/icon_alert.gif" alt="False"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td>
+      <td><img src="/static/admin/img/icon_alert.gif" alt="False"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td><td style="color:red;">{{ o.import_error }}</td>
    </tr>
   {% endfor %}
 </table>

@@ -263,6 +263,32 @@ def _import_model(name):
     return dict(IMPORT_MODELS).get(name, Permanent)
 
 
+def _normalize_vat_number(value):
+    """Normalize a raw xls cell value into a 9-digit Α.Φ.Μ. (VAT number)
+    string.
+
+    xlrd reads any numeric-looking cell as a Python float, so by the time
+    a vat_number cell has round-tripped through the upload/save/final
+    form stages it usually looks like u'123456789.0'; a genuinely textual
+    cell may also carry stray whitespace or punctuation. Take the digits
+    only -- via int(float(...)) when that parses, otherwise by filtering
+    non-digit characters out -- and zero-pad on the left to the standard
+    9 characters, since a real Α.Φ.Μ. that starts with a zero loses it
+    once Excel treats the cell as a number.
+
+    Returns None if no digits could be recovered at all.
+    """
+    if value is None:
+        return None
+    try:
+        digits = str(int(float(value)))
+    except (TypeError, ValueError):
+        digits = ''.join(ch for ch in unicode(value) if ch.isdigit())
+    if not digits:
+        return None
+    return digits.zfill(9)[:9]
+
+
 @csrf_protect
 @staff_member_required
 def import_export_view(request):
@@ -286,101 +312,108 @@ def import_export_view(request):
             foundins = []
             if 'datalength' in request.POST:
                 mf = {x.name: x.get_internal_type() for x in model._meta.fields}
-                for i in range(0,int(request.POST['datalength'])):
+                for i in range(0, int(request.POST['datalength'])):
                     p = model()
+                    # reported back to the template per row
+                    p.import_error = ''
+                    p.import_warnings = field_warnings = []
                     if int(request.POST['select_'+str(i)]) == 0:
-                        for j in range(1,int(request.POST['fieldlength'])+1):
-                            if request.POST['row_'+str(i)+'_item_'+str(j)]:
-                                if mf[request.POST['field_item_'+str(j)]] in ("ForeignKey"):
-                                    if request.POST['field_item_'+str(j)] in ("profession", "second_profession"):
-                                        try:
-                                            prof = Profession.objects.get(pk=unicode(request.POST['row_'+str(i)+'_item_'+str(j)]))
-                                            setattr(p, request.POST['field_item_'+str(j)], prof)
-                                        except Exception as e:
-                                            print "9" + e.message
-                                            prof = None
+                        for j in range(1, int(request.POST['fieldlength'])+1):
+                            field_name = request.POST['field_item_'+str(j)]
+                            raw_value = request.POST['row_'+str(i)+'_item_'+str(j)]
+                            if not raw_value:
+                                continue
 
-                                    elif request.POST['field_item_'+str(j)] in ("transfer_area"):
-                                        try:
-                                            trans = TransferArea.objects.filter(name__istartswith=unicode(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))[0]
-                                        except Exception as e:
-                                            print "8" + e.message
-                                            trans = None
-                                        setattr(p, request.POST['field_item_'+str(j)], trans)
-                                    elif request.POST['field_item_'+str(j)] in ("vat_number"):
-                                        setattr(p, int(float(request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)]))))
-                                        
-                                        #import pdb; pdb.set_trace()
-
-                                    else:
-                                        try:
-                                            setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)]))
-                                        except Exception as e:
-                                            print "7" + e.message
-                                            setattr(p, request.POST['field_item_'+str(j)], None)
-
-                                elif mf[request.POST['field_item_'+str(j)]] in ("IntegerField","OneToOneField"):
-                                    try:
-                                        value = ''.join([v for v in request.POST['row_'+str(i)+'_item_'+str(j)] if v.isdigit()])
-                                        #print value
-                                        setattr(p, request.POST['field_item_'+str(j)], int(float(value)))
-                                        print p.vat_nummber
-                                    except Exception as e:
-                                        print "6" + e.message
-                                        setattr(p, request.POST['field_item_'+str(j)], None)
-
-                                elif mf[request.POST['field_item_'+str(j)]] in ("BooleanField", "NullBooleanField"):
-                                    try:
-                                        setattr(p, request.POST['field_item_'+str(j)], int(request.POST['row_'+str(i)+'_item_'+str(j)][:1]))
-                                    except Exception as e:
-                                        print "5" + e.message
-                                        setattr(p, request.POST['field_item_'+str(j)], None)
-
+                            if field_name == 'vat_number':
+                                vat = _normalize_vat_number(raw_value)
+                                if vat:
+                                    setattr(p, field_name, vat)
                                 else:
-                                    setattr(p, request.POST['field_item_'+str(j)], request.POST['row_'+str(i)+'_item_'+str(j)])
-                        if request.POST['found_item_'+str(i)] == '':
-                            #try:
-                            #import pdb; pdb.set_trace()
-                            print p
-                            p.save()
+                                    field_warnings.append(
+                                        u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
 
-                            perm.append(p)
-                            #except Exception as e:
-                            #    print "4" + e.message
-                            notins.append(p)
+                            elif mf[field_name] == "ForeignKey":
+                                if field_name in ("profession", "second_profession"):
+                                    try:
+                                        setattr(p, field_name,
+                                                Profession.objects.get(pk=unicode(raw_value)))
+                                    except Exception:
+                                        field_warnings.append(
+                                            u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
+                                elif field_name == "transfer_area":
+                                    try:
+                                        setattr(p, field_name,
+                                                TransferArea.objects.filter(
+                                                    name__istartswith=unicode(raw_value)[:1])[0])
+                                    except Exception:
+                                        field_warnings.append(
+                                            u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
+                                else:
+                                    try:
+                                        setattr(p, field_name, int(raw_value))
+                                    except Exception:
+                                        field_warnings.append(
+                                            u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+
+                            elif mf[field_name] in ("IntegerField", "OneToOneField"):
+                                try:
+                                    digits = ''.join(v for v in raw_value if v.isdigit())
+                                    setattr(p, field_name, int(digits))
+                                except Exception:
+                                    field_warnings.append(
+                                        u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+
+                            elif mf[field_name] in ("BooleanField", "NullBooleanField"):
+                                try:
+                                    setattr(p, field_name, int(raw_value[:1]))
+                                except Exception:
+                                    field_warnings.append(
+                                        u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+
+                            else:
+                                setattr(p, field_name, raw_value)
+
+                        if request.POST['found_item_'+str(i)] == '':
+                            try:
+                                p.save()
+                                perm.append(p)
+                            except Exception as ex:
+                                p.import_error = unicode(ex)
+                                notins.append(p)
                         elif model is Permanent:
                             # An existing NonPermanent with this vat_number is
                             # assumed to be getting promoted to Permanent:
                             # deactivate their substitute record and save the
                             # new Permanent one.
                             try:
-                                np = NonPermanent.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
-                                np.vat_number = '';
-                                np.identity_number = "";
+                                np = NonPermanent.objects.filter(
+                                    vat_number=request.POST['found_item_'+str(i)])[0]
+                                np.vat_number = ''
+                                np.identity_number = ''
                                 np.save()
 
                                 p.save()
                                 perm.append(p)
-
-                            except Exception as e:
-                                print "3" + e.message
+                            except Exception:
                                 try:
-                                    fp = Permanent.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
-                                    if fp:
-                                        foundins.append(p)
-                                except Exception as e:
-                                    print "2" + e.message
+                                    fp = Permanent.objects.filter(
+                                        vat_number=request.POST['found_item_'+str(i)])[0]
+                                    p.import_error = u"Υπάρχει ήδη ως Μόνιμος: %s" % fp
+                                    foundins.append(p)
+                                except Exception as ex:
+                                    p.import_error = unicode(ex)
                                     notins.append(p)
                         else:
                             # Importing NonPermanent: never deactivate an
                             # existing record on a vat_number clash, just
                             # report it and skip the row.
                             try:
-                                existing = Employee.objects.filter(vat_number=request.POST['found_item_'+str(i)])[0]
-                                if existing:
-                                    foundins.append(p)
-                            except Exception as e:
-                                print "1" + e.message
+                                existing = Employee.objects.filter(
+                                    vat_number=request.POST['found_item_'+str(i)])[0]
+                                p.import_error = u"Υπάρχει ήδη καταχωρημένος: %s" % existing
+                                foundins.append(p)
+                            except Exception as ex:
+                                p.import_error = unicode(ex)
                                 notins.append(p)
 
             context.update({
@@ -408,7 +441,8 @@ def import_export_view(request):
                             if len(request.POST['field_'+str(j-1)]) > 0:
                                 d[j] = request.POST['row_'+str(i)+'_item_'+str(j)].strip()
 
-                        e = Employee.objects.filter(vat_number=request.POST['check_'+str(i)])
+                        vat = _normalize_vat_number(request.POST['check_'+str(i)])
+                        e = Employee.objects.filter(vat_number=vat) if vat else Employee.objects.none()
 
                         if e:
                             d['found'] = e[0].vat_number
