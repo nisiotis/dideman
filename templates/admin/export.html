@@ -50,6 +50,15 @@ $(document).ready(function () {
 
 {% if export_field_choices %}
 <input type="hidden" name="export_model" value="{{ export_model }}">
+
+<p><label for="encoding">Κωδικοποίηση αρχείου:</label>
+<select name="encoding" id="encoding">
+{% for key, label in encoding_choices %}
+<option value="{{ key }}"{% if key == encoding %} selected{% endif %}>{{ label }}</option>
+{% endfor %}
+</select>
+<span class="help">Επιλέξτε «Ελληνικά Windows» αν το αρχείο θα ανοιχτεί σε παλαιότερο Excel.</span></p>
+
 <p>Επιλέξτε τα πεδία που θα εξαχθούν:</p>
 <p><input id="selectall" type="checkbox"> <label for="selectall">Επιλογή όλων</label></p>
 <table>

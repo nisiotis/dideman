@@ -21,6 +21,9 @@ from django.conf.urls import *
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.exceptions import PermissionDenied
 from dideman.lib.common import without_accented
+from dideman.dide.util.encoding import (ENCODING_CHOICES, DEFAULT_ENCODING,
+                                        clean_encoding, charset_name,
+                                        bom_for, encode as encode_text)
 from cStringIO import StringIO
 from urllib import urlencode
 import csv
@@ -703,10 +706,8 @@ def import_export_view(request):
     return r
 
 
-def _export_field_value(obj, field):
-    """Render one field's value for CSV export, in the same iso-8859-7
-    (Greek/Windows) encoding the admin's CSV report actions already use,
-    so exported files open cleanly in Excel."""
+def _export_field_value(obj, field, encoding=DEFAULT_ENCODING):
+    """Render one field's value for CSV export in the chosen encoding."""
     try:
         value = getattr(obj, field.name)
     except Exception:
@@ -722,11 +723,7 @@ def _export_field_value(obj, field):
         return ''
     if isinstance(value, bool):
         return str(int(value))
-    if isinstance(value, unicode):
-        return value.encode('iso8859-7', 'ignore')
-    if hasattr(value, '__unicode__'):
-        return unicode(value).encode('iso8859-7', 'ignore')
-    return str(value)
+    return encode_text(value, encoding)
 
 
 # Πεδία που δεν έχουν νόημα σε αρχείο CSV: η φωτογραφία είναι base64
@@ -744,23 +741,27 @@ def exportable_fields(model):
             and f.name not in EXPORT_EXCLUDED_NAMES]
 
 
-def _export_csv_response(model, field_names):
+def _export_csv_response(model, field_names, encoding=DEFAULT_ENCODING):
     # keep the model's own field order rather than whatever order the
     # checkboxes happened to post in, and filter against the exportable
     # set so a hand-made POST cannot ask for an excluded field
     fields = [f for f in exportable_fields(model) if f.name in field_names]
+    encoding = clean_encoding(encoding)
 
     response = HttpResponse()
-    response['Content-Type'] = 'text/csv; charset=iso-8859-7'
+    response['Content-Type'] = 'text/csv; charset=%s' % charset_name(encoding)
     response['Content-Disposition'] = 'attachment; filename=export_%s_%s.csv' % (
         model.__name__, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
     add_never_cache_headers(response)
 
+    # Το BOM (όπου χρειάζεται) πρέπει να προηγηθεί κάθε άλλου byte.
+    response.write(bom_for(encoding))
+
     writer = csv.writer(response, delimiter=';', quotechar='"',
                         quoting=csv.QUOTE_NONNUMERIC)
-    writer.writerow([unicode(f.verbose_name).encode('iso8859-7', 'ignore') for f in fields])
+    writer.writerow([encode_text(f.verbose_name, encoding) for f in fields])
     for obj in model.objects.all():
-        writer.writerow([_export_field_value(obj, f) for f in fields])
+        writer.writerow([_export_field_value(obj, f, encoding) for f in fields])
     return response
 
 
@@ -769,6 +770,7 @@ def _export_csv_response(model, field_names):
 def export_view(request):
     export_model_name = request.POST.get('export_model')
     model = dict(EXPORT_MODELS).get(export_model_name)
+    encoding = clean_encoding(request.POST.get('encoding'))
 
     context = {
         "title": u'Εξαγωγή Δεδομένων',
@@ -776,6 +778,8 @@ def export_view(request):
         "app_label": u'Εξαγωγή Δεδομένων',
         "errors": [],
         "export_model_choices": _model_choices(EXPORT_MODELS),
+        "encoding_choices": ENCODING_CHOICES,
+        "encoding": encoding,
     }
 
     if request.POST and model:
@@ -787,7 +791,7 @@ def export_view(request):
             selected_fields = [name for name in request.POST.getlist('export_fields')
                                if name in allowed]
             if selected_fields:
-                return _export_csv_response(model, selected_fields)
+                return _export_csv_response(model, selected_fields, encoding)
             context.update({
                 "errors": [u'Επιλέξτε τουλάχιστον ένα πεδίο προς εξαγωγή.'],
                 "export_model": export_model_name,
