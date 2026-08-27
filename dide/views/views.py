@@ -24,6 +24,7 @@ from dideman.lib.common import without_accented
 from cStringIO import StringIO
 from urllib import urlencode
 import csv
+import json
 import datetime, base64
 import os, itertools
 import xlrd
@@ -858,29 +859,68 @@ def duplicate_employees_view(request):
                               RequestContext(request))
 
 
+def json_for_script(data):
+    """Serialize data for embedding inside a <script> block.
+
+    json.dumps escapes non-ASCII already; the angle brackets and
+    ampersand are escaped too so that no value can close the script
+    element early.
+    """
+    return json.dumps(data).replace('<', '\\u003c') \
+                           .replace('>', '\\u003e') \
+                           .replace('&', '\\u0026')
+
+
 @csrf_protect
 @staff_member_required
 def school_geo_view(request):
-    sch = School.objects.all().exclude(google_maps_x__isnull=True).exclude(google_maps_x__exact='').exclude(google_maps_y__isnull=True).exclude(google_maps_y__exact='')
+    sch = School.objects.all() \
+        .exclude(google_maps_x__isnull=True).exclude(google_maps_x__exact='') \
+        .exclude(google_maps_y__isnull=True).exclude(google_maps_y__exact='') \
+        .select_related('type', 'transfer_area', 'island', 'manager')
     sch_units = []
     y1 = datetime.date.today().year if datetime.date.today().month > 8 and datetime.date.today().month <= 12 else datetime.date.today().year - 1
     y2 = datetime.date.today().year if datetime.date.today().month >= 1 and datetime.date.today().month < 9 else datetime.date.today().year + 1
 
-#    y1 = datetime.date.today().year + 1 if datetime.date.today().month <= 9 else datetime.date.today().year
-#    y2 = datetime.date.today().year + 1 if datetime.date.today().month > 9 else datetime.date.today().year      
-
+    total_p = 0
+    total_np = 0
     for item in sch:
         c_npr = NonPermanent.objects.temporary_post_in_organization(item.id).count()
         c_prm = Permanent.objects.serving_in_organization(item.id).filter(currently_serves=True).count()
+        total_p += c_prm
+        total_np += c_npr
+
+        def text(value):
+            return unicode(value) if value else u''
+
         unit = {
             'id': item.id,
             'title': item.name,
             'x': item.google_maps_x,
             'y': item.google_maps_y,
+            # Η ακτίνα των κύκλων παραμένει ανάλογη του πλήθους.
             'pop_p': c_prm * 25,
             'pop_np': c_npr * 25,
+            'permanent': c_prm,
+            'nonpermanent': c_npr,
+            'total': c_prm + c_npr,
+            'code': text(item.code),
+            'type': text(item.type),
+            'transfer_area': text(item.transfer_area),
+            'island': text(item.island),
+            'address': text(item.address),
+            'post_code': text(item.post_code),
+            'telephone': text(item.telephone_number),
+            'fax': text(item.fax_number),
+            'email': text(item.email),
+            'manager': text(item.manager),
+            'points': text(item.points),
+            'inaccessible': bool(item.inaccessible),
+            'url': admin_change_url('dide', 'school', item.id),
         }
         sch_units.append(unit)
+
+    sch_units.sort(key=lambda u: u['title'])
 
     map_settings = SETTINGS['open_map_settings'].split(';')
     opts = []
@@ -888,6 +928,10 @@ def school_geo_view(request):
         "yf": y1,
         "yt": y2,
         "schools": sch_units,
+        "schools_json": json_for_script(sch_units),
+        "total_schools": len(sch_units),
+        "total_permanent": total_p,
+        "total_nonpermanent": total_np,
         "om_x": map_settings[0],
         "om_y": map_settings[1],
         "om_zoom": map_settings[2],

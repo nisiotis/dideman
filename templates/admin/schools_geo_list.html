@@ -5,8 +5,6 @@
 {% block extrahead %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
-
-
 {% endblock %}
 {% block extrastyle %}
     <style>
@@ -20,16 +18,37 @@
         height: 100%;
 
       }
-      #map { height: 97.5%; }
+      #map { height: 100%; }
 
-      #legend {  
+      #legend {
         width: 100%;
         padding: 5px 0 5px 0;
 
         margin-top: 10px;
-        margin-bottom: 10px;      
+        margin-bottom: 10px;
       }
-      #border_map { width: 100%; height: 100%; border: solid 1px; color: #ccc;}
+      #legend h3 { margin-bottom: 4px; }
+      #legend .totals { color: #444; }
+      #legend .totals strong { font-size: 14px; }
+      #border_map { width: 100%; height: 85%; border: solid 1px; color: #ccc;}
+
+      .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+                margin-right: 4px; vertical-align: middle; }
+      .swatch.p { background: rgba(0,0,255,.35); border: 1px solid blue; }
+      .swatch.np { background: rgba(255,0,0,.35); border: 1px solid red; }
+      .swatch.pt { background: #444; border: 1px solid #000; }
+
+      /* Hover card */
+      .school-card { font-size: 12px; line-height: 1.45; min-width: 210px; }
+      .school-card h4 { margin: 0 0 4px 0; font-size: 13px; }
+      .school-card .meta { color: #666; margin-bottom: 5px; }
+      .school-card table { border-collapse: collapse; margin-top: 4px; }
+      .school-card table td { padding: 1px 6px 1px 0; }
+      .school-card .num { font-weight: bold; text-align: right; }
+      .school-card .p { color: #0000cc; }
+      .school-card .np { color: #cc0000; }
+      .school-card .warn { color: #b8860b; }
+      .leaflet-tooltip.school-tip { background: #fff; opacity: 1; padding: 8px 10px; }
     </style>
 {% endblock %}
 
@@ -40,8 +59,17 @@
     {% endblock %}
     <div id="legend">
       <h3>Γεωγραφική απεικόνιση συγκέντρωσης εκπαιδευτικών περιόδου {{ yf }} - {{ yt }}</h3>
-      <p><span style="color:blue;">Μπλε περιοχή : Μόνιμοι εκπαιδευτικοί</span>
-       - <span style="color:red;">Κόκκινη περιοχή : Αναπληρωτές εκπαιδευτικοί</span></p>
+      <p>
+        <span class="swatch p"></span><span style="color:blue;">Μόνιμοι εκπαιδευτικοί</span>
+        &nbsp;&nbsp;<span class="swatch np"></span><span style="color:red;">Αναπληρωτές εκπαιδευτικοί</span>
+        &nbsp;&nbsp;<span class="swatch pt"></span>Σχολική μονάδα
+      </p>
+      <p class="totals">
+        <strong>{{ total_schools }}</strong> σχολικές μονάδες στον χάρτη &middot;
+        <strong>{{ total_permanent }}</strong> μόνιμοι &middot;
+        <strong>{{ total_nonpermanent }}</strong> αναπληρωτές.
+        Περάστε τον δείκτη πάνω από μια μονάδα για λεπτομέρειες, κάντε κλικ για τη καρτέλα της.
+      </p>
     </div>
     <div id="border_map">
       <div style="margin: 10px;" id="map"></div>
@@ -52,39 +80,106 @@
     </div>
   </div>
 <script>
+var schools = {{ schools_json|safe }};
 
-// Where you want to render the map.
 var element = document.getElementById('map');
-
-// Height has to be set. You can do this in CSS too.
-//element.style = 'height:100%;';
-
-// Create Leaflet map on map element.
 var map = L.map(element);
 
-// Add OSM tile leayer to the Leaflet map.
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Target's GPS coordinates.
-var center = L.latLng('{{ om_x }}', '{{ om_y }}');
+map.setView(L.latLng('{{ om_x }}', '{{ om_y }}'), {{ om_zoom }});
 
-map.setView(center, {{ om_zoom }});
+function esc(v) {
+    if (v === null || v === undefined) { return ''; }
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
-// Place a marker on the same location.
-{% for item in schools %}
-var p{{ forloop.counter }} = L.latLng('{{ item.y }}', '{{ item.x }}');
-var np{{ forloop.counter }} = L.latLng('{{ item.y }}', '{{ item.x }}');
-{% if item.pop_p != 0 %}
-  L.circle(p{{ forloop.counter }}, {radius: {{ item.pop_p }}, color: 'blue', weight:1, stroke:true}).bindTooltip('{{ item.title }}').addTo(map);
-{% endif %}
-{% if item.pop_np != 0 %}
-  L.circle(np{{ forloop.counter }}, {radius: {{ item.pop_np }}, color: 'red', weight:1, stroke:true}).bindTooltip('{{ item.title }}').addTo(map);
-{% endif %}
-{% endfor %}
-map.invalidateSize();  
+function row(label, value) {
+    if (!value) { return ''; }
+    return '<tr><td>' + esc(label) + '</td><td>' + esc(value) + '</td></tr>';
+}
+
+// Η κάρτα που εμφανίζεται στο hover και στο κλικ.
+function card(s, withLink) {
+    var html = '<div class="school-card">';
+    html += '<h4>' + esc(s.title) + '</h4>';
+
+    var meta = [];
+    if (s.code) { meta.push('Κωδ. ' + esc(s.code)); }
+    if (s.type) { meta.push(esc(s.type)); }
+    if (meta.length) { html += '<div class="meta">' + meta.join(' &middot; ') + '</div>'; }
+
+    html += '<table>';
+    html += '<tr><td class="p">Μόνιμοι</td><td class="num p">' + s.permanent + '</td></tr>';
+    html += '<tr><td class="np">Αναπληρωτές</td><td class="num np">' + s.nonpermanent + '</td></tr>';
+    html += '<tr><td><strong>Σύνολο</strong></td><td class="num">' + s.total + '</td></tr>';
+    html += '</table>';
+
+    html += '<table>';
+    html += row('Περιοχή', s.transfer_area);
+    html += row('Νησί', s.island);
+    html += row('Διεύθυνση', [s.address, s.post_code].filter(Boolean).join(', '));
+    html += row('Τηλέφωνο', s.telephone);
+    html += row('Fax', s.fax);
+    html += row('Email', s.email);
+    html += row('Διευθυντής', s.manager);
+    html += row('Μόρια', s.points);
+    html += '</table>';
+
+    if (s.inaccessible) { html += '<div class="warn">Δυσπρόσιτο</div>'; }
+    if (withLink && s.url) {
+        html += '<div style="margin-top:6px;"><a href="' + esc(s.url) + '">Καρτέλα σχολείου &rsaquo;</a></div>';
+    }
+    return html + '</div>';
+}
+
+var permanentLayer = L.layerGroup();
+var nonPermanentLayer = L.layerGroup();
+var schoolLayer = L.layerGroup();
+
+// Το ίδιο hover/click behaviour για κάθε σχήμα της μονάδας, ώστε να
+// αποκρίνονται και οι κύκλοι και η κουκκίδα του σχολείου.
+function bindSchool(shape, s) {
+    shape.bindTooltip(card(s, false), {
+        className: 'school-tip', direction: 'top', sticky: true, opacity: 1
+    });
+    shape.bindPopup(card(s, true));
+    return shape;
+}
+
+schools.forEach(function (s) {
+    var at = L.latLng(s.y, s.x);
+
+    if (s.pop_p) {
+        bindSchool(L.circle(at, {radius: s.pop_p, color: 'blue', weight: 1,
+                                 stroke: true, fillOpacity: 0.2}), s)
+            .addTo(permanentLayer);
+    }
+    if (s.pop_np) {
+        bindSchool(L.circle(at, {radius: s.pop_np, color: 'red', weight: 1,
+                                 stroke: true, fillOpacity: 0.2}), s)
+            .addTo(nonPermanentLayer);
+    }
+
+    // Κάθε μονάδα παίρνει και μια κουκκίδα, ώστε να φαίνεται στον χάρτη
+    // ακόμη και όταν δεν υπηρετεί κανείς σε αυτήν.
+    bindSchool(L.circleMarker(at, {radius: 3, color: '#000', weight: 1,
+                                   fillColor: '#444', fillOpacity: 0.9}), s)
+        .addTo(schoolLayer);
+});
+
+permanentLayer.addTo(map);
+nonPermanentLayer.addTo(map);
+schoolLayer.addTo(map);
+
+L.control.layers(null, {
+    'Μόνιμοι': permanentLayer,
+    'Αναπληρωτές': nonPermanentLayer,
+    'Σχολικές μονάδες': schoolLayer
+}, {collapsed: false}).addTo(map);
+
+map.invalidateSize();
 </script>
 {% endblock %}
-
-
