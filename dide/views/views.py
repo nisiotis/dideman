@@ -195,6 +195,19 @@ def search_groups(q, search_model, today, active_nonpermanents, duplicates):
     return groups
 
 
+# Οι κατηγορίες προσωπικού που εμφανίζονται πρώτες στη λίστα της
+# Διεύθυνσης, με το εικονίδιο της καθεμιάς: (σειρά, όνομα εικονιδίου).
+# Χρησιμοποιείται μόνο για ταξινόμηση και εμφάνιση -- τα δικαιώματα
+# ελέγχονται όπως πριν, οπότε ό,τι δεν επιτρέπεται στον χρήστη δεν
+# μπαίνει καν στη λίστα για να προωθηθεί.
+FEATURED_MODELS = {
+    ('dide', 'permanent'): (0, 'permanent'),
+    ('dide', 'nonpermanent'): (1, 'nonpermanent'),
+    ('dide', 'administrative'): (2, 'administrative'),
+}
+UNFEATURED_ORDER = 99
+
+
 @never_cache
 def index(self, request, extra_context=None):
     """
@@ -238,9 +251,13 @@ def index(self, request, extra_context=None):
             if True in perms.values():
                 info = (app_label, model._meta.model_name)
                 search_model.append(model)
+                featured = FEATURED_MODELS.get(info)
                 model_dict = {
                     'name': capfirst(model._meta.verbose_name_plural),
                     'perms': perms,
+                    'order': featured[0] if featured else UNFEATURED_ORDER,
+                    'icon': featured[1] if featured else None,
+                    'featured': bool(featured),
                 }
 
                 
@@ -267,9 +284,11 @@ def index(self, request, extra_context=None):
     app_list = list(six.itervalues(app_dict))
     app_list.sort(key=lambda x: x['name'])
 
-    # Sort the models alphabetically within each app.
+    # Sort the models alphabetically within each app, with the featured
+    # staff categories pulled to the top in their own order.
     for app in app_list:
-        app['models'].sort(key=lambda x: x['name'])
+        app['models'].sort(key=lambda x: (x.get('order', UNFEATURED_ORDER),
+                                          x['name']))
 
     tot_perm = Permanent.objects.filter(currently_serves=1).count()
 
