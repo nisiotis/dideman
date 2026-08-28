@@ -1,13 +1,18 @@
-{% extends "copies/admin/index.html" %}
+{% extends "admin/index.html" %}
+{% comment %}
+Επεκτείνει το επόμενο admin/index.html στη σειρά των loaders αντί για ένα δικό
+μας αντίγραφο του Django 1.x. Κρατάει: την αναζήτηση πάνω από τη λίστα, τα
+πλαϊνά πλαίσια (πληροφορίες, στατιστικά, στοιχεία εγγραφών) και τα εικονίδια
+των κατηγοριών προσωπικού — αυτά μπαίνουν από το admin/app_list.html.
+{% endcomment %}
 {% load i18n static %}
 
 {% block extrastyle %}{{ block.super }}
-<style type="text/css">
+<style>
 /* Εικονίδια για τις κατηγορίες προσωπικού που εμφανίζονται πρώτες. */
 .model-icon {
     display: inline-block;
-    width: 14px;
-    height: 14px;
+    width: 14px; height: 14px;
     margin-right: 6px;
     vertical-align: -2px;
     background-repeat: no-repeat;
@@ -23,107 +28,101 @@
 .icon-administrative {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%236a7a2f' d='M6.2 1.8h3.6c.7 0 1.2.5 1.2 1.2v1.2h3c.7 0 1.2.5 1.2 1.2v7c0 .7-.5 1.2-1.2 1.2H2c-.7 0-1.2-.5-1.2-1.2v-7c0-.7.5-1.2 1.2-1.2h3V3c0-.7.5-1.2 1.2-1.2zm.4 2.4h2.8V3.2H6.6z'/></svg>");
 }
-tr.featured-model th a { font-weight: bold; }
-tr.featured-model th, tr.featured-model td { background: #f7f9f6; }
+tr.featured-model th a { font-weight: 600; }
+
+/* Αναζήτηση πάνω από τη λίστα εφαρμογών. */
+.dide-search { margin-bottom: 18px; }
+.dide-search form { display: flex; gap: 6px; flex-wrap: wrap; }
+.dide-search input[type=text] { flex: 1 1 320px; max-width: 520px; }
+
+/* Πλαϊνά πλαίσια. */
+#content-related .module h2 { margin-bottom: 4px; }
+#content-related .dide-stat { display: flex; justify-content: space-between;
+    padding: 3px 12px; font-size: 0.8125rem; }
+#content-related .dide-stat b { font-weight: 600; }
+#content-related .dide-news h3 { font-size: 0.75rem; margin: 10px 12px 2px; }
+#content-related .dide-news p { margin: 0 12px 6px; font-size: 0.8125rem; }
 </style>
 {% endblock %}
 
 {% block content %}
-    <div id="content-main">
-        <div class="module">
-        <table style="width: 100%; ">
-        <caption style="font-size: 12px;">
-            {% trans 'Search' %}
-        </caption>
-            <tr><form id="search-form" action="" method="post"{% if cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %}>{% csrf_token %}
-                <th scope="row"><input type="text" style="width: 500px; margin-right: 3px;" name="q" value="" placeholder="{% trans 'Search' %}..." id="searchbar"><input type="submit" id="_search" value="{% trans 'Search' %}"></th></form>
-            </tr>
-        </table>
-        </div>
-
-    {{block.super}}
-    </div>
+<div class="dide-search module">
+  <form id="search-form" action="" method="post">{% csrf_token %}
+    <input type="text" name="q" value="" placeholder="{% trans 'Search' %}…" id="searchbar">
+    <input type="submit" id="_search" value="{% trans 'Search' %}">
+  </form>
+</div>
+{{ block.super }}
 {% endblock %}
 
 {% block sidebar %}
-{{block.super}}
-
+{% comment %}
+Χωρίς block.super: το πρότυπο του Django τυπώνει το δικό του
+<div id="content-related">, οπότε θα βγαίναν δύο στοιχεία με το ίδιο id. Οι
+«Πρόσφατες ενέργειες» αναπαράγονται εδώ μέσα στο ίδιο περίβλημα.
+{% endcomment %}
 <div id="content-related">
-    <div class="module" id="recent-actions-module">
-      <h2>Πληροφορίες</h2>
-            <h3><b>Αλλαγές 09/09/2025:</b></h3>
-            <p>Σύστημα μαζικής εισαγωγής μονίμων. </p>
-            <p></p>
-            <h3><b>Αλλαγές 06/09/2024:</b></h3>
-            <p>Μαζική εισαγωγή  217 μονίμων. </p>
-            <p></p>
-            <h3><b>Αλλαγές 01/09/2024:</b></h3>
-            <p>Μαζική εισαγωγή μονίμων. Προσθήκη ωραρίου ΕΕΠ</p>
-            <p></p>
-	    <h3><b>Αλλαγές 28/12/2023:</b></h3>
-            <p>Αλλαγές στις άδειες. Καλύτερη υποστήριξη όλων των τύπων υπαλλήλων</p>
-            <p></p>
-            <h3><b>Αλλαγές 13/11/2023:</b></h3>
-            <p>Νέο πεδίο "Δεύτερη Ειδικότητα". Υποστήριξη νέων ταυτοτήτων (9 ψηφία)</p>
-            <p></p>	
-	    <h3><b>Αλλαγές 21/08/2023:</b></h3>
-            <p>Εισαγωγή στοιχείων 395 μονίμων. (Μαζικά)</p>
-	    <p></p>
-	    <h3><b>Αλλαγές 29/06/2023:</b></h3>
-            <p>Ενημέρωση στοιχείων μονίμων. (Μαζικά) 
-	    Ενημέρωση πεδίων προϋπηρεσίας</p>
-    </div>
-    <div class="module" id="recent-actions-module">
-        <h2>{% trans 'Recent Actions' %}</h2>
-        <h3>{% trans 'My Actions' %}</h3>
-            {% load log %}
-            {% get_admin_log 10 as admin_log for_user user %}
-            {% if not admin_log %}
-            <p>{% trans 'None available' %}</p>
-            {% else %}
-            <ul class="actionlist">
-            {% for entry in admin_log %}
-            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
-                {% if entry.is_deletion or not entry.get_admin_url %}
-                    {{ entry.object_repr }}
-                {% else %}
-                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
-                {% endif %}
-                <br/>
-                {% if entry.content_type %}
-                    <span class="mini quiet">{% filter capfirst %}{% trans entry.content_type.name %}{% endfilter %}</span>
-                {% else %}
-                    <span class="mini quiet">{% trans 'Unknown content' %}</span>
-                {% endif %}
-            </li>
-            {% endfor %}
-            </ul>
-            {% endif %}
-    </div>
-    <div class="module" id="recent-actions-module">
-    <h2>Στατιστικά  {{ yf }}-{{ yt }}</h2>
-        <h3>{{ total_permanent }} Μόνιμοι εκπαιδευτικοί</h3>
-        <h3>{{ total_nonpermanent }} Αναπληρωτές εκπαιδευτικοί</h3>
-        <h3><hr></h3>
-        <h3>{{ total_private }} Ιδιωτικοί εκπαιδευτικοί</h3>
-        <h3>{{ total_administrative }} Διοικητικοί υπάλληλοι</h3>
-    </div>
-    {% if is_super %}
-        <div class="module" id="recent-actions-module">
-        <h2>Στοιχεία εγγραφών</h2>
-            <h3>{{ photo_total }} με φωτογραφίες</h3>
-            <h3>{{ today_mod_total }} ενημερώθηκαν σήμερα</h3>
-            <h3><hr></h3>
-            <h3><a href="/admin/dide/duplicates/">{{ total_dbl }} διπλές εγγραφές μονίμων/αναπληρωτών</a></h3>
-        </div>
-
+  <div class="module" id="recent-actions-module">
+    <h2>{% trans 'Recent actions' %}</h2>
+    {% load log %}
+    {% get_admin_log 10 as admin_log for_user user %}
+    {% if not admin_log %}
+      <p>{% trans 'None available' %}</p>
+    {% else %}
+      <ul class="actionlist">
+      {% for entry in admin_log %}
+        <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+          {% if entry.is_deletion or not entry.get_admin_url %}
+            {{ entry.object_repr }}
+          {% else %}
+            <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+          {% endif %}
+          <br>
+          {% if entry.content_type %}
+            <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+          {% else %}
+            <span class="mini quiet">{% trans 'Unknown content' %}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+      </ul>
     {% endif %}
+  </div>
+
+  <div class="module">
+    <h2>Στατιστικά {{ yf }}-{{ yt }}</h2>
+    <div class="dide-stat"><span>Μόνιμοι εκπαιδευτικοί</span><b>{{ total_permanent }}</b></div>
+    <div class="dide-stat"><span>Αναπληρωτές εκπαιδευτικοί</span><b>{{ total_nonpermanent }}</b></div>
+    <div class="dide-stat"><span>Ιδιωτικοί εκπαιδευτικοί</span><b>{{ total_private }}</b></div>
+    <div class="dide-stat"><span>Διοικητικοί υπάλληλοι</span><b>{{ total_administrative }}</b></div>
+  </div>
+
+  {% if is_super %}
+  <div class="module">
+    <h2>Στοιχεία εγγραφών</h2>
+    <div class="dide-stat"><span>Με φωτογραφίες</span><b>{{ photo_total }}</b></div>
+    <div class="dide-stat"><span>Ενημερώθηκαν σήμερα</span><b>{{ today_mod_total }}</b></div>
+    <div class="dide-stat">
+      <a href="/admin/dide/duplicates/">Διπλές εγγραφές μονίμων/αναπληρωτών</a><b>{{ total_dbl }}</b>
     </div>
+  </div>
+  {% endif %}
+
+  <div class="module dide-news">
+    <h2>Πληροφορίες</h2>
+    <h3>Αλλαγές 09/09/2025</h3><p>Σύστημα μαζικής εισαγωγής μονίμων.</p>
+    <h3>Αλλαγές 06/09/2024</h3><p>Μαζική εισαγωγή 217 μονίμων.</p>
+    <h3>Αλλαγές 01/09/2024</h3><p>Μαζική εισαγωγή μονίμων. Προσθήκη ωραρίου ΕΕΠ.</p>
+    <h3>Αλλαγές 28/12/2023</h3><p>Αλλαγές στις άδειες. Καλύτερη υποστήριξη όλων των τύπων υπαλλήλων.</p>
+    <h3>Αλλαγές 13/11/2023</h3><p>Νέο πεδίο «Δεύτερη Ειδικότητα». Υποστήριξη νέων ταυτοτήτων (9 ψηφία).</p>
+    <h3>Αλλαγές 21/08/2023</h3><p>Εισαγωγή στοιχείων 395 μονίμων (μαζικά).</p>
+    <h3>Αλλαγές 29/06/2023</h3><p>Ενημέρωση στοιχείων μονίμων (μαζικά). Ενημέρωση πεδίων προϋπηρεσίας.</p>
+  </div>
+</div>
 {% endblock %}
+
 {% block footer %}
-<div class="fixed_footer">
-      <div id="footer" class="" style="position: relative; bottom: 0;">
-	<p class="tiny">Κατασκευή 2012 - 2016 Στάθης Στέργου, 2012 - 2022 Βασίλης Κασαπίδης - {{ django_version }}</p>
-      </div>
-    </div>
+<div id="footer">
+  <p class="tiny">Κατασκευή 2012 – 2016 Στάθης Στέργου, 2012 – 2022 Βασίλης Κασαπίδης &middot; {{ django_version }}</p>
+</div>
 {% endblock %}

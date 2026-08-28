@@ -1,56 +1,20 @@
-{% extends "admin/base.html" %}
-{% load i18n %}
-{% load base_site %}
+{% extends "admin/base_site.html" %}
+{% comment %}
+Επεκτείνει το επόμενο admin/base_site.html στη σειρά των loaders: του
+django-admin-interface όταν είναι εγκατεστημένο, αλλιώς του Django, ώστε το
+θέμα να εφαρμόζεται κανονικά. Παλιότερα εδώ υπήρχε αντίγραφο του Django 1.x
+μαζί με ένα δικό μας admin/base.html, που έκοβαν τον δρόμο στο θέμα και
+στερούσαν από τη σελίδα ό,τι πρόσθεσε το admin από το Django 2 και μετά
+(πλαϊνή πλοήγηση, εναλλαγή φωτεινού/σκοτεινού, προσβασιμότητα).
+{% endcomment %}
+{% load i18n static base_site %}
 
-{% block title %}{{ title }} | {% trans 'Django site admin' %}{% endblock %}
-
-{% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="/static/admin_change_form.css">
-<link rel="stylesheet" type="text/css" href="/static/css/chosen.css" />
-<style type="text/css">
-.fixed_header {
-    position: fixed;
-    width: 100%;
-    top: 0;
-    left: 0;
-    z-index: 10001;
-    background-color: white;
-/*    border-bottom: 1px solid rgb(204, 204, 204); */
-}
-
-.fixed_footer {
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    left: 0;
-    z-index: 10001; 
-    background-color: white;
-    border-top: 1px solid rgb(204, 204, 204); 
-}
-
-.dashboard #content {
-    width: 50em;
-}
-
-#content-related {
-    float: right;
-    width: 24em;
-    position: relative;
-    margin-right: -25em;
-}
-
-#footer {
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-
-
-</style>
-{{ form.media.css }}
-
-{% endblock %}
 {% block branding %}
-<h1 id="site-name">Δ.Δ.Ε. {% get_setting 'dide_place'  %} </h1>
+  {# Χωρίς block.super: το θέμα τυπώνει ήδη δικό του τίτλο και θα διπλασιαζόταν. #}
+  <h1 id="site-name"><a href="{% url 'admin:index' %}">Δ.Δ.Ε. {% get_setting 'dide_place' %}</a></h1>
 {% endblock %}
 
-{% block nav-global %}{% endblock %}
+{% block extrastyle %}{{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/chosen.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/dide-admin.css' %}">
+{% endblock %}

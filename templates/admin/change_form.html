@@ -1,95 +1,40 @@
-{% extends "admin/base_site.html" %}
-{% load i18n static admin_modify %}
-{% load admin_urls %}
+{% extends "admin/change_form.html" %}
+{% comment %}
+Ήταν αντίγραφο του Django 1.x — με {{ opts.module_name }}, που καταργήθηκε στο
+Django 1.7, οπότε το id της φόρμας έβγαινε κενό, και με view_on_site που
+στηριζόταν σε context μεταβλητές που δεν υπάρχουν πια. Τώρα επεκτείνει το
+επόμενο admin/change_form.html στη σειρά των loaders και κρατά μόνο τη δική
+μας προσθήκη: τη γρήγορη πλοήγηση στα fieldsets και στα inlines.
+{% endcomment %}
+{% load i18n static %}
 
-{% block extrahead %}{{ block.super }}
-<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-
-{{ media }}
-
+{% block extrastyle %}{{ block.super }}
+  <style>
+    .form_nav { margin: 0 0 12px 0; padding: 0; list-style: none;
+                display: flex; flex-wrap: wrap; gap: 6px; }
+    .form_nav li { margin: 0; list-style: none; }
+    .form_nav li::marker { content: none; }
+    .form_nav a, .form_nav li.plain {
+        display: inline-block; padding: 3px 10px; border-radius: 12px;
+        font-size: 0.75rem; text-decoration: none;
+        border: 1px solid var(--hairline-color, #e8e8e8);
+        background: var(--darkened-bg, #f8f8f8); color: var(--body-fg, #333); }
+    .form_nav a:hover { background: var(--selected-bg, #e4e4e4); }
+  </style>
 {% endblock %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />{% endblock %}
-
-{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
-
-{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
-
-{% if not is_popup %}
-{% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ app_label|capfirst|escape }}</a>
-&rsaquo; {% if has_change_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
-&rsaquo; {% if add %}{% trans 'Add' %} {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}
-</div>
-{% endblock %}
-{% endif %}
-
-{% block form_nav %}
-<ul class="form_nav">
-  {% for fieldset in adminform %}
-    {% if fieldset.name %}
-      <li><a href="#anc-{{ fieldset.name }}">{{ fieldset.name }}</a></li>
-    {% else %}
-      <li> Στοιχεία </li>
-    {% endif %}
-  {% endfor %}
-  {% for inline_admin_formset in inline_admin_formsets %}
-    {# Το «anc-» span ζούσε στο δικό μας edit_inline/tabular.html, που πλέον
-       δεν υπάρχει. Το πρότυπο του Django δίνει στο inline group id
-       «<prefix>-group», οπότε ο σύνδεσμος δείχνει εκεί. #}
-    <li><a href="#{{ inline_admin_formset.formset.prefix }}-group">{{ inline_admin_formset.opts.verbose_name_plural }}</a></li>
-  {% endfor %}
-</ul>
-{% endblock %}
 {% block content %}
-<div id="content-main">
-{% block object-tools %}
-{% if change %}{% if not is_popup %}
-  <ul class="object-tools">
-    {% block object-tools-items %}
-    <li><a href="{% url opts|admin_urlname:'history' original.pk|admin_urlquote %}" class="historylink">{% trans "History" %}</a></li>
-    {% if has_absolute_url %}<li><a href="{% url 'admin:view_on_site' content_type_id original.pk %}" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
-    {% endblock %}
+  <ul class="form_nav">
+    {% for fieldset in adminform %}
+      {% if fieldset.name %}
+        <li><a href="#{{ fieldset.name|slugify }}">{{ fieldset.name }}</a></li>
+      {% else %}
+        <li class="plain">Στοιχεία</li>
+      {% endif %}
+    {% endfor %}
+    {% for inline_admin_formset in inline_admin_formsets %}
+      <li><a href="#{{ inline_admin_formset.formset.prefix }}-group">{{ inline_admin_formset.opts.verbose_name_plural }}</a></li>
+    {% endfor %}
   </ul>
-{% endif %}{% endif %}
-{% endblock %}
-<form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.module_name }}_form">{% csrf_token %}{% block form_top %}{% endblock %}
-<div>
-{% if is_popup %}<input type="hidden" name="_popup" value="1" />{% endif %}
-{% if save_on_top %}{% block submit_buttons_top %}{% submit_row %}{% endblock %}{% endif %}
-{% if errors %}
-    <p class="errornote">
-    {% blocktrans count counter=errors|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
-    </p>
-    {{ adminform.form.non_field_errors }}
-{% endif %}
-
-{% block field_sets %}
- {% for fieldset in adminform %}
-  {% include "admin/includes/fieldset.html" %}
-{% endfor %}
-{% endblock %}
-
-{% block after_field_sets %}{% endblock %}
-
-{% block inline_field_sets %}
-{% for inline_admin_formset in inline_admin_formsets %}
-    {% include inline_admin_formset.opts.template %}
-{% endfor %}
-{% endblock %}
-
-{% block after_related_objects %}{% endblock %}
-{% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
-
-{% if adminform.first_field and add %}
-   <script type="text/javascript">document.getElementById("{{ adminform.first_field.id_for_label }}").focus();</script>
-{% endif %}
-
-{# JavaScript for prepopulated fields #}
-{% prepopulated_fields_js %}
-
-</div>
-</form></div>
+  {{ block.super }}
 {% endblock %}

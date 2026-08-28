@@ -1,21 +1,31 @@
 {% load i18n static %}
+{% comment %}
+Ίδιο με του Django 5.2, με μία διαφορά: τα κρυφά πεδία που κρατούν τα
+ενεργά φίλτρα κατά την αναζήτηση χτίζονται από το cl.filter_params, που είναι
+dict(request.GET.lists()), ώστε να διατηρούνται και οι πολλαπλές τιμές των
+φίλτρων AND/OR. Το cl.params του Django κρατά μία τιμή ανά παράμετρο.
+Προηγουμένως εδώ υπήρχε cl.param_lists — attribute που έβαζε ένα από τα παλιά
+monkey patch· χωρίς αυτό ο βρόχος δεν έτρεχε ποτέ και η αναζήτηση έχανε
+σιωπηλά όλα τα ενεργά φίλτρα.
+{% endcomment %}
 {% if cl.search_fields %}
-<div id="toolbar"><form id="changelist-search" action="" method="get">
+<div id="toolbar"><form id="changelist-search" method="get" role="search">
 <div><!-- DIV needed for valid HTML -->
-<label for="searchbar"><img src="{% static "admin/img/icon_searchbox.png" %}" alt="Search" /></label>
-<input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" />
-<input type="submit" value="{% trans 'Search' %}" />
+<label for="searchbar"><img src="{% static "admin/img/search.svg" %}" alt="{% translate 'Search' %}"></label>
+<input type="text" size="40" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar"{% if cl.search_help_text %} aria-describedby="searchbar_helptext"{% endif %}>
+<input type="submit" value="{% translate 'Search' %}">
 {% if show_result_count %}
-    <span class="small quiet">{% blocktrans count cl.result_count as counter %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktrans %} (<a href="?{% if cl.is_popup %}pop=1{% endif %}">{% blocktrans with cl.full_result_count as full_result_count %}{{ full_result_count }} total{% endblocktrans %}</a>)</span>
+    <span class="small quiet">{% blocktranslate count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktranslate %} (<a href="?{% if cl.is_popup %}{{ is_popup_var }}=1{% endif %}">{% if cl.show_full_result_count %}{% blocktranslate with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktranslate %}{% else %}{% translate "Show all" %}{% endif %}</a>)</span>
 {% endif %}
-{% for key, values in cl.param_lists.items %}
+{% for key, values in cl.filter_params.items %}
     {% for val in values %}
-      {% if key != search_var %}
-        <input type="hidden" name="{{ key }}" value="{{ val }}"/>
-      {% endif %}
+      {% if key != search_var %}<input type="hidden" name="{{ key }}" value="{{ val }}">{% endif %}
     {% endfor %}
 {% endfor %}
 </div>
+{% if cl.search_help_text %}
+<br class="clear">
+<div class="help" id="searchbar_helptext">{{ cl.search_help_text }}</div>
+{% endif %}
 </form></div>
-<script type="text/javascript">document.getElementById("searchbar").focus();</script>
 {% endif %}
