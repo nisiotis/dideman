@@ -6,7 +6,7 @@ DEBUG = True
 ADMINS = (
      ('ICT Department', 'ictdep@dide.dod.sch.gr'),
 )
-ALLOWED_HOSTS = ['its.dod.sch.gr','its.dide.dod.sch.gr','10.103.254.11', '81.186.76.92']
+ALLOWED_HOSTS = ['its.dod.sch.gr','its.dide.dod.sch.gr','10.103.254.11', '81.186.76.92', '192.168.1.73']
 
 MANAGERS = ADMINS
 
@@ -23,17 +23,6 @@ DATABASES = {
     }
 }
 
-#CACHES = {
-#    'default': {
-#        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-#        'LOCATION': '127.0.0.1:11211',
-#        'JOHNNY_CACHE': True,
-#    }
-#}
-
-
-#JOHNNY_MIDDLEWARE_KEY_PREFIX='jc_dideman'
-
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -46,9 +35,6 @@ TIME_ZONE = 'Europe/Athens'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'el-gr'
-# not a default setting!
-#locale.setlocale(locale.LC_ALL, 'el_GR.utf8')
-
 
 SITE_ID = 1
 
@@ -104,7 +90,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -143,8 +128,6 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'johnny.middleware.LocalStoreClearMiddleware',
-    #'johnny.middleware.QueryCacheMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
@@ -155,7 +138,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-#    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
@@ -236,8 +218,8 @@ SSO = {
     ],
 }
 
-INTERNAL_IPS = ('127.0.0.1',)
-
+INTERNAL_IPS = ('127.0.0.1')
+ALLOWED_HOSTS = secret_settings.ALLOWED_HOSTS
 DATABASES = secret_settings.DATABASES
 EMAIL_HOST = secret_settings.EMAIL_HOST
 EMAIL_HOST_USER = secret_settings.EMAIL_HOST_USER
