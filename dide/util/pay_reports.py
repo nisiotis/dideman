@@ -239,14 +239,20 @@ def generate_pdf_structure(reports):
         if report['report_type'] == '0':
             #elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ',
             #                          heading_style['Center']))
-            if report['type'] > 12:
-                elements.append(Paragraph('Βεβαίωση Αποδοχών %s %s' %
-                                          (report['type'], report['year']),
-                                          heading_style["Center"]))
-            else:
-                elements.append(Paragraph('Μισθοδοσία %s %s' %
-                                          (report['type'], report['year']),
-                                          heading_style['Center']))
+            # Ο αρχικός έλεγχος ήταν `report['type'] > 12`. Το report['type']
+            # δεν είναι όμως ακέραιος: ο print_pay περνά ένα PaymentReportType
+            # και ο print_mass_pay κενό string. Στην Python 2 η σύγκριση
+            # οποιουδήποτε από τα δύο με ακέραιο ήταν *πάντα* αληθής (οι
+            # αριθμοί ταξινομούνταν πριν από κάθε άλλο τύπο), οπότε επιλεγόταν
+            # πάντα η «Βεβαίωση Αποδοχών»· στην Python 3 σηκώνει TypeError.
+            # Εδώ διατηρείται η συμπεριφορά που είχε στην πράξη το σύστημα.
+            # ΠΡΟΣΟΧΗ: αν το ζητούμενο ήταν ο *κωδικός* του τύπου (>12 =
+            # ετήσια βεβαίωση, 1..12 = μήνας μισθοδοσίας), ο έλεγχος πρέπει να
+            # γίνει `getattr(report['type'], 'id', 0) > 12` — αυτό όμως αλλάζει
+            # τον τίτλο σε όσες καταστάσεις έχουν κωδικό ώς 12.
+            elements.append(Paragraph('Βεβαίωση Αποδοχών %s %s' %
+                                      (report['type'], report['year']),
+                                      heading_style["Center"]))
             elements.append(Paragraph(' ', heading_style['Spacer']))
 
         else:

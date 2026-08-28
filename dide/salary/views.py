@@ -69,7 +69,6 @@ def print_pay(request, id):
         request.session.clear()
         return HttpResponseRedirect(
             '/employee/match/?next=/salary/view/')
-    print(emptype)
     dict_tax_codes = {c.id: c.calc_type for c in PaymentCode.objects.all()}
     report = {}
     report['report_type'] = '0'
