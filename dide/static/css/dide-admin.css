@@ -25,3 +25,17 @@ span.modifier a { margin: 0px; }
     height: 30px;
 }
 
+/* --- Ημερολόγιο / ρολόι ----------------------------------------------------
+   Το DateTimeShortcuts φτιάχνει το κουτί με class="calendarbox module". Το
+   admin-interface ορίζει «.admin-interface .module { width: 100% }» — δύο
+   κλάσεις, δηλαδή μεγαλύτερη ειδικότητα από το «.calendarbox { width: 19em }»
+   του Django. Έτσι το ημερολόγιο άνοιγε σε όλο το πλάτος της σελίδας αντί για
+   μικρό αναδυόμενο κουτί. */
+.admin-interface .calendarbox,
+.admin-interface .clockbox {
+    width: 19em;
+    box-sizing: content-box;
+}
+.admin-interface .clockbox {
+    width: auto;
+}

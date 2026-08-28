@@ -14,6 +14,17 @@ django-admin-interface όταν είναι εγκατεστημένο, αλλι�
   <h1 id="site-name"><a href="{% url 'admin:index' %}">Δ.Δ.Ε. {% get_setting 'dide_place' %}</a></h1>
 {% endblock %}
 
+{% block dark-mode-vars %}
+  {% comment %}
+  Χωρίς εναλλαγή φωτεινού/σκοτεινού θέματος: δεν φορτώνονται ούτε το
+  dark_mode.css ούτε το theme.js του Django, και το data-theme ορίζεται ρητά
+  σε «light» ώστε η σελίδα να μην ακολουθεί το prefers-color-scheme του
+  λειτουργικού. Το κουμπί εναλλαγής το αφαιρεί το κενό
+  admin/color_theme_toggle.html.
+  {% endcomment %}
+  <script>document.documentElement.dataset.theme = "light";</script>
+{% endblock %}
+
 {% block extrastyle %}{{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static 'css/chosen.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'css/dide-admin.css' %}">
