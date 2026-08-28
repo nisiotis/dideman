@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+# Σημείωση: το currently_serves ανήκει στον πίνακα dide_permanent (και
+# dide_administrative), όχι στον dide_employee. Τα ερωτήματα εδώ το
+# ζητούσαν από τον dide_employee — σε σχήμα φτιαγμένο από τα migrations
+# δεν υπάρχει τέτοια στήλη και το ερώτημα αποτύγχανε.
 permanent_post_in_organization = """
 SELECT dide_placement.employee_id
 FROM dide_placement
@@ -10,7 +14,7 @@ INNER JOIN (
 ) AS aggr ON aggr.employee_id=dide_placement.employee_id AND dide_placement.date_from=aggr.maxdate
 INNER JOIN dide_permanent ON dide_permanent.parent_id=dide_placement.employee_id
 INNER JOIN dide_employee ON dide_employee.id=dide_placement.employee_id
-WHERE dide_employee.currently_serves=1 AND dide_permanent.has_permanent_post=1 AND dide_placement.organization_id={0}
+WHERE dide_permanent.currently_serves=1 AND dide_permanent.has_permanent_post=1 AND dide_placement.organization_id={0}
 """
 
 permanent_post_in_organization_api = """                                                                                                                                                                                            
@@ -24,7 +28,7 @@ INNER JOIN (
 ) AS aggr ON aggr.employee_id=dide_placement.employee_id AND dide_placement.date_from=aggr.maxdate                                                                                                                                  
 INNER JOIN dide_permanent ON dide_permanent.parent_id=dide_placement.employee_id                                                                                                                                                    
 INNER JOIN dide_employee ON dide_employee.id=dide_placement.employee_id                                                                                                                                                             
-WHERE dide_employee.currently_serves=1 AND dide_permanent.has_permanent_post=1 AND dide_placement.organization_id={0}                                                                                                               
+WHERE dide_permanent.currently_serves=1 AND dide_permanent.has_permanent_post=1 AND dide_placement.organization_id={0}                                                                                                               
 """
 
 
@@ -41,7 +45,7 @@ INNER JOIN (
 INNER JOIN dide_permanent ON dide_permanent.parent_id=dide_placement.employee_id
 INNER JOIN dide_employee ON dide_employee.id=dide_placement.employee_id
 INNER JOIN dide_school ON dide_placement.organization_id=dide_school.parent_organization_id
-WHERE dide_employee.currently_serves=1 AND dide_permanent.has_permanent_post=1 AND dide_school.island_id={0}
+WHERE dide_permanent.currently_serves=1 AND dide_permanent.has_permanent_post=1 AND dide_school.island_id={0}
 """
 
 temporary_post_in_organization = """
@@ -56,7 +60,7 @@ INNER JOIN (
 INNER JOIN dide_employee ON dide_employee.id=dide_placement.employee_id
 INNER JOIN dide_permanent ON dide_employee.id=dide_permanent.parent_id
 WHERE
-    dide_employee.currently_serves=1 AND
+    dide_permanent.currently_serves=1 AND
     dide_placement.organization_id={0} AND
     dide_permanent.has_permanent_post=0
 """

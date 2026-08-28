@@ -13,23 +13,29 @@ from dideman.lib.date import current_year_date_to_half
 
 class SubstituteInput(forms.HiddenInput):
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
+        # Το renderer μπήκε στην υπογραφή των widgets στο Django 1.11 και
+        # το build_attrs δέχεται πλέον δύο λεξικά αντί για keyword args.
         try:
-            textname=NonPermanent.objects.get(parent_id=value).__unicode__()
-            nid=value
-            value=textname
-        except:
+            nid = value
+            value = str(NonPermanent.objects.get(parent_id=value))
+        except Exception:
+            nid = None
             value = ''
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
+        final_attrs = self.build_attrs(self.attrs, attrs)
+        final_attrs['type'] = self.input_type
+        final_attrs['name'] = name
+        final_attrs.setdefault('id', 'id_%s' % name)
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_str(self._format_value(nid))
+            final_attrs['value'] = force_str(self.format_value(nid))
+        wid = final_attrs['id']
         output = []
         output.append('<input%s />' % flatatt(final_attrs))
-        output.append('<input readonly="true" type="text" id="display_%s" value="%s" size="40" />&nbsp;' % (self._format_value(final_attrs['id']), force_str(self._format_value(value))))
-        output.append('<a href="#" id="link_%s" onclick="this.href=\'/admin/dide/nonpermanent/list/\'+\'?id=\'+django.jQuery(this).attr(\'id\');return focusOrOpen(this, \'Αναπληρωτές\',{\'width\': 500, \'height\': 600});">Επιλογή</a>&nbsp;' % self._format_value(final_attrs['id']) )
-        output.append('<a href="/admin/dide/nonpermanent/add/" class="add-another" id="add_%s" onclick="return showAddAnotherPopup(this);"> <img src="/static/admin/img/icon_addlink.gif" width="10" height="10" alt="Προσθέστε κι άλλο"></a>' % self._format_value(final_attrs['id']))
-        return mark_safe(''.join(output))   
+        output.append('<input readonly="true" type="text" id="display_%s" value="%s" size="40" />&nbsp;' % (wid, force_str(value)))
+        output.append('<a href="#" id="link_%s" onclick="this.href=\'/admin/dide/nonpermanent/list/\'+\'?id=\'+django.jQuery(this).attr(\'id\');return focusOrOpen(this, \'Αναπληρωτές\',{\'width\': 500, \'height\': 600});">Επιλογή</a>&nbsp;' % wid)
+        output.append('<a href="/admin/dide/nonpermanent/add/" class="add-another" id="add_%s" onclick="return showAddAnotherPopup(this);"> <img src="/static/admin/img/icon-addlink.svg" width="10" height="10" alt="Προσθέστε κι άλλο"></a>' % wid)
+        return mark_safe(''.join(output))
 
 
 class OrderedSubstitutionInlineForm(ModelForm):
@@ -87,8 +93,13 @@ class SchoolCommissionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SchoolCommissionForm, self).__init__(*args, **kwargs)
-        if self.instance:
+        # Σε νέα εγγραφή το instance δεν έχει ακόμη pk· από το Django 2.0 η
+        # πρόσβαση στο reverse manager ενός μη αποθηκευμένου αντικειμένου
+        # σηκώνει ValueError αντί να επιστρέψει κενό queryset.
+        if self.instance.pk:
             self.fields['schools'].initial = self.instance.school_set.all()
+        else:
+            self.fields['schools'].initial = School.objects.none()
 
     def save(self, *args, **kwargs):
         # FIXME: 'commit' argument is not handled

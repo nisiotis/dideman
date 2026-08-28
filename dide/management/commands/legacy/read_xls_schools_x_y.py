@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
-from dide.models import School
+from dideman.dide.models import School
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
 from django.utils.encoding import force_str

@@ -20,7 +20,7 @@ def permanent(request):
                       "total_service": str(r.total_service()),
                       "fek": r.order_hired} for r in qs],
                     "error": ""}
-            return HttpResponse(json.dumps(data), mimetype='application/json')
+            return HttpResponse(json.dumps(data), content_type='application/json')
         else:
             return HttpResponse(json.dumps({"data":[], "error": "invalid api key"}))
     except Exception as e:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
-from dide.models import (RankCode, Permanent, PromotionNew)
+from dideman.dide.models import (RankCode, Permanent, PromotionNew)
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
 from django.utils.encoding import force_str
@@ -10,10 +10,15 @@ import os
 import xlrd
 
 class Command(BaseCommand):
-    args = '<file ...>'
     help = 'XML database import.'
 
+    def add_arguments(self, parser):
+        # Από το Django 1.10 τα ορίσματα θέσης δηλώνονται ρητά στο
+        # argparse· το παλιό `args = '<file ...>'` είναι πλέον αδρανές.
+        parser.add_argument('files', nargs='*', help='Τα αρχεία xls')
+
     def handle(self, *args, **options):
+        args = tuple(args) or tuple(options.get('files') or ())
         for item in args:
             permanents = Permanent.objects.all()
             workbook = xlrd.open_workbook(item)

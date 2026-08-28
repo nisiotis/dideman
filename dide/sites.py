@@ -52,7 +52,7 @@ class DideSite(AdminSite):
                         }
 
         # Sort the apps alphabetically.
-        app_list = list(six.itervalues(app_dict))
+        app_list = list(app_dict.values())
         app_list.sort(key=lambda x: x['name'])
 
         # Sort the models alphabetically within each app.
@@ -66,8 +66,7 @@ class DideSite(AdminSite):
         }
         context.update(extra_context or {})
         return TemplateResponse(request, self.index_template or
-                                'admin/index.html', context,
-                                current_app=self.name)
+                                'admin/index.html', context)
 
     def app_index(self, request, app_label, extra_context=None):
         user = request.user
@@ -121,7 +120,7 @@ class DideSite(AdminSite):
         return TemplateResponse(request, self.app_index_template or [
             'admin/%s/app_index.html' % app_label,
             'admin/app_index.html'
-        ], context, current_app=self.name)
+        ], context)
 
 # This global object represents the default admin site, for the common case.
 # You can instantiate AdminSite in your own code to create a custom admin site.

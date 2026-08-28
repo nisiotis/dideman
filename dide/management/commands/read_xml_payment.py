@@ -8,10 +8,15 @@ from dideman.dide.util import xml
 
 
 class Command(BaseCommand):
-    args = '<file ...>'
     help = 'XML database import.'
 
+    def add_arguments(self, parser):
+        # Από το Django 1.10 τα ορίσματα θέσης δηλώνονται ρητά στο
+        # argparse· το παλιό `args = '<file ...>'` είναι πλέον αδρανές.
+        parser.add_argument('files', nargs='*', help='Οι κωδικοί των αρχείων μισθοδοσίας')
+
     def handle(self, *args, **options):
+        args = tuple(args) or tuple(options.get('files') or ())
         for rec in args:
             try:
                 pf = PaymentFileName.objects.get(pk=rec)

@@ -112,19 +112,30 @@ class BaseModifierFilter:
     """
 
     template = 'admin/filter.html'
+    # Το custom_admin.is_free_date_filter διακρίνει τα φίλτρα από αυτό.
+    template_name = 'filter'
     list_view = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.lookup_param = self.get_lookup_param()
-        self.modifier_name = '_m_' + self.lookup_param
-        self.modifier_value = self.request.GET.get(self.modifier_name, AND)
         DideAdmin.add_filter_parameter(self.lookup_param)
 
-    def get_lookup_param(self):
+    # Υπολογίζονται κατ' απαίτηση και όχι στον constructor: το
+    # FieldListFilter.__init__ καλεί expected_parameters() πριν επιστρέψει
+    # η super(), οπότε τότε δεν θα υπήρχαν ακόμη ως attributes.
+    @property
+    def lookup_param(self):
         """Το SimpleListFilter δηλώνει parameter_name, το FieldListFilter
         lookup_kwarg."""
         return getattr(self, 'parameter_name', None) or self.lookup_kwarg
+
+    @property
+    def modifier_name(self):
+        return '_m_' + self.lookup_param
+
+    @property
+    def modifier_value(self):
+        return self.request.GET.get(self.modifier_name, AND)
 
     def expected_parameters(self):
         # Δηλώνει στο ChangeList ότι το _m_… ανήκει σε αυτό το φίλτρο,
@@ -133,6 +144,17 @@ class BaseModifierFilter:
 
     def selected_values(self):
         return self.request.GET.getlist(self.lookup_param)
+
+    def get_filter_choices(self):
+        """Οι διαθέσιμες επιλογές, όπως τις ονομάζει κάθε κλάση βάσης.
+
+        Τα Related/AllValues/Boolean φίλτρα εκθέτουν lookup_choices· το
+        ChoicesFieldListFilter αντλεί από το flatchoices του πεδίου.
+        """
+        choices = getattr(self, 'lookup_choices', None)
+        if choices is None:
+            choices = self.field.flatchoices
+        return choices
 
     # -- φιλτράρισμα ----------------------------------------------------
 
@@ -180,7 +202,7 @@ class BaseModifierFilter:
             'query_string': changelist.get_query_string(remove=[self.lookup_param]),
             'display': _('All'),
         }
-        for lookup, title in self.lookup_choices:
+        for lookup, title in self.get_filter_choices():
             lookup = str(lookup)
             is_selected = lookup in selected
             if self.modifier_value == OR:
@@ -219,15 +241,35 @@ class ModifierChoicesFieldListFilter(BaseModifierFilter, ChoicesFieldListFilter)
 
 
 class ModifierAllValuesFieldListFilter(BaseModifierFilter, AllValuesFieldListFilter):
-    pass
+
+    def get_filter_choices(self):
+        # Εδώ το lookup_choices είναι επίπεδη λίστα τιμών του πεδίου και
+        # όχι ζεύγη (τιμή, ετικέτα) όπως στα υπόλοιπα φίλτρα.
+        return [(value, value) for value in self.lookup_choices
+                if value is not None and value != '']
+
+
+def _plain_field(field):
+    """Πεδίο που, χωρίς δική μας δήλωση, θα κατέληγε στο AllValues.
+
+    Τα υπόλοιπα (σχέσεις, boolean, choices, ημερομηνίες) έχουν ήδη δικό
+    τους φίλτρο, οπότε δεν πρέπει να τα αρπάξει ο γενικός κανόνας.
+    """
+    return not (field.choices
+                or field.remote_field is not None
+                or isinstance(field, (models.BooleanField, models.DateField)))
 
 
 # Αντί για ανάθεση __bases__ στις κλάσεις του Django, δηλώνονται κανονικά ως
 # προτιμώμενα φίλτρα για τους αντίστοιχους τύπους πεδίων. Η σειρά έχει
-# σημασία: το τελευταίο take_priority=True ελέγχεται πρώτο.
+# σημασία: με take_priority=True μπαίνουν στην αρχή της λίστας *με τη σειρά
+# δήλωσης* και ελέγχεται ο πρώτος που ταιριάζει, οπότε ο γενικός κανόνας
+# (AllValues) δηλώνεται τελευταίος.
 FieldListFilter.register(lambda f: bool(f.choices),
                          ModifierChoicesFieldListFilter, take_priority=True)
 FieldListFilter.register(lambda f: isinstance(f, models.BooleanField),
                          ModifierBooleanFieldListFilter, take_priority=True)
 FieldListFilter.register(lambda f: f.remote_field is not None,
                          ModifierRelatedFieldListFilter, take_priority=True)
+FieldListFilter.register(_plain_field,
+                         ModifierAllValuesFieldListFilter, take_priority=True)

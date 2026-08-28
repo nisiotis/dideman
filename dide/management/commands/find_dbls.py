@@ -3,22 +3,18 @@
 # usage
 # find_dbls --f <xls file> --y <year of active personnel> --ci <column_index> --ws <sheet index>
 # assumes 1st xls column as registration_number
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from dideman.dide.models import NonPermanent, Permanent
-from ._import_common import (COLUMN_OPTION, FILE_OPTION, SHEET_OPTION, confirm,
+from ._import_common import (add_file_options, confirm,
                              open_worksheet_or_exit, vat_to_text)
 
 
 class Command(BaseCommand):
 
-    option_list = BaseCommand.option_list + (
-        FILE_OPTION,
-        COLUMN_OPTION,
-        make_option('--y', type=int, help='The year of work'),
-        SHEET_OPTION,
-    )
+    def add_arguments(self, parser):
+        add_file_options(parser, [(('--y',), {'type': int,
+                                              'help': 'The year of work'})])
 
     help = 'XLS Find Dublicates.'
 

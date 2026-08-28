@@ -6,8 +6,6 @@ treating this module as a command of its own (`find_commands` skips
 any module in the `commands` package whose name starts with `_`).
 """
 from datetime import datetime
-from optparse import make_option
-
 import xlrd
 from django.core.management.base import BaseCommand
 
@@ -62,10 +60,14 @@ def confirm(prompt='Continue? '):
     return answer in ('y', 'yes')
 
 
-# Common optparse options shared by the option-driven (--f/--ci/--ws) commands.
-FILE_OPTION = make_option('--f', type=str, help='The xls file')
-COLUMN_OPTION = make_option('--ci', type=int, help='The column index')
-SHEET_OPTION = make_option('--ws', type=int, help='The sheet index of xls book')
+# Το option_list/optparse αντικαταστάθηκε από argparse στο Django 1.10.
+def add_file_options(parser, extra=()):
+    """Οι κοινές επιλογές --f/--ci/--ws των εντολών εισαγωγής."""
+    parser.add_argument('--f', type=str, help='The xls file')
+    parser.add_argument('--ci', type=int, help='The column index')
+    parser.add_argument('--ws', type=int, help='The sheet index of xls book')
+    for args, kwargs in extra:
+        parser.add_argument(*args, **kwargs)
 
 
 class XlsFileCommand(BaseCommand):
@@ -77,15 +79,21 @@ class XlsFileCommand(BaseCommand):
     commands did.
     """
 
-    args = '<file ...>'
     sheet_index = 0
     start_row = 0
 
+    def add_arguments(self, parser):
+        # Από το Django 1.10 τα ορίσματα θέσης δηλώνονται ρητά στο argparse·
+        # το παλιό `args = '<file ...>'` δεν έχει καμία επίδραση πλέον και
+        # χωρίς αυτό η εντολή απορρίπτει τα αρχεία ως «unrecognized».
+        parser.add_argument('files', nargs='*', help='Τα αρχεία xls')
+
     def handle(self, *args, **options):
-        if not args:
+        paths = list(args) or options.get('files') or []
+        if not paths:
             print("No arguments found")
             return
-        for path in args:
+        for path in paths:
             self.process_file(path, options)
 
     def process_file(self, path, options):

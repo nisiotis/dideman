@@ -2,18 +2,35 @@
 from django.http import HttpResponse
 from django.contrib.admin.filters import FieldListFilter
 from django.db import models
+from django.contrib import admin as django_admin
 from django.contrib.admin.utils import get_fields_from_path
 from dideman.dide.filters import FreeDateFieldListFilter
 from django import forms as django_forms
 from django.shortcuts import render
 
 
+def resolve_model_admin(model, model_admin):
+    """Το registry κρατάει *instance* του ModelAdmin.
+
+    Οι views παρακάτω περνούν την κλάση· τα σύγχρονα φίλτρα καλούν
+    μεθόδους πάνω της (π.χ. get_empty_value_display), οπότε χρειάζεται
+    το εγγεγραμμένο instance.
+    """
+    registered = django_admin.site._registry.get(model)
+    if registered is not None:
+        return registered
+    if isinstance(model_admin, type):
+        return model_admin(model, django_admin.site)
+    return model_admin
+
+
 def get_specs(request, model, model_admin):
+    model_admin = resolve_model_admin(model, model_admin)
     filter_specs = []
     if model_admin.list_filter:
         for list_filter in model_admin.list_filter:
             if callable(list_filter):
-                spec = list_filter(request, [], model, model_admin)
+                spec = list_filter(request, {}, model, model_admin)
             else:
                 field_path = None
                 if isinstance(list_filter, (tuple, list)):
@@ -25,7 +42,7 @@ def get_specs(request, model, model_admin):
                     field_path = field
                     field = get_fields_from_path(model, field_path)[-1]
                 spec = field_list_filter_class(field,
-                                               request, [], model, model_admin,
+                                               request, {}, model, model_admin,
                                                field_path=field_path)
             if spec and spec.has_output():
                 filter_specs.append(spec)
@@ -33,6 +50,7 @@ def get_specs(request, model, model_admin):
 
 
 def render_template(request, model, model_admin):
+    model_admin = resolve_model_admin(model, model_admin)
     selects = []
     date_filters = []
     specs = get_specs(request, model, model_admin)

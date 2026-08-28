@@ -13,16 +13,15 @@ from django.utils.encoding import force_str
 from datetime import datetime
 import os
 import xlrd
-from optparse import make_option
 
 class Command(BaseCommand):
 
-    option_list = BaseCommand.option_list + (
-        make_option('--f', type=str, help='The xls file'),
-        make_option('--ci', type=int, help='The column index'),
-        make_option('--y', type=int, help='The year of work'),
-        make_option('--ws', type=int, help='The sheet index of xls book')
-    )
+    def add_arguments(self, parser):
+        # Το option_list/optparse καταργήθηκε στο Django 1.10.
+        parser.add_argument('--f', type=str, help='The xls file')
+        parser.add_argument('--ci', type=int, help='The column index')
+        parser.add_argument('--y', type=int, help='The year of work')
+        parser.add_argument('--ws', type=int, help='The sheet index of xls book')
     
     help = 'XLS Find Dublicates.'
     def find_model_field(self, model, df):

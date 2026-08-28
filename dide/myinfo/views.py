@@ -52,7 +52,6 @@ def myphoto_update(request, emp_id):
     if 'saved' in request.GET:
         messages.info(request, 'Η φωτογραφία ενημερώθηκε.')
     context = {
-        "messages": messages,
         "emp": e,
         "dide_place": SETTINGS['dide_place'],
         "errors": [],
@@ -67,11 +66,10 @@ def myphoto(request, emp_id):
     response = HttpResponse()
     if int(emp_id) == int(request.session['matched_employee_id']):
         emp = Employee.objects.get(id=emp_id)
-        file = StringIO()
-        file.write(base64.b64decode(emp.photo))
-        file.seek(0)
-        response = HttpResponse(file.getvalue(), content_type='image/%s' % emp.photo_type)
-        file.close()
+        # Το b64decode επιστρέφει bytes: δεν χωρούν σε StringIO και δεν
+        # χρειάζεται ενδιάμεσος buffer.
+        response = HttpResponse(base64.b64decode(emp.photo),
+                                content_type='image/%s' % emp.photo_type)
     return response
 
 
@@ -115,7 +113,7 @@ def MailSender(name, email):
 def print_emp_report(request, fid):
     emp = NonPermanent.objects.select_related().get(parent_id=request.session['matched_employee_id'])
     reports = NonPermanentUnemploymentMonth.objects.select_related().filter(employee_id=request.session['matched_employee_id'],insurance_file=fid)
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=emp_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                   'DroidSans.ttf')))
@@ -295,7 +293,7 @@ def print_emp_report(request, fid):
 @match_required
 def print_exp_report(request):
     emptype = NonPermanent.objects.select_related().get(parent_id=request.session['matched_employee_id'])
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=exp_report.pdf'
     registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                   'DroidSans.ttf')))
@@ -564,7 +562,6 @@ def edit(request):
             return HttpResponseRedirect('/myinfo/edit/?saved=true')
         return render(request, 'myinfo/edit.html', {'emp': emptype,
                                                            'teaching_exp': teaching_experience,
-                                                           'messages': messages,
                                                            'leaves': l,
                                                            'positions': p,
                                                            'responsibilities': r,

@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.formats import get_format
 from django.conf import settings
 
-__all__ = ('SelectDateWidget',)
+__all__ = ('MySelectDateWidget',)
 
 RE_DATE = re.compile(r'(\d{4})-(\d\d?)-(\d\d?)$')
 
@@ -57,23 +57,18 @@ class MySelectDateWidget(Widget):
             this_year = datetime.date.today().year
             self.years = list(range(this_year, this_year+10))
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
+        # Το renderer μπήκε στην υπογραφή των widgets στο Django 1.11.
         try:
             year_val, month_val, day_val = value.year, value.month, value.day
         except AttributeError:
             year_val = month_val = day_val = None
             if isinstance(value, str):
-                if settings.USE_L10N:
-                    try:
-                        input_format = get_format('DATE_INPUT_FORMATS')[0]
-                        v = datetime.datetime.strptime(value, input_format)
-                        year_val, month_val, day_val = v.year, v.month, v.day
-                    except ValueError:
-                        pass
-                else:
-                    match = RE_DATE.match(value)
-                    if match:
-                        year_val, month_val, day_val = [int(v) for v in match.groups()]
+                # Το έργο δούλευε με USE_L10N = False, οπότε ίσχυε πάντα
+                # αυτός ο κλάδος· η ρύθμιση καταργήθηκε στο Django 5.0.
+                match = RE_DATE.match(value)
+                if match:
+                    year_val, month_val, day_val = [int(v) for v in match.groups()]
         choices = [(i, i) for i in self.years]
         year_html = self.create_select(name, self.year_field, value, year_val, choices)
         choices = list(MONTHS.items())
@@ -108,16 +103,9 @@ class MySelectDateWidget(Widget):
         if y == m == d == "0":
             return None
         if y and m and d:
-            if settings.USE_L10N:
-                input_format = get_format('DATE_INPUT_FORMATS')[0]
-                try:
-                    date_value = datetime.date(int(y), int(m), int(d))
-                except ValueError:
-                    return '%02d-%02d-%02d' % (int(d), int(m), int(y))
-                else:
-                    return date_value.strftime(input_format)
-            else:
-                return '%02d-%02d-%02d' % (int(d), int(m), int(y))
+            # Όπως και στο render(): με USE_L10N = False ίσχυε πάντα η
+            # μορφή ΗΗ-ΜΜ-ΕΕΕΕ, που είναι και η πρώτη των DATE_INPUT_FORMATS.
+            return '%02d-%02d-%02d' % (int(d), int(m), int(y))
         return data.get(name, None)
 
     def create_select(self, name, field, value, val, choices):
@@ -127,15 +115,18 @@ class MySelectDateWidget(Widget):
             id_ = 'id_%s' % name
         if not (self.required and val):
             choices.insert(0, self.none_value)
-        local_attrs = self.build_attrs(id=field % id_)
+        # Το build_attrs δέχεται πλέον δύο λεξικά αντί για keyword args.
+        local_attrs = self.build_attrs(self.attrs, {'id': field % id_})
         s = Select(choices=choices)
         select_html = s.render(field % name, val, local_attrs)
         return select_html
 
-    def _has_changed(self, initial, data):
+    def has_changed(self, initial, data):
+        # Το _has_changed καταργήθηκε στο Django 1.9· επιπλέον το παλιό
+        # super() παρέπεμπε σε ανύπαρκτο όνομα (SelectDateWidget).
         try:
             input_format = get_format('DATE_INPUT_FORMATS')[0]
             data = datetime.datetime.strptime(data, input_format).date()
         except (TypeError, ValueError):
             pass
-        return super(SelectDateWidget, self)._has_changed(initial, data)
+        return super().has_changed(initial, data)

@@ -208,9 +208,9 @@ class WorkingPeriod(models.Model):
         return DateRange(Date(self.date_from), Date(self.date_to))
 
     def __repr__(self):
-        return self.__unicode__()
+        return self.__str__()
 
-    def __unicode__(self):
+    def __str__(self):
         return "<WorkingPeriod %s - %s>" % (self.date_from, self.date_to)
 
 
@@ -226,9 +226,9 @@ class LeaveWithoutPay(models.Model):
     recognised_experience = models.CharField('Αναγνωρίσιμη Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True, default='000000', max_length=8)
 
     def __repr__(self):
-        return self.__unicode__()
+        return self.__str__()
 
-    def __unicode__(self):
+    def __str__(self):
         return "<Leave %s - %s>" % (self.date_from, self.date_to)
 
 

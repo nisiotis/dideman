@@ -144,9 +144,6 @@ class Date(object):
     def __str__(self):
         return self.format()
 
-    def __unicode__(self):
-        return self.format()
-
 
 @total_ordering
 class DateInterval(object):
@@ -236,10 +233,13 @@ class DateInterval(object):
     def __repr__(self):
         return "<%s '%s-%s-%s'>" % (self.__class__.__name__,
                                   self.years, self.months, self.days)
-    def __str__(self):
+    def compact(self):
+        """Συμπτυγμένη μορφή «έτη-μήνες-ημέρες»."""
         return "%s-%s-%s" % self.tuple()
 
-    def __unicode__(self):
+    def __str__(self):
+        # Στην Python 2 η εμφάνιση σε templates και admin περνούσε από το
+        # __unicode__, οπότε αυτή η μορφή διατηρείται ως η προεπιλεγμένη.
         return self.format()
 
 

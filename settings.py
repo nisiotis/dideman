@@ -199,6 +199,11 @@ DEFAULT_CHARSET = 'utf-8'
 DATE_INPUT_FORMATS = ('%d-%m-%Y', '%d/%m/%Y')
 DATE_FORMAT = 'd-m-Y'
 
+# Το USE_L10N καταργήθηκε στο Django 5.0 και η τοπικοποίηση είναι πλέον
+# πάντα ενεργή, οπότε τα παραπάνω θα τα σκίαζε το locale «el» του Django.
+# Το FORMAT_MODULE_PATH τα επαναφέρει (βλ. dideman/formats/el/formats.py).
+FORMAT_MODULE_PATH = ['dideman.formats']
+
 INTERNAL_IPS = ('127.0.0.1',)
 
 DATABASES = secret_settings.DATABASES

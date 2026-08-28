@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.core.management.base import BaseCommand, CommandError
-from dide.models import (RankCode, PaymentFileName, PaymentCategoryTitle,
+from dideman.dide.models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                          PaymentReportType, PaymentCode)
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
-from dide.util import xml
+from dideman.dide.util import xml
 import os
 
 

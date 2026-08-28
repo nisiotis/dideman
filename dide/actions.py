@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import io as StrIO
-from io import StringIO
+from io import BytesIO, StringIO
 
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            generate_pdf_landscape_structure,
@@ -91,19 +91,23 @@ class TemplateAction(object):
         return self.response
 
     def get_description(self, model, field):
+        # Το _meta.get_field_by_name() καταργήθηκε στο Django 1.10 και το
+        # field.rel.to στο 2.0· χωρίς αυτά το try_many επέστρεφε πάντα το
+        # όνομα του πεδίου αντί για το verbose_name.
 
         def foreign_key_desc():
             index = field.find("__")
             if index > 0:
                 first = field[:index]
                 rest = field[index + 2:]
-                fieldobj = model._meta.get_field_by_name(first)[0]
+                fieldobj = model._meta.get_field(first)
                 return "%s %s" % (self.get_description(model, first),
-                                  self.get_description(fieldobj.rel.to, rest))
+                                  self.get_description(
+                                      fieldobj.remote_field.model, rest))
             else:
                 raise Exception("foreign key not found")
 
-        return try_many(lambda : model._meta.get_field_by_name(field)[0].verbose_name,
+        return try_many(lambda : model._meta.get_field(field).verbose_name,
                         lambda : getattr(model, field).short_description,
                         foreign_key_desc, default=field)
 
@@ -208,7 +212,9 @@ class DocxReport(TemplateAction):
         t = loader.get_template(os.path.join(self.template_base_path,
                                              'basic', 'document.xml'))
 
-        document = t.render(Context(self.dictionary))
+        # Το loader.get_template() επιστρέφει template του backend, που από
+        # το Django 1.10 δέχεται λεξικό και όχι Context.
+        document = t.render(self.dictionary)
         self.add_response_headers()
         self.response.write(self.add_to_docx(document))
         self.response.close()
@@ -237,7 +243,8 @@ class DocxReport(TemplateAction):
         add_never_cache_headers(self.response)
 
     def add_to_docx(self, document):
-        buffer = StringIO()
+        # Το zipfile γράφει bytes· με StringIO αποτυγχάνει στην Python 3.
+        buffer = BytesIO()
         template_dir = os.path.join(TEMPLATE_ROOT, self.template_base_path,
                                     'basic', 'docx-contents')
         docx = zipfile.ZipFile(buffer,
@@ -369,7 +376,7 @@ class CSVEconomicsReport(TemplateAction):
         data = StringIO()
         dfB.to_csv(data, sep=';', encoding='utf-8')
         
-        self.response = HttpResponse(data.getvalue(), mimetype='text/csv')
+        self.response = HttpResponse(data.getvalue(), content_type='text/csv')
         self.add_response_headers()
         self.response.close()
         self.response.flush()
@@ -399,7 +406,7 @@ class CreatePDF(object):
 
     def __call__(self, modeladmin, request, queryset):
         self.response.content = ''
-        self.response = HttpResponse(mimetype='application/pdf')
+        self.response = HttpResponse(content_type='application/pdf')
         self.response['Content-Disposition'] = 'attachment; filename=mass_pay_report.pdf'
         registerFont(TTFont('DroidSans', os.path.join(settings.MEDIA_ROOT,
                                                       'DroidSans.ttf')))
@@ -472,12 +479,15 @@ class FieldAction(object):
             raise PermissionDenied
 
         using = router.db_for_write(modeladmin.model)
-        changeable_objects, perms_needed, protected = get_deleted_objects(
-            queryset, opts, request.user, modeladmin.admin_site, using)
+        # Από το Django 2.1: get_deleted_objects(objs, request, admin_site)
+        # με τέσσερις τιμές επιστροφής.
+        changeable_objects, model_count, perms_needed, protected = \
+            get_deleted_objects(queryset, request, modeladmin.admin_site)
 
         if request.POST.get('post'):
             rows_updated = 0
-            if len(inspect.getargspec(self.changer)[0]) == 0:
+            # Η getargspec αφαιρέθηκε στην Python 3.11.
+            if len(inspect.signature(self.changer).parameters) == 0:
                 rows_updated = queryset.update(**{self.field_name:
                                                   self.changer()})
             else:
@@ -519,8 +529,7 @@ class FieldAction(object):
         # Display the confirmation page
         return TemplateResponse(request,
                                 'admin/change_selected_confirmation.html',
-                                context,
-                                current_app=modeladmin.admin_site.name)
+                                context)
 
 
 class ShowOption(object):
@@ -616,8 +625,10 @@ class DeleteAction(object):
 
         # Populate deletable_objects, a data structure of all related objects that
         # will also be deleted.
-        deletable_objects, perms_needed, protected = get_deleted_objects(
-            queryset, opts, request.user, modeladmin.admin_site, using)
+        # Από το Django 2.1: get_deleted_objects(objs, request, admin_site)
+        # με τέσσερις τιμές επιστροφής.
+        deletable_objects, model_count, perms_needed, protected = \
+            get_deleted_objects(queryset, request, modeladmin.admin_site)
 
         # The user has already confirmed the deletion.
         # Do the deletion and return a None to display the change list view again.
@@ -666,7 +677,7 @@ class DeleteAction(object):
             "admin/%s/%s/delete_selected_confirmation.html" % (app_label, opts.object_name.lower()),
             "admin/%s/delete_selected_confirmation.html" % app_label,
             "admin/delete_selected_confirmation.html"
-        ], context, current_app=modeladmin.admin_site.name)
+        ], context)
 
 
 class PDFReadAction(object):
@@ -680,8 +691,10 @@ class PDFReadAction(object):
         if not modeladmin.has_change_permission(request):
             raise PermissionDenied
         using = router.db_for_write(modeladmin.model)
-        changeable_objects, perms_needed, protected = get_deleted_objects(
-            queryset, opts, request.user, modeladmin.admin_site, using)
+        # Από το Django 2.1: get_deleted_objects(objs, request, admin_site)
+        # με τέσσερις τιμές επιστροφής.
+        changeable_objects, model_count, perms_needed, protected = \
+            get_deleted_objects(queryset, request, modeladmin.admin_site)
         status = 0
         records = 0
         rows_updated = 0
@@ -713,8 +726,10 @@ class XLSReadAction(object):
             raise PermissionDenied
 
         using = router.db_for_write(modeladmin.model)
-        changeable_objects, perms_needed, protected = get_deleted_objects(
-            queryset, opts, request.user, modeladmin.admin_site, using)
+        # Από το Django 2.1: get_deleted_objects(objs, request, admin_site)
+        # με τέσσερις τιμές επιστροφής.
+        changeable_objects, model_count, perms_needed, protected = \
+            get_deleted_objects(queryset, request, modeladmin.admin_site)
 
         read_results = []
         rows_updated = 0
@@ -768,8 +783,7 @@ class XLSReadAction(object):
         # Display the results page
         return TemplateResponse(request,
                                 'admin/xlsread_selected_result.html',
-                                context,
-                                current_app=modeladmin.admin_site.name)
+                                context)
 
 
 def manage_len(f, l):
@@ -965,8 +979,10 @@ class ErganiXMLAction(object):
         app_label = opts.app_label
 
         using = router.db_for_write(modeladmin.model)
-        changeable_objects, perms_needed, protected = get_deleted_objects(
-            queryset, opts, request.user, modeladmin.admin_site, using)
+        # Από το Django 2.1: get_deleted_objects(objs, request, admin_site)
+        # με τέσσερις τιμές επιστροφής.
+        changeable_objects, model_count, perms_needed, protected = \
+            get_deleted_objects(queryset, request, modeladmin.admin_site)
 
         xml_file = render_ergani_document(
             self.root_tag, self.record_tag, self.namespace,
@@ -1000,8 +1016,7 @@ class ErganiXMLAction(object):
         }
         return TemplateResponse(request,
                                 'admin/ergani_xml_error_results.html',
-                                context,
-                                current_app=modeladmin.admin_site.name)
+                                context)
 
     def identity_fields(self, o):
         """The person block shared by E3N and E7N, in schema order."""
@@ -1159,8 +1174,10 @@ class XMLReadAction(object):
             raise PermissionDenied
 
         using = router.db_for_write(modeladmin.model)
-        changeable_objects, perms_needed, protected = get_deleted_objects(
-            queryset, opts, request.user, modeladmin.admin_site, using)
+        # Από το Django 2.1: get_deleted_objects(objs, request, admin_site)
+        # με τέσσερις τιμές επιστροφής.
+        changeable_objects, model_count, perms_needed, protected = \
+            get_deleted_objects(queryset, request, modeladmin.admin_site)
 
         total_elapsed = 0
         elapsed = 0
@@ -1207,5 +1224,4 @@ class XMLReadAction(object):
         # Display the results page
         return TemplateResponse(request,
                                 'admin/xmlread_selected_result.html',
-                                context,
-                                current_app=modeladmin.admin_site.name)
+                                context)

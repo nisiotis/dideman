@@ -208,7 +208,9 @@ FEATURED_MODELS = {
 UNFEATURED_ORDER = 99
 
 
-@never_cache
+# Χωρίς @never_cache: η συνάρτηση εγκαθίσταται ως μέθοδος του AdminSite,
+# οπότε ο decorator θα έβλεπε το self στη θέση του request. Το AdminSite
+# την τυλίγει ήδη με admin_view(cacheable=False), που εφαρμόζει never_cache.
 def index(self, request, extra_context=None):
     """
     Displays the main admin index page, which lists all of the installed
@@ -301,7 +303,11 @@ def index(self, request, extra_context=None):
 
     tot_admin = Administrative.objects.filter(currently_serves=1).count()
     dbls, l = find_duplicates()
-    context = {
+    # Από το Django 2.0 και μετά τα βασικά πρότυπα του admin περιμένουν
+    # όσα βάζει το each_context() (log_entries, available_apps, δικαιώματα
+    # κ.λπ.), οπότε το δικό μας context χτίζεται πάνω σε αυτό.
+    context = dict(self.each_context(request))
+    context.update({
         'title': _('Site administration'),
         'app_list': app_list,
         'total_permanent': '%d' % tot_perm,
@@ -315,8 +321,7 @@ def index(self, request, extra_context=None):
         'today_mod_total': tot_day_mod,
         'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
         'total_dbl': l,
-
-    }
+    })
     context.update(extra_context or {})
     # Το κουτί αναζήτησης υποβάλλει με POST· οι σύνδεσμοι σελιδοποίησης
     # ξαναζητούν την ίδια αναζήτηση με GET.
@@ -354,7 +359,8 @@ def index(self, request, extra_context=None):
 
         # Τα στοιχεία κάθε γραμμής υπολογίζονται μόνο για την τρέχουσα
         # σελίδα: το organization_serving() κοστίζει ερωτήματα ανά εγγραφή.
-        context = {
+        context = dict(self.each_context(request))
+        context.update({
             'title': _('Search'),
             'q': q,
             't': total_results,
@@ -366,15 +372,13 @@ def index(self, request, extra_context=None):
             'page_numbers': elided_page_range(paginator, page.number),
             'base_query': search_query_string(q, category),
             'results': [search_result_details(label, o) for label, o in page],
-        }
+        })
 
         context.update(extra_context or {})
-        return TemplateResponse(request, 'admin/search.html', context,
-                            current_app=self.name)
+        return TemplateResponse(request, 'admin/search.html', context)
     else:
         return TemplateResponse(request, self.index_template or
-                            'admin/index.html', context,
-                            current_app=self.name)
+                            'admin/index.html', context)
 
 
 @csrf_protect
@@ -395,7 +399,6 @@ def photo_update(request, emp_id):
     if 'saved' in request.GET:
         messages.info(request, 'Η φωτογραφία ενημερώθηκε.')
     context = {
-        "messages": messages,
         "emp": e,
         "dide_place": SETTINGS['dide_place'],
         "errors": [],
@@ -407,12 +410,10 @@ def photo_update(request, emp_id):
 @staff_member_required
 def photo(request, emp_id):
     emp = Employee.objects.get(id=emp_id)
-    file = StringIO()
-    file.write(base64.b64decode(emp.photo))
-    file.seek(0)
-    response = HttpResponse(file.getvalue(), content_type='image/%s' % emp.photo_type)
-    file.close()
-    return response
+    # Το b64decode επιστρέφει bytes: δεν χωρούν σε StringIO και δεν
+    # χρειάζεται ενδιάμεσος buffer.
+    return HttpResponse(base64.b64decode(emp.photo),
+                        content_type='image/%s' % emp.photo_type)
 
 
 @csrf_protect
