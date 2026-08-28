@@ -28,6 +28,11 @@
 .icon-administrative {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%236a7a2f' d='M6.2 1.8h3.6c.7 0 1.2.5 1.2 1.2v1.2h3c.7 0 1.2.5 1.2 1.2v7c0 .7-.5 1.2-1.2 1.2H2c-.7 0-1.2-.5-1.2-1.2v-7c0-.7.5-1.2 1.2-1.2h3V3c0-.7.5-1.2 1.2-1.2zm.4 2.4h2.8V3.2H6.6z'/></svg>");
 }
+/* Κοινό εικονίδιο και για τις τρεις κατηγορίες αδειών (μονίμων,
+   αναπληρωτών, διοικητικών): ημερολόγιο με σημειωμένη ημέρα. */
+.icon-leave {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='%23795548' d='M5 1v1.5H3.4c-.8 0-1.4.6-1.4 1.4v9.2c0 .8.6 1.4 1.4 1.4h9.2c.8 0 1.4-.6 1.4-1.4V3.9c0-.8-.6-1.4-1.4-1.4H11V1H9.5v1.5h-3V1H5zm-1.5 5h9v7.1h-9V6zm5.9 1.2L7 9.6l-.9-.9-1 1 1.9 1.9 3.3-3.3-1-1z'/></svg>");
+}
 tr.featured-model th a { font-weight: 600; }
 
 /* Αναζήτηση πάνω από τη λίστα εφαρμογών. */
@@ -42,6 +47,9 @@ tr.featured-model th a { font-weight: 600; }
 #content-related .dide-stat b { font-weight: 600; }
 #content-related .dide-news h3 { font-size: 0.75rem; margin: 10px 12px 2px; }
 #content-related .dide-news p { margin: 0 12px 6px; font-size: 0.8125rem; }
+#content-related .dide-tools { margin: 0; padding: 0 12px 8px; list-style: none; }
+#content-related .dide-tools li { margin: 0; padding: 3px 0; list-style: none; }
+#content-related .dide-tools li::marker { content: none; }
 </style>
 {% endblock %}
 
@@ -63,6 +71,20 @@ tr.featured-model th a { font-weight: 600; }
 {% endcomment %}
 <div id="content-related">
   <div class="module" id="recent-actions-module">
+    {% comment %}
+    Η εισαγωγή/εξαγωγή και ο χάρτης σχολείων δεν είναι μοντέλα προς
+    περιήγηση αλλά όψεις διαχείρισης, οπότε βγήκαν από τη λίστα μοντέλων
+    (dide/views/views.py, ADMIN_TOOLS) και μπαίνουν εδώ ως σύνδεσμοι. Τα
+    δικαιώματα ελέγχονται όπως πριν: όποιος δεν τα είχε, δεν τα βλέπει.
+    {% endcomment %}
+    {% if admin_tools %}
+    <h2>Εργαλεία</h2>
+    <ul class="dide-tools">
+      {% for tool in admin_tools %}
+      <li><a href="{{ tool.url }}">{{ tool.name }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
     <h2>{% trans 'Recent actions' %}</h2>
     {% load log %}
     {% get_admin_log 10 as admin_log for_user user %}

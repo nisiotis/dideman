@@ -207,6 +207,26 @@ FEATURED_MODELS = {
 }
 UNFEATURED_ORDER = 99
 
+# Εικονίδια για μοντέλα που δεν προωθούνται στην κορυφή της λίστας. Το
+# εικονίδιο είναι ανεξάρτητο από τη σειρά: οι τρεις κατηγορίες αδειών
+# κρατούν την αλφαβητική τους θέση και απλώς αποκτούν σήμα, κοινό και για
+# τις τρεις.
+MODEL_ICONS = {
+    ('dide', 'permanentleave'): 'leave',
+    ('dide', 'nonpermanentleave'): 'leave',
+    ('dide', 'administrativeleave'): 'leave',
+}
+
+# Εργαλεία που δεν είναι πραγματικά μοντέλα προς περιήγηση αλλά όψεις
+# διαχείρισης (proxy models με δική τους διαδρομή στο urls.py). Βγαίνουν
+# από τη λίστα μοντέλων και εμφανίζονται ως σύνδεσμοι στο πλαϊνό πλαίσιο.
+# Τα δικαιώματα ελέγχονται ακριβώς όπως πριν: ό,τι δεν επιτρέπεται στον
+# χρήστη δεν φτάνει καν εδώ.
+ADMIN_TOOLS = {
+    ('dide', 'importexport'): '/admin/dide/importexport/',
+    ('dide', 'geoschool'): '/admin/dide/geoschool/',
+}
+
 
 # Χωρίς @never_cache: η συνάρτηση εγκαθίσταται ως μέθοδος του AdminSite,
 # οπότε ο decorator θα έβλεπε το self στη θέση του request. Το AdminSite
@@ -219,6 +239,7 @@ def index(self, request, extra_context=None):
     """
     app_dict = {}
     search_model = []
+    admin_tools = []
     user = request.user
     tot_pho = None
     tot_day_mod = None
@@ -253,12 +274,23 @@ def index(self, request, extra_context=None):
             if True in list(perms.values()):
                 info = (app_label, model._meta.model_name)
                 search_model.append(model)
+                if info in ADMIN_TOOLS:
+                    admin_tools.append({
+                        'name': capfirst(model._meta.verbose_name_plural),
+                        'url': ADMIN_TOOLS[info],
+                    })
+                    continue
                 featured = FEATURED_MODELS.get(info)
                 model_dict = {
                     'name': capfirst(model._meta.verbose_name_plural),
+                    # Το app_list.html φτιάχνει από αυτό την κλάση της
+                    # γραμμής («model-permanent»). Έλειπε από το δικό μας
+                    # context, οπότε κάθε γραμμή έβγαινε ως σκέτο
+                    # class="model-" και χανόταν και η σήμανση current-model.
+                    'object_name': model._meta.object_name,
                     'perms': perms,
                     'order': featured[0] if featured else UNFEATURED_ORDER,
-                    'icon': featured[1] if featured else None,
+                    'icon': featured[1] if featured else MODEL_ICONS.get(info),
                     'featured': bool(featured),
                 }
 
@@ -319,8 +351,11 @@ def index(self, request, extra_context=None):
         'is_super': is_super,
         'photo_total': tot_pho,
         'today_mod_total': tot_day_mod,
-        'django_version': 'Django ' + '.'.join(str(i) for i in djangoversion[:3]),
+        # Σκέτη η έκδοση: το υποσέλιδο γράφει ήδη τη λέξη «Django» πριν από
+        # αυτήν, οπότε το πρόθεμα εδώ έβγαζε «Django Django 5.2.17».
+        'django_version': '.'.join(str(i) for i in djangoversion[:3]),
         'total_dbl': l,
+        'admin_tools': sorted(admin_tools, key=lambda t: t['name']),
     })
     context.update(extra_context or {})
     # Το κουτί αναζήτησης υποβάλλει με POST· οι σύνδεσμοι σελιδοποίησης
