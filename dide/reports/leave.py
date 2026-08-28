@@ -73,7 +73,7 @@ leave_docx_reports = [
 
     LeaveDocxReport('Ειδική 22 ημερών', 'adeia_22.xml',
                     custom_context={'subject': 'Χορήγηση ειδικής άδειας'}),
-    LeaveDocxReport('Ειδική 22 ημερών για δικαστικο συμπαραστατη', 'adeia_22diksymp.xml',
+    LeaveDocxReport('Ειδική 22 ημερών για δικαστικο συμπαραστατη', 'adeia_22_diksymp.xml',
                     custom_context={'subject': 'Χορήγηση ειδικής άδειας υπαλλήλους που έχουν οριστεί δικαστικοί  '
                                     'συμπαραστάτες και τους έχει ανατεθει δικαστικώς η επιμέλεια..'}),
     LeaveDocxReport('Ειδική 6 ημερών', 'adeia_6.xml',

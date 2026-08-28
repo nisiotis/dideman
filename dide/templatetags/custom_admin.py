@@ -1,7 +1,7 @@
 from django.template import Library
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
-from django.contrib.admin.views.main import PAGE_VAR
+from django.contrib.admin.templatetags.admin_list import paginator_number
 register = Library()
 
 
@@ -25,9 +25,15 @@ def free_date_filter(cl, spec):
             'url_to_value': spec.url_to_value,
             'parameter_name': spec.parameter_name, 'cl': cl}
 
+# Εδώ υπήρχαν τρία στοιβαγμένα inclusion_tag για την ίδια συνάρτηση. Κάθε
+# κλήση καταχωρεί την ετικέτα με το ίδιο όνομα («submit_row»), οπότε μόνο η
+# τελευταία που εφαρμόζεται —η πάνω-πάνω, administrativeleave— ίσχυε ποτέ. Οι
+# άλλες δύο ήταν νεκρές: το permanentleave/submit_line.html είναι ολόιδιο με
+# αυτό που χρησιμοποιείται, ενώ το nonpermanentleave/submit_line.html δεν
+# υπάρχει καν στον δίσκο — αν άλλαζε η σειρά, η ετικέτα θα έσκαγε με
+# TemplateDoesNotExist. Το πρότυπο είναι έτσι κι αλλιώς γενικό: το sub_url
+# υπολογίζεται εδώ, στον χρόνο εκτέλεσης.
 @register.inclusion_tag('admin/dide/administrativeleave/submit_line.html', takes_context=True)
-@register.inclusion_tag('admin/dide/permanentleave/submit_line.html', takes_context=True)
-@register.inclusion_tag('admin/dide/nonpermanentleave/submit_line.html', takes_context=True)
 def submit_row(context):
     """
     Displays the row of buttons for delete and save.
@@ -65,14 +71,22 @@ def submit_row(context):
 
 @register.simple_tag
 def paginator_number_with_qs_params(cl, i):
+    """Σύνδεσμος σελίδας που κρατάει τις παραμέτρους του querystring.
+
+    Γράφτηκε επειδή το paginator_number του Django έχανε τις πολλαπλές
+    τιμές των φίλτρων: το ChangeList.params ήταν dict(request.GET.items())
+    και κρατούσε μία τιμή ανά παράμετρο. Σήμερα το filter_params είναι
+    dict(request.GET.lists()) και το get_query_string κάνει urlencode με
+    doseq=True, οπότε το ίδιο το Django τις διατηρεί.
+
+    Έμεναν τρία σπασίματα σε αυτή την υλοποίηση:
+    * το ChangeList δεν κρατά πια request (ούτε ποτέ το τεκμηρίωσε), οπότε
+      το cl.request.GET σήκωνε AttributeError·
+    * το cl.page_num μετράει από το 1 από το Django 3.0 και μετά, οπότε το
+      i+1 έδειχνε λάθος αριθμό και το «τρέχουσα σελίδα» δεν ταίριαζε ποτέ·
+    * το page_range δίνει paginator.ELLIPSIS («…») και όχι '.'.
+
+    Αντί να ξαναγραφτούν και τα τρία, η ετικέτα παραπέμπει στο ίδιο το
+    Django, που πλέον κάνει ακριβώς ό,τι χρειαζόταν.
     """
-    Generates an individual page index link in a paginated list.
-    """
-    if i == '.':
-        return '... '
-    elif i == cl.page_num:
-        return mark_safe('<span class="this-page">%d</span> ' % (i+1))
-    else:
-        qd = cl.request.GET.copy()
-        qd[PAGE_VAR] = i;
-        return '<a href="?%s"%s>%d</a> ' % (qd.urlencode(), (i == cl.paginator.num_pages-1 and ' class="end"' or ''), i+1)
+    return paginator_number(cl, i)
