@@ -4,7 +4,7 @@ from django.contrib.admin.filters import FieldListFilter
 from django.db import models
 from django.contrib.admin.utils import get_fields_from_path
 from dideman.dide.filters import FreeDateFieldListFilter
-from chosen import forms as chosenforms
+from django import forms as django_forms
 from django.shortcuts import render
 
 
@@ -50,9 +50,11 @@ def render_template(request, model, model_admin):
             else:
                 choices = None
             if choices:
-                select_multiple = chosenforms.ChosenSelectMultiple(
-                    choices=choices, overlay='Επιλέξτε',
-                    attrs={'style': 'width:600px',
+                select_multiple = django_forms.SelectMultiple(
+                    choices=choices,
+                    attrs={'class': 'chzn-select',
+                           'data-placeholder': 'Επιλέξτε',
+                           'style': 'width:600px',
                            'name': spec.lookup_param, 'title': spec.title})
                 selects.append(select_multiple)
     return render(request, 'admin/full_filters.html', {'selects': selects,

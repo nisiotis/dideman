@@ -49,7 +49,6 @@ class Command(BaseCommand):
         
             print("Total %s" % curr_row)
             print("Inserted %s" % ins_row)
-            transaction.commit_unless_managed()
             cursor.close()
                 
         

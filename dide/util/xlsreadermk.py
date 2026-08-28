@@ -52,6 +52,5 @@ def xlsread(oid, xlsfile):
     
         
     
-    transaction.commit_unless_managed()
     cursor.close()
     return recs_missed

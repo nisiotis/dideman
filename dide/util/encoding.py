@@ -20,8 +20,10 @@ ENCODING_CHOICES = [
 DEFAULT_ENCODING = UTF8
 
 # Το BOM βοηθάει το Excel να αναγνωρίσει UTF-8 αρχείο· χωρίς αυτό ανοίγει
-# το CSV σαν ANSI και τα ελληνικά εμφανίζονται αλλοιωμένα.
-BOM = {UTF8: '\xef\xbb\xbf'}
+# το CSV σαν ANSI και τα ελληνικά εμφανίζονται αλλοιωμένα. Είναι ο
+# χαρακτήρας U+FEFF, που κωδικοποιείται σε EF BB BF μόνο στην UTF-8· στα
+# ελληνικά Windows δεν μπαίνει BOM.
+BOM = {UTF8: '\ufeff'}
 
 # Πώς δηλώνεται η κάθε κωδικοποίηση στην κεφαλίδα HTTP.
 CHARSET = {
@@ -45,21 +47,21 @@ def charset_name(encoding):
 
 
 def bom_for(encoding):
-    """Τα bytes που πρέπει να προηγηθούν του αρχείου, αν χρειάζονται."""
+    """Ο χαρακτήρας που πρέπει να προηγηθεί του αρχείου, αν χρειάζεται."""
     return BOM.get(clean_encoding(encoding), '')
 
 
 def encode(value, encoding=DEFAULT_ENCODING, errors='replace'):
-    """Μετατρέπει μια τιμή σε bytes της ζητούμενης κωδικοποίησης.
+    """Μετατρέπει κείμενο σε bytes της ζητούμενης κωδικοποίησης.
 
     Χαρακτήρες που δεν υπάρχουν στο ελληνικό σετ αντικαθίστανται αντί να
-    πετάγονται σιωπηλά, ώστε να φαίνεται ότι κάτι χάθηκε.
+    πετάγονται σιωπηλά, ώστε να φαίνεται ότι κάτι χάθηκε. Καλείται μία
+    φορά στο τέλος: στην Python 3 το csv module δουλεύει με κείμενο, όχι
+    με bytes.
     """
     encoding = clean_encoding(encoding)
     if value is None:
-        return ''
-    if isinstance(value, str):
+        return b''
+    if isinstance(value, bytes):
         return value
-    if not isinstance(value, str):
-        value = str(value)
-    return value.encode(encoding, errors)
+    return str(value).encode(encoding, errors)

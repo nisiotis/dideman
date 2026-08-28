@@ -50,10 +50,6 @@ class Command(BaseCommand):
         
             print("Total %s" % curr_row)
             print("Inserted %s" % ins_row)
-            try:
-                transaction.commit_unless_managed()
-            except Exception as e:
-                print('%s' % e.message)
 
                 
             cursor.close()

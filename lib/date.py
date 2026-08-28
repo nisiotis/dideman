@@ -2,6 +2,7 @@
 import datetime
 import math
 import functools
+from functools import total_ordering
 from dideman.lib.common import memo
 from functools import reduce
 
@@ -41,6 +42,7 @@ def intersect(r1, r2):
     return not (r1e < r2s or r1s > r2e)
 
 
+@total_ordering
 class Date(object):
     """
     a class for handling 360 day year dates
@@ -125,8 +127,16 @@ class Date(object):
         else:
             return self.sub_interval(other)
 
-    def __cmp__(self, other):
-        return self.days - other.days
+    # Η Python 3 δεν χρησιμοποιεί __cmp__· χωρίς rich comparisons οι
+    # ταξινομήσεις και οι συγκρίσεις ημερομηνιών αποτυγχάνουν σιωπηλά.
+    def __eq__(self, other):
+        return isinstance(other, Date) and self.days == other.days
+
+    def __lt__(self, other):
+        return self.days < other.days
+
+    def __hash__(self):
+        return hash(self.days)
 
     def __repr__(self):
         return "<%s '%s'>" % (self.__class__.__name__, self.format())
@@ -138,6 +148,7 @@ class Date(object):
         return self.format()
 
 
+@total_ordering
 class DateInterval(object):
     """
     a class for handling 360 day year date intervals
@@ -213,8 +224,14 @@ class DateInterval(object):
     def __sub__(self, other):
         return self.__class__(days=self.total - other.total)
 
-    def __cmp__(self, other):
-        return self.total - other.total
+    def __eq__(self, other):
+        return isinstance(other, DateInterval) and self.total == other.total
+
+    def __lt__(self, other):
+        return self.total < other.total
+
+    def __hash__(self):
+        return hash(self.total)
 
     def __repr__(self):
         return "<%s '%s-%s-%s'>" % (self.__class__.__name__,

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.utils.html import format_html
 from django.db.models import Q
 from dideman.lib.common import *
 from dideman.lib.date import *
@@ -318,15 +319,15 @@ class MoveInside(Application):
     health_children = models.CharField('Λόγοι υγείας παιδιών', max_length=100, choices=HEALTH_CHOICES, null=True, default=None, blank=True)
     health_parents = models.CharField('Λόγοι υγείας γονέων', max_length=100, choices=HEALTH_CHOICES, null=True, default=None, blank=True)
     parents_place = models.CharField('Περιοχή διαμονής γονέων', max_length=150, null=True, blank=True)
-    health_siblings = models.NullBooleanField('Λόγοι υγείας αδερφών (> 67% με επιμέλεια)', default=False, null=True, blank=True)
+    health_siblings = models.BooleanField('Λόγοι υγείας αδερφών (> 67% με επιμέλεια)', default=False, null=True, blank=True)
     siblings_place = models.CharField('Περιοχή διαμονής αδερφών', max_length=150,  null=True, blank=True)
     in_vitro = models.BooleanField('Θεραπεία εξωσωματικής γονιμοποίησης', default=False)
     post_graduate_subject = models.CharField('Περιοχή μεταπτυχιακών σπουδών (εφόσον υπάρχει)', null=True, blank=True, max_length=150)
     special_category = models.CharField('Ειδική κατηγορία μετάθεσης', max_length=150, null=True, blank=True)
-    military_spouse = models.NullBooleanField('Σύζυγος στρατιωτικού', null=True, blank=True, default=False)
+    military_spouse = models.BooleanField('Σύζυγος στρατιωτικού', null=True, blank=True, default=False)
     elected = models.BooleanField('Αιρετός ΟΤΑ', default=False)
-    judge_spouse = models.NullBooleanField('Σύζυγος δικαστικού',default=False, null=True, blank=True)
-    move_primary = models.NullBooleanField('Απόσπαση Α\'βάθμια', default=False, null=True, blank=True)
+    judge_spouse = models.BooleanField('Σύζυγος δικαστικού',default=False, null=True, blank=True)
+    move_primary = models.BooleanField('Απόσπαση Α\'βάθμια', default=False, null=True, blank=True)
     other_reasons = models.CharField('Άλλοι λόγοι', null=True, blank=True, default=None, max_length=500)
 
 
@@ -495,7 +496,7 @@ class Leave(models.Model):
     description = models.CharField(null=True, blank=True, verbose_name='Περιγραφή', max_length=3000)
     notify_to = models.CharField(null=True, blank=True, verbose_name='Κοινοποίηση άδειας', max_length=300) 
     for_non_permanents = models.BooleanField(null=False, blank=False, verbose_name='Αναπληρωτών', default=None)
-    service_days_count = models.IntegerField(null=True, blank=True, max_length=3, verbose_name='Μέρες μετρήσιμης προϋπηρεσίας', default=0)
+    service_days_count = models.IntegerField(null=True, blank=True, verbose_name='Μέρες μετρήσιμης προϋπηρεσίας', default=0)
     
     
     def __unicode__(self):
@@ -511,7 +512,7 @@ class Responsibility(models.Model):
         verbose_name = 'Κατηγορία θέσης ευθύνης'
         verbose_name_plural = 'Κατηγορίες θέσεων ευθύνης'
 
-    hours = models.IntegerField(max_length=2, verbose_name='Ώρες μείωσης')
+    hours = models.IntegerField(verbose_name='Ώρες μείωσης')
     name = models.CharField(max_length=200, verbose_name='Θέση ευθύνης')
 
     def __unicode__(self):
@@ -616,7 +617,7 @@ class Employee(models.Model):
     organization_paying = models.ForeignKey(Organization, verbose_name='Οργανισμός μισθοδοσίας',related_name='organization_paying', null=True, blank=True, on_delete=models.CASCADE)
     email = models.EmailField(null=True, blank=True)
     birth_date = models.DateField('Ημερομηνία Γέννησης',null=True, blank=True)
-    hours_current = models.IntegerField('Τρέχων Ωράριο', max_length=2, null=True, blank=True)
+    hours_current = models.IntegerField('Τρέχων Ωράριο', null=True, blank=True)
     profession = models.ForeignKey(Profession, verbose_name='Ειδικότητα', related_name='employees', on_delete=models.CASCADE)
     second_profession = models.ForeignKey(Profession, verbose_name='Δεύτερη Ειδικότητα',null=True, blank=True, on_delete=models.CASCADE)
     second_profession_order = models.CharField('Απόφαση απόδοσης δεύτερης ειδικότητας', max_length=100, null=True, blank=True)
@@ -625,10 +626,10 @@ class Employee(models.Model):
     #extra_professions = models.ManyToManyField(Profession, through='EmployeeProfession')
     responsibilities = models.ManyToManyField(Responsibility, through='EmployeeResponsibility')
     studies = models.ManyToManyField(DegreeCategory, through='EmployeeDegree')
-    study_years = models.IntegerField('Έτη φοίτησης', max_length=1, null=True, blank=True,
+    study_years = models.IntegerField('Έτη φοίτησης', null=True, blank=True,
         choices=[(x, str(x)) for x in range(2, 7)])
     notes = models.TextField('Σημειώσεις', blank=True, default='')
-    show_mass_pay = models.NullBooleanField('Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', null=True, blank=True, default=True)
+    show_mass_pay = models.BooleanField('Εμφάνιση μισθοδοτικών καταστάσεων στο χρήστη', null=True, blank=True, default=True)
     ama = models.CharField('ΑΜΑ ΙΚΑ ΕΤΑΜ', max_length=10, null=True, blank=True)
     date_created = models.DateField('Ημερομηνία δημιουργίας', auto_now_add=True)
     date_modified = models.DateField('Τελευταία ενημέρωση', auto_now=True)
@@ -637,13 +638,19 @@ class Employee(models.Model):
     photo = models.TextField('Φωτογραφία', blank=True, default=None)
     photo_type = models.CharField('Τύπος Φωτογραφίας', max_length=10, null=True, blank=True)
 
+    # Το allow_tags καταργήθηκε στο Django 2.0: χωρίς format_html/mark_safe
+    # το HTML εμφανίζεται πλέον escaped, δηλαδή ως ορατές ετικέτες.
     def show_photo(self):
+        edit = format_html(
+            '<a href="/admin/dide/photo_edit/{}/" onclick="return focusOrOpen('
+            'this, \'Φωτογραφία\', {{\'width\': 350, \'height\': 600}});">'
+            'Αλλαγή Φωτογραφίας</a>', self.id)
         if self.photo:
-            return "<img src='/admin/dide/photo/%s/' style='width:75px;height:100px;padding-right:5px;vertical-align:top;'><a href='/admin/dide/photo_edit/%s/'  onclick=\"return focusOrOpen(this, 'Φωτογραφία',{'width': 350, 'height': 600});\">Αλλαγή Φωτογραφίας</a>" % (self.id, self.id)
-        else:
-            return "Δ/Υ <a href='/admin/dide/photo_edit/%s/'  onclick=\"return focusOrOpen(this, 'Φωτογραφία',{'width': 350, 'height': 600});\">Αλλαγή Φωτογραφίας</a>" % self.id
+            return format_html(
+                '<img src="/admin/dide/photo/{}/" style="width:75px;height:100px;'
+                'padding-right:5px;vertical-align:top;">{}', self.id, edit)
+        return format_html('Δ/Υ {}', edit)
 
-    show_photo.allow_tags = True
     show_photo.short_description = "Φωτογραφία"
 
     def profession_description(self):
@@ -730,7 +737,6 @@ class Employee(models.Model):
         query = """INSERT IGNORE INTO `{table}`(`{column}`) VALUES({pk})""".format(
             table=model_to._meta.db_table, column=model_to._meta.pk.column, pk=self.pk)
         cursor.execute(query)
-        transaction.commit_unless_managed()
 
     def subclass(self):
         for attr in ["administrative", "permanent", "nonnermanent", "privateteacher"]:
@@ -938,11 +944,11 @@ class Permanent(Employee):
     registration_number = NullableCharField('Αρ. Μητρώου', max_length=6, unique=True, null=True, blank=True)
     inaccessible_school = models.ForeignKey('School', verbose_name='Δυσπρόσιτος στο σχολείο', null=True, blank=True, on_delete=models.CASCADE)
     payment_start_date_manual = models.DateField('Μισθολογική αφετηρία (μετά από άδεια)', null=True, blank=True)
-    is_permanent = models.NullBooleanField('Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
-    has_permanent_post = models.NullBooleanField('Έχει οργανική θέση',null=True, blank=True, default=False)
+    is_permanent = models.BooleanField('Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
+    has_permanent_post = models.BooleanField('Έχει οργανική θέση',null=True, blank=True, default=False)
     not_service_existing = models.IntegerField('Αφαιρούμενες μέρες άδειας', default=0)
-    currently_serves = models.NullBooleanField('Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
-    educated = models.NullBooleanField('Έχει περάσει Π.Ε.Κ.', null=False, default=False)
+    currently_serves = models.BooleanField('Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
+    educated = models.BooleanField('Έχει περάσει Π.Ε.Κ.', null=False, default=False)
 
     def object_name(self):
         return self._meta.object_name
@@ -1203,10 +1209,10 @@ class Administrative(Employee):
     order_hired = models.CharField('Φ.Ε.Κ. διορισμού', max_length=200, null=True, blank=True)
     registration_number = NullableCharField('Αρ. Μητρώου', max_length=7, unique=True, null=True, blank=True)
     payment_start_date_manual = models.DateField('Μισθολογική αφετηρία (μετά από άδεια)', null=True, blank=True)
-    is_permanent = models.NullBooleanField('Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
-    has_permanent_post = models.NullBooleanField('Έχει οργανική θέση', null=True, blank=True, default=False)
+    is_permanent = models.BooleanField('Έχει μονιμοποιηθεί', null=True, blank=True, default=False)
+    has_permanent_post = models.BooleanField('Έχει οργανική θέση', null=True, blank=True, default=False)
     not_service_existing = models.IntegerField('Αφαιρούμενες μέρες άδειας', null=True, blank=True, default=0)
-    currently_serves = models.NullBooleanField('Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
+    currently_serves = models.BooleanField('Υπηρετεί στην Δ.Δ.Ε. Δωδεκανήσου', null=True, default=True)
 
     def object_name(self):
         return self._meta.object_name
@@ -1286,7 +1292,7 @@ class NonPermanentType(models.Model):
     objects = NonPermanentTypeManager()
 
     name = models.CharField(max_length=200, verbose_name='Κατηγορία')
-    work_mode = models.IntegerField('Καθεστός απασχόλησης (ΟΑΕΔ)', max_length=2, null=True, blank=True, choices=WORK_TYPES)
+    work_mode = models.IntegerField('Καθεστός απασχόλησης (ΟΑΕΔ)', null=True, blank=True, choices=WORK_TYPES)
 
     def natural_key(self):
         return (self.name, )
@@ -1368,10 +1374,10 @@ class NonPermanent(Employee):
     pedagogical_sufficiency = models.BooleanField('Παιδαγωγική κατάρτιση', default=None)
     social_security_number = models.CharField('Αριθμός Ι.Κ.Α.', max_length=10, null=True, blank=True)
     profession_code_oaed = models.CharField('Κωδικός ειδικότητας ΟΑΕΔ', max_length=10, null=True, blank=True)
-    show_exp_report = models.NullBooleanField('Εμφάνιση Προϋπηρεσίας - Απόλυσης', null=True, blank=True, default=True)
+    show_exp_report = models.BooleanField('Εμφάνιση Προϋπηρεσίας - Απόλυσης', null=True, blank=True, default=True)
 
     educational_level = models.IntegerField('Επίπεδο μόρφωσης', null=True, blank=True, choices=EDU_LEVEL, default=11)
-    ergani_new = models.NullBooleanField('Νέος Μισθωτός', null=True, blank=True, default=False)
+    ergani_new = models.BooleanField('Νέος Μισθωτός', null=True, blank=True, default=False)
 
     def object_name(self):
         return self._meta.object_name
@@ -1474,7 +1480,7 @@ class SchoolType(models.Model):
     shift = models.CharField(max_length=100, verbose_name='Ωράριο', choices=(('day', 'Ημερήσιο'), ('night', 'Εσπερινό'), ('other', 'Άλλο')))
     category = models.CharField(max_length=100, verbose_name='Κατηγορία', choices=(('gym', 'Γυμνάσιο'), ('lyk', 'Γενικό Λύκειο'), ('epag', 'Επαγγελματική Εκπαίδευση'), ('other', 'Άλλο')))
     # < 20 : Γυμνάσια, > 10 : Μεταγυμνασιακά
-    rank = models.IntegerField(max_length=2, verbose_name='Βαθμίδα', choices=((10, 'Γυμνάσιο'), (20, 'ΜεταΓυμνασιακό'), (15, 'Γυμνάσιο/Λ.Τ.'), (11, 'Ιδιωτικό')))
+    rank = models.IntegerField(verbose_name='Βαθμίδα', choices=((10, 'Γυμνάσιο'), (20, 'ΜεταΓυμνασιακό'), (15, 'Γυμνάσιο/Λ.Τ.'), (11, 'Ιδιωτικό')))
 
     def natural_key(self):
         return (self.name, )
@@ -1526,8 +1532,8 @@ class School(Organization):
     transfer_area = models.ForeignKey(TransferArea, verbose_name='Περιοχή Μετάθεσης', on_delete=models.CASCADE)
     island = models.ForeignKey(Island, verbose_name='Νησί', null=True, blank=True, on_delete=models.CASCADE)
     commission = models.ForeignKey(SchoolCommission, verbose_name='Σχολική επιτροπή', null=True, blank=True, on_delete=models.CASCADE)
-    points = models.IntegerField('Μόρια', max_length=2, null=True, blank=True)
-    code = models.IntegerField('Κωδικός Σχολείου', max_length=5, unique=True)
+    points = models.IntegerField('Μόρια', null=True, blank=True)
+    code = models.IntegerField('Κωδικός Σχολείου', unique=True)
     # γενικό λύκειο, γυμνάσιο, επαλ...
     type = models.ForeignKey(SchoolType, verbose_name='Κατηγορία', on_delete=models.CASCADE)
     inaccessible = models.BooleanField('Δυσπρόσιτο', default=None)
@@ -1555,7 +1561,7 @@ class GymLyc(School):
         verbose_name_plural = 'Γυμνάσια-Λ.Τ.'
 
     parent_school = models.OneToOneField(School, parent_link=True, on_delete=models.CASCADE)
-    gymlyc_code = models.IntegerField('Κωδικός Λυκειακών τάξεων', max_length=5, unique=True)
+    gymlyc_code = models.IntegerField('Κωδικός Λυκειακών τάξεων', unique=True)
 
 
 class OtherOrganization(Organization):
@@ -1587,8 +1593,8 @@ class Placement(models.Model):
     order = models.CharField('Απόφαση', max_length=300, null=True, blank=True, default=None)
     order_pysde = models.CharField('Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
     # New field to add for the type of experience
-    teaching_service = models.NullBooleanField('Είναι διδακτική προϋπηρεσία;', null=True, default=True)
-    reduce_hours = models.NullBooleanField('Προσμέτρηση για μείωση ωραρίου', null=True, default=True)
+    teaching_service = models.BooleanField('Είναι διδακτική προϋπηρεσία;', null=True, default=True)
+    reduce_hours = models.BooleanField('Προσμέτρηση για μείωση ωραρίου', null=True, default=True)
 
     def natural_key(self):
         return (self.employee, self.organization, self.date_from)
@@ -1606,8 +1612,8 @@ class Service(Placement):
 
     parent = models.OneToOneField(Placement, parent_link=True, on_delete=models.CASCADE)
     order_manager = models.CharField('Απόφαση Διευθυντή', max_length=300, null=True, blank=True, default=None)
-    hours = models.IntegerField('Ώρες μείωσης', max_length=2, null=True, blank=True)
-    hours_overtime = models.IntegerField('Ώρες Υπερωρίας', max_length=2, null=True, blank=True, default=0)
+    hours = models.IntegerField('Ώρες μείωσης', null=True, blank=True)
+    hours_overtime = models.IntegerField('Ώρες Υπερωρίας', null=True, blank=True, default=0)
 
     def __unicode__(self):
         return self.organization.name + self.date_from.strftime('%d-%m-%Y')
@@ -1629,8 +1635,8 @@ class PartialService(models.Model):
     order_min = models.CharField('Απόφαση', max_length=300, null=True, blank=True, default=None)
     order_pysde = models.CharField('Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
     order_manager = models.CharField('Απόφαση Διευθυντή', max_length=300, null=True, blank=True, default=None)
-    hours = models.IntegerField('Ώρες Διάθεσης', max_length=2, null=True, blank=True)
-    hours_overtime = models.IntegerField('Ώρες Υπερωρίας', max_length=2, null=True, blank=True, default=0)
+    hours = models.IntegerField('Ώρες Διάθεσης', null=True, blank=True)
+    hours_overtime = models.IntegerField('Ώρες Υπερωρίας', null=True, blank=True, default=0)
 
     def natural_key(self):
         return (self.employee, self.organization, self.date_from)
@@ -1652,8 +1658,8 @@ class SubstituteMinistryOrder(models.Model):
     order_start_manager = models.CharField('Απόφαση τοποθέτησης Διεθυντή Δ.Ε.', max_length=300, null=True, blank=True)
     order_end_manager = models.CharField('Απόφαση απόλυσης Διευθυντή Δ.Ε.', max_length=300, null=True, blank=True)
     order_pysde = models.CharField('Απόφαση Π.Υ.Σ.Δ.Ε.', max_length=300, null=True, blank=True)
-    order_type = models.IntegerField(max_length=1, verbose_name='Μισθοδοσία', choices=((1, 'Τακτικός Προυπολογισμός'), (2, 'Πρόγραμμα Δημοσίων Επενδύσεων'), (3, 'Ε.Σ.Π.Α.'), (4, 'Ταμείο Ασύλου')))
-    show_online_order = models.NullBooleanField('Εμφάνιση στο χρήστη', null=True, blank=True, default=True)
+    order_type = models.IntegerField(verbose_name='Μισθοδοσία', choices=((1, 'Τακτικός Προυπολογισμός'), (2, 'Πρόγραμμα Δημοσίων Επενδύσεων'), (3, 'Ε.Σ.Π.Α.'), (4, 'Ταμείο Ασύλου')))
+    show_online_order = models.BooleanField('Εμφάνιση στο χρήστη', null=True, blank=True, default=True)
     substitutes = models.ManyToManyField(NonPermanent, through='OrderedSubstitution', verbose_name='Αναπηρωτές')
 
     def __unicode__(self):
@@ -1743,8 +1749,8 @@ class SubstitutePlacement(Placement):
     work_experience_years = models.CharField('Έτη προϋπηρεσίας', max_length=3, null=True, blank=True)
 
     date_from_show = models.DateField('Ημερομηνία ανάληψης υπηρεσίας', null=True, blank=True)
-    oaed_nopay = models.NullBooleanField('Επίδομα ΟΑΕΔ', null=True, blank=True, default=True)
-    oaed_nopay_from = models.IntegerField(max_length=6, null=True, blank=True, 
+    oaed_nopay = models.BooleanField('Επίδομα ΟΑΕΔ', null=True, blank=True, default=True)
+    oaed_nopay_from = models.IntegerField(null=True, blank=True, 
                                           verbose_name='Κατάστημα Επιδόματος ΟΑΕΔ',
                                           choices=OAED_CHOICES)
 
@@ -1872,7 +1878,7 @@ class EmployeeLeave(models.Model):
     authority = models.CharField('Αρχή έγκρισης', max_length=200, null=True, blank=True)
     protocol_number = models.CharField('Αρ. πρωτ.', max_length=10, null=True, blank=True)
     description = models.CharField('Σημειώσεις', null=True, blank=True, max_length=300)
-    duration = models.IntegerField(max_length=3, verbose_name='Διάρκεια')
+    duration = models.IntegerField(verbose_name='Διάρκεια')
 
     @shorted(15)
     def category(self):
@@ -2076,7 +2082,7 @@ class Child(models.Model):
                                          choices=(('no', 'Όχι'),
                                                   ('died', 'Απεβίωσε'),
                                                   ('yes', 'Ναι')))
-    is_dependent = models.NullBooleanField('Είναι προστατευόμενο μέλος', null=True, blank=True, default=True)
+    is_dependent = models.BooleanField('Είναι προστατευόμενο μέλος', null=True, blank=True, default=True)
 
     def __unicode__(self):
         return "%s %s" % (self.first_name, self.date_birth.strftime('%d-%m-%Y'))
@@ -2103,7 +2109,7 @@ class Loan(models.Model):
     employee = models.ForeignKey(Employee, verbose_name='Υπάλληλος', on_delete=models.CASCADE)
     category = models.ForeignKey(LoanCategory, verbose_name='Κατηγορία δανείου', on_delete=models.CASCADE)
 
-    installment = models.IntegerField(max_length=4, verbose_name='Δόση δανείου')
+    installment = models.IntegerField(verbose_name='Δόση δανείου')
     date_start = models.DateField('Ημ. έναρξης')
     date_end = models.DateField('Ημ. λήξης')
 
@@ -2155,9 +2161,9 @@ class NonPermanentUnemploymentMonth(models.Model):
     insurance_file = models.ForeignKey(NonPermanentInsuranceFile, on_delete=models.CASCADE)
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     pay_type = models.CharField('Τύπος μισθοδοσίας', max_length=200)
-    days_insured = models.IntegerField(max_length=4, verbose_name='Ημέρες ασφάλισης')
-    month = models.IntegerField(max_length=4, verbose_name='Μήνας')
-    year = models.IntegerField(max_length=4, verbose_name='Έτος')
+    days_insured = models.IntegerField(verbose_name='Ημέρες ασφάλισης')
+    month = models.IntegerField(verbose_name='Μήνας')
+    year = models.IntegerField(verbose_name='Έτος')
     insured_from = models.CharField(max_length=50, verbose_name='Ασφάλιση από')
     insured_to = models.CharField(max_length=50, verbose_name='Ασφάλιση μέχρι')
     total_earned = models.CharField("Σύνολο αποδοχών", max_length=50, null=True, blank=True) 

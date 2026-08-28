@@ -184,9 +184,9 @@ class WorkingPeriod(models.Model):
     teacher = models.ForeignKey(dide.Employee, on_delete=models.CASCADE)
     date_from = models.DateField('Από')
     date_to = models.DateField('Μέχρι')
-    hours_weekly = models.IntegerField('Εβδομαδιαίες ώρες εργασίας', max_length=2, null=True, blank=True)
-    hours_total = models.IntegerField('Συνολικές ώρες εργασίας', max_length=4, null=True, blank=True)
-    full_week = models.IntegerField('Εβδομαδιαίο ωράριο', max_length=2, default=18)
+    hours_weekly = models.IntegerField('Εβδομαδιαίες ώρες εργασίας', null=True, blank=True)
+    hours_total = models.IntegerField('Συνολικές ώρες εργασίας', null=True, blank=True)
+    full_week = models.IntegerField('Εβδομαδιαίο ωράριο', default=18)
     comments = models.CharField('Σχόλια', max_length=255, null=True, blank=True)
 
     def range_experience(self, arange):

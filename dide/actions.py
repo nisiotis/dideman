@@ -16,6 +16,8 @@ from dideman.dide.util import pdfreader
 from dideman.dide.util import xlsreader
 
 from dideman.dide.util.settings import SETTINGS, lazy_setting
+from dideman.dide.util.encoding import (GREEK_WINDOWS, charset_name,
+                                        encode)
 from django.contrib import messages
 from django.contrib.admin import helpers
 from django.contrib.admin.utils import get_deleted_objects, model_ngettext
@@ -142,21 +144,17 @@ class TemplateAction(object):
         return attr
 
     def convert_to_string(self, value, encode_in_iso=False):
+        """Πάντα κείμενο.
+
+        Στην Python 3 το csv module γράφει κείμενο· η κωδικοποίηση σε
+        ελληνικά Windows γίνεται μία φορά, όταν συναρμολογηθεί το αρχείο.
+        Το encode_in_iso διατηρείται για τους καλούντες και αγνοείται.
+        """
         if isinstance(value, bool):
             return str(int(value))
-        elif not value:
+        if not value:
             return ''
-        elif encode_in_iso:
-            if isinstance(value, str):
-                return value.encode('iso8859-7', 'ignore')
-            elif hasattr(value, '__unicode__'):
-                return str(value).encode('iso8859-7', 'ignore')
-            else:
-                return str(value)
-        elif isinstance(value, str):
-            return value
-        else:
-            return "%s" % str(value)
+        return str(value)
 
 
 class DocxReport(TemplateAction):
@@ -267,23 +265,26 @@ class CSVReport(TemplateAction):
         super(CSVReport, self).__init__(short_description, None, 'csv')
 
     def __call__(self, modeladmin, request, queryset, *args, **kwargs):
-        self.response = HttpResponse()
         self.merge_fields(modeladmin, self.add, self.exclude)
-        writer = csv.writer(self.response, delimiter=';', quotechar='"',
+        buf = StringIO()
+        writer = csv.writer(buf, delimiter=';', quotechar='"',
                             quoting=csv.QUOTE_NONNUMERIC)
         descriptions = [
             self.convert_to_string(
-                self.get_description(modeladmin.model, field),
-                encode_in_iso=True)
+                self.get_description(modeladmin.model, field))
             for field in self.fields]
         writer.writerow(descriptions)
         for obj in queryset:
-            row = [self.field_string_value(obj, f, encode_in_iso=True).replace("\n", "").replace(";","")
+            row = [self.field_string_value(obj, f).replace("\n", "").replace(";", "")
                    for f in self.fields]
             writer.writerow(row)
+
+        # Διατηρείται η κωδικοποίηση ελληνικών Windows που είχε το αρχείο
+        # (το cp1253 είναι υπερσύνολο του iso-8859-7 στα ελληνικά).
+        self.response = HttpResponse(encode(buf.getvalue(), GREEK_WINDOWS))
         self.add_response_headers()
-        self.response.close()
-        self.response.flush()
+        self.response['Content-Type'] = ('text/csv; charset=%s'
+                                         % charset_name(GREEK_WINDOWS))
         return self.response
 
 

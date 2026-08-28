@@ -98,9 +98,9 @@ def elided_page_range(paginator, number, on_each_side=3, on_ends=2):
 
 def search_query_string(q, category):
     """The q/cat pair that every pagination link has to carry along."""
-    params = [('q', (q or '').encode('utf-8'))]
+    params = [('q', q or '')]
     if category:
-        params.append(('cat', category.encode('utf-8')))
+        params.append(('cat', category))
     return urlencode(params)
 
 
@@ -702,8 +702,12 @@ def import_export_view(request):
     return r
 
 
-def _export_field_value(obj, field, encoding=DEFAULT_ENCODING):
-    """Render one field's value for CSV export in the chosen encoding."""
+def _export_field_value(obj, field):
+    """Render one field's value as text for the CSV writer.
+
+    Στην Python 3 το csv module γράφει κείμενο· η κωδικοποίηση γίνεται
+    μία φορά, όταν συναρμολογηθεί ολόκληρο το αρχείο.
+    """
     try:
         value = getattr(obj, field.name)
     except Exception:
@@ -719,7 +723,7 @@ def _export_field_value(obj, field, encoding=DEFAULT_ENCODING):
         return ''
     if isinstance(value, bool):
         return str(int(value))
-    return encode_text(value, encoding)
+    return str(value)
 
 
 # Πεδία που δεν έχουν νόημα σε αρχείο CSV: η φωτογραφία είναι base64
@@ -744,20 +748,23 @@ def _export_csv_response(model, field_names, encoding=DEFAULT_ENCODING):
     fields = [f for f in exportable_fields(model) if f.name in field_names]
     encoding = clean_encoding(encoding)
 
-    response = HttpResponse()
-    response['Content-Type'] = 'text/csv; charset=%s' % charset_name(encoding)
+    # Το αρχείο συναρμολογείται ως κείμενο και κωδικοποιείται μία φορά στο
+    # τέλος, με αντικατάσταση όσων χαρακτήρων δεν χωράνε στο σετ προορισμού.
+    buf = StringIO()
+    writer = csv.writer(buf, delimiter=';', quotechar='"',
+                        quoting=csv.QUOTE_NONNUMERIC)
+    writer.writerow([str(f.verbose_name) for f in fields])
+    for obj in model.objects.all():
+        writer.writerow([_export_field_value(obj, f) for f in fields])
+
+    # Το BOM (όπου χρειάζεται) προηγείται κάθε άλλου χαρακτήρα.
+    body = encode_text(bom_for(encoding) + buf.getvalue(), encoding)
+
+    response = HttpResponse(
+        body, content_type='text/csv; charset=%s' % charset_name(encoding))
     response['Content-Disposition'] = 'attachment; filename=export_%s_%s.csv' % (
         model.__name__, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
     add_never_cache_headers(response)
-
-    # Το BOM (όπου χρειάζεται) πρέπει να προηγηθεί κάθε άλλου byte.
-    response.write(bom_for(encoding))
-
-    writer = csv.writer(response, delimiter=';', quotechar='"',
-                        quoting=csv.QUOTE_NONNUMERIC)
-    writer.writerow([encode_text(f.verbose_name, encoding) for f in fields])
-    for obj in model.objects.all():
-        writer.writerow([_export_field_value(obj, f, encoding) for f in fields])
     return response
 
 
@@ -983,7 +990,7 @@ def school_geo_view(request):
     return HttpResponse(r)
 
 
-def handler404(request):
+def handler404(request, exception=None):
     response = render(request, 'admin/404.html', {})
     response.status_code = 404
     return response

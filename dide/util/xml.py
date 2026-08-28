@@ -161,7 +161,6 @@ def read(file, filerec, istaxed):
                 lName = el[0].text
                 recs_missed[rNum] = '%s %s' % (lName, fName)
 
-        transaction.commit_unless_managed()
         cursor.close()
         recs_affected = cntr2
         success = 1

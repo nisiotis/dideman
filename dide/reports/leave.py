@@ -98,7 +98,11 @@ leave_docx_reports = [
     LeaveDocxReport('Ανατροφής (4 μηνών - Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay_4_mines.xml',
                     custom_context={'subject':
                                     'Χορήγηση άδειας χωρίς αποδοχές για ανατροφή παιδιού (4 μηνών).'}),
-    LeaveDocxReport('Ανατροφής (Άνευ Αποδοχών)', 'adeia_anatrofis_no_pay_4_mines.xml',
+    # Είχε το ίδιο όνομα με την αναφορά παραπάνω. Το Django απαιτεί πλέον
+    # μοναδικά ονόματα actions· ως τότε η μία από τις δύο επισκίαζε σιωπηλά
+    # την άλλη και ήταν στην πράξη απροσπέλαστη. Διαφέρει στην κοινοποίηση.
+    LeaveDocxReport('Ανατροφής (Άνευ Αποδοχών - κοινοποίηση ΟΠΑΔ)',
+                    'adeia_anatrofis_no_pay_4_mines.xml',
                     custom_context={'subject':
                                     'Χορήγηση άδειας χωρίς αποδοχές'
                                     ' για ανατροφή παιδιού', 'cc':  ['ΟΠΑΔ'] }),

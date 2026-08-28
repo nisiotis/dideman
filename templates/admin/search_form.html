@@ -1,4 +1,4 @@
-{% load i18n admin_static %}
+{% load i18n static %}
 {% if cl.search_fields %}
 <div id="toolbar"><form id="changelist-search" action="" method="get">
 <div><!-- DIV needed for valid HTML -->
@@ -10,9 +10,9 @@
 {% endif %}
 {% for key, values in cl.param_lists.items %}
     {% for val in values %}
-      {% ifnotequal key search_var %}
+      {% if key != search_var %}
         <input type="hidden" name="{{ key }}" value="{{ val }}"/>
-      {% endifnotequal %}
+      {% endif %}
     {% endfor %}
 {% endfor %}
 </div>

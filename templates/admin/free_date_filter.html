@@ -29,9 +29,9 @@
   <input id="{{ parameter_name  }}" name="{{ parameter_name  }}" type="hidden" />
   {% for key, values in cl.param_lists.items %}
     {% for val in values %}
-        {% ifnotequal key parameter_name %}
+        {% if key != parameter_name %}
             <input type="hidden" name="{{ key }}" value="{{ val }}"/>
-        {% endifnotequal %}
+        {% endif %}
     {% endfor %}
   {% endfor %}
 </form>
