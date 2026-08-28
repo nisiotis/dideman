@@ -348,10 +348,17 @@ to_administrative = EmployeeBecome('Μετατροπή σε Διοικητικό
 class EmployeeAdmin(DideAdmin):
 
     class Media:
-        css = {'all': ('css/no-addanother-button.css',
-                         '/static/admin/css/widgets.css')}
-        js = ('/static/admin/js/admin/DateTimeShortcuts.js',
-              '/static/admin/js/calendar.js', 'js/dide.js')
+        # Τα calendar.js/DateTimeShortcuts.js και το widgets.css τα
+        # δηλώνει ήδη το AdminDateWidget. Με απόλυτο «/static/...» δεν
+        # ταυτίζονταν με τις σχετικές διαδρομές του widget, οπότε
+        # φορτώνονταν δύο φορές — και η χειρόγραφη σειρά τα έβαζε πριν
+        # από το jquery.init.js, σπάζοντας το ημερολόγιο.
+        css = {'all': ('css/no-addanother-button.css',)}
+        # Το jquery.init.js δηλώνεται ρητά ώστε το dide.js να μπει μετά:
+        # χωρίς τη σχέση σειράς το merge του Media το τοποθετούσε πριν,
+        # και το «(function($){...})(django.jQuery)» έσκαγε με
+        # «$ is not a function».
+        js = ('admin/js/jquery.init.js', 'js/dide.js')
 
     list_display = ['lastname', 'firstname', 'fathername', 'profession',
                     'notes', 'transfer_area', 'organization_serving']
@@ -384,9 +391,16 @@ class EmployeeAdmin(DideAdmin):
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
     class Media:
-        css = {'all': ('/static/admin/css/widgets.css',)}
-        js = ('/static/admin/js/calendar.js',
-              '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
+        # Τα calendar.js/DateTimeShortcuts.js και το widgets.css τα
+        # δηλώνει ήδη το AdminDateWidget. Με απόλυτο «/static/...» δεν
+        # ταυτίζονταν με τις σχετικές διαδρομές του widget, οπότε
+        # φορτώνονταν δύο φορές — και η χειρόγραφη σειρά τα έβαζε πριν
+        # από το jquery.init.js, σπάζοντας το ημερολόγιο.
+        # Το jquery.init.js δηλώνεται ρητά ώστε το dide.js να μπει μετά:
+        # χωρίς τη σχέση σειράς το merge του Media το τοποθετούσε πριν,
+        # και το «(function($){...})(django.jQuery)» έσκαγε με
+        # «$ is not a function».
+        js = ('admin/js/jquery.init.js', 'js/dide.js')
 
     list_display = ['order', 'date', 'web_code', 'order_type', 'subs_in_order_count']
     search_fields = ['order', 'web_code']
@@ -430,8 +444,8 @@ class ProfessionAdmin(DideAdmin):
 class PermanentAdmin(EmployeeAdmin):
 
     class Media:
-        css = {'all': ('css/no-addanother-button.css',
-                         '/static/admin/css/widgets.css', '/static/admin/css/my_forms.css')}
+        # Το widgets.css το φέρνει το ίδιο το widget· εδώ μένουν μόνο τα δικά μας.
+        css = {'all': ('css/no-addanother-button.css', 'admin/css/my_forms.css')}
     
     list_display = ['registration_number', 'lastname', 'firstname', 'fathername',
                     'profession', 'date_hired',
@@ -656,9 +670,16 @@ class NonPermanentLeaveAdmin(DideAdmin):
 class EmployeeLeaveAdmin(DideAdmin):
 
     class Media:
-        css = {'all': ('/static/admin/css/widgets.css',)}
-        js = ('/static/admin/js/calendar.js',
-              '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
+        # Τα calendar.js/DateTimeShortcuts.js και το widgets.css τα
+        # δηλώνει ήδη το AdminDateWidget. Με απόλυτο «/static/...» δεν
+        # ταυτίζονταν με τις σχετικές διαδρομές του widget, οπότε
+        # φορτώνονταν δύο φορές — και η χειρόγραφη σειρά τα έβαζε πριν
+        # από το jquery.init.js, σπάζοντας το ημερολόγιο.
+        # Το jquery.init.js δηλώνεται ρητά ώστε το dide.js να μπει μετά:
+        # χωρίς τη σχέση σειράς το merge του Media το τοποθετούσε πριν,
+        # και το «(function($){...})(django.jQuery)» έσκαγε με
+        # «$ is not a function».
+        js = ('admin/js/jquery.init.js', 'js/dide.js')
     form = EmployeeLeaveForm
     search_fields = ('employee__lastname',
                      'employee__permanent__registration_number')
@@ -709,9 +730,16 @@ class AdministrativeChoiceField(ModelChoiceField):
 class AdministrativeLeaveAdmin(DideAdmin):
 
     class Media:
-        css = {'all': ('/static/admin/css/widgets.css',)}
-        js = ('/static/admin/js/calendar.js',
-              '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
+        # Τα calendar.js/DateTimeShortcuts.js και το widgets.css τα
+        # δηλώνει ήδη το AdminDateWidget. Με απόλυτο «/static/...» δεν
+        # ταυτίζονταν με τις σχετικές διαδρομές του widget, οπότε
+        # φορτώνονταν δύο φορές — και η χειρόγραφη σειρά τα έβαζε πριν
+        # από το jquery.init.js, σπάζοντας το ημερολόγιο.
+        # Το jquery.init.js δηλώνεται ρητά ώστε το dide.js να μπει μετά:
+        # χωρίς τη σχέση σειράς το merge του Media το τοποθετούσε πριν,
+        # και το «(function($){...})(django.jQuery)» έσκαγε με
+        # «$ is not a function».
+        js = ('admin/js/jquery.init.js', 'js/dide.js')
     form = AdministrativeLeaveForm
     search_fields = ('employee__lastname',
                      'employee__permanent__registration_number')
@@ -760,9 +788,16 @@ class PermanentChoiceField(ModelChoiceField):
 class PermanentLeaveAdmin(DideAdmin): 
 
     class Media:
-        css = {'all': ('/static/admin/css/widgets.css',)}
-        js = ('/static/admin/js/calendar.js',
-              '/static/admin/js/admin/DateTimeShortcuts.js', 'js/dide.js')
+        # Τα calendar.js/DateTimeShortcuts.js και το widgets.css τα
+        # δηλώνει ήδη το AdminDateWidget. Με απόλυτο «/static/...» δεν
+        # ταυτίζονταν με τις σχετικές διαδρομές του widget, οπότε
+        # φορτώνονταν δύο φορές — και η χειρόγραφη σειρά τα έβαζε πριν
+        # από το jquery.init.js, σπάζοντας το ημερολόγιο.
+        # Το jquery.init.js δηλώνεται ρητά ώστε το dide.js να μπει μετά:
+        # χωρίς τη σχέση σειράς το merge του Media το τοποθετούσε πριν,
+        # και το «(function($){...})(django.jQuery)» έσκαγε με
+        # «$ is not a function».
+        js = ('admin/js/jquery.init.js', 'js/dide.js')
     form = PermanentLeaveForm
     search_fields = ('employee__lastname',
                      'employee__permanent__registration_number')
@@ -796,8 +831,8 @@ class PermanentLeaveAdmin(DideAdmin):
 class NonPermanentAdmin(EmployeeAdmin):
 
     class Media:
-        css = {'all': ('css/no-addanother-button.css',
-                         '/static/admin/css/widgets.css', '/static/admin/css/my_forms.css')}
+        # Το widgets.css το φέρνει το ίδιο το widget· εδώ μένουν μόνο τα δικά μας.
+        css = {'all': ('css/no-addanother-button.css', 'admin/css/my_forms.css')}
 
     list_display = ['vat_number', 'lastname', 'firstname', 'fathername',
                     'profession', 'current_placement']

@@ -36,7 +36,10 @@
     {% endif %}
   {% endfor %}
   {% for inline_admin_formset in inline_admin_formsets %}
-    <li><a href="#anc-{{ inline_admin_formset.formset.prefix }}">{{ inline_admin_formset.opts.verbose_name_plural }}</a></li>
+    {# Το «anc-» span ζούσε στο δικό μας edit_inline/tabular.html, που πλέον
+       δεν υπάρχει. Το πρότυπο του Django δίνει στο inline group id
+       «<prefix>-group», οπότε ο σύνδεσμος δείχνει εκεί. #}
+    <li><a href="#{{ inline_admin_formset.formset.prefix }}-group">{{ inline_admin_formset.opts.verbose_name_plural }}</a></li>
   {% endfor %}
 </ul>
 {% endblock %}

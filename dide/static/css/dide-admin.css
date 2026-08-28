@@ -7,23 +7,16 @@ span.modifier a { margin: 0px; }
     white-space: nowrap;
     margin-left: 1em;
 }
-#changelist-filter {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 1000;
-    width: 280px;
-    background: #f8f8f8;
-    border-left: none;
-    margin: 0;
-    overflow: auto;
+/* Τη θέση του πίνακα φίλτρων τη χειρίζεται πλέον το changelists.css του
+   Django: το #changelist είναι flex container και το #changelist-filter
+   flex item (flex: 0 0 240px). Εδώ υπήρχε position:absolute; z-index:1000
+   μαζί με margin-right hacks για results/paginator/toolbar — φτιαγμένα για
+   το layout του Django 1.x. Πάνω στο νέο layout ο πίνακας φίλτρων σκέπαζε
+   τη μπάρα ενεργειών και το κουμπί «Μετάβαση» δεν πατιόταν. Μένουν μόνο τα
+   δικά μας χρώματα/αποστάσεις. */
+#changelist-filter #changelist-filter-extra-actions h3 {
+    margin-bottom: 4px;
 }
-
-.change-list .filtered .results, .change-list .filtered .paginator,
-.filtered #toolbar, .filtered div.xfull {
-    margin-right: 280px;
-    width: auto;
-}	
 
 .object-tools li {
     display: block;

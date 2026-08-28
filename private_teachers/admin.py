@@ -31,7 +31,11 @@ class PromotionInline(admin.TabularInline):
 
 class PrivateTeacherAdmin(DideAdmin):
     class Media:
-        js = ('js/dide.js', )
+        # Το jquery.init.js δηλώνεται ρητά ώστε το dide.js να μπει μετά:
+        # χωρίς τη σχέση σειράς το merge του Media το τοποθετούσε πριν,
+        # και το «(function($){...})(django.jQuery)» έσκαγε με
+        # «$ is not a function».
+        js = ('admin/js/jquery.init.js', 'js/dide.js')
 
 
     actions = [#to_permanent, to_non_permanent, to_administrative,
