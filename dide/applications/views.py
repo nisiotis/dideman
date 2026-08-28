@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Employee, Permanent, School, Application,
                                  ApplicationSet, ApplicationType,
                                  ApplicationChoice, MoveInside)
 from dideman.dide.employee.decorators import match_required
 from dideman.lib.common import get_class
-from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
-from django.db.models.loading import get_model
+from django.apps import apps
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
 from reportlab.pdfbase.pdfmetrics import registerFont
@@ -34,7 +33,7 @@ def print_app(request, set_id):
         set_id=set_id, employee_id=request.session['matched_employee_id'])
     emp = Permanent.objects.get(pk=base_app.employee_id)
     set = base_app.set
-    app = get_model('dide', set.klass).objects.get(parent=base_app)
+    app = apps.get_model('dide', set.klass).objects.get(parent=base_app)
     form = get_form(set.klass)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=app_report.pdf'
@@ -174,20 +173,16 @@ def edit(request, set_id):
             return HttpResponse('invalid application')
 
         if not set.start_date <= today <= set.end_date:
-            return render_to_response(
-                'applications/error.html',
-                {'error_message': 'Τέλος προθεσμίας υποβολής'})
+            return render(request, 'applications/error.html', {'error_message': 'Τέλος προθεσμίας υποβολής'})
 
-        model = get_model('dide', set.klass)
+        model = apps.get_model('dide', set.klass)
 
         base_app = Application.objects.filter(employee=emp, set=set)
         if base_app:
             try:
                 app = model.objects.get(employee=emp, set=set)
             except:
-                return render_to_response(
-                    'applications/error.html',
-                    {'error_message': 'Σφάλμα τύπου αιτήσεων'})
+                return render(request, 'applications/error.html', {'error_message': 'Σφάλμα τύπου αιτήσεων'})
         else:
             new_form = True
 
@@ -257,11 +252,9 @@ def edit(request, set_id):
                                 'selected': s.id == choices[i]})
                 options.append(acc)
 
-            return render_to_response(
-                'applications/application.html',
-                RequestContext(request, {'emp': emp,
+            return render(request, 'applications/application.html', {'emp': emp,
                                          'form': app_form,
                                          'schools': schools,
                                          'application': app,
                                          'options': options,
-                                         'choices_schools': choices_schools}))
+                                         'choices_schools': choices_schools})

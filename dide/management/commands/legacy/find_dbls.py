@@ -9,7 +9,7 @@ from django.db import connection, transaction
 from dideman.dide.util.settings import SETTINGS
 from dideman.dide.models import (TransferArea, Profession, Permanent, Employee, NonPermanent)
 from dideman import settings
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_str
 from datetime import datetime
 import os
 import xlrd

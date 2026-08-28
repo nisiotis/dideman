@@ -11,8 +11,7 @@ from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            calc_reports, rprts_from_user)
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
@@ -24,9 +23,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, Image, Table
 from reportlab.platypus.doctemplate import NextPageTemplate, SimpleDocTemplate
 from reportlab.platypus.flowables import PageBreak
-import pyPdf
 
-from pyPdf import PdfFileWriter, PdfFileReader
+from pypdf import PdfWriter, PdfReader
 
 from reportlab.pdfgen import canvas
 
@@ -36,7 +34,7 @@ import datetime
 import os
 import os.path
 import mimetypes
-from io import StringIO
+from io import BytesIO, StringIO
 
 pay_list = 20
 pay_pdf = {}
@@ -44,8 +42,7 @@ pay_pdf = {}
 @csrf_protect
 @match_required
 def help(request):
-    return render_to_response('salary/help.html',
-                              RequestContext(request, {}))
+    return render(request, 'salary/help.html', {})
 
 
 @csrf_protect
@@ -309,14 +306,13 @@ def view(request):
         except EmptyPage:
             pay_page = paginator.page(paginator.num_pages)
 
-        return render_to_response('salary/salary.html',
-                                  RequestContext(request, {'emp': emptype,
+        return render(request, 'salary/salary.html', {'emp': emptype,
                                                            'yearly_reports': per_year,
                                                            'total_per_year': o_year_t,
                                                            'payments': pay_page,
                                                            'paypdf_year': pdf_year,
                                                            'paypdf_month': pdf_month
-                                                            }))
+                                                            })
 
 @csrf_protect
 @match_required
@@ -327,7 +323,7 @@ def showpdf(request):
     if 'f' in request.GET:
         
         fr = open(os.path.join(settings.MEDIA_ROOT,'pdffiles','extracted','%s' % request.GET['f']), "rb")
-        imgTemp = StringIO()
+        imgTemp = BytesIO()
         imgDoc = canvas.Canvas(imgTemp)
         if request.GET['o'] == 'l':
             imgDoc.drawImage(sign, 529, 40, 290/2, 154/2)
@@ -335,12 +331,12 @@ def showpdf(request):
             imgDoc.drawImage(sign, 70, 40, 290/2, 154/2)
 
         imgDoc.save()
-        overlay = PdfFileReader(StringIO(imgTemp.getvalue())).getPage(0)
-        page = PdfFileReader(fr).getPage(0)
+        overlay = PdfReader(BytesIO(imgTemp.getvalue())).pages[0]
+        page = PdfReader(fr).pages[0]
                             
-        page.mergePage(overlay)
-        pdf_out = PdfFileWriter()
-        pdf_out.addPage(page)
+        page.merge_page(overlay)
+        pdf_out = PdfWriter()
+        pdf_out.add_page(page)
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=%s' % request.GET['f']
 

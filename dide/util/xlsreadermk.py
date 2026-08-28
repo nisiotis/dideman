@@ -8,7 +8,7 @@ from dideman.dide.models import NonPermanent
 from io import StringIO
 from django.db import connection, transaction
 from dideman.dide.util.settings import SETTINGS
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_str
 
 
 def xlsread(oid, xlsfile):
@@ -33,7 +33,7 @@ def xlsread(oid, xlsfile):
         try:
             e = emp.get(social_security_registration_number__contains=e_social_security_registration_number, lastname=e_lastname)
         except:
-            recs_missed[str(worksheet.cell_value(curr_row, 0))] = 'Αρχείο %s: %s %s' % (force_unicode(xls_name, 'utf-8', 'ignore'), e_social_security_registration_number, force_unicode(e_lastname, 'utf-8', 'ignore')) 
+            recs_missed[str(worksheet.cell_value(curr_row, 0))] = 'Αρχείο %s: %s %s' % (force_str(xls_name, 'utf-8', 'ignore'), e_social_security_registration_number, force_str(e_lastname, 'utf-8', 'ignore')) 
             e = False
 
         if e and e_pay_type in ('ΜΗΝΙΑΙΕΣ', 'ΑΔΕΙΑ ΑΣΘΕΝΕΙΑΣ'):

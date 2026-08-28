@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from dideman.dide.models import (Permanent, NonPermanent, Employee, Placement,
                                  EmployeeLeave, Application, EmployeeResponsibility,
                                  Administrative, NonPermanentUnemploymentMonth,
                                  NonPermanentInsuranceFile)
 from dideman.dide.employee.decorators import match_required
-from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
@@ -18,7 +17,7 @@ from io import StringIO
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
-from email import Charset
+from email import charset as Charset
 from email.generator import Generator
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT, TA_JUSTIFY
@@ -58,8 +57,7 @@ def myphoto_update(request, emp_id):
         "dide_place": SETTINGS['dide_place'],
         "errors": [],
     }
-    return render_to_response('myinfo/myphoto.html',
-                                  RequestContext(request, context))
+    return render(request, 'myinfo/myphoto.html', context)
 
 
 
@@ -564,8 +562,7 @@ def edit(request):
                     #MailSender(u' '.join([emp.firstname, emp.lastname]),
                     #           emp.email)
             return HttpResponseRedirect('/myinfo/edit/?saved=true')
-        return render_to_response('myinfo/edit.html',
-                                  RequestContext(request, {'emp': emptype,
+        return render(request, 'myinfo/edit.html', {'emp': emptype,
                                                            'teaching_exp': teaching_experience,
                                                            'messages': messages,
                                                            'leaves': l,
@@ -580,4 +577,4 @@ def edit(request):
                                                            'om_p': omap_t,
                                                            'yf': y1,
                                                            'yt': y2,
-                                                            }))
+                                                            })

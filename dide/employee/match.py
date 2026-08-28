@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from dideman.dide.employee.forms import EmployeeMatchForm
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.http import  HttpResponseRedirect
 
 def help(request):
-    return render_to_response('employee/help.html',
-                              RequestContext(request, {}))
+    return render(request, 'employee/help.html', {})
 
 
 def match(request):
@@ -19,8 +17,6 @@ def match(request):
     else:
         form = EmployeeMatchForm()
     request.session.set_test_cookie()
-    return render_to_response('employee/match.html',
-                              RequestContext(request,
-                                             {'form': form,
+    return render(request, 'employee/match.html', {'form': form,
                                               'next':
-                                                  request.GET.get('next')}))
+                                                  request.GET.get('next')})

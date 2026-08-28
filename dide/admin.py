@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from django.apps import apps
 from dideman.private_teachers.models import PrivateTeacher
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
-from django.conf.urls import *
-from django.core.urlresolvers import reverse
+from django.urls import path, re_path
+from django.urls import reverse
 from django.forms.models import inlineformset_factory
 from django.template.response import TemplateResponse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.forms import ModelForm
 from django.forms import ModelChoiceField
-from forms import SubstitutePlacementForm, PaymentFileNameMassForm, SchoolCommissionForm
-from overrides.admin import DideAdmin
-from filters import *
-from applications.filters import FinalisedFilter
-from models import (
+from .forms import SubstitutePlacementForm, PaymentFileNameMassForm, SchoolCommissionForm
+from .overrides.admin import DideAdmin
+from .filters import *
+from .applications.filters import FinalisedFilter
+from .models import (
                     GeoSchool, ImportExport,
                     TransferArea, Island, Leave, AdministrativeLeave, PermanentLeave,
                     Responsibility, Profession,
@@ -31,19 +31,19 @@ from models import (
                     ApplicationChoice, ApplicationType, SchoolCommission,
                     DegreeOrganization, NonPermanentUnemploymentMonth,
                     PartialService)
-from forms import OrderedSubstitutionInlineForm
-from models import (RankCode, PaymentFileName, PaymentCategoryTitle,
+from .forms import OrderedSubstitutionInlineForm
+from .models import (RankCode, PaymentFileName, PaymentCategoryTitle,
                     PaymentReportType, PaymentCode, PaymentFilePDF, 
                     NonPermanentInsuranceFile)
-from actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
+from .actions import (CSVEconomicsReport, CSVReport, FieldAction, XMLReadAction,
                      CreatePDF, XLSReadAction, PDFReadAction, DeleteAction, timestamp, 
                      EmployeeBecome, HideOption, ShowOption, XMLWriteE7Action, XMLWriteE3Action)
-from reports.permanent import permanent_docx_reports, proag_docx_reports
-from reports.leave import leave_docx_reports
-from reports.nonpermanent import nonpermanent_docx_reports
-from django.utils.translation import ugettext_lazy
+from .reports.permanent import permanent_docx_reports, proag_docx_reports
+from .reports.leave import leave_docx_reports
+from .reports.nonpermanent import nonpermanent_docx_reports
+from django.utils.translation import gettext_lazy
 from dideman import settings
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_str
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from dideman.dide.views.views import index
@@ -60,9 +60,9 @@ class NonPermanentInsuranceFileAdmin(DideAdmin):
     actions = [XLSReadAction('Ενημέρωση βάσης από εγγραφή')]
 
     def save_model(self, request, obj, form, change):
-        pf1 = force_unicode(obj.xls_file1.name, 'cp737', 'ignore')
-        pf2 = force_unicode(obj.xls_file2.name, 'cp737', 'ignore')
-        pf3 = force_unicode(obj.xls_file3.name, 'cp737', 'ignore')
+        pf1 = force_str(obj.xls_file1.name, 'cp737', 'ignore')
+        pf2 = force_str(obj.xls_file2.name, 'cp737', 'ignore')
+        pf3 = force_str(obj.xls_file3.name, 'cp737', 'ignore')
 
         if pf1[-4:] == ".xls" and pf2[-4:] == ".xls" and pf3[-4:] == ".xls":
             obj.save()
@@ -78,7 +78,7 @@ class NonPermanentInsuranceFileAdmin(DideAdmin):
 #    actions = [PDFReadAction(u'Δημιουργία PDF')]
 
 #    def save_model(self, request, obj, form, change):
-#        pf = force_unicode(obj.pdf_file.name, 'cp737', 'ignore')
+#        pf = force_str(obj.pdf_file.name, 'cp737', 'ignore')
 #        if pf[-4:] == ".pdf":
 #            obj.save()
 #        else:
@@ -99,7 +99,7 @@ class PaymentFileNameAdmin(DideAdmin):
     actions = [XMLReadAction('Ανάγνωση XML')]
 
     def save_model(self, request, obj, form, change):
-        pf = force_unicode(obj.xml_file.name, 'cp737', 'ignore')
+        pf = force_str(obj.xml_file.name, 'cp737', 'ignore')
         if pf[-4:] == ".xml":
             obj.save()
         else:
@@ -136,7 +136,7 @@ class PaymentFileNameAdmin(DideAdmin):
                         if request.POST.get('taxed'):
                             taxedfound = request.POST.get('taxed')
                         pf = PaymentFileName(xml_file='xmlfiles/fromzipfile%s.xml' % t,
-                                             description='%s %s' % (request.POST['description'], force_unicode(file, 'cp737', 'ignore')[:-4]),
+                                             description='%s %s' % (request.POST['description'], force_str(file, 'cp737', 'ignore')[:-4]),
                                              status=0, taxed=taxedfound)
                         pf.save()
 
@@ -171,13 +171,11 @@ class PaymentFileNameAdmin(DideAdmin):
 
     def get_urls(self):
         urls = super(PaymentFileNameAdmin, self).get_urls()
-        my_urls = patterns('',
-            url(
-                r'add_zip',
-                self.admin_site.admin_view(self.admin_add_zip),
-                name='admin_add_zip',
-            ),
-        )
+        my_urls = [
+            re_path(r'add_zip',
+                    self.admin_site.admin_view(self.admin_add_zip),
+                    name='admin_add_zip'),
+        ]
         return my_urls + urls
 
 
@@ -650,9 +648,9 @@ class NonPermanentLeaveAdmin(DideAdmin):
         return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
     
     def get_urls(self):
-        from django.conf.urls import patterns, url      
-        return patterns('', url(r'^print/([0-9]+)/$',
-                          self.admin_site.admin_view(self.print_leave))) + super(NonPermanentLeaveAdmin, self).get_urls();            
+        return [re_path(r'^print/([0-9]+)/$',
+                        self.admin_site.admin_view(self.print_leave))] + \
+            super(NonPermanentLeaveAdmin, self).get_urls()
 
 
 class EmployeeLeaveAdmin(DideAdmin):
@@ -685,11 +683,10 @@ class EmployeeLeaveAdmin(DideAdmin):
         return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
 
     def get_urls(self):
-        from django.conf.urls import patterns, url
         return super(EmployeeLeaveAdmin, self).get_urls() + \
-            patterns('', url(r'^print/(\d+)$',
-                          self.admin_site.admin_view(self.print_leave),
-                          name='dide_employeeleave_print'))
+            [re_path(r'^print/(\d+)$',
+                     self.admin_site.admin_view(self.print_leave),
+                     name='dide_employeeleave_print')]
 
 
 class AdministrativeLeaveForm(ModelForm):
@@ -739,11 +736,10 @@ class AdministrativeLeaveAdmin(DideAdmin):
         return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
 
     def get_urls(self):
-        from django.conf.urls import patterns, url
         return super(AdministrativeLeaveAdmin, self).get_urls() + \
-            patterns('', url(r'^print/(\d+)$',
-                          self.admin_site.admin_view(self.print_leave),
-                          name='dide_administrativeleave_print'))
+            [re_path(r'^print/(\d+)$',
+                     self.admin_site.admin_view(self.print_leave),
+                     name='dide_administrativeleave_print')]
 
 class PermanentLeaveForm(ModelForm):
 
@@ -791,11 +787,10 @@ class PermanentLeaveAdmin(DideAdmin):
         return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
 
     def get_urls(self):
-        from django.conf.urls import patterns, url
         return super(PermanentLeaveAdmin, self).get_urls() + \
-            patterns('', url(r'^print/(\d+)$',
-                          self.admin_site.admin_view(self.print_leave),
-                          name='dide_permanentleave_print'))
+            [re_path(r'^print/(\d+)$',
+                     self.admin_site.admin_view(self.print_leave),
+                     name='dide_permanentleave_print')]
 
     
 class NonPermanentAdmin(EmployeeAdmin):
@@ -902,7 +897,7 @@ admin.site.register((TransferArea, Island, Responsibility,
                      LoanCategory, DegreeCategory, 
                      ApplicationType, DegreeOrganization))
 admin.site.disable_action('delete_selected')
-admin.site.add_action(DeleteAction(ugettext_lazy("Delete selected %(verbose_name_plural)s")))
+admin.site.add_action(DeleteAction(gettext_lazy("Delete selected %(verbose_name_plural)s")))
 
 
 AdminSite.index = index
@@ -912,5 +907,8 @@ UserAdmin.list_display = ('username', 'first_name', 'last_name', 'is_active', 'i
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
-import admin_interface
-admin.site.unregister(admin_interface.models.Theme)
+# Το admin_interface δηλώνεται προαιρετικά στο settings.INSTALLED_APPS,
+# οπότε το θέμα του αποκρύπτεται μόνο όταν είναι εγκατεστημένο.
+if apps.is_installed('admin_interface'):
+    import admin_interface
+    admin.site.unregister(admin_interface.models.Theme)

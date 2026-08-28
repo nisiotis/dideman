@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dideman.dide.actions import DocxReport
-from dideman.dide.util.settings import SETTINGS
+from dideman.dide.util.settings import lazy_setting
 import os
 
 def cc(obj):
@@ -41,9 +41,9 @@ class LeaveDocxReport(DocxReport):
                             'duration', 'date_issued', 'leave__not_paying']
 
         context = {'telephone_number':
-                       SETTINGS['leaves_contact_telephone_number'],
-                   'contact_person': SETTINGS['leaves_contact_person'],
-                   'email': SETTINGS['email_leaves']}
+                       lazy_setting('leaves_contact_telephone_number'),
+                   'contact_person': lazy_setting('leaves_contact_person'),
+                   'email': lazy_setting('email_leaves')}
         if custom_context:
             context.update(custom_context)
 

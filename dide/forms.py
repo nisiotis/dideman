@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from django.utils.text import force_unicode
+from django.utils.encoding import force_str
 from django.utils.html import mark_safe
 from django.forms.widgets import flatatt
 
@@ -23,10 +23,10 @@ class SubstituteInput(forms.HiddenInput):
         final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
-            final_attrs['value'] = force_unicode(self._format_value(nid))
+            final_attrs['value'] = force_str(self._format_value(nid))
         output = []
         output.append('<input%s />' % flatatt(final_attrs))
-        output.append('<input readonly="true" type="text" id="display_%s" value="%s" size="40" />&nbsp;' % (self._format_value(final_attrs['id']), force_unicode(self._format_value(value))))
+        output.append('<input readonly="true" type="text" id="display_%s" value="%s" size="40" />&nbsp;' % (self._format_value(final_attrs['id']), force_str(self._format_value(value))))
         output.append('<a href="#" id="link_%s" onclick="this.href=\'/admin/dide/nonpermanent/list/\'+\'?id=\'+django.jQuery(this).attr(\'id\');return focusOrOpen(this, \'Αναπληρωτές\',{\'width\': 500, \'height\': 600});">Επιλογή</a>&nbsp;' % self._format_value(final_attrs['id']) )
         output.append('<a href="/admin/dide/nonpermanent/add/" class="add-another" id="add_%s" onclick="return showAddAnotherPopup(this);"> <img src="/static/admin/img/icon_addlink.gif" width="10" height="10" alt="Προσθέστε κι άλλο"></a>' % self._format_value(final_attrs['id']))
         return mark_safe(''.join(output))   
@@ -50,13 +50,16 @@ class SubstitutePlacementForm(ModelForm):
         model = SubstitutePlacement
         fields = '__all__'
 
-    pltype = PlacementType.objects.get(pk=3)
+    # Ο τύπος τοποθέτησης αναζητείται εδώ και όχι στο σώμα της κλάσης: ένα
+    # ερώτημα σε import time εκτελείται πριν υπάρξουν οι πίνακες και σπάει
+    # κάθε manage.py εντολή σε καθαρή βάση.
+    PLACEMENT_TYPE_PK = 3
 
     def _post_clean(self):
         super(SubstitutePlacementForm, self)._post_clean()
         if not self.instance.date_to:
             self.instance.date_to = current_year_date_to_half()
-        self.instance.type = SubstitutePlacementForm.pltype
+        self.instance.type = PlacementType.objects.get(pk=self.PLACEMENT_TYPE_PK)
 
 TAXED_TYPES = [(11, 'Τακτικές Μονίμων'), 
                (12, 'Τακτικές Αναπληρωτών'), 

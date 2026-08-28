@@ -2,8 +2,7 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
@@ -11,14 +10,12 @@ from dideman.dide.models import Profession, TransferArea, Employee, NonPermanent
 from dideman.private_teachers.models import PrivateTeacher
 from dideman.dide.util.settings import SETTINGS
 from django import VERSION as djangoversion
-from django.utils.translation import ugettext as _
-from django.utils import six
+from django.utils.translation import gettext as _
 from django.utils.text import capfirst
 from django.views.decorators.cache import never_cache
 from django.utils.cache import add_never_cache_headers
 from django.db.models import Q
-from django.conf.urls import *
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.urls import reverse, NoReverseMatch
 from django.core.exceptions import PermissionDenied
 from dideman.lib.common import without_accented
 from dideman.dide.util.encoding import (ENCODING_CHOICES, DEFAULT_ENCODING,
@@ -284,7 +281,7 @@ def index(self, request, extra_context=None):
                     }
 
     # Sort the apps alphabetically.
-    app_list = list(six.itervalues(app_dict))
+    app_list = list(app_dict.values())
     app_list.sort(key=lambda x: x['name'])
 
     # Sort the models alphabetically within each app, with the featured
@@ -403,8 +400,7 @@ def photo_update(request, emp_id):
         "dide_place": SETTINGS['dide_place'],
         "errors": [],
     }
-    return render_to_response('admin/photo.html',
-                                  RequestContext(request, context))
+    return render(request, 'admin/photo.html', context)
 
 
 @csrf_protect
@@ -428,7 +424,7 @@ def nonpermanent_list(request):
         "dide_place": SETTINGS['dide_place'],
         "errors": [],
     }
-    r = render_to_response('admin/nonpermanent_list.html', context, RequestContext(request))
+    r = render(request, 'admin/nonpermanent_list.html', context)
     return HttpResponse(r)
 
 
@@ -702,7 +698,7 @@ def import_export_view(request):
                     "data": xlsdata,
                 })
 
-    r = render_to_response('admin/importexport.html', context, RequestContext(request))
+    r = render(request, 'admin/importexport.html', context)
     return r
 
 
@@ -803,7 +799,7 @@ def export_view(request):
                 "export_field_choices": field_choices,
             })
 
-    r = render_to_response('admin/export.html', context, RequestContext(request))
+    r = render(request, 'admin/export.html', context)
     return r
 
 
@@ -897,8 +893,7 @@ def duplicate_employees_view(request):
         "total_multi_role": total_multi_role,
         "role_labels": [label for label, model in employee_role_models()],
     }
-    return render_to_response('admin/duplicates.html', context,
-                              RequestContext(request))
+    return render(request, 'admin/duplicates.html', context)
 
 
 def json_for_script(data):
@@ -984,19 +979,17 @@ def school_geo_view(request):
         "errors": [],
     }
 
-    r = render_to_response('admin/schools_geo_list.html', context, RequestContext(request))
+    r = render(request, 'admin/schools_geo_list.html', context)
     return HttpResponse(r)
 
 
 def handler404(request):
-    response = render_to_response('admin/404.html', {},
-                                  context_instance=RequestContext(request))
+    response = render(request, 'admin/404.html', {})
     response.status_code = 404
     return response
 
 
 def handler500(request):
-    response = render_to_response('admin/500.html', {},
-                                  context_instance=RequestContext(request))
+    response = render(request, 'admin/500.html', {})
     response.status_code = 500
     return response

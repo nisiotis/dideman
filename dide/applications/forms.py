@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from dideman.dide.models import Permanent, MoveInside
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from dideman.dide.models import HEALTH_CHOICES, School
 
 HEALTH_CHOICES = (('', ''),) + HEALTH_CHOICES

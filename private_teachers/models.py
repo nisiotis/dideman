@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
 import collections
 from dideman.lib.date import *
 from django.db import models
@@ -21,8 +20,8 @@ class PrivateTeacher(dide.Employee):
         verbose_name_plural = 'Ιδιωτικοί Εκπαιδευτικοί'
         ordering = ['lastname']
 
-    parent = models.OneToOneField(dide.Employee, parent_link=True)
-    school = models.ForeignKey('PrivateSchool', verbose_name='Σχολείο', blank=True, null=True)
+    parent = models.OneToOneField(dide.Employee, parent_link=True, on_delete=models.CASCADE)
+    school = models.ForeignKey('PrivateSchool', verbose_name='Σχολείο', blank=True, null=True, on_delete=models.CASCADE)
     not_service_days = models.IntegerField('Μέρες εκτός υπηρεσίας', default=0)
     series_number = models.CharField('Αρ. Επετηρίδας', max_length=20, blank=True, null=True)
     active = models.BooleanField('Ενεργός', default=True)
@@ -182,7 +181,7 @@ class WorkingPeriod(models.Model):
         verbose_name_plural = 'Περίοδοι Εργασίας'
         ordering = ["-date_to"]
 
-    teacher = models.ForeignKey(dide.Employee)
+    teacher = models.ForeignKey(dide.Employee, on_delete=models.CASCADE)
     date_from = models.DateField('Από')
     date_to = models.DateField('Μέχρι')
     hours_weekly = models.IntegerField('Εβδομαδιαίες ώρες εργασίας', max_length=2, null=True, blank=True)
@@ -221,7 +220,7 @@ class LeaveWithoutPay(models.Model):
         verbose_name = 'Άδεια άνευ αποδοχών'
         verbose_name_plural = 'Άδειες άνευ αποδοχών'
 
-    teacher = models.ForeignKey(dide.Employee)
+    teacher = models.ForeignKey(dide.Employee, on_delete=models.CASCADE)
     date_from = models.DateField('Από')
     date_to = models.DateField('Μέχρι')
     recognised_experience = models.CharField('Αναγνωρίσιμη Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True, default='000000', max_length=8)
@@ -241,7 +240,7 @@ class PrivateSchool(dide.Organization):
         verbose_name_plural = 'Ιδιωτικά Σχολεία'
         ordering = ['name']
 
-    parent = models.OneToOneField(dide.Organization, parent_link=True)
+    parent = models.OneToOneField(dide.Organization, parent_link=True, on_delete=models.CASCADE)
     address = models.CharField('Διεύθυνση', max_length=200, null=True, blank=True)
     post_code = models.CharField('Τ.Κ.', max_length=5, null=True, blank=True)
     telephone_number = models.CharField('Αρ. Τηλεφώνου', max_length=14, null=True, blank=True)

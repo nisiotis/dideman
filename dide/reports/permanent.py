@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from dideman.dide.actions import DocxReport
 from dideman.lib.date import current_year
-from dideman.dide.util.settings import SETTINGS
+from dideman.dide.util.settings import lazy_setting
 import datetime
 import os
 
@@ -10,9 +10,9 @@ class ProagDocxReport(DocxReport):
     def __init__(self, short_description, body_template_path, fields,
                  custom_context=None, model_fields=None, include_header=True,
                  include_footer=True):
-        context = {'telephone_number': SETTINGS['proagogon_contact_telephone_number'],
-                   'contact_person': SETTINGS['proagogon_contact_person'],
-                   'email': SETTINGS['proagogon_email_staff']}
+        context = {'telephone_number': lazy_setting('proagogon_contact_telephone_number'),
+                   'contact_person': lazy_setting('proagogon_contact_person'),
+                   'email': lazy_setting('proagogon_email_staff')}
         context.update(custom_context)
         model_fields = model_fields or {}
         super(ProagDocxReport, self).__init__(
@@ -26,9 +26,9 @@ class PermanentDocxReport(DocxReport):
                  custom_context=None, model_fields=None, include_header=True,
                  include_footer=True):
         context = {'telephone_number':
-                       SETTINGS['transfers_contact_telephone_number'],
-                   'contact_person': SETTINGS['transfers_contact_person'],
-                   'email': SETTINGS['email_staff']
+                       lazy_setting('transfers_contact_telephone_number'),
+                   'contact_person': lazy_setting('transfers_contact_person'),
+                   'email': lazy_setting('email_staff')
                    }
         context.update(custom_context)
         model_fields = model_fields or {}

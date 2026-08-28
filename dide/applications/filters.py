@@ -2,21 +2,13 @@
 from dideman.dide.models import Application
 from dideman.dide.overrides.admin import DideAdmin
 from dideman.dide.overrides.admin import ModifierSimpleListFilter
-import django.contrib.admin.views.main as views
 
 
 class FinalisedFilter(ModifierSimpleListFilter):
     title = 'Οριστικοποιήθηκε'
     parameter_name = 'finalised'
-    modifier_name = '_m_' + parameter_name
-    lookup_param = parameter_name
-    views.__dict__['IGNORED_PARAMS'] += [modifier_name]
-    DideAdmin.add_filter_parameter(parameter_name)
-
-    def __init__(self, request, params, model, model_admin, *args, **kwargs):
-        self.modifier_value = request.GET.get(self.modifier_name, 'AND')
-        super(FinalisedFilter, self).__init__(request, params, model,
-                                                    model_admin)
+    # Το modifier_name, το lookup_param και η καταχώρηση της παραμέτρου
+    # γίνονται πλέον από το BaseModifierFilter.__init__.
 
     def lookups(self, request, model_admin):
         return  (('0', 'Όχι'),

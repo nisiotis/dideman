@@ -2,10 +2,10 @@
 from django.http import HttpResponse
 from django.contrib.admin.filters import FieldListFilter
 from django.db import models
-from django.contrib.admin.util import get_fields_from_path
+from django.contrib.admin.utils import get_fields_from_path
 from dideman.dide.filters import FreeDateFieldListFilter
 from chosen import forms as chosenforms
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 
 def get_specs(request, model, model_admin):
@@ -55,8 +55,7 @@ def render_template(request, model, model_admin):
                     attrs={'style': 'width:600px',
                            'name': spec.lookup_param, 'title': spec.title})
                 selects.append(select_multiple)
-    return render_to_response('admin/full_filters.html',
-                              {'selects': selects,
+    return render(request, 'admin/full_filters.html', {'selects': selects,
                                'date_filters': date_filters,
                                'path': '/'.join(request.path.split('/')[:-2])})
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from dideman.dide.actions import DocxReport
 from dideman.lib.date import current_year, current_year_date_to_half
-from dideman.dide.util.settings import SETTINGS
+from dideman.dide.util.settings import lazy_setting
 import datetime
 import os
 
@@ -11,9 +11,9 @@ class NonPermanentDocxReport(DocxReport):
                  custom_context=None, model_fields=None, include_header=True,
                  include_footer=True):
         context = {'telephone_number':
-                       SETTINGS['substitutes_contact_telephone_number'],
-                   'contact_person': SETTINGS['substitutes_contact_person'],
-                   'email': SETTINGS['email_substitutes']}
+                       lazy_setting('substitutes_contact_telephone_number'),
+                   'contact_person': lazy_setting('substitutes_contact_person'),
+                   'email': lazy_setting('email_substitutes')}
         context.update(custom_context)
         model_fields = model_fields or {}
         super(NonPermanentDocxReport, self).__init__(

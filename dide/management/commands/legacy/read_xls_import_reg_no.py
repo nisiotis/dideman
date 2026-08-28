@@ -4,7 +4,7 @@ from django.db import connection, transaction
 from dide.models import (TransferArea, Profession, Permanent)
 from dideman import settings
 from dideman.dide.util.settings import SETTINGS
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_str
 from datetime import datetime
 import os
 import xlrd

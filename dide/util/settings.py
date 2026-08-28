@@ -1,4 +1,7 @@
 import sys
+
+from django.utils.functional import lazy
+
 from dideman.dide.models import Settings
 
 
@@ -30,3 +33,11 @@ current_module = sys.modules[__name__]
 
 if not hasattr(current_module, 'SETTINGS'):
     setattr(current_module, 'SETTINGS', DideSettings())
+
+
+# Τα reports δημιουργούνται σε import time, οπότε δεν μπορούν να διαβάσουν
+# τιμές από τη βάση εκείνη τη στιγμή: το ερώτημα θα εκτελούνταν πριν καν
+# υπάρξουν οι πίνακες και θα έσπαγε κάθε manage.py εντολή. Το lazy_setting
+# επιστρέφει proxy που διαβάζει τη ρύθμιση την πρώτη φορά που θα
+# χρησιμοποιηθεί ως συμβολοσειρά.
+lazy_setting = lazy(lambda key: SETTINGS[key] or '', str)

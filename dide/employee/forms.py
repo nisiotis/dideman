@@ -2,7 +2,7 @@
 from django import forms
 from dideman.dide.models import Permanent, Employee
 from dideman.lib.common import without_accented
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db.models import Q
 
 

@@ -1,5 +1,5 @@
 # Django settings for dideman project.
-import locale
+import importlib.util
 import os
 import dideman.secret_settings as secret_settings
 DEBUG = True
@@ -56,9 +56,16 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
+# Ο κώδικας χρησιμοποιεί παντού naive datetimes. Το Django >= 5 έχει default
+# USE_TZ = True, που θα άλλαζε σιωπηλά τη σημασία κάθε αποθηκευμένης ώρας.
+USE_TZ = False
+
+# Τα μοντέλα βασίζονται σε implicit AutoField primary keys. Χωρίς αυτό, το
+# Django 5 θα ζητούσε migration για BigAutoField.
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
-USE_L10N = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -103,34 +110,43 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    #django.template.loaders.app_directories.load_template_source',
-    'django.template.loaders.eggs.Loader',
-)
+# Το TEMPLATE_DIRS / TEMPLATE_LOADERS / TEMPLATE_CONTEXT_PROCESSORS
+# αντικαταστάθηκαν από το ενιαίο TEMPLATES. Οι context processors που
+# δηλώνονται εδώ είναι όσοι χρησιμοποιούσε σιωπηρά το παλιό default και
+# χρειάζεται το admin (request, auth, messages).
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(os.path.dirname(__file__), 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.template.context_processors.static',
+                'django.template.context_processors.media',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
+MIDDLEWARE = (
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'johnny.middleware.LocalStoreClearMiddleware',
     #'johnny.middleware.QueryCacheMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'dideman.urls'
-
-TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), 'templates'),
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
 
 INSTALLED_APPS = (
 
@@ -140,18 +156,21 @@ INSTALLED_APPS = (
 #    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'admin_interface',
-    'flat_responsive', # only if django version < 2.0
-    'flat', # only if django version < 1.9
-    'colorfield',
     'django.contrib.admin',
     'dideman.dide',
     'dideman.api',
     'dideman.private_teachers',
     'dideman.stats',
-#    'south',    
-    'chosen',
 )
+
+# Το admin_interface (με το colorfield) είναι προαιρετικό θέμα και πρέπει να
+# προηγείται του django.contrib.admin. Δηλώνεται μόνο αν είναι εγκατεστημένο,
+# ώστε το project να σηκώνεται και χωρίς αυτό.
+_optional = [a for a in ('admin_interface', 'colorfield')
+             if importlib.util.find_spec(a) is not None]
+if _optional:
+    _i = INSTALLED_APPS.index('django.contrib.admin')
+    INSTALLED_APPS = INSTALLED_APPS[:_i] + tuple(_optional) + INSTALLED_APPS[_i:]
 
 
 # A sample logging configuration. The only tangible logging
@@ -177,7 +196,6 @@ LOGGING = {
     }
 }
 DEFAULT_CHARSET = 'utf-8'
-FILE_CHARSET = 'utf-8'
 DATE_INPUT_FORMATS = ('%d-%m-%Y', '%d/%m/%Y')
 DATE_FORMAT = 'd-m-Y'
 

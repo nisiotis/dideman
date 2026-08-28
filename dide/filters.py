@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-from overrides.admin import ModifierSimpleListFilter
-from overrides.admin import DideAdmin
+from .overrides.admin import ModifierSimpleListFilter
+from .overrides.admin import DideAdmin
 from django.contrib.admin.filters import SimpleListFilter, FieldListFilter
-from models import (Organization, School, Permanent, DegreeCategory,
+from .models import (Organization, School, Permanent, DegreeCategory,
                     NonPermanent, EmployeeLeave, TransferArea, Island,
                     AdministrativeLeave, PermanentLeave,
                     SubstituteMinistryOrder, Leave, NonPermanentLeave)
-import django.contrib.admin.views.main as views
 import datetime
 import re
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class PermanentPostFilter(ModifierSimpleListFilter):
@@ -262,7 +261,6 @@ class FreeDateFieldListFilter(SimpleListFilter):
     sep = '|'
     default_date_from = datetime.date(1950, 1, 1)
     default_date_to = datetime.date(2050, 12, 31)
-    DideAdmin.add_filter_parameter(parameter_name)
     list_view = False
 
     def default_date_values(self):
@@ -272,7 +270,6 @@ class FreeDateFieldListFilter(SimpleListFilter):
         super(FreeDateFieldListFilter, self).__init__(request, *args, **kwargs)
         self.modifier_name = '_m_' + self.parameter_name
         self.lookup_param = self.parameter_name
-        views.__dict__['IGNORED_PARAMS'].append(self.modifier_name)
         DideAdmin.add_filter_parameter(self.parameter_name)
 
         url_value = request.GET.get(self.parameter_name, '')
@@ -289,8 +286,9 @@ class FreeDateFieldListFilter(SimpleListFilter):
             self.date_from.strftime('%d-%m-%Y'), \
             self.date_to.strftime('%d-%m-%Y')
 
-    def used_params(self):
-        return [self.parameter_name]
+    def expected_parameters(self):
+        # Αντικαθιστά την παλιά μετάλλαξη του IGNORED_PARAMS.
+        return [self.parameter_name, self.modifier_name]
 
     def lookups(self, request, model_admin):
         return []

@@ -8,15 +8,17 @@ from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            rprts_from_user)
 from dideman import settings
 
+# Το TEMPLATE_DIRS αντικαταστάθηκε από το ενιαίο TEMPLATES.
+TEMPLATE_ROOT = settings.TEMPLATES[0]['DIRS'][0]
+
 from dideman.dide.util import xml
 from dideman.dide.util import pdfreader
 from dideman.dide.util import xlsreader
 
-from dideman.dide.util.settings import SETTINGS
-from dideman.settings import TEMPLATE_DIRS
+from dideman.dide.util.settings import SETTINGS, lazy_setting
 from django.contrib import messages
 from django.contrib.admin import helpers
-from django.contrib.admin.util import get_deleted_objects, model_ngettext
+from django.contrib.admin.utils import get_deleted_objects, model_ngettext
 from django.core.exceptions import PermissionDenied
 from django.db import router
 from django.http import HttpResponse, StreamingHttpResponse
@@ -24,8 +26,9 @@ from django.shortcuts import render
 from django.template import Context, loader, Template
 from django.template.response import TemplateResponse
 from django.utils.cache import add_never_cache_headers
-from django.utils.encoding import force_unicode
-from django.utils.translation import ugettext as _
+from django.utils.encoding import force_str
+from django.utils.functional import lazy
+from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
@@ -54,6 +57,10 @@ import datetime
 import inspect
 import os
 import zipfile
+
+
+_lazy_dide_place = lazy(
+    lambda: without_accented((SETTINGS['dide_place'] or '').upper()), str)
 
 
 def timestamp():
@@ -169,12 +176,12 @@ class DocxReport(TemplateAction):
         self.model_fields = model_fields
         self.dictionary = {'data': [],
                            'settings': SETTINGS,
-                           'email': SETTINGS['email_dide'],
-                           'fax_number': SETTINGS['fax_number'],
-                           'telephone_number': SETTINGS['telephone_number'],
-                           'dide_place':
-                               without_accented(SETTINGS['dide_place']
-                                                .upper()),
+                           # Τα reports κατασκευάζονται σε import time, οπότε
+                           # οι ρυθμίσεις διαβάζονται όταν χρησιμοποιηθούν.
+                           'email': lazy_setting('email_dide'),
+                           'fax_number': lazy_setting('fax_number'),
+                           'telephone_number': lazy_setting('telephone_number'),
+                           'dide_place': _lazy_dide_place(),
                            'date': datetime.date.today,
                            'current_year_date_from': current_year_date_from(),
                            'current_year_date_to': current_year_date_to(),
@@ -233,7 +240,7 @@ class DocxReport(TemplateAction):
 
     def add_to_docx(self, document):
         buffer = StringIO()
-        template_dir = os.path.join(TEMPLATE_DIRS[0], self.template_base_path,
+        template_dir = os.path.join(TEMPLATE_ROOT, self.template_base_path,
                                     'basic', 'docx-contents')
         docx = zipfile.ZipFile(buffer,
                                mode='w', compression=zipfile.ZIP_DEFLATED)
@@ -487,9 +494,9 @@ class FieldAction(object):
             return None
 
         if len(queryset) == 1:
-            objects_name = force_unicode(opts.verbose_name)
+            objects_name = force_str(opts.verbose_name)
         else:
-            objects_name = force_unicode(opts.verbose_name_plural)
+            objects_name = force_str(opts.verbose_name_plural)
 
         title = _("Are you sure?")
 
@@ -619,7 +626,7 @@ class DeleteAction(object):
             n = queryset.count()
             if n:
                 for obj in queryset:
-                    obj_display = force_unicode(obj)
+                    obj_display = force_str(obj)
                     modeladmin.log_deletion(request, obj, obj_display)
                 queryset.delete()
                 modeladmin.message_user(request, _("Successfully deleted %(count)d %(items)s.") % {
@@ -629,9 +636,9 @@ class DeleteAction(object):
             return None
 
         if len(queryset) == 1:
-            objects_name = force_unicode(opts.verbose_name)
+            objects_name = force_str(opts.verbose_name)
         else:
-            objects_name = force_unicode(opts.verbose_name_plural)
+            objects_name = force_str(opts.verbose_name_plural)
 
         if perms_needed or protected:
             title = _("Cannot delete %(name)s") % {"name": objects_name}
@@ -739,11 +746,11 @@ class XLSReadAction(object):
         modeladmin.message_user(request, msg % rows_updated)
 
         if len(queryset) == 1:
-            objects_name = force_unicode(opts.verbose_name)
+            objects_name = force_str(opts.verbose_name)
             title = "Αποτελέσματα ανάγνωσης αρχείου XLS"
 
         else:
-            objects_name = force_unicode(opts.verbose_name_plural)
+            objects_name = force_str(opts.verbose_name_plural)
             title = "Αποτελέσματα ανάγνωσης αρχείων XLS"
 
         context = {
@@ -1178,11 +1185,11 @@ class XMLReadAction(object):
             msg = '%s αρχεία αναγνώστηκαν'
         modeladmin.message_user(request, msg % rows_updated)
         if len(queryset) == 1:
-            objects_name = force_unicode(opts.verbose_name)
+            objects_name = force_str(opts.verbose_name)
             title = "Αποτελέσματα ανάγνωσης αρχείου XML"
 
         else:
-            objects_name = force_unicode(opts.verbose_name_plural)
+            objects_name = force_str(opts.verbose_name_plural)
             title = "Αποτελέσματα ανάγνωσης αρχείων XML"
 
         context = {

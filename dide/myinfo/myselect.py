@@ -1,17 +1,14 @@
 """
 Extra HTML Widget classes
 """
-from __future__ import unicode_literals
 
 import datetime
 import re
 
 from django.forms.widgets import Widget, Select
-from django.utils import datetime_safe
 from django.utils.dates import MONTHS
 from django.utils.safestring import mark_safe
 from django.utils.formats import get_format
-from django.utils import six
 from django.conf import settings
 
 __all__ = ('SelectDateWidget',)
@@ -65,7 +62,7 @@ class MySelectDateWidget(Widget):
             year_val, month_val, day_val = value.year, value.month, value.day
         except AttributeError:
             year_val = month_val = day_val = None
-            if isinstance(value, six.string_types):
+            if isinstance(value, str):
                 if settings.USE_L10N:
                     try:
                         input_format = get_format('DATE_INPUT_FORMATS')[0]
@@ -79,7 +76,7 @@ class MySelectDateWidget(Widget):
                         year_val, month_val, day_val = [int(v) for v in match.groups()]
         choices = [(i, i) for i in self.years]
         year_html = self.create_select(name, self.year_field, value, year_val, choices)
-        choices = list(six.iteritems(MONTHS))
+        choices = list(MONTHS.items())
         month_html = self.create_select(name, self.month_field, value, month_val, choices)
         choices = [(i, i) for i in range(1, 32)]
         day_html = self.create_select(name, self.day_field, value, day_val,  choices)
@@ -118,7 +115,6 @@ class MySelectDateWidget(Widget):
                 except ValueError:
                     return '%02d-%02d-%02d' % (int(d), int(m), int(y))
                 else:
-                    date_value = datetime_safe.new_date(date_value)
                     return date_value.strftime(input_format)
             else:
                 return '%02d-%02d-%02d' % (int(d), int(m), int(y))
@@ -139,7 +135,7 @@ class MySelectDateWidget(Widget):
     def _has_changed(self, initial, data):
         try:
             input_format = get_format('DATE_INPUT_FORMATS')[0]
-            data = datetime_safe.datetime.strptime(data, input_format).date()
+            data = datetime.datetime.strptime(data, input_format).date()
         except (TypeError, ValueError):
             pass
         return super(SelectDateWidget, self)._has_changed(initial, data)
