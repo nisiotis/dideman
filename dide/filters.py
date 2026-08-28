@@ -266,11 +266,29 @@ class FreeDateFieldListFilter(SimpleListFilter):
     def default_date_values(self):
         return [self.default_date_from, self.default_date_to]
 
-    def __init__(self, request, *args, **kwargs):
-        super(FreeDateFieldListFilter, self).__init__(request, *args, **kwargs)
+    @property
+    def default_from_value(self):
+        return self.default_date_from.strftime('%d-%m-%Y')
+
+    @property
+    def default_to_value(self):
+        return self.default_date_to.strftime('%d-%m-%Y')
+
+    def __init__(self, request, params, *args, **kwargs):
+        super(FreeDateFieldListFilter, self).__init__(request, params,
+                                                      *args, **kwargs)
         self.modifier_name = '_m_' + self.parameter_name
         self.lookup_param = self.parameter_name
         DideAdmin.add_filter_parameter(self.parameter_name)
+
+        # Το SimpleListFilter του Django αφαιρεί από τα params μόνο το
+        # parameter_name — όχι όλα τα expected_parameters(), όπως κάνει το
+        # FieldListFilter. Χωρίς αυτό το «_m_…» έμενε στα υπόλοιπα lookup
+        # params, το ChangeList το έδινε στο ORM ως όνομα πεδίου και το
+        # φιλτράρισμα έσκαγε με FieldError, με ανακατεύθυνση σε «?e=1».
+        if self.modifier_name in params:
+            self.used_parameters[self.modifier_name] = \
+                params.pop(self.modifier_name)
 
         url_value = request.GET.get(self.parameter_name, '')
         if re.match('^\d{1,2}-\d{1,2}-\d{4}\|\d{1,2}-\d{1,2}-\d{4}',

@@ -1,0 +1,54 @@
+{% comment %}
+Το υποσέλιδο όλης της εφαρμογής. Ένα αρχείο, ώστε τα credits και η έκδοση να
+μην ξαναγράφονται σε κάθε base template. Το django_version έρχεται από τον
+context processor dideman.dide.context_processors.dide.
+
+Δεν είναι position:fixed: η παλιά .fixed_footer καθόταν πάνω από το
+περιεχόμενο (z-index 10001) και σκέπαζε κουμπιά — και τώρα θα συγκρουόταν και
+με τη «κολλημένη» μπάρα αποθήκευσης του admin. Ρέει κανονικά στο τέλος.
+{% endcomment %}
+<style>
+/* Δύο κλάσεις, ώστε να υπερισχύει του .fixed_footer{position:fixed;z-index:10001}
+   που έχουν inline οι σελίδες menu/myinfo/salary — εκεί η ίδια κλάση κρατάει τη
+   μπάρα ενεργειών κολλημένη κάτω, και τα credits δεν πρέπει να μπουν από πάνω
+   της. Οι κανόνες ζουν εδώ επειδή αυτές οι σελίδες δεν φορτώνουν το
+   dide-admin.css. */
+.fixed_footer.dide-credits {
+    position: static;
+    clear: both;
+    width: auto;
+    margin: 24px 0 0 0;
+    padding: 10px 20px;
+    border: 0;
+    border-top: 1px solid var(--hairline-color, #e0e0e0);
+    background: var(--darkened-bg, #f8f8f8);
+    z-index: auto;
+}
+.fixed_footer.dide-credits #footer {
+    position: static;
+    height: auto;
+    padding: 0;
+    background: none;
+    border: 0;
+}
+/* Όπου υπάρχει καρφιτσωμένη μπάρα στο κάτω μέρος, το υποσέλιδο κρατάει
+   απόσταση ώστε να μην το σκεπάζει: το admin-interface βάζει στο body την
+   κλάση sticky-submit/sticky-actions και κάνει τη .submit-row fixed (~54px). */
+body.sticky-submit .fixed_footer.dide-credits,
+body.sticky-actions .fixed_footer.dide-credits {
+    margin-bottom: 66px;
+}
+.fixed_footer.dide-credits .tiny {
+    margin: 0;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--body-quiet-color, #666);
+}
+</style>
+<div class="fixed_footer dide-credits">
+  <div id="footer">
+    <p class="tiny">Κατασκευή 2012 - 2016 Στάθης Στέργου,
+      2012 - 2026 Βασίλης Κασαπίδης - Django {{ django_version }}
+      &middot; Με την βοήθεια Claude Code Generative AI</p>
+  </div>
+</div>

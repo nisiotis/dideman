@@ -142,6 +142,15 @@ class BaseModifierFilter:
         # χωρίς να πειραχθεί το IGNORED_PARAMS.
         return list(super().expected_parameters()) + [self.modifier_name]
 
+    def consume_modifier_param(self, params):
+        """Αφαιρεί το «_m_…» από τα params που θα φτάσουν στο ORM.
+
+        Χρειάζεται μόνο όπου η βάση δεν το κάνει ήδη (SimpleListFilter).
+        """
+        name = self.modifier_name
+        if name in params:
+            self.used_parameters[name] = params.pop(name)
+
     def selected_values(self):
         return self.request.GET.getlist(self.lookup_param)
 
@@ -219,6 +228,17 @@ class BaseModifierFilter:
 
 
 class ModifierSimpleListFilter(BaseModifierFilter, SimpleListFilter):
+
+    def __init__(self, request, params, model, model_admin):
+        super().__init__(request, params, model, model_admin)
+        # Το FieldListFilter του Django αφαιρεί από τα params όλα τα
+        # expected_parameters()· το SimpleListFilter αφαιρεί μόνο το
+        # parameter_name. Χωρίς αυτό το «_m_…» έμενε στα
+        # remaining_lookup_params, το ChangeList το περνούσε στο ORM ως όνομα
+        # πεδίου και το φιλτράρισμα έσκαγε με FieldError -> ανακατεύθυνση σε
+        # «?e=1». Δηλαδή ο τελεστής «Σύνθεση» δεν δούλευε ποτέ σε αυτά τα
+        # φίλτρα — ούτε από την πλαϊνή στήλη ούτε από το popup «Αναλυτικά».
+        self.consume_modifier_param(params)
 
     def has_output(self):
         return True

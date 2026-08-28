@@ -23,47 +23,54 @@
     <script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
     <script type="text/javascript">
         function buildQS() {
-            var $ = django.jQuery, acc = [], str = '';
+            var $ = django.jQuery, acc = [];
             $('.chzn-select').map(function(idx, j) {
-                return {
-                    'name': j.name,
-                    'values': $(j).val() || []}
-                }).each(function(idx, obj) {
-                    if(obj.values.length > 0) {
-                        for(var i = 0; i < obj.values.length; i += 1) {
-                            acc.push({'name': obj.name, 'value': obj.values[i]});
-                        }
-                        acc.push({'name': '_m_' + obj.name, 'value': 'OR'});
+                return {'name': j.name, 'values': $(j).val() || []};
+            }).each(function(idx, obj) {
+                if (obj.values.length > 0) {
+                    for (var i = 0; i < obj.values.length; i += 1) {
+                        acc.push({'name': obj.name, 'value': obj.values[i]});
                     }
-                });
-            $('.free_date_filter').each(function(idx, el) {
-                var o = {};
-                $('#' + el.id + ' input').each(function(idx, input){
-                    o[el.id] = o[el.id] || [];
-                    o[el.id].push($(input).val())
-                })
-                for(var i in o) {
-                    if(o[el.id][0] != '01-01-1950' || o[el.id][1] != '31-08-2012') {
-                        acc.push({'name': i, 'value': o[el.id].join('|')});
-                        acc.push({'name': '_m_' + i, 'value': 'OR'});
-                    }
+                    acc.push({'name': '_m_' + obj.name, 'value': 'OR'});
                 }
             });
-            for(var i = 0; i < acc.length; i += 1) {
-                str += '&' + acc[i]['name'] + '=' + acc[i]['value'];
-            }
-            return str;
+            $('.free_date_filter').each(function(idx, el) {
+                var $el = $(el),
+                    values = $el.find('input').map(function() {
+                        return $(this).val();
+                    }).get();
+                if (values.length !== 2) { return; }
+                // Στέλνουμε το φίλτρο μόνο αν ο χρήστης το άλλαξε. Ο παλιός
+                // έλεγχος συνέκρινε με σταθερές ημερομηνίες του 2012, ενώ οι
+                // προεπιλογές είναι 01-01-1950 / 31-12-2050 — δηλαδή δεν
+                // ταίριαζε ποτέ και έφευγαν *όλα* τα φίλτρα ημερομηνίας σε
+                // κάθε αναζήτηση.
+                if (values[0] === $el.data('default-from') &&
+                    values[1] === $el.data('default-to')) { return; }
+                acc.push({'name': el.id, 'value': values.join('|')});
+                acc.push({'name': '_m_' + el.id, 'value': 'OR'});
+            });
+            return acc.map(function(p) {
+                return encodeURIComponent(p.name) + '=' + encodeURIComponent(p.value);
+            }).join('&');
+        }
+        function openerListUrl() {
+            // Η διεύθυνση της λίστας, χωρίς το τρέχον querystring. Παλιότερα
+            // κοβόταν το href στα «/», που έσπαγε μόλις ο opener είχε ήδη
+            // φίλτρα (π.χ. «…/permanent/?p=2»).
+            var loc = window.opener.location;
+            return loc.origin + loc.pathname;
         }
         function submitParent() {
-            window.opener.location.href = window.opener.location.href.
-                split('/').
-                slice(0, -1).
-                join('/') + '/?' + buildQS();
+            var qs = buildQS();
+            window.opener.location.href = openerListUrl() + (qs ? '?' + qs : '');
+            window.opener.focus();
         }
         function reset() {
             django.jQuery(".chzn-select").val("").trigger("liszt:updated");
             django.jQuery("#chosen-form")[0].reset();
-            window.opener.location.href = window.opener.location.href.split("?")[0];
+            window.opener.location.href = openerListUrl();
+            window.opener.focus();
         }
     </script>
     <style>
@@ -83,6 +90,8 @@
     {% endblock %}
     <style>
       table.valign td { vertical-align: middle }
+      /* Το υποσέλιδο έρχεται μετά την (sticky πλέον) μπάρα κουμπιών. */
+      body .fixed_footer.dide-credits { margin-top: 0; }
     </style>
 </head>
 {% load full_filters %}
@@ -118,7 +127,9 @@
             <div class="date-container">
                 <div>
                     <h2>{{ date_filter.title }}</h2>
-                    <span class="free_date_filter" id="{{ date_filter.parameter_name }}">
+                    <span class="free_date_filter" id="{{ date_filter.parameter_name }}"
+                          data-default-from="{{ date_filter.default_from_value }}"
+                          data-default-to="{{ date_filter.default_to_value }}">
                         <input id="{{ date_filter.parameter_name }}_free_date_from" type="text" class="{{ date_filter.parameter_name }}_free_date_field vDateField" name="date_from" size="10" value="{{ date_filter.url_from_value }}" /> -
                         <input id="{{ date_filter.parameter_name }}_free_date_to" type="text" class="{{ date_filter.parameter_name }}_free_date_field vDateField" name="date_to" size="10" value="{{ date_filter.url_to_value }}" />
                    </span>
@@ -127,7 +138,10 @@
             {% endfor %}
             </form>
 	    <div style="height:30px;"></div>
-	    <div style="position: fixed; width: 100%; bottom: 0; left: 0; z-index: 10001; background-color: white;">
+	    <!-- sticky αντί για fixed: μένει ορατή στο κάτω μέρος όσο κυλάει η
+	         σελίδα, αλλά συμμετέχει στη ροή, οπότε δεν σκεπάζει ούτε το
+	         τελευταίο φίλτρο ούτε το υποσέλιδο. -->
+	    <div style="position: sticky; bottom: 0; z-index: 10001; background-color: white;">
 	      <div style="margin-left: 10px; margin-right: 10px;">
 		<div class="submit-row" style="margin: 0 0 5px 0;">
 		  <!--<div style="padding-top:10px;margin-left:auto;margin-right:auto;width:500px">-->
@@ -141,7 +155,7 @@
 
         </div>
         {% block footer %}
-        <div id="footer"></div>
+        {% include "includes/dide_footer.html" %}
         {% endblock %}
     </div>
 </body>

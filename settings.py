@@ -127,6 +127,8 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Δίνει django_version/dide_place παντού, για το υποσέλιδο.
+                'dideman.dide.context_processors.dide',
             ],
         },
     },
