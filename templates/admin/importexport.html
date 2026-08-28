@@ -1,174 +1,300 @@
-
 {% extends "admin/base_site.html" %}
-{% load i18n static admin_list %}
-{% load admin_urls %}
-{% block extrahead %}
-{% if data %}
-<script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
-<!--<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
--->
-<script type="text/javascript">
-  
-$(document).ready(function () {
-    $('#selectall').click(function () {
-        $('.selectedId').prop('checked', this.checked);
-    });
+{% load i18n static %}
+{% comment %}
+Οδηγός εισαγωγής σε τρία βήματα: μεταφόρτωση αρχείου -> αντιστοίχιση στηλών
+και επιλογή γραμμών -> οριστικοποίηση.
 
-    $('.selectedId').change(function () {
-        var check = ($('.selectedId').filter(":checked").length == $('.selectedId').length);
-        $('#selectall').prop("checked", check);
-    });
-});
+Δύο διορθώσεις σε σχέση με την προηγούμενη έκδοση:
 
-</script>
-{% endif %}
+* Η αρίθμηση των γραμμών γινόταν με «iterator.next» πάνω σε ένα
+  itertools.count(). Στην Python 3 το αντικείμενο αυτό δεν έχει μέθοδο
+  «next» (μετονομάστηκε σε «__next__»), οπότε η αναζήτηση αποτύγχανε
+  σιωπηλά και όλα τα πεδία έπαιρναν το ίδιο όνομα («check_»,
+  «row__item_1»). Η όψη δεν έβρισκε ποτέ «check_0», καμία γραμμή δεν
+  επιλεγόταν και ο οδηγός κολλούσε. Πλέον χρησιμοποιείται το
+  forloop.counter0.
+
+* Τα κελιά του αρχείου ταξίδευαν μπρος-πίσω ως κρυφά πεδία της φόρμας.
+  Ένα αρχείο 30 στηλών επί 40 γραμμές ξεπερνούσε το όριο των 1.000
+  παραμέτρων (DATA_UPLOAD_MAX_NUMBER_FIELDS) και ο οδηγός τερμάτιζε με
+  «400 Bad Request». Τα δεδομένα κρατιούνται πλέον στη συνεδρία και εδώ
+  απλώς εμφανίζονται· υποβάλλονται μόνο η αντιστοίχιση των στηλών και οι
+  επιλογές των γραμμών.
+{% endcomment %}
+
+{% block extrahead %}{{ block.super }}
+  <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+  <script src="{% static 'admin/js/jquery.init.js' %}"></script>
+  <script>
+    {% comment %}
+    Ήταν jQuery 1.7 από /static/js/, φορτωμένη παράλληλα με την jQuery του
+    admin. Δεν όριζε καν global «$» μετά το noConflict, οπότε η «Επιλογή
+    όλων» δεν λειτουργούσε.
+    {% endcomment %}
+    django.jQuery(function ($) {
+        var $all = $('#selectall'), $rows = $('.selectedId');
+
+        $all.on('click', function () {
+            $rows.prop('checked', this.checked);
+        });
+
+        $rows.on('change', function () {
+            $all.prop('checked', $rows.filter(':checked').length === $rows.length);
+        });
+    });
+  </script>
 {% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+  <style>
+    /* Οριζόντια κύλιση: τα αρχεία εισαγωγής έχουν συχνά 20+ στήλες, που δεν
+       χωρούν στο πλάτος της σελίδας. Ο πίνακας κυλάει μέσα στο δικό του
+       πλαίσιο, ώστε το σώμα της σελίδας να μη χρειάζεται ποτέ οριζόντια
+       κύλιση. Η πρώτη στήλη (επιλογή γραμμής) και η γραμμή επικεφαλίδας
+       μένουν καρφιτσωμένες. */
+    .dide-hscroll {
+        overflow: auto;
+        max-width: 100%;
+        /* Με όριο ύψους ο πίνακας κυλάει και στους δύο άξονες μέσα στο δικό
+           του πλαίσιο: η επικεφαλίδα μένει καρφιτσωμένη και το κουμπί
+           υποβολής παραμένει προσιτό χωρίς να προσπεράσει κανείς 300
+           γραμμές. */
+        max-height: 70vh;
+        margin-bottom: 15px;
+        border: 1px solid var(--hairline-color, #e0e0e0);
+        border-radius: 4px;
+    }
+    /* border-collapse: collapse (η προεπιλογή του admin) σπάει τα sticky
+       κελιά: τα περιθώρια των συγκολλημένων πλαισίων αφήνουν χαραμάδα από
+       την οποία φαίνονται οι γραμμές που κυλούν από κάτω. */
+    .dide-hscroll > table {
+        margin: 0;
+        border: 0;
+        width: auto;
+        min-width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .dide-hscroll th, .dide-hscroll td {
+        white-space: nowrap;
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--hairline-color, #eee);
+    }
+    .dide-hscroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: var(--darkened-bg, #f8f8f8);
+        background-clip: padding-box;
+        border-bottom: 1px solid var(--hairline-color, #ccc);
+        text-align: left;
+        font-weight: 600;
+    }
+    /* Καρφιτσωμένη πρώτη στήλη. */
+    .dide-hscroll th.pin, .dide-hscroll td.pin {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: var(--body-bg, #fff);
+        border-right: 1px solid var(--hairline-color, #e0e0e0);
+    }
+    .dide-hscroll thead th.pin { z-index: 4; background: var(--darkened-bg, #f8f8f8); }
+    .dide-hscroll tr.dup td { color: var(--error-fg, #ba2121); }
+    .dide-hscroll tr.dup td.pin { background: var(--body-bg, #fff); }
+    /* Σταθερό πλάτος: αλλιώς κάθε επιλογέας πλαταίνει όσο το μακρύτερο
+       όνομα πεδίου («social_security_registration_number»), και μια στήλη
+       με δύο ψηφία δεδομένων έπιανε 300 pixel. */
+    .dide-hscroll select.fieldmap { width: 11em; }
+    .dide-hscroll td { max-width: 22em; overflow: hidden; text-overflow: ellipsis; }
+    .dide-import .helptext { color: var(--body-quiet-color, #666); }
+    .dide-import .submit-row { margin-top: 12px; }
+    .dide-hscroll.dide-report { max-height: none; }
+    .dide-report td { padding: 4px 8px; max-width: none; }
+    .dide-report img { vertical-align: middle; }
+  </style>
+{% endblock %}
+
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; {{ app_label|capfirst|escape }}
-
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+  &rsaquo; {{ app_label|capfirst|escape }}
 </div>
 {% endblock %}
 
 {% block content %}
+<div id="content-main" class="dide-import">
 
-<p><strong>Εισαγωγή</strong> | <a href="/admin/dide/importexport/export/">Εξαγωγή</a></p>
+<p><strong>Εισαγωγή</strong> | <a href="{% url 'dide_export' %}">Εξαγωγή</a></p>
+
+{% if errors %}
+<ul class="errorlist">
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
 
 <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
-{% if not dataimported %}
 
-{% if data or dataselected %}
-<p>Τύπος εγγραφών: <strong>{{ import_model_label }}</strong>
-<input type="hidden" name="import_model" value="{{ import_model }}"></p>
-{% else %}
-<p><label for="import_model">Τύπος εγγραφών προς εισαγωγή:</label>
-<select name="import_model" id="import_model">
-{% for key, label in import_model_choices %}
-<option value="{{ key }}"{% if key == import_model %} selected{% endif %}>{{ label }}</option>
-{% endfor %}
-</select></p>
+{% if not dataimported and not notinserted and not foundinserted %}
+  <div class="module aligned">
+    {% if data or dataselected %}
+      <p>Τύπος εγγραφών: <strong>{{ import_model_label }}</strong>
+        <input type="hidden" name="import_model" value="{{ import_model }}"></p>
+    {% else %}
+      <p><label for="import_model">Τύπος εγγραφών προς εισαγωγή:</label>
+        <select name="import_model" id="import_model">
+          {% for key, label in import_model_choices %}
+          <option value="{{ key }}"{% if key == import_model %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select></p>
+    {% endif %}
+
+    <p><input type="file" id="xls_upload" name="xls_upload">
+      <button type="submit" value="Μεταφόρτωση" id="upload" name="upload"
+              formaction="?upload=True">Μεταφόρτωση</button></p>
+
+    <p class="helptext">Αυστηρά καθορισμένο αρχείο Excel τύπου «Excel 1997-2004
+      Workbook (.xls)» με τα δεδομένα στο πρώτο φύλλο και την πρώτη στήλη να
+      περιέχει το πεδίο-κλειδί «vat_number».</p>
+    <p class="helptext">Ελάχιστα στοιχεία για την εισαγωγή: «Επώνυμο», «Όνομα»,
+      «Όνομα Πατέρα» και «Ειδικότητα» (και «Αρ. Μητρώου» όταν εισάγετε
+      Μόνιμους).</p>
+  </div>
 {% endif %}
 
-<p><input type="file" id="xls_upload" name="xls_upload">
-<button type="submit" value="Μεταφώρτωση" id="upload" name="upload" formaction="?upload=True">Μεταφώρτωση</button></p>
-{% endif %}
+{% comment %} Βήμα 2: αντιστοίχιση στηλών και επιλογή γραμμών. {% endcomment %}
 {% if data %}
-<button type="submit" value="Αποθήκευση" id="save_file" name="save_file" formaction="?save=True">Αποθήκευση</button>
+  <p>Παρακάτω εμφανίζονται {{ data|length }} εγγραφές του αρχείου {{ import_file }}.
+    Αντιστοιχίστε κάθε στήλη σε πεδίο και επιλέξτε τις γραμμές που θα εισαχθούν.</p>
+
+  <div class="dide-hscroll">
+    <table>
+      <thead>
+        <tr>
+          <th class="pin"><input id="selectall" name="selectall" type="checkbox"
+                                 title="Επιλογή όλων"></th>
+          {% for i in cols %}
+          <th><select name="field_{{ i }}" id="field_{{ i }}" class="fieldmap">
+            <option value="">---</option>
+            {% for o in fields %}<option value="{{ o }}">{{ o }}</option>{% endfor %}
+          </select></th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+        <tr>
+          <td class="pin"><input class="selectedId" id="check_{{ forloop.counter0 }}"
+                                 name="check_{{ forloop.counter0 }}" type="checkbox"></td>
+          {% for value in row %}<td>{{ value }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="submit-row">
+    <button type="submit" class="default" value="Αποθήκευση" id="save_file"
+            name="save_file" formaction="?save=True">Αποθήκευση</button>
+  </div>
 {% endif %}
 
+{% comment %} Βήμα 3: επιβεβαίωση των επιλεγμένων γραμμών. {% endcomment %}
 {% if dataselected %}
-<button type="submit" value="Οριστικοποίηση" id="final" name="final" formaction="?final=True">Οριστικοποίηση</button>
+  <p>Παρακάτω εμφανίζονται {{ dataselected|length }} εγγραφές του αρχείου
+    {{ imported_file }} που επιλέχθηκαν.</p>
+
+  {% if dublicates > 0 %}
+  <p class="errornote">Εμφανίζονται {{ dublicates }} εγγραφές με κόκκινο που έχουν
+    βρεθεί ήδη στη βάση.</p>
+  {% endif %}
+
+  <div class="dide-hscroll">
+    <table>
+      <thead>
+        <tr>
+          <th class="pin">Ενέργεια</th>
+          {% for f in field_titles %}<th>{{ f }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in dataselected %}
+        <tr{% if o.found %} class="dup"{% endif %}>
+          <td class="pin">
+            <select name="select_{{ forloop.counter0 }}" id="select_{{ forloop.counter0 }}">
+              <option selected value="0">Εισαγωγή</option>
+              <option value="1">Παράκαμψη</option>
+            </select>
+          </td>
+          {% for value in o.values %}<td>{{ value }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="submit-row">
+    <button type="submit" class="default" value="Οριστικοποίηση" id="final"
+            name="final" formaction="?final=True">Οριστικοποίηση</button>
+  </div>
 {% endif %}
 
-{% if not dataimported %}
-<p>Αυστηρά καθορισμένο αρχείο Excel τύπου «Excel 1997-2004 Workbook (.xls)» με τα δεδομένα στο πρώτο φύλλο με την πρώτη στήλη να περιέχει το πεδίο-κλειδί «vat_number».
-</p>
-<p>
-Ελάχιστα στοιχεία για την εισαγωγή: «Επώνυμο», «Όνομα», «Όνομα Πατέρα» και «Ειδικότητα» (και «Αρ. Μητρώου» όταν εισάγετε Μόνιμους).
-</p>
+</form>
 
+{% comment %} Αποτελέσματα της οριστικοποίησης. {% endcomment %}
+{% if dataimported %}
+  <h2>Αποθηκεύτηκαν {{ dataimported|length }} εγγραφές</h2>
+  <div class="dide-hscroll dide-report">
+    <table>
+      <tbody>
+        {% for o in dataimported %}
+        <tr>
+          <td class="pin"><img src="{% static 'admin/img/icon-yes.svg' %}" alt="Ναι"></td>
+          <td>{{ o.lastname }}</td><td>{{ o.firstname }}</td><td>{{ o.vat_number }}</td>
+          <td style="color: var(--body-quiet-color, #666);">{% for w in o.import_warnings %}{% if not forloop.first %}, {% endif %}{{ w }}{% endfor %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endif %}
-<div>
-
-{% if data %}
-<p>Παρακάτω εμφανίζονται {{ data|length }} εγγραφές του αρχείου {{ import_file }}  </p>
-<input type="hidden" name="datalength" id="datalength" value="{{ data|length }}">
-<input type="hidden" name="columns" id="columns" value="{{ cols|length }}">
-<input type="hidden" name="imported_file" id="imported_file" value="{{ import_file }}">
-
-<table>
-  <tr>
-    <td>{% if data %}<input id="selectall" name="selectall" type="checkbox">{% endif %}</td>
-    {% for i in cols %}
-    <td><select name="field_{{ i }}" id="field_{{ i }}" style="width: 100px;">
-	<option value="">---</option>
-	{% for o in fields %}<option value="{{ o }}">{{ o }}</option>{% endfor %}
-    </select></td>
-    {% endfor %}
-  </tr>
-  {% for o in data %}
-  {% with r=iterator.next %}
-  <tr>
-    <td><input class="selectedId" id="check_{{ r }}" name="check_{{ r }}" type="checkbox" value="{{ o.0 }}"></td>
-{% for key, value in o.items %}
-<td style="white-space:nowrap;"><input id="row_{{ r }}_item_{{ forloop.counter }}" name="row_{{ r }}_item_{{ forloop.counter }}" type="hidden" value="{{ value }}" >{{ value }}</td>
-    
-  {% endfor %}
-  </tr>
-  {% endwith %}
-{% endfor %}
-</table>
-{% endif %}
-
-{% if dataselected %}
-<p>Παρακάτω εμφανίζονται {{ dataselected|length }} εγγραφές του αρχείου {{ imported_file }} που επιλέχθηκαν. </p>
-<input type="hidden" name="datalength" id="datalength" value="{{ dataselected|length }}">
-<input type="hidden" name="fieldlength" id="fieldlength" value="{{ field_titles|length }}">
-
-{% endif %}
-{% if dublicates > 0 %}
-<p>Εμφανίζονται {{ dublicates }} εγγραφές με κόκκινο που εχουν βρεθεί στη βάση.</p>
-{% endif %}
-<table>
-    <tr>
-      <td></td>
-    {% for f in field_titles %}
-    <td><input id="field_item_{{ forloop.counter }}" name="field_item_{{ forloop.counter }}" type="hidden" value="{{ f }}" >{{ f }}:</td>
-    {% endfor %}
-  </tr>
-
-  {% for o in dataselected %}
-  {% with r=iterator.next %}
-    <tr {% for key, value in o.items %}{% if key == 'found' and value != '' %}style="color:red;" {% endif %}{% endfor %}>
-      <td><select name="select_{{ r }}" id="select_{{ r }}"><option selected value=0>Εισαγωγή</option><option value=1>Παράκαμψη</option></select> </td>
-    {% for key, value in o.items %}
-    {% if key != 'found' %}
-<td style="white-space:nowrap;"><input id="row_{{ r }}_item_{{ forloop.counter }}" name="row_{{ r }}_item_{{ forloop.counter }}" type="hidden" value="{{ value }}" >{{ value }}</td>
-{% else %}
-<td style="white-space:nowrap;"><input id="found_item_{{ r }}" name="found_item_{{ r }}" type="hidden" value="{{ value }}" ></td>
-
-{% endif %}
-
-  {% endfor %}
-  </tr>
-  {% endwith %}
-{% endfor %}
-</table>
 
 {% if notinserted %}
-<p>Παρακάτω εμφανίζονται {{ notinserted|length }} εγγραφές που δεν αποθηκεύθηκαν. </p>
-<table>
-  {% for o in notinserted %}
-    <tr>
-      <td><img src="/static/admin/img/icon_alert.gif" alt="False"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td><td style="color:red;">{{ o.import_error }}{% for w in o.import_warnings %}{% if o.import_error %}, {% endif %}{{ w }}{% endfor %}</td>
-   </tr>
-  {% endfor %}
-</table>
-{% endif %}
-
-
-{% if dataimported %}
-<p>Παρακάτω εμφανίζονται {{ dataimported|length }} εγγραφές που αποθηκεύθηκαν με επιτυχία. </p>
-<table>
-  {% for o in dataimported%}
-    <tr>
-      <td><img src="/static/admin/img/icon-yes.gif" alt="True"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td><td style="color:#b8860b;">{% for w in o.import_warnings %}{% if not forloop.first %}, {% endif %}{{ w }}{% endfor %}</td>
-   </tr>
-  {% endfor %}
-</table>
+  <h2>Δεν αποθηκεύτηκαν {{ notinserted|length }} εγγραφές</h2>
+  <div class="dide-hscroll dide-report">
+    <table>
+      <tbody>
+        {% for o in notinserted %}
+        <tr>
+          <td class="pin"><img src="{% static 'admin/img/icon-alert.svg' %}" alt="Όχι"></td>
+          <td>{{ o.lastname }}</td><td>{{ o.firstname }}</td><td>{{ o.vat_number }}</td>
+          <td style="color: var(--error-fg, #ba2121);">{{ o.import_error }}{% for w in o.import_warnings %}{% if o.import_error %}, {% endif %}{{ w }}{% endfor %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endif %}
 
 {% if foundinserted %}
-<p>Παρακάτω εμφανίζονται {{ foundinserted|length }} εγγραφές που βρέθηκαν ήδη καταχωρημένες και αγνοήθηκαν.</p>
-<table>
-  {% for o in foundinserted %}
-    <tr>
-      <td><img src="/static/admin/img/icon_alert.gif" alt="False"></td><td>{{ o.firstname }}</td><td>{{ o.lastname }}</td><td>{{ o.vat_number }}</td><td style="color:red;">{{ o.import_error }}</td>
-   </tr>
-  {% endfor %}
-</table>
+  <h2>Αγνοήθηκαν {{ foundinserted|length }} εγγραφές που υπάρχουν ήδη</h2>
+  <div class="dide-hscroll dide-report">
+    <table>
+      <tbody>
+        {% for o in foundinserted %}
+        <tr>
+          <td class="pin"><img src="{% static 'admin/img/icon-alert.svg' %}" alt="Όχι"></td>
+          <td>{{ o.lastname }}</td><td>{{ o.firstname }}</td><td>{{ o.vat_number }}</td>
+          <td style="color: var(--error-fg, #ba2121);">{{ o.import_error }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endif %}
 
+{% if dataimported or notinserted or foundinserted %}
+  <p><a class="button" href="{% url 'dide_importexport' %}">Νέα εισαγωγή</a></p>
+{% endif %}
 
+</div>
 {% endblock %}

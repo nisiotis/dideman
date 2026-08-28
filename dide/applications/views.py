@@ -111,8 +111,11 @@ def print_app(request, set_id):
                            tbl_style['Left']),
                  Paragraph('%s' % val, tbl_style['Right'])])
 
-    table2 = Table(data, style=ts, colWidths=[10.0 * cm, 7.0 * cm])
-    elements.append(table2)
+    # Ο reportlab πετάει ValueError για πίνακα χωρίς γραμμές: μια αίτηση
+    # όπου ο υπάλληλος δεν συμπλήρωσε κανένα από τα προαιρετικά πεδία
+    # έβγαζε σφάλμα 500 αντί για PDF.
+    if data:
+        elements.append(Table(data, style=ts, colWidths=[10.0 * cm, 7.0 * cm]))
     elements.append(Paragraph(' ', heading_style['Spacer']))
     elements.append(Paragraph(' ', heading_style['Spacer']))
     del data

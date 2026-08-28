@@ -26,7 +26,7 @@ from urllib.parse import urlencode
 import csv
 import json
 import datetime, base64
-import os, itertools
+import os
 import xlrd
 
 
@@ -501,19 +501,19 @@ def _fill_required_defaults(obj):
     return missing
 
 
-def _build_import_record(model, mf, request, row):
-    """Build one unsaved instance of `model` from the posted row.
+def _build_import_record(model, mf, pairs):
+    """Build one unsaved instance of `model` from a row of the spreadsheet.
 
-    Returns (instance, warnings); warnings names any column whose value
-    could not be applied, so the row can still be saved on the strength
-    of its remaining fields and the operator can see what was dropped.
+    `pairs` is a sequence of (field_name, raw_value) for the columns the
+    operator mapped. Returns (instance, warnings); warnings names any
+    column whose value could not be applied, so the row can still be
+    saved on the strength of its remaining fields and the operator can
+    see what was dropped.
     """
     p = model()
     warnings = []
-    for j in range(1, int(request.POST['fieldlength'])+1):
-        field_name = request.POST['field_item_'+str(j)]
-        raw_value = request.POST['row_'+str(row)+'_item_'+str(j)]
-        if not raw_value:
+    for field_name, raw_value in pairs:
+        if not field_name or not raw_value:
             continue
         if field_name not in mf:
             warnings.append("%s: άγνωστο πεδίο" % field_name)
@@ -570,10 +570,37 @@ def _build_import_record(model, mf, request, row):
     return p, warnings
 
 
+IMPORT_WIZARD_KEY = 'importexport_wizard'
+
+
+def _wizard_rows(request):
+    """Τα δεδομένα του αρχείου που μεταφορτώθηκε, από τη συνεδρία.
+
+    Τα κελιά κρατιούνται στη συνεδρία αντί να ταξιδεύουν μπρος-πίσω ως
+    κρυφά πεδία της φόρμας. Ένα αρχείο 30 στηλών επί 40 γραμμές παρήγαγε
+    πάνω από 1.200 πεδία ανά υποβολή, δηλαδή περισσότερα από το όριο
+    settings.DATA_UPLOAD_MAX_NUMBER_FIELDS (1.000) που εισήγαγε το Django
+    1.10: ο οδηγός τερμάτιζε με σκέτο «400 Bad Request» σε κάθε αρχείο
+    ρεαλιστικού μεγέθους. Τώρα υποβάλλονται μόνο η αντιστοίχιση των
+    στηλών και οι επιλογές των γραμμών.
+    """
+    return request.session.get(IMPORT_WIZARD_KEY) or {}
+
+
+def _read_xls(uploaded):
+    """Το πρώτο φύλλο του αρχείου ως λίστα από λίστες συμβολοσειρών."""
+    workbook = xlrd.open_workbook(file_contents=uploaded.read())
+    worksheet = workbook.sheet_by_index(0)
+    return [[str(worksheet.cell_value(r, c)) for c in range(worksheet.ncols)]
+            for r in range(1, worksheet.nrows)]
+
+
 @csrf_protect
 @staff_member_required
 def import_export_view(request):
-    import_model_name = request.POST.get('import_model', 'Permanent')
+    wizard = _wizard_rows(request)
+    import_model_name = request.POST.get(
+        'import_model', wizard.get('model', 'Permanent'))
     model = _import_model(import_model_name)
 
     context = {
@@ -587,120 +614,135 @@ def import_export_view(request):
         "import_model_choices": _model_choices(IMPORT_MODELS),
     }
 
-    if request.POST:
-        if "final" in request.GET:
-            saved = []
-            notins = []
-            foundins = []
-            if 'datalength' in request.POST:
-                mf = {x.name: x.get_internal_type() for x in model._meta.fields}
-                for i in range(0, int(request.POST['datalength'])):
-                    if int(request.POST['select_'+str(i)]) != 0:
-                        continue
+    if request.method != 'POST':
+        request.session.pop(IMPORT_WIZARD_KEY, None)
+        return render(request, 'admin/importexport.html', context)
 
-                    p, warnings = _build_import_record(model, mf, request, i)
-                    # reported back to the template per row
-                    p.import_error = ''
-                    p.import_warnings = warnings
+    # --- βήμα 1: μεταφόρτωση του αρχείου ---------------------------------
+    if "upload" in request.GET:
+        uploaded = request.FILES.get('xls_upload')
+        if not uploaded:
+            context["errors"] = ['Επιλέξτε αρχείο προς μεταφόρτωση.']
+            return render(request, 'admin/importexport.html', context)
+        try:
+            rows = _read_xls(uploaded)
+        except Exception as ex:
+            context["errors"] = [
+                'Το αρχείο δεν διαβάστηκε ως βιβλίο Excel (.xls): %s' % ex]
+            return render(request, 'admin/importexport.html', context)
+        if not rows:
+            context["errors"] = ['Το πρώτο φύλλο του αρχείου δεν έχει δεδομένα.']
+            return render(request, 'admin/importexport.html', context)
 
-                    missing = _fill_required_defaults(p)
-                    if missing:
-                        p.import_error = 'Λείπουν υποχρεωτικά πεδία: %s' % \
-                            ', '.join(missing)
-                        notins.append(p)
-                        continue
+        request.session[IMPORT_WIZARD_KEY] = {
+            'model': import_model_name,
+            'file': uploaded.name,
+            'rows': rows,
+        }
+        context.update({
+            "import_file": uploaded.name,
+            "fields": [x.name for x in model._meta.fields],
+            "cols": list(range(len(rows[0]))),
+            "data": rows,
+        })
+        return render(request, 'admin/importexport.html', context)
 
-                    # An employee already holding this Α.Φ.Μ. means the row is
-                    # a duplicate: skip it and say which record it clashed
-                    # with, rather than creating a second entry for the same
-                    # person. Checked against the database at save time, so a
-                    # record added since the file was uploaded is still caught.
-                    vat = getattr(p, 'vat_number', None)
-                    if vat:
-                        existing = Employee.objects.filter(vat_number=vat).first()
-                        if existing:
-                            p.import_error = \
-                                'Υπάρχει ήδη εγγραφή με Α.Φ.Μ. %s: %s' % (vat, existing)
-                            foundins.append(p)
-                            continue
+    rows = wizard.get('rows')
+    if not rows:
+        context["errors"] = [
+            'Η συνεδρία έληξε ή δεν έχει μεταφορτωθεί αρχείο. '
+            'Ξεκινήστε ξανά από τη μεταφόρτωση.']
+        return render(request, 'admin/importexport.html', context)
 
-                    try:
-                        p.save()
-                        saved.append(p)
-                    except Exception as ex:
-                        p.import_error = str(ex)
-                        notins.append(p)
+    # --- βήμα 2: αντιστοίχιση στηλών και επιλογή γραμμών -----------------
+    if "save" in request.GET:
+        ncols = len(rows[0])
+        # Οι στήλες που ο χειριστής αντιστοίχισε σε πεδίο του μοντέλου,
+        # με τη σειρά που εμφανίζονται στο αρχείο.
+        mapping = [(c, request.POST.get('field_%d' % c, '').strip())
+                   for c in range(ncols)]
+        mapping = [(c, name) for c, name in mapping if name]
 
-            context.update({
-                "dataimported": saved,
-                "notinserted": notins,
-                "foundinserted": foundins,
-            })
+        selected = [i for i in range(len(rows))
+                    if 'check_%d' % i in request.POST]
 
-        if "save" in request.GET:
-            sel_rows = 0
-            ds = []
-            fset = []
-            dbl = 0
-            if 'datalength' in request.POST:
-                for i in range(0,int(request.POST['columns'])):
-                    if len(request.POST['field_'+str(i)]) > 0:
+        chosen = []
+        dbl = 0
+        for i in selected:
+            values = [rows[i][c].strip() for c, _ in mapping]
+            vat = _normalize_vat_number(rows[i][0]) if rows[i] else None
+            found = ''
+            if vat:
+                match = Employee.objects.filter(vat_number=vat).first()
+                if match:
+                    found = match.vat_number
+                    dbl += 1
+            chosen.append({'row': i, 'values': values, 'found': found})
 
-                        fset.append(request.POST['field_'+str(i)])
+        request.session[IMPORT_WIZARD_KEY] = dict(
+            wizard, mapping=mapping, selected=selected)
 
-                for i in range(0,int(request.POST['datalength'])):
-                    if "check_"+str(i) in request.POST:
-                        sel_rows += 1
-                        d = {}
-                        for j in range(1,int(request.POST['columns'])+1):
-                            if len(request.POST['field_'+str(j-1)]) > 0:
-                                d[j] = request.POST['row_'+str(i)+'_item_'+str(j)].strip()
+        context.update({
+            "dataselected": chosen,
+            "dublicates": dbl,
+            "imported_file": wizard.get('file', ''),
+            "field_titles": [name for _, name in mapping],
+        })
+        return render(request, 'admin/importexport.html', context)
 
-                        vat = _normalize_vat_number(request.POST['check_'+str(i)])
-                        e = Employee.objects.filter(vat_number=vat) if vat else Employee.objects.none()
+    # --- βήμα 3: οριστικοποίηση ------------------------------------------
+    if "final" in request.GET:
+        mapping = [tuple(m) for m in wizard.get('mapping', [])]
+        selected = wizard.get('selected', [])
+        mf = {x.name: x.get_internal_type() for x in model._meta.fields}
+        saved, notins, foundins = [], [], []
 
-                        if e:
-                            d['found'] = e[0].vat_number
-                            dbl += 1
-                        else:
-                            d['found'] = ''
-                        ds.append(d)
+        for k, i in enumerate(selected):
+            if request.POST.get('select_%d' % k, '0') != '0':
+                continue
 
+            pairs = [(name, rows[i][c].strip()) for c, name in mapping]
+            p, warnings = _build_import_record(model, mf, pairs)
+            # reported back to the template per row
+            p.import_error = ''
+            p.import_warnings = warnings
 
-                context.update({
-                    "dataselected": ds,
-                    "dublicates": dbl,
-                    "imported_file": request.POST['imported_file'],
-                    "cols": list(range(1, int(request.POST['columns'])+1)),
-                    "iterator": itertools.count(),
-                    "field_titles": fset,
-                })
-        if "upload" in request.GET:
-            importfile = ""
-            if 'xls_upload' in request._files:
-                mf = [x.name for x in model._meta.fields]
-                importfile = request._files['xls_upload']
-                workbook = xlrd.open_workbook(file_contents=importfile.read())
-                worksheet = workbook.sheet_by_index(0)
-                curr_row = 1
-                xlsdata = []
-                ncols = worksheet.ncols
-                while curr_row < worksheet.nrows:
-                    d = {}
-                    for i in range(ncols):
-                        d[i] = str(worksheet.cell_value(curr_row,i))
-                    xlsdata.append(d)
-                    curr_row += 1
-                context.update({
-                    "import_file": importfile.name,
-                    "fields": mf,
-                    "cols": list(range(ncols)),
-                    "iterator": itertools.count(),
-                    "data": xlsdata,
-                })
+            missing = _fill_required_defaults(p)
+            if missing:
+                p.import_error = 'Λείπουν υποχρεωτικά πεδία: %s' % \
+                    ', '.join(missing)
+                notins.append(p)
+                continue
 
-    r = render(request, 'admin/importexport.html', context)
-    return r
+            # An employee already holding this Α.Φ.Μ. means the row is a
+            # duplicate: skip it and say which record it clashed with,
+            # rather than creating a second entry for the same person.
+            # Checked against the database at save time, so a record added
+            # since the file was uploaded is still caught.
+            vat = getattr(p, 'vat_number', None)
+            if vat:
+                existing = Employee.objects.filter(vat_number=vat).first()
+                if existing:
+                    p.import_error = \
+                        'Υπάρχει ήδη εγγραφή με Α.Φ.Μ. %s: %s' % (vat, existing)
+                    foundins.append(p)
+                    continue
+
+            try:
+                p.save()
+                saved.append(p)
+            except Exception as ex:
+                p.import_error = str(ex)
+                notins.append(p)
+
+        request.session.pop(IMPORT_WIZARD_KEY, None)
+        context.update({
+            "dataimported": saved,
+            "notinserted": notins,
+            "foundinserted": foundins,
+        })
+
+    return render(request, 'admin/importexport.html', context)
 
 
 def _export_field_value(obj, field):

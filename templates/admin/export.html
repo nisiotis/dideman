@@ -1,73 +1,128 @@
-
 {% extends "admin/base_site.html" %}
-{% load i18n static admin_list %}
-{% load admin_urls %}
-{% block extrahead %}
-{% if export_field_choices %}
-<script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
-<script type="text/javascript">
+{% load i18n static %}
 
-$(document).ready(function () {
-    $('#selectall').click(function () {
-        $('.exportfield').prop('checked', this.checked);
+{% block extrahead %}{{ block.super }}
+  <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+  <script src="{% static 'admin/js/jquery.init.js' %}"></script>
+  <script>
+    {% comment %}
+    Ήταν jQuery 1.7 από /static/js/. Μετά το noConflict της jQuery του admin
+    δεν υπήρχε global «$», οπότε η «Επιλογή όλων» δεν λειτουργούσε καθόλου.
+    {% endcomment %}
+    django.jQuery(function ($) {
+        var $all = $('#selectall'), $fields = $('.exportfield');
+
+        $all.on('click', function () {
+            $fields.prop('checked', this.checked);
+        });
+
+        $fields.on('change', function () {
+            $all.prop('checked', $fields.filter(':checked').length === $fields.length);
+        });
     });
-});
-
-</script>
-{% endif %}
+  </script>
 {% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+  <style>
+    /* Οι λίστες πεδίων φτάνουν τις 80+ γραμμές: σε στήλες, ώστε να μη
+       χρειάζεται ατέρμονη κατακόρυφη κύλιση, με οριζόντια κύλιση όταν δεν
+       χωρούν στο πλάτος. */
+    .dide-export .fieldpick {
+        columns: 260px 4;
+        column-gap: 24px;
+        max-width: 100%;
+        overflow-x: auto;
+        margin-bottom: 15px;
+    }
+    .dide-export .fieldpick label {
+        display: inline;
+        font-weight: normal;
+        cursor: pointer;
+    }
+    .dide-export .fieldpick p {
+        break-inside: avoid;
+        margin: 0 0 6px 0;
+        /* Χωρίς nowrap: οι μακριές ετικέτες («Προϋπηρεσία Ν. 4452/2017
+           Βαθμολογική (ΕΕΜΜΗΗ)») ξεχείλιζαν από τη στήλη και πατούσαν πάνω
+           στη διπλανή. */
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        overflow-wrap: anywhere;
+    }
+    .dide-export .fieldpick input { margin-top: 3px; flex: none; }
+    .dide-export .submit-row { margin-top: 12px; }
+  </style>
+{% endblock %}
+
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="/admin/dide/importexport/">Εισαγωγή - Εξαγωγή Δεδομένων</a>
-&rsaquo; {{ app_label|capfirst|escape }}
-
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+  &rsaquo; <a href="{% url 'dide_importexport' %}">Εισαγωγή - Εξαγωγή Δεδομένων</a>
+  &rsaquo; {{ app_label|capfirst|escape }}
 </div>
 {% endblock %}
 
 {% block content %}
+<div id="content-main" class="dide-export">
 
-<p><a href="/admin/dide/importexport/">Εισαγωγή</a> | <strong>Εξαγωγή</strong></p>
+<p><a href="{% url 'dide_importexport' %}">Εισαγωγή</a> | <strong>Εξαγωγή</strong></p>
 
 {% if errors %}
 <ul class="errorlist">
-{% for e in errors %}<li>{{ e }}</li>{% endfor %}
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
 </ul>
 {% endif %}
 
 <form action="" method="post">{% csrf_token %}
 
 {% if not export_field_choices %}
-<p>Επιλέξτε τον τύπο εγγραφών προς εξαγωγή:</p>
-<select name="export_model" id="export_model">
-{% for key, label in export_model_choices %}
-<option value="{{ key }}"{% if key == export_model %} selected{% endif %}>{{ label }}</option>
-{% endfor %}
-</select>
-<button type="submit" value="Επόμενο" id="choose_fields" name="choose_fields" formaction="?fields=True">Επόμενο</button>
-{% endif %}
+  <div class="module aligned">
+    <p><label for="export_model">Τύπος εγγραφών προς εξαγωγή:</label>
+      <select name="export_model" id="export_model">
+        {% for key, label in export_model_choices %}
+        <option value="{{ key }}"{% if key == export_model %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select></p>
+  </div>
+  <div class="submit-row">
+    <button type="submit" class="default" value="Επόμενο" id="choose_fields"
+            name="choose_fields" formaction="?fields=True">Επόμενο</button>
+  </div>
+{% else %}
+  <input type="hidden" name="export_model" value="{{ export_model }}">
 
-{% if export_field_choices %}
-<input type="hidden" name="export_model" value="{{ export_model }}">
+  <div class="module aligned">
+    <p><label for="encoding">Κωδικοποίηση αρχείου:</label>
+      <select name="encoding" id="encoding">
+        {% for key, label in encoding_choices %}
+        <option value="{{ key }}"{% if key == encoding %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <span class="help">Επιλέξτε «Ελληνικά Windows» αν το αρχείο θα ανοιχτεί
+        σε παλαιότερο Excel.</span></p>
+  </div>
 
-<p><label for="encoding">Κωδικοποίηση αρχείου:</label>
-<select name="encoding" id="encoding">
-{% for key, label in encoding_choices %}
-<option value="{{ key }}"{% if key == encoding %} selected{% endif %}>{{ label }}</option>
-{% endfor %}
-</select>
-<span class="help">Επιλέξτε «Ελληνικά Windows» αν το αρχείο θα ανοιχτεί σε παλαιότερο Excel.</span></p>
+  <h2>Πεδία προς εξαγωγή</h2>
+  <p><input id="selectall" type="checkbox">
+    <label for="selectall">Επιλογή όλων</label></p>
 
-<p>Επιλέξτε τα πεδία που θα εξαχθούν:</p>
-<p><input id="selectall" type="checkbox"> <label for="selectall">Επιλογή όλων</label></p>
-<table>
-{% for name, label in export_field_choices %}
-<tr><td><input class="exportfield" type="checkbox" name="export_fields" value="{{ name }}" id="ef_{{ name }}"></td><td><label for="ef_{{ name }}">{{ label }}</label></td></tr>
-{% endfor %}
-</table>
-<button type="submit" value="Εξαγωγή" id="download" name="download" formaction="?download=True">Εξαγωγή σε CSV</button>
+  <div class="fieldpick">
+    {% for name, label in export_field_choices %}
+    <p><input class="exportfield" type="checkbox" name="export_fields"
+              value="{{ name }}" id="ef_{{ name }}">
+      <label for="ef_{{ name }}">{{ label }}</label></p>
+    {% endfor %}
+  </div>
+
+  <div class="submit-row">
+    <button type="submit" class="default" value="Εξαγωγή" id="download"
+            name="download" formaction="?download=True">Εξαγωγή σε CSV</button>
+  </div>
 {% endif %}
 
 </form>
 
+</div>
 {% endblock %}
