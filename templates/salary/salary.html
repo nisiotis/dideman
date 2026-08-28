@@ -3,16 +3,6 @@
 {% load base_site %}
 {% block extrastyle %}{{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
-<script src="{% static "jquery-ui/js/jquery-1.7.2.min.js" %}"></script>
-<script>
-$(function() {
-    $("#totalreports")
-      .change(function() {
-        $("#emp-action").val($(this).val()); 
-        $("#edit-form").submit();
-    });
-});
-</script>
 <style>
 #map {
   width: 100%;
@@ -78,6 +68,22 @@ label {
 }
     }
 </style>
+{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+{% comment %}
+Φόρτωνε δεύτερο αντίγραφο jQuery (1.7.2) μόνο γι' αυτό το handler και
+χρησιμοποιούσε το καθολικό $. Χρησιμοποιείται η jQuery του admin που έχει ήδη
+φορτώσει το base template, μέσω του django.jQuery.
+{% endcomment %}
+<script>
+django.jQuery(function ($) {
+    $("#totalreports").on('change', function () {
+        $("#emp-action").val($(this).val());
+        $("#edit-form").submit();
+    });
+});
+</script>
 {% endblock %}
 {% block title %}
 Δ.Δ.Ε. {% get_setting 'dide_place'  %}

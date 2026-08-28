@@ -7,7 +7,9 @@
 {% block extrastyle %}{% endblock %}
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% static "admin/css/ie.css" %}{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
-<script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/dide.js' %}"></script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -130,6 +132,70 @@ p {
 }
 
 
+
+/* --- Διόρθωση κύλισης ------------------------------------------------------
+   Το base.css του Django 5 κάνει «html, body { height: 100% }» και
+   «#container { display: flex; flex-direction: column; height: 100% }». Οι
+   σελίδες αυτές γράφτηκαν για το base.css του Django 1.x, όπου το #container
+   ήταν απλό block: πάνω στο νέο layout το #content γινόταν flex item
+   περιορισμένου ύψους και, μαζί με το overflow:hidden παρακάτω, το
+   περιεχόμενο κοβόταν και η σελίδα δεν κυλούσε καθόλου.
+   Επαναφέρεται η κανονική ροή εγγράφου. */
+html, body { height: auto; }
+#container {
+    display: block;
+    height: auto;
+    min-width: 0;
+}
+#content {
+    /* Ήταν overflow:hidden (clearfix για τις floated στήλες). Το ίδιο
+       αποτέλεσμα χωρίς κόψιμο περιεχομένου. */
+    overflow: visible;
+}
+#content::after { content: ""; display: table; clear: both; }
+
+/* --- Μπάρα ενεργειών -------------------------------------------------------
+   Ήταν position:fixed; z-index:10001, οπότε καθόταν πάνω από το περιεχόμενο
+   και πάνω στο υποσέλιδο. Sticky: μένει ορατή στο κάτω μέρος όσο κυλάει η
+   σελίδα, αλλά συμμετέχει στη ροή. */
+.fixed_footer:not(.dide-credits) {
+    position: sticky;
+    bottom: 0;
+    width: auto;
+    z-index: 20;
+    border-top: 1px solid var(--hairline-color, #e0e0e0);
+}
+.fixed_footer:not(.dide-credits) .submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0;
+}
+.fixed_footer:not(.dide-credits) .submit-row > div {
+    float: none !important;
+    width: auto !important;
+    margin: 0 !important;
+    text-align: left !important;
+}
+/* Τα «Αποθήκευση Αλλαγών», «Μισθοδοσία», «Έξοδος» ως κανονικά κουμπιά. */
+.fixed_footer:not(.dide-credits) .submit-row a {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    background: var(--button-bg, #79aec8);
+    color: var(--button-fg, #fff);
+}
+.fixed_footer:not(.dide-credits) .submit-row a#save {
+    background: var(--default-button-bg, #417690);
+    font-weight: 600;
+}
+.fixed_footer:not(.dide-credits) .submit-row a:hover {
+    background: var(--button-hover-bg, #609ab6);
+}
+
 </style>
 </head>
 {% load i18n %}
@@ -192,9 +258,8 @@ p {
 	</div>
     <div style="text-align: right; float: right; margin-left: 200px;">
       <!--<input type="button" id="logout" value="Έξοδος" onclick="javascript:document.location.href='?logout' "/>-->
-      <a id="myinfo" href="/myinfo/edit">Τα στοιχεία μου</a> 
-      |
-      <a id="logout" href="?logout">Έξοδος</a> 
+      <a id="myinfo" href="/myinfo/edit">Τα στοιχεία μου</a>
+      <a id="logout" href="?logout">Έξοδος</a>
       
       </div>
       </div>
