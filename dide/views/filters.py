@@ -68,11 +68,15 @@ def render_template(request, model, model_admin):
             else:
                 choices = None
             if choices:
+                # Το «chosen» (0.9.7, 2013) χρησιμοποιεί $.browser, που
+                # αφαιρέθηκε στη jQuery 1.9 — δεν δουλεύει με τη jQuery 3 του
+                # admin. Χρησιμοποιείται το Select2 που συνοδεύει ήδη το
+                # Django, οπότε τα πολλαπλά φίλτρα δείχνουν ίδια με τα
+                # autocomplete πεδία του admin.
                 select_multiple = django_forms.SelectMultiple(
                     choices=choices,
-                    attrs={'class': 'chzn-select',
+                    attrs={'class': 'dide-multiselect',
                            'data-placeholder': 'Επιλέξτε',
-                           'style': 'width:600px',
                            'name': spec.lookup_param, 'title': spec.title})
                 selects.append(select_multiple)
     return render(request, 'admin/full_filters.html', {'selects': selects,

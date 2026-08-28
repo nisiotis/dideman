@@ -66,7 +66,16 @@ _lazy_dide_place = lazy(
 
 
 def timestamp():
-    return [x for x in str(datetime.datetime.now()) if x >= '0' and x <= '9']
+    """Τα ψηφία της τρέχουσας στιγμής, ως συμβολοσειρά.
+
+    Στην Python 2 το filter() πάνω σε string επέστρεφε string· η μετατροπή
+    σε list comprehension το έκανε *λίστα*, οπότε το «filename=report%s»
+    έγραφε το repr της λίστας — με κόμματα και αποστρόφους μέσα στο
+    Content-Disposition. Ο Chrome διαβάζει τα κόμματα ως διαχωριστικά
+    πολλαπλών τιμών και απέρριπτε κάθε λήψη με
+    ERR_RESPONSE_HEADERS_MULTIPLE_CONTENT_DISPOSITION.
+    """
+    return ''.join(x for x in str(datetime.datetime.now()) if x.isdigit())
 
 
 class TemplateAction(object):

@@ -13,6 +13,17 @@ from dideman.lib.date import current_year_date_to_half
 
 class SubstituteInput(forms.HiddenInput):
 
+    # Το widget κληρονομεί από το HiddenInput μόνο για να ταξιδεύει η τιμή σε
+    # <input type="hidden">· ό,τι βλέπει ο χρήστης (πεδίο με το ονοματεπώνυμο
+    # και ο σύνδεσμος «Επιλογή») το γράφει το render(). Το is_hidden όμως
+    # παραμένει True λόγω του input_type, και τα πρότυπα του Django 5.x
+    # κρύβουν ολόκληρο το κελί/επικεφαλίδα ενός τέτοιου πεδίου
+    # (class="... hidden"). Αποτέλεσμα: στο SubstituteMinistryOrder δεν
+    # φαινόταν καθόλου ο αναπληρωτής ούτε ο σύνδεσμος που ανοίγει το popup.
+    # Το παλιό μας edit_inline/tabular.html (αντίγραφο του Django 1.6) δεν
+    # έκανε αυτόν τον έλεγχο, γι' αυτό και δούλευε πριν.
+    is_hidden = False
+
     def render(self, name, value, attrs=None, renderer=None):
         # Το renderer μπήκε στην υπογραφή των widgets στο Django 1.11 και
         # το build_attrs δέχεται πλέον δύο λεξικά αντί για keyword args.

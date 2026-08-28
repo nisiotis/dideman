@@ -1,133 +1,86 @@
-﻿{% load static %}
-<!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-<head>
-    {% load i18n %}
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+{% extends "admin/base_site.html" %}
+{% comment %}
+Ήταν αυτόνομη σελίδα με δικό της <html>/<head> και jQuery 1.7. Τώρα επεκτείνει
+το base_site ώστε να δείχνει ίδια με το υπόλοιπο admin. Ανοίγει από τον
+σύνδεσμο «Επιλογή» του SubstituteInput (dide/forms.py) και γράφει πίσω στον
+opener το id και το ονοματεπώνυμο του αναπληρωτή.
+{% endcomment %}
+{% load i18n static %}
 
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
-    {% block extrastyle %}{% endblock %}
-    <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}"admin/css/ie.css"{% endblock %}" /><![endif]-->
-    {% if LANGUAGE_BIDI %}
-    <link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}"admin/css/rtl.css"{% endblock %}" />
-    {% endif %}
-    <script type="text/javascript" src="/static/admin/js/core.js"></script>
-    <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
-    <script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
-    <script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
-    <script type="text/javascript" src="/admin/jsi18n/"></script>
+{% block title %}Λίστα αναπληρωτών{% endblock %}
+{% block bodyclass %}{{ block.super }} popup dide-picker{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block usertools %}{% endblock %}
 
-    <script type="text/javascript">
-        const urlParams = new URLSearchParams(window.location.search);
-        django.jQuery(document).ready(function(){
-            django.jQuery("#filter").keyup(function(){
-         
-                // Retrieve the input field text and reset the count to zero
-                var filter = django.jQuery(this).val(), count = 0;
-         
-                // Loop through the comment list
-                
-                django.jQuery("ul li").each(function(){
-         
-                    // If the list item does not contain the text phrase fade it out
-                    if (django.jQuery(this).text().search(new RegExp('^' + filter, "iu")) < 0) {
-                        django.jQuery(this).hide();
-         
-                    // Show the list item if the phrase matches and increase the count by 1
-                    } else {
-                        django.jQuery(this).show();
-                        count++;
-                    }
-                });
-         
-                // Update the count
-                var numberItems = count;
-                django.jQuery("#filter-count").text("Βρέθηκαν "+count);
+{% block extrastyle %}{{ block.super }}
+  <style>
+    .dide-picker #filter { width: 100%; box-sizing: border-box; }
+    .dide-picker .listing { list-style: none; margin: 10px 0 0 0; padding: 0; }
+    .dide-picker .listing li { margin: 0; list-style: none;
+        border-bottom: 1px solid var(--hairline-color, #eee); }
+    .dide-picker .listing li::marker { content: none; }
+    .dide-picker .listing li a { display: block; padding: 7px 8px; text-decoration: none; }
+    .dide-picker .listing li a:hover { background: var(--selected-row, #f3f6fb); }
+    .dide-picker .count { font-size: 0.75rem; color: var(--body-quiet-color, #666);
+                          margin: 6px 0 0 0; }
+    .dide-picker .submit-row { position: sticky; bottom: 0; z-index: 20; }
+    .dide-picker .search-box { position: sticky; top: 0; z-index: 20;
+        background: var(--body-bg, #fff); padding: 8px 0; }
+  </style>
+{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+  <script src="{% static 'admin/js/jquery.init.js' %}"></script>
+  <script>
+    django.jQuery(function ($) {
+        var params = new URLSearchParams(window.location.search);
+        // Το id του πεδίου στον opener έρχεται ως «link_<id>».
+        var base = (params.get('id') || '').replace('link_', '');
+
+        $('#filter').on('keyup', function () {
+            var needle = $(this).val(), count = 0;
+            $('.listing li').each(function () {
+                var hit = $(this).text().search(new RegExp('^' + needle, 'iu')) >= 0;
+                $(this).toggle(hit);
+                if (hit) { count += 1; }
             });
+            $('#filter-count').text('Βρέθηκαν ' + count);
         });
-    </script>
-    <style>
-      #container {
-            position: relative;
-            min-width: 400px;
-            
-            padding: 0;
-      }
-      .listing {
-            list-style-type: none;
-            padding: 0px 0;
-            line-height: 8px;
-      }
-      .fixed_header {
-            position: fixed;
-            width: 100%;
-            top: 0;
-            left: 0;
-            z-index: 10001;
-            background-color: white;
-            border-bottom: 1px solid rgb(204, 204, 204);
-      }
-    </style>
-    {% block extrahead %}{% endblock %}
-    {% block blockbots %}
-    <meta name="robots" content="NONE,NOARCHIVE" />
-    {% endblock %}
-    <style>
-      table.valign td { vertical-align: middle }
-    </style>
-</head>
 
-<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+        $('.listing a').on('click', function (e) {
+            e.preventDefault();
+            var $a = $(this);
+            window.opener.django.jQuery('#' + base).val($a.data('id'));
+            window.opener.django.jQuery('#display_' + base).val($a.data('label'));
+            window.close();
+        });
+    });
+  </script>
+{% endblock %}
 
-
-<div id="container">
-  <div class="fixed_header">
-    <div id="header">
-        <div id="branding">
-        <h1 id="site-name">ΔΔΕ {{ dide_place }}</h1>
-        </div>
-    </div>
-    <!-- END Header -->
-    <div class="breadcrumbs">
-      Λίστα αναπληρωτών
-    </div>
-    <div id="content">
-          <form id="live-search" action="" method="post">
-              
-                  <input type="text" class="text-input" id="filter" placeholder="{% trans 'Search' %}..." value="" style="width: 100%;" />
-                  <h4><span id="filter-count">Βρέθηκαν {{ set.count }}</span></h4>
-              
-          </form>
-    </div>
+{% block content %}
+<div id="content-main">
+  <div class="search-box">
+    <input type="text" id="filter" placeholder="{% trans 'Search' %}…" autofocus>
+    <p class="count"><span id="filter-count">Βρέθηκαν {{ set.count }}</span></p>
   </div>
 
-        <div id="content">
-          <p style="margin-top: 50px;">&nbsp;</p>
-          <div class="results" style="margin-top: 140px;">
-             <ul class="listing">
-              {% for item in set %}
-              <li class="listing"><h4><a href ="#" onclick="window.opener.django.jQuery('#'+urlParams.get('id').replace('link_', '')).val('{{ item.parent_id }}');window.opener.django.jQuery('#display_' + urlParams.get('id').replace('link_','')).val('{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }}');window.close();">{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }} ({{ item.vat_number }})</a></h4></li>
+  <ul class="listing">
+    {% for item in set %}
+    <li>
+      <a href="#" data-id="{{ item.parent_id }}"
+         data-label="{{ item.lastname }} {{ item.firstname }} του {{ item.fathername }}">
+        {{ item.lastname }} {{ item.firstname }} του {{ item.fathername }}
+        {% if item.vat_number %}<span class="count">({{ item.vat_number }})</span>{% endif %}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
 
-              {% endfor %}
-            </ul>
-          </div>  
-	    <div style="height:30px;"></div>
-	    <div style="position: fixed; width: 100%; bottom: 0; left: 0; z-index: 10001; background-color: white;">
-	      <div style="margin-left: 10px; margin-right: 10px;">
-		<div class="submit-row" style="margin: 0 0 5px 0;">
-
-		    <input type="button" value="Κλείσιμο Παραθύρου" onclick="window.close();"/>
-		 
-		</div>
-	      </div>
-	    </div>
-
-        </div>
-        {% block footer %}
-        <div id="footer"></div>
-        {% endblock %}
-    </div>
-</body>
-</html>
-
+  <div class="submit-row">
+    <input type="button" value="Κλείσιμο Παραθύρου" onclick="window.close();">
+  </div>
+</div>
+{% endblock %}
