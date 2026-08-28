@@ -2,6 +2,15 @@
 {% load i18n static %}
 {% block bodyclass %}match{% endblock %}
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "employee/match.css" %}" />
+<style>
+  .sso-or { text-align: center; margin: 18px 0 10px; border-bottom: 1px solid #ddd;
+            line-height: 0.1em; }
+  .sso-or span { background: #fff; padding: 0 12px; color: #666; font-size: 12px; }
+  .sso-button { display: inline-block; padding: 9px 16px; border-radius: 4px;
+                text-decoration: none; font-weight: 600;
+                background: #1b4965; color: #fff; }
+  .sso-button:hover { background: #15384e; color: #fff; }
+</style>
 {% endblock %}
 {% block content %}
 {% if form.errors and not form.non_field_errors and not form.this_is_the_match_form.errors %}
@@ -45,6 +54,17 @@
   <div class="small" style="text-align:center;">
     <a href="#" onclick="window.open('/employee/help','helpWindow', 'height=350,width=980');return true;">Έχω πρόβλημα να συνδεθώ με τον ΙΒΑΝ μου</a>
  </div>
+
+  {% if sso_enabled %}
+  <div class="sso-box">
+    <p class="sso-or"><span>ή</span></p>
+    <p style="text-align:center;">
+      <a class="sso-button" href="{% url 'employee_sso_login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">
+        Σύνδεση με λογαριασμό Πανελλήνιου Σχολικού Δικτύου
+      </a>
+    </p>
+  </div>
+  {% endif %}
 
 </form>
 

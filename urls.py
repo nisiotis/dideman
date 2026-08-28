@@ -11,6 +11,7 @@ from django.urls import include, re_path
 from dideman.api import views as api_views
 from dideman.dide.applications import views as application_views
 from dideman.dide.employee import match as employee_match
+from dideman.dide.employee import sso as employee_sso
 from dideman.dide.menu import views as menu_views
 from dideman.dide.myinfo import views as myinfo_views
 from dideman.dide.salary import views as salary_views
@@ -39,6 +40,10 @@ urlpatterns = [
     re_path(r'^employee/help/', employee_match.help),
     re_path(r'^salary/help/', salary_views.help),
     re_path(r'^employee/match/$', employee_match.match),
+    # Σύνδεση μέσω του SSO του ΠΣΔ (CAS). Ανενεργό όσο SSO['enabled'] = False.
+    re_path(r'^employee/sso/login/$', employee_sso.login, name='employee_sso_login'),
+    re_path(r'^employee/sso/callback/$', employee_sso.callback, name='employee_sso_callback'),
+    re_path(r'^employee/sso/logout/$', employee_sso.logout, name='employee_sso_logout'),
     re_path(r'^applications/edit/(?P<set_id>\d+)/$', application_views.edit),
     re_path(r'^salary/view/$', salary_views.view),
     re_path(r'^myinfo/edit/$', myinfo_views.edit),

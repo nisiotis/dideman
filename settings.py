@@ -206,6 +206,36 @@ DATE_FORMAT = 'd-m-Y'
 # Το FORMAT_MODULE_PATH τα επαναφέρει (βλ. dideman/formats/el/formats.py).
 FORMAT_MODULE_PATH = ['dideman.formats']
 
+# --- SSO Πανελλήνιου Σχολικού Δικτύου ---------------------------------------
+# Πελάτης CAS για το sso.sch.gr. Όσο το enabled είναι False δεν αλλάζει τίποτα
+# στη συμπεριφορά: η ταυτοποίηση με Αρ. Μητρώου/ΙΒΑΝ συνεχίζει κανονικά.
+#
+# ΠΡΟΣΟΧΗ: οι παρακάτω διευθύνσεις και τα ονόματα των attributes ΔΕΝ έχουν
+# επιβεβαιωθεί με το ΠΣΔ. Ζητήστε τα (και την εγγραφή της υπηρεσίας ως
+# service/relying party) και συμπληρώστε τα εδώ πριν το ενεργοποιήσετε.
+SSO = {
+    'enabled': False,
+    'server_url': 'https://sso.sch.gr/',
+    # 2 -> /serviceValidate, 3 -> /p3/serviceValidate (επιστρέφει attributes)
+    'protocol': 3,
+    'login_path': 'login',
+    'logout_path': 'logout',
+    # Αν το ΠΣΔ δίνει άλλη διαδρομή επικύρωσης, δηλώστε την εδώ.
+    'validate_path': None,
+    'verify_ssl': True,
+    'timeout': 10,
+    # Το username του ΠΣΔ γίνεται «<username>@sch.gr» για να ταιριάξει με email.
+    'username_suffix': '@sch.gr',
+    # Σειρά αντιστοίχισης του χρήστη ΠΣΔ σε Employee:
+    # (πεδίο του Employee, πηγή τιμής). Η πηγή είναι 'username',
+    # 'username_with_suffix', ή το όνομα ενός attribute του CAS.
+    'match_fields': [
+        ('email', 'username_with_suffix'),
+        ('email', 'email'),
+        ('vat_number', 'taxid'),
+    ],
+}
+
 INTERNAL_IPS = ('127.0.0.1',)
 
 DATABASES = secret_settings.DATABASES

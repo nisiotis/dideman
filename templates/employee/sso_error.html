@@ -1,0 +1,20 @@
+{% extends "employee/base.html" %}
+{% block bodyclass %}match{% endblock %}
+{% block content %}
+<div id="content-main">
+  <h1>Σύνδεση με λογαριασμό ΠΣΔ</h1>
+  {% if reason == 'unmatched' %}
+    <p class="errornote">Η ταυτοποίηση στο Πανελλήνιο Σχολικό Δίκτυο ολοκληρώθηκε,
+      αλλά ο λογαριασμός <strong>{{ username }}</strong> δεν αντιστοιχίστηκε σε
+      εγγραφή υπαλλήλου της Διεύθυνσης.</p>
+    <p>Επικοινωνήστε με τη Διεύθυνση για να συνδεθεί ο λογαριασμός σας, ή
+      συνδεθείτε με Αρ. Μητρώου και ΙΒΑΝ.</p>
+  {% elif reason == 'unreachable' %}
+    <p class="errornote">Δεν ήταν δυνατή η επικοινωνία με την υπηρεσία
+      ταυτοποίησης του ΠΣΔ. Δοκιμάστε ξανά σε λίγο.</p>
+  {% else %}
+    <p class="errornote">Η ταυτοποίηση δεν ολοκληρώθηκε.</p>
+  {% endif %}
+  <p><a href="/employee/match/">Σύνδεση με Αρ. Μητρώου και ΙΒΑΝ</a></p>
+</div>
+{% endblock %}

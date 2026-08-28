@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from dideman.dide.employee.forms import EmployeeMatchForm
+from dideman.dide.employee import sso
 from django.shortcuts import render
 from django.http import  HttpResponseRedirect
 
@@ -17,6 +18,8 @@ def match(request):
     else:
         form = EmployeeMatchForm()
     request.session.set_test_cookie()
-    return render(request, 'employee/match.html', {'form': form,
-                                              'next':
-                                                  request.GET.get('next')})
+    return render(request, 'employee/match.html',
+                  {'form': form,
+                   'next': request.GET.get('next'),
+                   # Ο σύνδεσμος ΠΣΔ εμφανίζεται μόνο όταν είναι ρυθμισμένο.
+                   'sso_enabled': sso.enabled()})
