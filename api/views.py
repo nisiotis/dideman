@@ -16,7 +16,7 @@ def permanent(request):
                       "lastname": r.lastname,
                       "firstname": r.firstname,
                       "fathername": r.fathername,
-                      "payment_start_date": unicode(r.payment_start_date_auto()),
+                      "payment_start_date": str(r.payment_start_date_auto()),
                       "total_service": str(r.total_service()),
                       "fek": r.order_hired} for r in qs],
                     "error": ""}
@@ -31,8 +31,8 @@ def schools(request):
         if 'key' in request.GET and request.GET['key'] == SETTINGS['api_key']:
             sch = School.objects.all().exclude(email__exact='')
             data = {"data":
-                    [{"name": unicode(k.name),
-                      "area": unicode(k.transfer_area),
+                    [{"name": str(k.name),
+                      "area": str(k.transfer_area),
                       "email": k.email,
                       "code": k.code} for k in sch],
                     "error": "" }
@@ -70,9 +70,9 @@ def schoolposts(request):
                             if o.permanent_post().date_to < datetime.date(datetime.date.today().year, 9, 1):
                                 l.append(o.id)
                     except Exception as err:
-                        print o
-                        print(type(err))    # the exception type
-                        print(err.args)     # arguments stored in .args
+                        print(o)
+                        print((type(err)))    # the exception type
+                        print((err.args))     # arguments stored in .args
                         print(err) 
                 prm = Permanent.objects.permanent_post_in_organization_api(school_found)\
                                    .filter(currently_serves=True).exclude(pk__in=l)
@@ -100,14 +100,14 @@ def schoolposts(request):
                 json_grp = []
                 total_prof_w_hrs = 0
                 for item in pos:
-                    if grp.has_key(item):
+                    if item in grp:
                         json_grp.append({"profession": item, "hours": tot_hrs[item], "count": grp.get(item)})
                         total_prof_w_hrs += 1
                     else:
                         json_grp.append({"profession": item, "hours": 0, "count": 0})
 
                 data = {"data":
-                    [{"profession": unicode(k['profession']),
+                    [{"profession": str(k['profession']),
                       "hours": k['hours'],
                       "count": k['count']} for k in json_grp],
 

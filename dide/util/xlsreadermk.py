@@ -5,7 +5,7 @@ import xlrd
 
 from dideman import settings
 from dideman.dide.models import NonPermanent
-from cStringIO import StringIO
+from io import StringIO
 from django.db import connection, transaction
 from dideman.dide.util.settings import SETTINGS
 from django.utils.encoding import force_unicode
@@ -33,10 +33,10 @@ def xlsread(oid, xlsfile):
         try:
             e = emp.get(social_security_registration_number__contains=e_social_security_registration_number, lastname=e_lastname)
         except:
-            recs_missed[str(worksheet.cell_value(curr_row, 0))] = u'Αρχείο %s: %s %s' % (force_unicode(xls_name, 'utf-8', 'ignore'), e_social_security_registration_number, force_unicode(e_lastname, 'utf-8', 'ignore')) 
+            recs_missed[str(worksheet.cell_value(curr_row, 0))] = 'Αρχείο %s: %s %s' % (force_unicode(xls_name, 'utf-8', 'ignore'), e_social_security_registration_number, force_unicode(e_lastname, 'utf-8', 'ignore')) 
             e = False
 
-        if e and e_pay_type in (u'ΜΗΝΙΑΙΕΣ', u'ΑΔΕΙΑ ΑΣΘΕΝΕΙΑΣ'):
+        if e and e_pay_type in ('ΜΗΝΙΑΙΕΣ', 'ΑΔΕΙΑ ΑΣΘΕΝΕΙΑΣ'):
             e_days_insured = str(worksheet.cell_value(curr_row, 6)).rstrip('0').rstrip('.') if '.' in str(worksheet.cell_value(curr_row, 6)) else str(worksheet.cell_value(curr_row, 6))
             e_month = str(worksheet.cell_value(curr_row, 7)).rstrip('0').rstrip('.') if '.' in str(worksheet.cell_value(curr_row, 7)) else str(worksheet.cell_value(curr_row, 7))
             e_year = str(worksheet.cell_value(curr_row, 8)).rstrip('0').rstrip('.') if '.' in str(worksheet.cell_value(curr_row, 8)) else str(worksheet.cell_value(curr_row, 8))

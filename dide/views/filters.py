@@ -51,7 +51,7 @@ def render_template(request, model, model_admin):
                 choices = None
             if choices:
                 select_multiple = chosenforms.ChosenSelectMultiple(
-                    choices=choices, overlay=u'Επιλέξτε',
+                    choices=choices, overlay='Επιλέξτε',
                     attrs={'style': 'width:600px',
                            'name': spec.lookup_param, 'title': spec.title})
                 selects.append(select_multiple)

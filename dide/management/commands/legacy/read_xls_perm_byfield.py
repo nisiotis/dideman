@@ -46,7 +46,7 @@ class Command(BaseCommand):
             try:
                 workbook = xlrd.open_workbook(options['f'])
             except:
-                print "--f <file>: xls file required / not found"
+                print("--f <file>: xls file required / not found")
                 exit()
             if options['df'] != '':
                 if self.find_model_field(Permanent, options['df']) != "":
@@ -56,22 +56,22 @@ class Command(BaseCommand):
                     perm_rows = 0
                     idx = options['ci'] if options['ci'] else 1
                     fld = self.find_model_field(Permanent, options['df'])
-                    print "Field to inport: %s" % fld.name
-                    print "Worksheet name %s, Rows %s" %(worksheet.name, worksheet.nrows)
+                    print("Field to inport: %s" % fld.name)
+                    print("Worksheet name %s, Rows %s" %(worksheet.name, worksheet.nrows))
 
-                    print "Continue? "
-                    iv = str(raw_input())
+                    print("Continue? ")
+                    iv = str(input())
                     if iv != 'y' and iv != 'yes':
                         exit()
                     while curr_row < worksheet.nrows:   
                         driver_cell = worksheet.cell(curr_row,0)
                         cell = worksheet.cell(curr_row,idx)
-                        p = Permanent.objects.filter(registration_number=unicode(driver_cell.value)[:6]).first()
+                        p = Permanent.objects.filter(registration_number=str(driver_cell.value)[:6]).first()
                         if p:
                             if fld.name == 'vat_number':
                                 e = Employee.objects.filter(vat_number=self.vat_to_text(cell.value)).first()
                                 if e:
-                                    print e
+                                    print(e)
                                     perm_rows += 1
                                 else:
                                     try:
@@ -86,18 +86,18 @@ class Command(BaseCommand):
                                     p.save()
                                     upd_rows += 1
                                 else:
-                                    print unicode(driver_cell.value)[:6], getattr(p, fld.name), cell.value
+                                    print(str(driver_cell.value)[:6], getattr(p, fld.name), cell.value)
                         else:
-                            print unicode(driver_cell.value)[:6], cell.value
+                            print(str(driver_cell.value)[:6], cell.value)
                         curr_row += 1
-                    print curr_row, "rows found "
-                    if upd_rows > 0: print upd_rows, " updated"
-                    if perm_rows > 0: print perm_rows, " exist in Employee"  
+                    print(curr_row, "rows found ")
+                    if upd_rows > 0: print(upd_rows, " updated")
+                    if perm_rows > 0: print(perm_rows, " exist in Employee")  
                     
                 else:
-                    print "--df <datafield> not found"
+                    print("--df <datafield> not found")
                     exit()
             else:
-                print "--df <field>: field to import required / not found"
+                print("--df <field>: field to import required / not found")
                 exit()
 

@@ -20,7 +20,7 @@ from collections import defaultdict
 
 
 def calc_reports(emp_reports): 
-    types = {1: u'Φόρος που αναλογεί', 2: u'Σύνολο Κρατήσεων', 3: u'Απεργία', 4: u'Σύνταξη', 5:u'Εισφορά', 0: u'Άλλο'}
+    types = {1: 'Φόρος που αναλογεί', 2: 'Σύνολο Κρατήσεων', 3: 'Απεργία', 4: 'Σύνταξη', 5:'Εισφορά', 0: 'Άλλο'}
     groups = defaultdict(lambda : defaultdict(float))
     sums = defaultdict(float)
     d_fact = 0.00
@@ -33,11 +33,11 @@ def calc_reports(emp_reports):
             sums[r['group_name']] += amount
 
         if r['type'] == 'gr':
-            groups[key][u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
-            sums[u'1. Αποδοχές από μισθούς ή συντάξεις'] += amount
+            groups[key]['1. Αποδοχές από μισθούς ή συντάξεις'] += amount
+            sums['1. Αποδοχές από μισθούς ή συντάξεις'] += amount
 
-            groups[key][u'Φορολογητέο Ποσό'] += amount
-            sums[u'Φορολογητέο Ποσό'] += amount
+            groups[key]['Φορολογητέο Ποσό'] += amount
+            sums['Φορολογητέο Ποσό'] += amount
 
         if r['calc_type'] == 1: 
             d_fact = (amount * float(SETTINGS['tax_reduction_factor']))
@@ -48,19 +48,19 @@ def calc_reports(emp_reports):
             if r['info'] == None:
                 groups[key][types[r['calc_type']]] += amount
                 sums[types[r['calc_type']]] += amount
-                groups[key][u'Φορολογητέο Ποσό'] -= amount
-                sums[u'Φορολογητέο Ποσό'] -= amount
+                groups[key]['Φορολογητέο Ποσό'] -= amount
+                sums['Φορολογητέο Ποσό'] -= amount
 
         if r['calc_type'] == 3: 
-            groups[key][u'Φορολογητέο Ποσό'] -= amount
-            sums[u'Φορολογητέο Ποσό'] -= amount
+            groups[key]['Φορολογητέο Ποσό'] -= amount
+            sums['Φορολογητέο Ποσό'] -= amount
 
         if r['calc_type'] == 5: 
             pass
 
 
     headers = set()
-    for cat, d in groups.items():
+    for cat, d in list(groups.items()):
         headers |= set(d.keys())
 
     headers = list(headers)
@@ -68,22 +68,22 @@ def calc_reports(emp_reports):
     try:
         headers.remove(types[2])
         headers.append(types[2])
-        headers.remove(u'Φορολογητέο Ποσό')
-        headers.append(u'Φορολογητέο Ποσό')
+        headers.remove('Φορολογητέο Ποσό')
+        headers.append('Φορολογητέο Ποσό')
         headers.remove(types[1])
         headers.append(types[1])
-        headers.remove(u'Φόρος που παρακρατήθηκε')
-        headers.append(u'Φόρος που παρακρατήθηκε')
+        headers.remove('Φόρος που παρακρατήθηκε')
+        headers.append('Φόρος που παρακρατήθηκε')
 
     except:
         pass
     rows = []
 
-    for (cat_id, cat_title), d in groups.items():
+    for (cat_id, cat_title), d in list(groups.items()):
         rows.append([cat_title] + [d.get(h, 0) for h in headers])
-    rows.append([u' '] + [u' ' for h in headers])
-    rows.append([u'Σύνολα'] + [sums[h] for h in headers])
-    headers.insert(0, u'Είδος Αποδοχών ή Συντάξεων') 
+    rows.append([' '] + [' ' for h in headers])
+    rows.append(['Σύνολα'] + [sums[h] for h in headers])
+    headers.insert(0, 'Είδος Αποδοχών ή Συντάξεων') 
     return [headers] + rows
 
 
@@ -94,7 +94,7 @@ def dict_fetch_all(cursor):
     """
     desc = cursor.description
     return [
-        dict(zip([col[0] for col in desc], row))
+        dict(list(zip([col[0] for col in desc], row)))
         for row in cursor.fetchall()
     ]
 
@@ -174,10 +174,10 @@ def generate_pdf_structure(reports):
             ret = float(s)
         return ret
 
-    months = [u'Ιανουάριος', u'Φεβρουάριος', u'Μάρτιος',
-              u'Απρίλιος', u'Μάιος', u'Ιούνιος',
-              u'Ιούλιος', u'Αύγουστος', u'Σεπτέμβριος',
-              u'Οκτώβριος', u'Νοέμβριος', u'Δεκέμβριος']
+    months = ['Ιανουάριος', 'Φεβρουάριος', 'Μάρτιος',
+              'Απρίλιος', 'Μάιος', 'Ιούνιος',
+              'Ιούλιος', 'Αύγουστος', 'Σεπτέμβριος',
+              'Οκτώβριος', 'Νοέμβριος', 'Δεκέμβριος']
     elements = []
     for report in reports:
         logo = os.path.join(settings.MEDIA_ROOT, "logo.png")
@@ -223,67 +223,67 @@ def generate_pdf_structure(reports):
         im.drawWidth = 1.25 * cm
         data = []
         data.append([im, ""])
-        data.append([Paragraph(u'ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ', head_logo['Center']), ''])
-        data.append([Paragraph(u'%s' % SETTINGS['full_ministry_title'],
+        data.append([Paragraph('ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ', head_logo['Center']), ''])
+        data.append([Paragraph('%s' % SETTINGS['full_ministry_title'],
                                head_logo['Center']), ''])
-        data.append([Paragraph(u'ΠΕΡΙΦΕΡΕΙΑΚΗ ΔΙΕΥΘΥΝΣΗ ΠΡΩΤΟΒΑΘΜΙΑΣ',
+        data.append([Paragraph('ΠΕΡΙΦΕΡΕΙΑΚΗ ΔΙΕΥΘΥΝΣΗ ΠΡΩΤΟΒΑΘΜΙΑΣ',
                                head_logo['Center']), ''])
-        data.append([Paragraph(u'ΚΑΙ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_district'],
+        data.append([Paragraph('ΚΑΙ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_district'],
                                head_logo['Center']), ''])
-        data.append([Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_place_caps'],
+        data.append([Paragraph('ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_place_caps'],
                                head_logo['Center']), ''])
         table0 = Table(data, style=tsl, colWidths=[8.0 * cm, 11.0 * cm])
         elements.append(table0)
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
 
         if report['report_type'] == '0':
             #elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ',
             #                          heading_style['Center']))
             if report['type'] > 12:
-                elements.append(Paragraph(u'Βεβαίωση Αποδοχών %s %s' %
+                elements.append(Paragraph('Βεβαίωση Αποδοχών %s %s' %
                                           (report['type'], report['year']),
                                           heading_style["Center"]))
             else:
-                elements.append(Paragraph(u'Μισθοδοσία %s %s' %
+                elements.append(Paragraph('Μισθοδοσία %s %s' %
                                           (report['type'], report['year']),
                                           heading_style['Center']))
-            elements.append(Paragraph(u' ', heading_style['Spacer']))
+            elements.append(Paragraph(' ', heading_style['Spacer']))
 
         else:
-            elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ %s' % report['year'],
+            elements.append(Paragraph('ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ %s' % report['year'],
                                       heading_style['Center']))
-            elements.append(Paragraph(u' ', heading_style['Spacer']))
+            elements.append(Paragraph(' ', heading_style['Spacer']))
 
         if report['emp_type'] == 1:
-            headdata = [[Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
-                         Paragraph('%s' % report['registration_number'] or u'Δ/Υ',
+            headdata = [[Paragraph('ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
+                         Paragraph('%s' % report['registration_number'] or 'Δ/Υ',
                                    tbl_style['Left']),
                          Paragraph('ΑΦΜ', tbl_style['Left']),
-                         Paragraph(u'%s' % report['vat_number'],
+                         Paragraph('%s' % report['vat_number'],
                                    tbl_style['Left'])],
-                        [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
+                        [Paragraph('ΕΠΩΝΥΜΟ', tbl_style['Left']),
                          Paragraph('%s' % report['lastname'],
                                    tbl_style['Left']),
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])],
-                        [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
+                        [Paragraph('ΟΝΟΜΑ', tbl_style['Left']),
                          Paragraph('%s' % report['firstname'],
                                    tbl_style['Left']),
-                         Paragraph(u'ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
-                         Paragraph(u'%s' % report['rank'] if report['rank'] is not None else u'Δ/Υ',
+                         Paragraph('ΒΑΘΜΟΣ - ΚΛΙΜΑΚΙΟ', tbl_style['Left']),
+                         Paragraph('%s' % report['rank'] if report['rank'] is not None else 'Δ/Υ',
                                    tbl_style['Left'])]]
         else:
-            headdata = [[Paragraph(u'ΑΦΜ', tbl_style['Left']),
+            headdata = [[Paragraph('ΑΦΜ', tbl_style['Left']),
                          Paragraph('%s' % report['vat_number'],
                                    tbl_style['Left']),
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])],
-                        [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
+                        [Paragraph('ΕΠΩΝΥΜΟ', tbl_style['Left']),
                          Paragraph('%s' % report['lastname'],
                                    tbl_style['Left']),
                          Paragraph('', tbl_style['Left']),
                          Paragraph('', tbl_style['Left'])],
-                        [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
+                        [Paragraph('ΟΝΟΜΑ', tbl_style['Left']),
                          Paragraph('%s' % report['firstname'],
                                    tbl_style['Left']),
                          Paragraph('', tbl_style['Left']),
@@ -292,15 +292,15 @@ def generate_pdf_structure(reports):
         table1 = Table(headdata, style=tsh,
                        colWidths=[3 * cm, 6 * cm, 5 * cm, 3 * cm])
         elements.append(table1)
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
         del data
         data = []
         total_amount = 0
         total_tax_amount = 0
         for i in report['payment_categories']:
             if len(i['payments']) > 0: # fixing empty payments
-                elements.append(Paragraph(u' ', heading_style['Spacer']))
-                s = u'%s' % i['title']
+                elements.append(Paragraph(' ', heading_style['Spacer']))
+                s = '%s' % i['title']
                 if (i['start_date'] and i['start_date'] != 'NULL') and (i['end_date'] and i['start_date'] != 'NULL'):
                     s1 = "/".join(list(reversed(i['start_date'].split('-'))))
                     s2 = "/".join(list(reversed(i['end_date'].split('-'))))
@@ -310,7 +310,7 @@ def generate_pdf_structure(reports):
                     
                         s += ' %s %s' % (months[int(i['month'] - 1)], i['year'])
                     else:
-                        s += u' Άλλο %s' % i['year']
+                        s += ' Άλλο %s' % i['year']
                 data.append([Paragraph('%s' % s, tbl_style['BoldLeft'])])
                 if data: 
                     table2 = Table(data, style=tsh, colWidths=[17 * cm])
@@ -329,14 +329,14 @@ def generate_pdf_structure(reports):
                 denum = 0
                 for p in i['payments']:
                     if p['type'] == 'gr' or p['type'] == 'et':
-                        s = u'%s' % p['code']
+                        s = '%s' % p['code']
                         gret.append([Paragraph(s, tbl_style['Left']),
                                  Paragraph('%.2f €' % p['amount'],
                                            tbl_style['Right'])])
                         if p['type'] == 'gr':
                             grnum += float(p['amount'])
                     else:
-                        s = u'%s' % p['code']
+                        s = '%s' % p['code']
                         if p['info'] is not None:
                             s = s + " (%s)" % p['info']
                         if int(p['code_tax']) == 1:
@@ -355,9 +355,9 @@ def generate_pdf_structure(reports):
                 total_amount += float(grnum) - float(denum)
                 del data
                 data = []
-                elements.append(Paragraph(u' ', heading_style['Spacer']))
-            elements.append(Paragraph(u' ', heading_style['Spacer']))
-            elements.append(Paragraph(u' ', heading_style['Spacer']))
+                elements.append(Paragraph(' ', heading_style['Spacer']))
+            elements.append(Paragraph(' ', heading_style['Spacer']))
+            elements.append(Paragraph(' ', heading_style['Spacer']))
             if data:
                 del data
         if report['report_type'] == '0':
@@ -402,12 +402,12 @@ def generate_pdf_structure(reports):
 
 
         today = datetime.date.today()
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
 
         data = []
-        data.append([Paragraph(u' ', signature['Center']),
-                     Paragraph(u'Ρόδος, %s / %s / %s' %
+        data.append([Paragraph(' ', signature['Center']),
+                     Paragraph('Ρόδος, %s / %s / %s' %
                                (today.day, today.month, today.year),
                                signature['Center'])])
 
@@ -416,7 +416,7 @@ def generate_pdf_structure(reports):
         im.drawHeight = 3.2 * cm
         im.drawWidth = 6.5 * cm
 
-        data.append([Paragraph(u' ', signature['Center']) ,im])
+        data.append([Paragraph(' ', signature['Center']) ,im])
 
 #        data.append([Paragraph(u' ', signature['Center']),
 #                     Paragraph(u' ', signature['Center'])])
@@ -573,21 +573,21 @@ def generate_pdf_landscape_structure(reports):
                        colWidths=[28 * cm]))
    
         data = []
-        somedata = [[Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_place_caps'],
+        somedata = [[Paragraph('ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ %s' % SETTINGS['dide_place_caps'],
                                report_normal_captions['Left'])],
-                    [Paragraph(u'Επωνυμία', report_small_captions['Left'])],
-                    [Paragraph(u'ΔΗΜΟΣΙΑ ΥΠΗΡΕΣΙΑ', report_sub_title['Left'])], 
-                    [Paragraph(u'Είδος επιχείρησης', report_small_captions['Left'])],
-                    [Paragraph(u'%s, %s' % (SETTINGS['address'], SETTINGS['economics_contact_telephone_number']),
+                    [Paragraph('Επωνυμία', report_small_captions['Left'])],
+                    [Paragraph('ΔΗΜΟΣΙΑ ΥΠΗΡΕΣΙΑ', report_sub_title['Left'])], 
+                    [Paragraph('Είδος επιχείρησης', report_small_captions['Left'])],
+                    [Paragraph('%s, %s' % (SETTINGS['address'], SETTINGS['economics_contact_telephone_number']),
                                report_sub_title['Left'])],
-                    [Paragraph(u'Δ/νση: Οδός - Αριθ. - Τ.Κ. - Πόλη - Αριθ. Τηλ.',
+                    [Paragraph('Δ/νση: Οδός - Αριθ. - Τ.Κ. - Πόλη - Αριθ. Τηλ.',
                                report_small_captions['Left'])],
-                    [Paragraph(u'ΑΦΜ: %s' % SETTINGS['afm_dide'], report_title['Left'])]]
+                    [Paragraph('ΑΦΜ: %s' % SETTINGS['afm_dide'], report_title['Left'])]]
         table = Table(somedata, style=tsh,
                        colWidths=[14.5 * cm])
 
         headdata = [[table, [Paragraph('ΒΕΒΑΙΩΣΗ ΑΠΟΔΟΧΩΝ', report_title['Center']),
-                             Paragraph(u'που καταβλήθηκαν από 01/01/%s μέχρι 31/12/%s' % (report['year'], report['year']),
+                             Paragraph('που καταβλήθηκαν από 01/01/%s μέχρι 31/12/%s' % (report['year'], report['year']),
                                        report_normal_captions['Center']),
                              Paragraph('(ΠΑΡΑΓΡΑΦΟΣ 3 ΑΡΘΡΟΥ 83 Ν 2238/1994)',
                                        report_small_captions['Center'])]]]
@@ -611,10 +611,10 @@ def generate_pdf_landscape_structure(reports):
         table1 = Table(headdata, style=tsh,
                        colWidths=[5.5 * cm, 9 * cm, 8 * cm, 5.5 * cm])
         elements.append(table1)
-        headdata = [[Paragraph(u'%s' % report['address'] or '-', report_normal_captions['Left']),
+        headdata = [[Paragraph('%s' % report['address'] or '-', report_normal_captions['Left']),
                      
-                     Paragraph(u'%s' % report['telephone_number1']  or  '-', report_normal_captions['Left']),
-                     Paragraph(u'%s' % report['tax_office'] or  '-', report_normal_captions['Left'])],
+                     Paragraph('%s' % report['telephone_number1']  or  '-', report_normal_captions['Left']),
+                     Paragraph('%s' % report['tax_office'] or  '-', report_normal_captions['Left'])],
                     [Paragraph('Διεύθυνση κατοικίας: Οδός - Αριθ. - Τ.Κ. - Πόλη', report_small_captions['Left']),
                      
                      Paragraph('Αρ. Τηλ.', report_small_captions['Left']),
@@ -623,9 +623,9 @@ def generate_pdf_landscape_structure(reports):
                        colWidths=[14.5 * cm, 8 * cm, 5.5 * cm])
         elements.append(table1)
 
-        org = report.get('organization_serving', u'') or u''
+        org = report.get('organization_serving', '') or ''
 
-        headdata = [[Paragraph(' '.join((u'%s' % (report['profession'] or  '-'), u'στο %s' % org)), report_normal_captions['Left'])],
+        headdata = [[Paragraph(' '.join(('%s' % (report['profession'] or  '-'), 'στο %s' % org)), report_normal_captions['Left'])],
                     [Paragraph('Είδος υπηρεσίας', report_small_captions['Left'])]]
         table1 = Table(headdata, style=tsh, colWidths=[28 * cm])
         elements.append(table1)
@@ -644,7 +644,7 @@ def generate_pdf_landscape_structure(reports):
             d = [w * cm for x in range(len(line))]
             l = []
             for i in line:
-                if to_float(unicode(i)) is None:
+                if to_float(str(i)) is None:
                     l.append(Paragraph('%s' % i, report_content['Center']))
                 else:
                     if float(i) == 0:
@@ -666,34 +666,34 @@ def generate_pdf_landscape_structure(reports):
         today = datetime.date.today()
         del somedata
         somedata = []
-        somedata = [[Paragraph(u'Είδος αμοιβής', report_normal_captions_9['Center']),
-                     Paragraph(u'Διάταξη Νόμου που παρέχει την απαλλαγή ή επιβάλλει αυτοτελή φορολογία',
+        somedata = [[Paragraph('Είδος αμοιβής', report_normal_captions_9['Center']),
+                     Paragraph('Διάταξη Νόμου που παρέχει την απαλλαγή ή επιβάλλει αυτοτελή φορολογία',
                                report_normal_captions_9['Center']),
-                     Paragraph(u'Ακαθάριστο ποσό', report_normal_captions_9['Center']),
-                     Paragraph(u'Σύνολο κρατήσεων που αφορούν τις αμοιβές που απαλλάσσονται',
+                     Paragraph('Ακαθάριστο ποσό', report_normal_captions_9['Center']),
+                     Paragraph('Σύνολο κρατήσεων που αφορούν τις αμοιβές που απαλλάσσονται',
                                report_normal_captions_9['Center']),
-                     Paragraph(u'Καθαρό ποσό', report_normal_captions_9['Center']),
-                     Paragraph(u'Φόρος που παρακρατήθηκε (για την αυτοτελή φορολογία)',
+                     Paragraph('Καθαρό ποσό', report_normal_captions_9['Center']),
+                     Paragraph('Φόρος που παρακρατήθηκε (για την αυτοτελή φορολογία)',
                                report_normal_captions_9['Center'])],
 
-                    [Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left'])]
+                    [Paragraph('-', report_normal_captions['Left']),
+                     Paragraph('-', report_normal_captions['Left']),
+                     Paragraph('-', report_normal_captions['Left']),
+                     Paragraph('-', report_normal_captions['Left']),
+                     Paragraph('-', report_normal_captions['Left']),
+                     Paragraph('-', report_normal_captions['Left'])]
 
         ]
 
         table_1 = Table(somedata, style=ts, colWidths=[3 * cm, 4 * cm, 2 * cm, 4 * cm, 2 * cm, 3 * cm])
         del somedata
         somedata = []
-        somedata = [[Paragraph(u'ΣΥΝΟΛΟ', report_normal_captions['Center']),
+        somedata = [[Paragraph('ΣΥΝΟΛΟ', report_normal_captions['Center']),
                      
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left']),
-                     Paragraph(u'-', report_normal_captions['Left'])]]
+                     Paragraph('-', report_normal_captions['Left']),
+                     Paragraph('-', report_normal_captions['Left']),
+                     Paragraph('-', report_normal_captions['Left']),
+                     Paragraph('-', report_normal_captions['Left'])]]
         
         table_2 = Table(somedata, style=ts, colWidths=[7 * cm, 2 * cm, 4 * cm, 2 * cm, 3 * cm])
         
@@ -706,7 +706,7 @@ def generate_pdf_landscape_structure(reports):
         im.drawWidth = 6.5 * cm
         
         headdata = [[[table_1,table_2], 
-                     [Paragraph(u'Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
+                     [Paragraph('Ρόδος, %s / %s / %s' % (today.day, today.month, today.year), signature['Center']),
                       Paragraph(' ', heading_style['Spacer']),
                       im],]]
         

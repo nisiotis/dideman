@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class PermanentPostFilter(ModifierSimpleListFilter):
-    title = u'Σχολείο Οργανικής'
+    title = 'Σχολείο Οργανικής'
     parameter_name = 'organization__id'
     list_view = False
 
@@ -31,7 +31,7 @@ class PermanentPostFilter(ModifierSimpleListFilter):
         
         
 class PermanentLeaveFilter(ModifierSimpleListFilter):
-    title = u'Κατηγορία άδειας'
+    title = 'Κατηγορία άδειας'
     parameter_name = 'leave__id'
     list_view = True
     
@@ -48,17 +48,17 @@ class PermanentLeaveFilter(ModifierSimpleListFilter):
             return queryset
 
 class AdministrativeLeaveFilter(ModifierSimpleListFilter):
-    title = u'Κατηγορία άδειας'
+    title = 'Κατηγορία άδειας'
     parameter_name = 'leave__id'
     list_view = True
 
     def lookups(self, request, model_admin):
-	leaves = Leave.objects.filter(for_non_permanents=False)
+        leaves = Leave.objects.filter(for_non_permanents=False)
         return ((l.id, l.name) for l in leaves)
 
     def filter_param(self, queryset, query_dict):
-	val = query_dict.get(self.parameter_name, None)
-	if val:
+        val = query_dict.get(self.parameter_name, None)
+        if val:
             return queryset & \
                 AdministrativeLeave.objects.filter(leave__id=int(val))
         else:
@@ -66,7 +66,7 @@ class AdministrativeLeaveFilter(ModifierSimpleListFilter):
 
 
 class NonPermanentLeaveFilter(ModifierSimpleListFilter):
-    title = u'Κατηγορία άδειας'
+    title = 'Κατηγορία άδειας'
     parameter_name = 'leave__id'
     list_view = True
     
@@ -83,7 +83,7 @@ class NonPermanentLeaveFilter(ModifierSimpleListFilter):
             return queryset
         
 class PermanentPostInIslandFilter(ModifierSimpleListFilter):
-    title = u'Νησί Οργανικής'
+    title = 'Νησί Οργανικής'
     parameter_name = 'island__id'
     list_view = False
 
@@ -101,7 +101,7 @@ class PermanentPostInIslandFilter(ModifierSimpleListFilter):
 
 
 class TemporaryPostFilter(ModifierSimpleListFilter):
-    title = u'Σχολείο Προσωρινής'
+    title = 'Σχολείο Προσωρινής'
     parameter_name = 'temp_organization__id'
     list_view = False
 
@@ -119,7 +119,7 @@ class TemporaryPostFilter(ModifierSimpleListFilter):
 
 
 class TransferedFilter(ModifierSimpleListFilter):
-    title = u'Έχει μετατεθεί'
+    title = 'Έχει μετατεθεί'
     parameter_name = 'is_transfered'
 
     def lookups(self, request, model_admin):
@@ -137,7 +137,7 @@ class TransferedFilter(ModifierSimpleListFilter):
 
 
 class ServingTypeFilter(ModifierSimpleListFilter):
-    title = u"Ανήκει οργανικά στην Δ.Δ.Ε."
+    title = "Ανήκει οργανικά στην Δ.Δ.Ε."
     parameter_name = "serving_type"
 
     def lookups(self, request, model_admin):
@@ -155,7 +155,7 @@ class ServingTypeFilter(ModifierSimpleListFilter):
 
 
 class RecognisedExperienceN44522017Filter(ModifierSimpleListFilter):
-    title = u'Έχει προϋπηρεσία Ν.4452/2017 (Βαθμολογική);'
+    title = 'Έχει προϋπηρεσία Ν.4452/2017 (Βαθμολογική);'
     parameter_name = 'has_experience_n4452_2017'
 
     def lookups(self, request, model_admin):
@@ -174,13 +174,13 @@ class RecognisedExperienceN44522017Filter(ModifierSimpleListFilter):
 
 
 class CurrentlyServesFilter(ModifierSimpleListFilter):
-    title = u'Είναι ενεργός'
+    title = 'Είναι ενεργός'
     parameter_name = 'currently_serves'
 
     def lookups(self, request, model_admin):
         return  (('1', _('Yes')),
                 ('0', _('No')),
-                ('3', u'Όλοι'))
+                ('3', 'Όλοι'))
 
     def filter_param(self, queryset, query_dict):
         # value defaults to 1 so that not serving permanents are filtered out
@@ -198,7 +198,7 @@ class NonPermanentCurrentlyServesFilter(CurrentlyServesFilter):
 
 
 class StudyFilter(ModifierSimpleListFilter):
-    title = u'Σπουδές'
+    title = 'Σπουδές'
     parameter_name = 'study'
     list_view = False
 
@@ -214,7 +214,7 @@ class StudyFilter(ModifierSimpleListFilter):
             return queryset
 
 class OrganizationPayingFilter(ModifierSimpleListFilter):
-    title = u'Οργανισμός Μισθοδοσίας'
+    title = 'Οργανισμός Μισθοδοσίας'
     parameter_name = 'organization_paying'
     list_view = False
 
@@ -223,7 +223,7 @@ class OrganizationPayingFilter(ModifierSimpleListFilter):
 
 
 class OrganizationServingFilter(ModifierSimpleListFilter):
-    title = u'Σχολείο υπηρεσίας'
+    title = 'Σχολείο υπηρεσίας'
     parameter_name = 'serving_organization__id'
     list_view = False
 
@@ -240,7 +240,7 @@ class OrganizationServingFilter(ModifierSimpleListFilter):
             return queryset
 
 class IslandServingFilter(ModifierSimpleListFilter):
-    title = u'Νησί υπηρεσίας'
+    title = 'Νησί υπηρεσίας'
     parameter_name = 'serving_island__id'
     list_view = False
 
@@ -280,9 +280,7 @@ class FreeDateFieldListFilter(SimpleListFilter):
                     url_value):
             try:
                 self.date_from, self.date_to = \
-                    map(lambda x:
-                            datetime.datetime.strptime(x, '%d-%m-%Y').date(),
-                    url_value.split('|'))
+                    [datetime.datetime.strptime(x, '%d-%m-%Y').date() for x in url_value.split('|')]
             except:
                 self.date_from, self.date_to = self.default_date_values()
         else:
@@ -302,7 +300,7 @@ class FreeDateFieldListFilter(SimpleListFilter):
 
 
 class DateHiredFilter(FreeDateFieldListFilter):
-    title = u'Ημερομηνία Διορισμού'
+    title = 'Ημερομηνία Διορισμού'
     parameter_name = 'date_hired_period'
 
     def queryset(self, request, queryset):
@@ -314,7 +312,7 @@ class DateHiredFilter(FreeDateFieldListFilter):
 
 
 class LeaveDateToFilter(FreeDateFieldListFilter):
-    title = u'Ημερομηνία Λήξης'
+    title = 'Ημερομηνία Λήξης'
     parameter_name = 'leave_date_to'
 
     def queryset(self, request, queryset):
@@ -326,7 +324,7 @@ class LeaveDateToFilter(FreeDateFieldListFilter):
 
 
 class EmployeeWithOutLeaveFilter(FreeDateFieldListFilter):
-    title = u'Χωρίς Άδεια'
+    title = 'Χωρίς Άδεια'
     parameter_name = 'ewo_leave_date_to'
 
     def queryset(self, request, queryset):
@@ -340,7 +338,7 @@ class EmployeeWithOutLeaveFilter(FreeDateFieldListFilter):
 
 
 class EmployeeWithLeaveFilter(FreeDateFieldListFilter):
-    title = u'Με Άδεια'
+    title = 'Με Άδεια'
     parameter_name = 'ew_leave_date_to'
 
     def queryset(self, request, queryset):
@@ -353,7 +351,7 @@ class EmployeeWithLeaveFilter(FreeDateFieldListFilter):
 
 
 class OnServiceFilter(ModifierSimpleListFilter):
-    title = u'Υπηρετεί με θητεία.'
+    title = 'Υπηρετεί με θητεία.'
     parameter_name = 'on_service'
 
     def lookups(self, request, model_admin):
@@ -370,7 +368,7 @@ class OnServiceFilter(ModifierSimpleListFilter):
             return queryset
 
 class ServesInDideSchoolFilter(ModifierSimpleListFilter):
-    title = u'Υπηρετεί σε σχολείο της Δ.Δ.Ε.'
+    title = 'Υπηρετεί σε σχολείο της Δ.Δ.Ε.'
     parameter_name = 'serves_in_dde_sch'
 
     def lookups(self, request, model_admin):
@@ -388,7 +386,7 @@ class ServesInDideSchoolFilter(ModifierSimpleListFilter):
 
 
 class ServesInDideOrgFilter(ModifierSimpleListFilter):
-    title = u'Υπηρετεί σε σχολείο/φορέα της Δ.Δ.Ε.'
+    title = 'Υπηρετεί σε σχολείο/φορέα της Δ.Δ.Ε.'
     parameter_name = 'serves_in_dde_org'
     list_view = True
 
@@ -407,7 +405,7 @@ class ServesInDideOrgFilter(ModifierSimpleListFilter):
 
 
 class LeaveDateFromFilter(FreeDateFieldListFilter):
-    title = u'Ημερομηνία Έναρξης'
+    title = 'Ημερομηνία Έναρξης'
     parameter_name = 'leave_date_from'
 
     def queryset(self, request, queryset):
@@ -419,7 +417,7 @@ class LeaveDateFromFilter(FreeDateFieldListFilter):
 
 
 class BirthdateFilter(FreeDateFieldListFilter):
-    title = u'Ημερομηνία Γέννησης'
+    title = 'Ημερομηνία Γέννησης'
     parameter_name = 'bithdate'
 
     def queryset(self, request, queryset):
@@ -431,7 +429,7 @@ class BirthdateFilter(FreeDateFieldListFilter):
 
 
 class NextPromotionInRangeFilter(FreeDateFieldListFilter):
-    title = u'Ημερομηνία χορήγησης επόμενου Μ.Κ.'
+    title = 'Ημερομηνία χορήγησης επόμενου Μ.Κ.'
     parameter_name = 'next_promotion_date'
 
     def queryset(self, request, queryset):
@@ -443,7 +441,7 @@ class NextPromotionInRangeFilter(FreeDateFieldListFilter):
 
 
 class NextHoursReductionFilter(FreeDateFieldListFilter):
-    title = u'Ημερομηνία επόμενης μείωσης ωραρίου'
+    title = 'Ημερομηνία επόμενης μείωσης ωραρίου'
     parameter_name = 'next_hours_reduction_date'
 
     def queryset(self, request, queryset):
@@ -455,7 +453,7 @@ class NextHoursReductionFilter(FreeDateFieldListFilter):
 
 
 class PaymentStartDateFilter(FreeDateFieldListFilter):
-    title = u'Ημερομηνία Μισθολογικής Αφετηρίας'
+    title = 'Ημερομηνία Μισθολογικής Αφετηρίας'
     parameter_name = 'payment_start'
 
     def queryset(self, request, queryset):
@@ -470,8 +468,8 @@ class PaymentStartDateFilter(FreeDateFieldListFilter):
 
 
 class SubstituteAreaFilter(ModifierSimpleListFilter):
-    title = u'Περιοχή τοποθέτησης'
-    parameter_name = u'position_area'
+    title = 'Περιοχή τοποθέτησης'
+    parameter_name = 'position_area'
     list_view = True
 
     def lookups(self, request, model_admin):
@@ -488,8 +486,8 @@ class SubstituteAreaFilter(ModifierSimpleListFilter):
 
 
 class SubstituteOrderFilter(ModifierSimpleListFilter):
-    title = u'Υπουργική απόφαση'
-    parameter_name = u'date_order'
+    title = 'Υπουργική απόφαση'
+    parameter_name = 'date_order'
     list_view = True
 
     def lookups(self, request, model_admin):
@@ -507,7 +505,7 @@ class SubstituteOrderFilter(ModifierSimpleListFilter):
 
 
 class SubstituteDateRangeFilter(FreeDateFieldListFilter):
-    title = u'Χρονικό διάστημα εργασίας'
+    title = 'Χρονικό διάστημα εργασίας'
     parameter_name = 'sub_order_date'
     list_view = True
 
@@ -520,7 +518,7 @@ class SubstituteDateRangeFilter(FreeDateFieldListFilter):
 
 
 class NonPermanentOrganizationServingFilter(OrganizationServingFilter):
-    title = u'Προσωρινή Τοποθέτηση'
+    title = 'Προσωρινή Τοποθέτηση'
 
     def lookups(self, request, model_admin):
         schools = School.objects.all()
@@ -536,7 +534,7 @@ class NonPermanentOrganizationServingFilter(OrganizationServingFilter):
 
 
 class NonPermanentWithTotalExtraPosition(ModifierSimpleListFilter):
-    title = u'Με ολική διάθεση'
+    title = 'Με ολική διάθεση'
     parameter_name = 'with_total'
     list_view = True
 

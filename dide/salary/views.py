@@ -36,7 +36,7 @@ import datetime
 import os
 import os.path
 import mimetypes
-from cStringIO import StringIO
+from io import StringIO
 
 pay_list = 20
 pay_pdf = {}
@@ -72,7 +72,7 @@ def print_pay(request, id):
         request.session.clear()
         return HttpResponseRedirect(
             '/employee/match/?next=/salary/view/')
-    print emptype
+    print(emptype)
     dict_tax_codes = {c.id: c.calc_type for c in PaymentCode.objects.all()}
     report = {}
     report['report_type'] = '0'
@@ -170,15 +170,15 @@ def print_mass_pay(request, year):
                        c.fathername,
                        c.address,
                        c.tax_office,
-                       u'%s' % c.profession,
-                       u'%s' % c.profession.description,
+                       '%s' % c.profession,
+                       '%s' % c.profession.description,
                        c.telephone_number1,
                        sch(c)] for c in Employee.objects.filter(id__in=u)}
             
     elements = []
     reports = []
     for empx in u:
-        r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, emp_payments))
+        r_list = calc_reports([s for s in emp_payments if s['employee_id'] == empx])
         hd = r_list[0]
         ft = [r_list[-2]] + [r_list[-1]]
         dt = r_list
@@ -189,10 +189,10 @@ def print_mass_pay(request, year):
         output = dict()
         for sublist in dt:
             try:
-                output[sublist[0]] = map(operator.add, output[sublist[0]], sublist[1:])
+                output[sublist[0]] = list(map(operator.add, output[sublist[0]], sublist[1:]))
             except KeyError:
                 output[sublist[0]] = sublist[1:]
-        for key in output.keys():
+        for key in list(output.keys()):
             newlist.append([key] + output[key])
         newlist.sort(key=lambda x: x[0], reverse=True)
         r_list = [hd] + newlist + ft
@@ -235,7 +235,7 @@ def print_mass_pay(request, year):
         style = getSampleStyleSheet()
         style.add(ParagraphStyle(name='Center', alignment=TA_CENTER,
                                  fontName='DroidSans', fontSize=12))
-        elements = [Paragraph(u'ΠΑΡΑΚΑΛΟΥΜΕ ΑΠΕΥΘΥΝΘΕΙΤΕ ΣΤΗΝ ΥΠΗΡΕΣΙΑ ΓΙΑ ΤΗΝ ΜΙΣΘΟΛΟΓΙΚΗ ΚΑΤΑΣΤΑΣΗ ΤΟΥ 2012', style['Center'])]
+        elements = [Paragraph('ΠΑΡΑΚΑΛΟΥΜΕ ΑΠΕΥΘΥΝΘΕΙΤΕ ΣΤΗΝ ΥΠΗΡΕΣΙΑ ΓΙΑ ΤΗΝ ΜΙΣΘΟΛΟΓΙΚΗ ΚΑΤΑΣΤΑΣΗ ΤΟΥ 2012', style['Center'])]
     else:    
         elements = generate_pdf_landscape_structure(reports)
     
@@ -297,7 +297,7 @@ def view(request):
         
         year_t = {y: emptype.totals_per_year(y) for y in all_year}
 
-        o_year_t = [(k, "{:12.2f}".format(v)) for k, v in year_t.iteritems()]
+        o_year_t = [(k, "{:12.2f}".format(v)) for k, v in year_t.items()]
         o_year_t.sort(reverse=True)
         paginator = Paginator(pay, pay_list)
 

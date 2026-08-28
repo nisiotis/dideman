@@ -14,7 +14,7 @@ from dideman.lib.date import *
 from dideman.dide.myinfo.forms import MyInfoForm
 from dideman.dide.applications.views import print_app
 from django.contrib import messages
-from cStringIO import StringIO
+from io import StringIO
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
@@ -85,15 +85,15 @@ def protocol_number(order):
 
 
 def MailSender(name, email):
-    mFrom = [u'ΔΔΕ %s' % SETTINGS['dide_place'], SETTINGS['email_dide']]
+    mFrom = ['ΔΔΕ %s' % SETTINGS['dide_place'], SETTINGS['email_dide']]
     mRecipient = [name, email]
 
-    mSubject = u'Ενημέρωση στοιχείων του φακέλου σας.'
-    mHtml = u"""<p>Πραγματοποιήθηκε ενημέρωση στοιχείων του φακέλου σας, στο """
-    mHtml += u"""σύστημα προσωπικού της ΔΔΕ.</p>"""
-    mHtml += u"""<p><a href="http://its.dide.dod.sch.gr">Συνδεθείτε στο """
-    mHtml += u"""σύστημα για να δείτε τις αλλαγές</a></p>"""
-    mHtml += u"""<p>Απο την ΔΔΕ %s</p>""" % SETTINGS['dide_place']
+    mSubject = 'Ενημέρωση στοιχείων του φακέλου σας.'
+    mHtml = """<p>Πραγματοποιήθηκε ενημέρωση στοιχείων του φακέλου σας, στο """
+    mHtml += """σύστημα προσωπικού της ΔΔΕ.</p>"""
+    mHtml += """<p><a href="http://its.dide.dod.sch.gr">Συνδεθείτε στο """
+    mHtml += """σύστημα για να δείτε τις αλλαγές</a></p>"""
+    mHtml += """<p>Απο την ΔΔΕ %s</p>""" % SETTINGS['dide_place']
     Charset.add_charset('utf-8', Charset.QP, Charset.QP, 'utf-8')
     msg = MIMEMultipart('alternative')
     msg['Subject'] = "%s" % Header(mSubject, 'utf-8')
@@ -171,54 +171,54 @@ def print_emp_report(request, fid):
 
     for r in reports:
         data = []
-        elements.append(Paragraph(u'ΒΕΒΑΙΩΣΗ ΕΡΓΟΔΟΤΗ', heading_style['Center']))
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        elements.append(Paragraph('ΒΕΒΑΙΩΣΗ ΕΡΓΟΔΟΤΗ', heading_style['Center']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
 
-        data.append([Paragraph(u'ΕΠΩΝΥΜΙΑ ΕΡΓΟΔΟΤΗ ', tbl_style['Left']) , Paragraph(u'Διεύθυνση ΔΕ %s' % SETTINGS['dide_place'], tbl_style['Left'])])
+        data.append([Paragraph('ΕΠΩΝΥΜΙΑ ΕΡΓΟΔΟΤΗ ', tbl_style['Left']) , Paragraph('Διεύθυνση ΔΕ %s' % SETTINGS['dide_place'], tbl_style['Left'])])
 
-        data.append([Paragraph(u'ΑΡΙΘΜΟΣ ΜΗΤΡΩΟΥ: %s' %  SETTINGS['ika_code_dde'], tbl_style['Left']), Paragraph(u'Α.Φ.Μ. ΕΡΓΟΔΟΤΗ: %s' % SETTINGS['afm_dide'], tbl_style['Left'])])
+        data.append([Paragraph('ΑΡΙΘΜΟΣ ΜΗΤΡΩΟΥ: %s' %  SETTINGS['ika_code_dde'], tbl_style['Left']), Paragraph('Α.Φ.Μ. ΕΡΓΟΔΟΤΗ: %s' % SETTINGS['afm_dide'], tbl_style['Left'])])
 
-        data.append([Paragraph(u'ΑΡΜΟΔΙΟ ΥΠΟΚΑΤΑΣΤΗΜΑ ΙΚΑ ΕΛΕΓΧΟΥ ', tbl_style['Left']), Paragraph(u' ', tbl_style['Left'])])
-        data.append([Paragraph(u'ΚΩΔΙΚΟΣ - ΟΝΟΜΑΣΙΑ ', tbl_style['Left']), Paragraph(u'%s' % SETTINGS['ika_code'] , tbl_style['Left'])])
+        data.append([Paragraph('ΑΡΜΟΔΙΟ ΥΠΟΚΑΤΑΣΤΗΜΑ ΙΚΑ ΕΛΕΓΧΟΥ ', tbl_style['Left']), Paragraph(' ', tbl_style['Left'])])
+        data.append([Paragraph('ΚΩΔΙΚΟΣ - ΟΝΟΜΑΣΙΑ ', tbl_style['Left']), Paragraph('%s' % SETTINGS['ika_code'] , tbl_style['Left'])])
 
         table = Table(data, style=tsf, colWidths=[7.0 * cm, 11.0 * cm])
         elements.append(table)
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
 
         data = []
 
 
-        elements.append(Paragraph(u'Βεβαιώνουμε ότι:' , tbl_style['Left']))
-        elements.append(Paragraph(u'Ο/Η ασφαλισμένος με τα κάτωθι ασφαλιστικά στοιχεία απασχολήθηκε στην υπηρεσία μας κατά τις μισθολογικές περιόδους που ακολουθούν:' , tbl_style['Left']))
+        elements.append(Paragraph('Βεβαιώνουμε ότι:' , tbl_style['Left']))
+        elements.append(Paragraph('Ο/Η ασφαλισμένος με τα κάτωθι ασφαλιστικά στοιχεία απασχολήθηκε στην υπηρεσία μας κατά τις μισθολογικές περιόδους που ακολουθούν:' , tbl_style['Left']))
 
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
 
-        elements.append(Paragraph(u'ΣΤΟΙΧΕΙΑ ΥΠΑΛΛΗΛΟΥ', tbl_style['BoldLeft']))
+        elements.append(Paragraph('ΣΤΟΙΧΕΙΑ ΥΠΑΛΛΗΛΟΥ', tbl_style['BoldLeft']))
 
-        data.append([Paragraph(u'ΑΡ. ΠΑΡΑΡΤ. / Κ.Α.Δ. ', tbl_style['Left']), Paragraph(u'%s' % SETTINGS['subject_kad'], tbl_style['Right'])])
-        data.append([Paragraph(u'ΑΜΑ: ', tbl_style['Left']), Paragraph(u'%s' % emp.ama, tbl_style['Right'])])
-        data.append([Paragraph(u'Α.Μ.Κ.Α.: ', tbl_style['Left']), Paragraph(u'%s' % emp.social_security_registration_number, tbl_style['Right'])])
+        data.append([Paragraph('ΑΡ. ΠΑΡΑΡΤ. / Κ.Α.Δ. ', tbl_style['Left']), Paragraph('%s' % SETTINGS['subject_kad'], tbl_style['Right'])])
+        data.append([Paragraph('ΑΜΑ: ', tbl_style['Left']), Paragraph('%s' % emp.ama, tbl_style['Right'])])
+        data.append([Paragraph('Α.Μ.Κ.Α.: ', tbl_style['Left']), Paragraph('%s' % emp.social_security_registration_number, tbl_style['Right'])])
 
-        data.append([Paragraph(u'ΕΠΩΝΥΜΟ: ', tbl_style['Left']), Paragraph(u'%s' % emp.lastname, tbl_style['Right'])])
-        data.append([Paragraph(u'ΟΝΟΜΑ: ', tbl_style['Left']), Paragraph(u'%s' % emp.firstname, tbl_style['Right'])])
-        data.append([Paragraph(u'ΟΝΟΜΑ ΠΑΤΡΟΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.fathername, tbl_style['Right'])])
-        data.append([Paragraph(u'ΟΝΟΜΑ ΜΗΤΡΟΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.mothername, tbl_style['Right'])])
+        data.append([Paragraph('ΕΠΩΝΥΜΟ: ', tbl_style['Left']), Paragraph('%s' % emp.lastname, tbl_style['Right'])])
+        data.append([Paragraph('ΟΝΟΜΑ: ', tbl_style['Left']), Paragraph('%s' % emp.firstname, tbl_style['Right'])])
+        data.append([Paragraph('ΟΝΟΜΑ ΠΑΤΡΟΣ: ', tbl_style['Left']), Paragraph('%s' % emp.fathername, tbl_style['Right'])])
+        data.append([Paragraph('ΟΝΟΜΑ ΜΗΤΡΟΣ: ', tbl_style['Left']), Paragraph('%s' % emp.mothername, tbl_style['Right'])])
 
         if emp.birth_date == None:
-            data.append([Paragraph(u'ΗΜΕΡΟΜΗΝΙΑ ΓΕΝΝΗΣΕΩΣ: ', tbl_style['Left']), Paragraph(u' ', tbl_style['Right'])])
+            data.append([Paragraph('ΗΜΕΡΟΜΗΝΙΑ ΓΕΝΝΗΣΕΩΣ: ', tbl_style['Left']), Paragraph(' ', tbl_style['Right'])])
 
         else:
-            data.append([Paragraph(u'ΗΜΕΡΟΜΗΝΙΑ ΓΕΝΝΗΣΕΩΣ: ', tbl_style['Left']), Paragraph(u'%s / %s / %s' % (emp.birth_date.day, emp.birth_date.month, emp.birth_date.year), tbl_style['Right'])])
+            data.append([Paragraph('ΗΜΕΡΟΜΗΝΙΑ ΓΕΝΝΗΣΕΩΣ: ', tbl_style['Left']), Paragraph('%s / %s / %s' % (emp.birth_date.day, emp.birth_date.month, emp.birth_date.year), tbl_style['Right'])])
 
-        data.append([Paragraph(u'Α.Φ.Μ.: ', tbl_style['Left']), Paragraph(u'%s' % emp.vat_number, tbl_style['Right'])])
-        data.append([Paragraph(u'ΚΩΔΙΚΟΣ ΕΙΔΙΚΟΤΗΤΑΣ: ', tbl_style['Left']), Paragraph(u'%s' % emp.type(), tbl_style['Right'])])
+        data.append([Paragraph('Α.Φ.Μ.: ', tbl_style['Left']), Paragraph('%s' % emp.vat_number, tbl_style['Right'])])
+        data.append([Paragraph('ΚΩΔΙΚΟΣ ΕΙΔΙΚΟΤΗΤΑΣ: ', tbl_style['Left']), Paragraph('%s' % emp.type(), tbl_style['Right'])])
         if emp.other_social_security:
             ec = emp.other_social_security.code
         else:
             ec = '101'
 
-        data.append([Paragraph(u'ΠΑΚΕΤΟ ΚΑΛΥΨΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % ec, tbl_style['Right'])])
-        data.append([Paragraph(u'ΜΙΣΘΟΛΟΓΙΚΗ ΠΕΡΙΟΔΟΣ: ', tbl_style['Left']), Paragraph(u'%s / %s' % (r.month, r.year), tbl_style['Right'])])
+        data.append([Paragraph('ΠΑΚΕΤΟ ΚΑΛΥΨΗΣ: ', tbl_style['Left']), Paragraph('%s' % ec, tbl_style['Right'])])
+        data.append([Paragraph('ΜΙΣΘΟΛΟΓΙΚΗ ΠΕΡΙΟΔΟΣ: ', tbl_style['Left']), Paragraph('%s / %s' % (r.month, r.year), tbl_style['Right'])])
         if r.insured_from.strip() in ('', '/  /'):
             dtf = '01/'+ str(r.month) + '/' + str(r.year)
             dtt = str(calendar.monthrange(r.year, r.month)[1]) + '/' + str(r.month) + '/' + str(r.year)
@@ -226,35 +226,35 @@ def print_emp_report(request, fid):
             dtf = r.insured_from
             dtt = r.insured_to
 
-        data.append([Paragraph(u'ΑΠΟ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % dtf, tbl_style['Right'])])
-        data.append([Paragraph(u'ΕΩΣ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % dtt, tbl_style['Right'])])
-        data.append([Paragraph(u'ΤΥΠΟΣ ΑΠΟΔΟΧΩΝ: ', tbl_style['Left']), Paragraph(u'%s' % r.pay_type, tbl_style['Right'])])
-        data.append([Paragraph(u'ΗΜΕΡΕΣ ΑΣΦΑΛΙΣΗΣ: ', tbl_style['Left']), Paragraph(u'%s' % r.days_insured, tbl_style['Right'])])
+        data.append([Paragraph('ΑΠΟ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph('%s' % dtf, tbl_style['Right'])])
+        data.append([Paragraph('ΕΩΣ ΗΜΕΡΟΜΗΝΙΑ ΑΠΑΣΧΟΛΗΣΗΣ: ', tbl_style['Left']), Paragraph('%s' % dtt, tbl_style['Right'])])
+        data.append([Paragraph('ΤΥΠΟΣ ΑΠΟΔΟΧΩΝ: ', tbl_style['Left']), Paragraph('%s' % r.pay_type, tbl_style['Right'])])
+        data.append([Paragraph('ΗΜΕΡΕΣ ΑΣΦΑΛΙΣΗΣ: ', tbl_style['Left']), Paragraph('%s' % r.days_insured, tbl_style['Right'])])
         lpam = r.total_earned.split('.')[0]
         rpam = r.total_earned.split('.')[1]
         if len(rpam) == 1:
             rpam = rpam + '0'
-        data.append([Paragraph(u'ΑΠΟΔΟΧΕΣ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
+        data.append([Paragraph('ΑΠΟΔΟΧΕΣ: ', tbl_style['Left']), Paragraph('%s.%s' % (lpam, rpam), tbl_style['Right'])])
 
         lpam = r.employee_contributions.split('.')[0]
         rpam = r.employee_contributions.split('.')[1]
         if len(rpam) == 1:
             rpam = rpam + '0'
-        data.append([Paragraph(u'ΕΙΣΦΟΡΕΣ ΑΣΦΑΛΙΣΜΕΝΟΥ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
+        data.append([Paragraph('ΕΙΣΦΟΡΕΣ ΑΣΦΑΛΙΣΜΕΝΟΥ: ', tbl_style['Left']), Paragraph('%s.%s' % (lpam, rpam), tbl_style['Right'])])
 
         lpam = r.employer_contributions.split('.')[0]
         rpam = r.employer_contributions.split('.')[1]
         if len(rpam) == 1:
             rpam = rpam + '0'
-        data.append([Paragraph(u'ΕΙΣΦΟΡΕΣ ΕΡΓΟΔΟΤΗ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
+        data.append([Paragraph('ΕΙΣΦΟΡΕΣ ΕΡΓΟΔΟΤΗ: ', tbl_style['Left']), Paragraph('%s.%s' % (lpam, rpam), tbl_style['Right'])])
 
         lpam = r.total_contributions.split('.')[0]
         rpam = r.total_contributions.split('.')[1]
         if len(rpam) == 1:
             rpam = rpam + '0'
 
-        data.append([Paragraph(u'ΣΥΝΟΛΙΚΕΣ ΕΙΣΦΟΡΕΣ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
-        data.append([Paragraph(u'ΚΑΤΑΒΛ. ΕΙΣΦΟΡΕΣ: ', tbl_style['Left']), Paragraph(u'%s.%s' % (lpam, rpam), tbl_style['Right'])])
+        data.append([Paragraph('ΣΥΝΟΛΙΚΕΣ ΕΙΣΦΟΡΕΣ: ', tbl_style['Left']), Paragraph('%s.%s' % (lpam, rpam), tbl_style['Right'])])
+        data.append([Paragraph('ΚΑΤΑΒΛ. ΕΙΣΦΟΡΕΣ: ', tbl_style['Left']), Paragraph('%s.%s' % (lpam, rpam), tbl_style['Right'])])
 
 
         table = Table(data, style=tsf, colWidths=[10.0 * cm, 8.0 * cm])
@@ -262,19 +262,19 @@ def print_emp_report(request, fid):
 
         data = []
 
-        elements.append(Paragraph(u'Η παραπάνω βεβαίωση χορηγείται για απόδειξη της ασφάλισης στις προαναφερθείσες περιόδους.', tbl_style['Left']))
-        elements.append(Paragraph(u'ΠΑΡΑΤΗΡΗΣΗ', tbl_style['Left']))
+        elements.append(Paragraph('Η παραπάνω βεβαίωση χορηγείται για απόδειξη της ασφάλισης στις προαναφερθείσες περιόδους.', tbl_style['Left']))
+        elements.append(Paragraph('ΠΑΡΑΤΗΡΗΣΗ', tbl_style['Left']))
 
-        elements.append(Paragraph(u'Τα αναγραφόμενα στην παρούσα Βεβαίωση ασφαλιστικά στοιχεία λαμβάνονται υπόψη μέχρι την επεξεργασία της Α.Π.Δ. των συγκεκριμένων μισθολογικών περιόδων και την υποβολή και έκδοση από το ΙΚΑ του αντίστοιχου Αποσπάσματος Ατομικού Λογαριασμού Ασφάλισης.', tbl_style['Justify']))
+        elements.append(Paragraph('Τα αναγραφόμενα στην παρούσα Βεβαίωση ασφαλιστικά στοιχεία λαμβάνονται υπόψη μέχρι την επεξεργασία της Α.Π.Δ. των συγκεκριμένων μισθολογικών περιόδων και την υποβολή και έκδοση από το ΙΚΑ του αντίστοιχου Αποσπάσματος Ατομικού Λογαριασμού Ασφάλισης.', tbl_style['Justify']))
 
         today = datetime.date.today()
 
-        data.append([Paragraph(u' ', signature['Center']) ,Paragraph(u'Ρόδος, %s / %s / %s' %
+        data.append([Paragraph(' ', signature['Center']) ,Paragraph('Ρόδος, %s / %s / %s' %
                                (today.day, today.month, today.year), signature['Center'])])
 
         table = Table(data, style=tsf, colWidths=[9.0 * cm, 8.0 * cm])
         elements.append(table)
-        elements.append(Paragraph(u' ', heading_style['Spacer']))
+        elements.append(Paragraph(' ', heading_style['Spacer']))
 
         data = []
 
@@ -283,7 +283,7 @@ def print_emp_report(request, fid):
         im.drawHeight = 3.2 * cm
         im.drawWidth = 6.5 * cm
 
-        data.append([Paragraph(u' ', signature['Center']), im])
+        data.append([Paragraph(' ', signature['Center']), im])
 
         table = Table(data, style=tsf, colWidths=[10.0 * cm, 7.0 * cm])
         elements.append(table)
@@ -361,78 +361,78 @@ def print_exp_report(request):
     data = []
 
     date_plus1 = emptype.current_placement().date_to
-    data.append([Paragraph(u'Ρόδος, %s / %s / %s' % (date_plus1.day, date_plus1.month, date_plus1.year), tbl_style['Left'])])
-    data.append([Paragraph(u' ', heading_style['Spacer'])])
-    data.append([Paragraph(u' ', heading_style['Spacer'])])
+    data.append([Paragraph('Ρόδος, %s / %s / %s' % (date_plus1.day, date_plus1.month, date_plus1.year), tbl_style['Left'])])
+    data.append([Paragraph(' ', heading_style['Spacer'])])
+    data.append([Paragraph(' ', heading_style['Spacer'])])
 
-    data.append([Paragraph(u'Αρ. Πρωτ.: %s' % protocol_number(emptype.order().order_end_manager), tbl_style['Left'])])
+    data.append([Paragraph('Αρ. Πρωτ.: %s' % protocol_number(emptype.order().order_end_manager), tbl_style['Left'])])
     tableh = Table(data, style=tsl, colWidths=[6.0 * cm])
     data = []
     data.append([im, '', ''])
-    data.append([Paragraph(u'ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ', head_logo['Center']), '', ''])
-    data.append([Paragraph(u'ΥΠΟΥΡΓΕΙΟ ΠΑΙΔΕΙΑΣ, ΕΡΕΥΝΑΣ',
+    data.append([Paragraph('ΕΛΛΗΝΙΚΗ ΔΗΜΟΚΡΑΤΙΑ', head_logo['Center']), '', ''])
+    data.append([Paragraph('ΥΠΟΥΡΓΕΙΟ ΠΑΙΔΕΙΑΣ, ΕΡΕΥΝΑΣ',
                            head_logo['Center']), '', ''])
-    data.append([Paragraph(u'ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ',
-                           head_logo['Center']), '', Paragraph(u'Ρόδος, %s / %s / %s' % (date_plus1.day, date_plus1.month, date_plus1.year), tbl_style['Left'])])
-    data.append([Paragraph(u'ΠΕΡΙΦΕΡΕΙΑΚΗ ΔΙΕΥΘΥΝΣΗ ΠΡΩΤΟΒΑΘΜΙΑΣ',
-                           head_logo['Center']), '', Paragraph(u'Αρ. Πρωτ.: %s' % protocol_number(emptype.order().order_end_manager), tbl_style['Left'])])
-    data.append([Paragraph(u'ΚΑΙ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΝΟΤΙΟΥ ΑΙΓΑΙΟΥ',
+    data.append([Paragraph('ΚΑΙ ΘΡΗΣΚΕΥΜΑΤΩΝ',
+                           head_logo['Center']), '', Paragraph('Ρόδος, %s / %s / %s' % (date_plus1.day, date_plus1.month, date_plus1.year), tbl_style['Left'])])
+    data.append([Paragraph('ΠΕΡΙΦΕΡΕΙΑΚΗ ΔΙΕΥΘΥΝΣΗ ΠΡΩΤΟΒΑΘΜΙΑΣ',
+                           head_logo['Center']), '', Paragraph('Αρ. Πρωτ.: %s' % protocol_number(emptype.order().order_end_manager), tbl_style['Left'])])
+    data.append([Paragraph('ΚΑΙ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΝΟΤΙΟΥ ΑΙΓΑΙΟΥ',
                            head_logo['Center']), '', ''])
-    data.append([Paragraph(u'ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΔΩΔΕΚΑΝΗΣΟΥ',
-                           head_logo['Center']), Paragraph(u'ΠΡΟΣ:', tbl_style['BoldRight']), Paragraph(u'%s %s' % (emptype.lastname, emptype.firstname),
+    data.append([Paragraph('ΔΙΕΥΘΥΝΣΗ ΔΕΥΤΕΡΟΒΑΘΜΙΑΣ ΕΚΠΑΙΔΕΥΣΗΣ ΔΩΔΕΚΑΝΗΣΟΥ',
+                           head_logo['Center']), Paragraph('ΠΡΟΣ:', tbl_style['BoldRight']), Paragraph('%s %s' % (emptype.lastname, emptype.firstname),
                            tbl_style['BoldLeft'])])
     table0 = Table(data, style=tsl, colWidths=[8.0 * cm, 5.0 * cm, 6.0 * cm])
     elements.append(table0)
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'Ταχ. Διεύθυνση: %s' % SETTINGS['address'], tbl_style['Left']))
-    elements.append(Paragraph(u'Πληροφορίες: %s' % SETTINGS['substitutes_contact_person'], tbl_style['Left']))
-    elements.append(Paragraph(u'Τηλέφωνο: %s' % SETTINGS['substitutes_contact_telephone_number'], tbl_style['Left']))
-    elements.append(Paragraph(u'Email: %s' % SETTINGS['email_substitutes'], tbl_style['Left']))
-    elements.append(Paragraph(u'Fax: %s' % SETTINGS['fax_number'], tbl_style['Left']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
+    elements.append(Paragraph('Ταχ. Διεύθυνση: %s' % SETTINGS['address'], tbl_style['Left']))
+    elements.append(Paragraph('Πληροφορίες: %s' % SETTINGS['substitutes_contact_person'], tbl_style['Left']))
+    elements.append(Paragraph('Τηλέφωνο: %s' % SETTINGS['substitutes_contact_telephone_number'], tbl_style['Left']))
+    elements.append(Paragraph('Email: %s' % SETTINGS['email_substitutes'], tbl_style['Left']))
+    elements.append(Paragraph('Fax: %s' % SETTINGS['fax_number'], tbl_style['Left']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'ΘΕΜΑ: Αυτοδίκαιη Απόλυση', tbl_style['BoldLeft']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση της Διεύθυνσης Δευτεροβάθμιας Εκπαίδευσης %s απολύεστε αυτοδίκαια και χωρίς καμία αποζημίωση από το Δημόσιο από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την %s/%s/%s.' % (SETTINGS['dide_place'], emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Justify']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph('ΘΕΜΑ: Αυτοδίκαιη Απόλυση', tbl_style['BoldLeft']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
+    elements.append(Paragraph('Σας ανακοινώνουμε ότι με την ταυτάριθμη απόφαση της Διεύθυνσης Δευτεροβάθμιας Εκπαίδευσης %s απολύεστε αυτοδίκαια και χωρίς καμία αποζημίωση από το Δημόσιο από τη θέση του/της προσωρινού/ης αναπληρωτή/τριας καθηγητή/τριας την %s/%s/%s.' % (SETTINGS['dide_place'], emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Justify']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'ΘΕΜΑ: Βεβαίωση Προϋπηρεσίας', tbl_style['BoldLeft']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph('ΘΕΜΑ: Βεβαίωση Προϋπηρεσίας', tbl_style['BoldLeft']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
     hours_type = ''
 
     if emptype.type().id == 1:
-        hours_type = u'(23 ώρες την εβδομάδα)'
-    elements.append(Paragraph(u'Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s %s με σχέση εργασίας ιδιωτικού δικαίου ορισμένου χρόνου και υπηρέτησε από %s/%s/%s έως %s/%s/%s.' % (emptype.lastname, emptype.firstname, emptype.fathername, emptype.profession, emptype.profession.description, emptype.current_placement(), emptype.type(), hours_type, emptype.current_placement().date_from.day,emptype.current_placement().date_from.month,emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month,emptype.current_placement().date_to.year), tbl_style['Justify']))
+        hours_type = '(23 ώρες την εβδομάδα)'
+    elements.append(Paragraph('Σας ανακοινώνουμε ότι, όπως προκύπτει από το αρχείο που τηρείται στην υπηρεσία μας, ο/η %s %s με όνομα πατρός %s του κλάδου %s %s τοποθετήθηκε στο %s ως %s %s με σχέση εργασίας ιδιωτικού δικαίου ορισμένου χρόνου και υπηρέτησε από %s/%s/%s έως %s/%s/%s.' % (emptype.lastname, emptype.firstname, emptype.fathername, emptype.profession, emptype.profession.description, emptype.current_placement(), emptype.type(), hours_type, emptype.current_placement().date_from.day,emptype.current_placement().date_from.month,emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month,emptype.current_placement().date_to.year), tbl_style['Justify']))
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'Απόφαση διορισμού %s: %s %s/%s/%s' % (SETTINGS['ministry_title'], emptype.order().order, emptype.order().date.day, emptype.order().date.month, emptype.order().date.year), tbl_style['Left']))
+    elements.append(Paragraph('Απόφαση διορισμού %s: %s %s/%s/%s' % (SETTINGS['ministry_title'], emptype.order().order, emptype.order().date.day, emptype.order().date.month, emptype.order().date.year), tbl_style['Left']))
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'Απόφαση τοποθέτησης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_start_manager, tbl_style['Left']))
+    elements.append(Paragraph('Απόφαση τοποθέτησης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_start_manager, tbl_style['Left']))
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_end_manager, tbl_style['Left']))
+    elements.append(Paragraph('Απόφαση απόλυσης Διευθυντή Δ.Ε. Δωδεκανήσου: %s' % emptype.order().order_end_manager, tbl_style['Left']))
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
     if emptype.current_placement().substituteplacement.date_from_show:
-        elements.append(Paragraph(u'Ημερομηνία ανάληψης υπηρεσίας: %s/%s/%s' % (emptype.current_placement().substituteplacement.date_from_show.day, emptype.current_placement().substituteplacement.date_from_show.month, emptype.current_placement().substituteplacement.date_from_show.year), tbl_style['Left']))
+        elements.append(Paragraph('Ημερομηνία ανάληψης υπηρεσίας: %s/%s/%s' % (emptype.current_placement().substituteplacement.date_from_show.day, emptype.current_placement().substituteplacement.date_from_show.month, emptype.current_placement().substituteplacement.date_from_show.year), tbl_style['Left']))
     else:
-        elements.append(Paragraph(u'Ημερομηνία ανάληψης υπηρεσίας: %s/%s/%s' % (emptype.current_placement().date_from.day, emptype.current_placement().date_from.month, emptype.current_placement().date_from.year), tbl_style['Left']))
+        elements.append(Paragraph('Ημερομηνία ανάληψης υπηρεσίας: %s/%s/%s' % (emptype.current_placement().date_from.day, emptype.current_placement().date_from.month, emptype.current_placement().date_from.year), tbl_style['Left']))
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
 
-    elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: %s' % emptype.experience_salary(), tbl_style['Left']))
+    elements.append(Paragraph('Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: %s' % emptype.experience_salary(), tbl_style['Left']))
 
-    elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών: %s' % emptype.experience(), tbl_style['Left']))
+    elements.append(Paragraph('Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών: %s' % emptype.experience(), tbl_style['Left']))
 #    if emptype.current_placement().substituteplacement.date_from_show:
 #        elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για μισθολογικό κλιμάκιο: %s/%s/%s - %s/%s/%s' % (emptype.current_placement().substituteplacement.date_from_show.day, emptype.current_placement().substituteplacement.date_from_show.month, emptype.current_placement().substituteplacement.date_from_show.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Left']))
 #    else:
@@ -440,15 +440,15 @@ def print_exp_report(request):
 
 
 #    elements.append(Paragraph(u'Χρόνος προϋπηρεσίας για πίνακες αναπληρωτών:  %s/%s/%s - %s/%s/%s' % (emptype.current_placement().date_from.day, emptype.current_placement().date_from.month, emptype.current_placement().date_from.year, emptype.current_placement().date_to.day, emptype.current_placement().date_to.month, emptype.current_placement().date_to.year), tbl_style['Left']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'Το πλήρες ωράριο εβδομαδιαίας διδακτικής απασχόλησης των εκπαιδευτικών της Δευτεροβάθμιας Εκπαίδευσης κλάδων ΠΕ που ισχύει σύμφωνα με τον Ν.4152/2013 είναι 23 ώρες.', tbl_style['Justify']))
+    elements.append(Paragraph('Το πλήρες ωράριο εβδομαδιαίας διδακτικής απασχόλησης των εκπαιδευτικών της Δευτεροβάθμιας Εκπαίδευσης κλάδων ΠΕ που ισχύει σύμφωνα με τον Ν.4152/2013 είναι 23 ώρες.', tbl_style['Justify']))
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
-    elements.append(Paragraph(u'Η βεβαίωση αυτή χορηγείται ύστερα από αίτηση του/της ενδιαφερόμενου/ης προκειμένου να τη χρησιμοποιήσει ως δικαιολογητικό για την αναγνώριση της προϋπηρεσίας του/της.', tbl_style['Justify']))
+    elements.append(Paragraph('Η βεβαίωση αυτή χορηγείται ύστερα από αίτηση του/της ενδιαφερόμενου/ης προκειμένου να τη χρησιμοποιήσει ως δικαιολογητικό για την αναγνώριση της προϋπηρεσίας του/της.', tbl_style['Justify']))
 
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
     data = []
     sign = os.path.join(settings.MEDIA_ROOT, "signature.png")
@@ -456,7 +456,7 @@ def print_exp_report(request):
     im.drawHeight = 3.2 * cm
     im.drawWidth = 6.5 * cm
 
-    data.append([Paragraph(u' ', signature['Center']) ,im])
+    data.append([Paragraph(' ', signature['Center']) ,im])
 
     table6 = Table(data, style=tsf, colWidths=[10.0 * cm, 7.0 * cm])
     elements.append(table6)
@@ -512,7 +512,7 @@ def edit(request):
                 f.sort(key = lambda x: x[1], reverse=True)
                 fs = [x[0] for x in f]
                 if emptype.order() is not None:
-                    if emptype.order().order_end_manager != u'' and emptype.order().show_online_order == True and emptype.show_exp_report == True:
+                    if emptype.order().order_end_manager != '' and emptype.order().show_online_order == True and emptype.show_exp_report == True:
                         exp = True
             except NonPermanent.DoesNotExist:
                 try:

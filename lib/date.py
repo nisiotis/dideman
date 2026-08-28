@@ -4,6 +4,7 @@ import datetime
 import math
 import functools
 from dideman.lib.common import memo
+from functools import reduce
 
 sign = functools.partial(math.copysign, 1)
 
@@ -150,14 +151,14 @@ class DateInterval(object):
         days as first argument |
         years, months, days as 1st, 2nd 3rd argument
         """
-        if args and isinstance(args[0], (str, unicode)):
+        if args and isinstance(args[0], str):
             param = args[0]
             yl = 4 if len(param) == 8 else 2
             years, months, days = [int(d)
                                    for d in [param[:yl], param[yl:yl + 2],
                                              param[yl + 2:yl + 4]]]
         else:
-            if args and isinstance(args[0], (int, long, float)):
+            if args and isinstance(args[0], (int, float)):
                 if len(args) == 3:
                     years = args[0]
                     months = args[1]
@@ -193,7 +194,7 @@ class DateInterval(object):
         when given a formatter. If no formatter is given the default
         formatter (u"%s έτη, %s μήνες, %s ημέρες") is applied
         """
-        formatter = formatter or u"%s έτη, %s μήνες, %s ημέρες"
+        formatter = formatter or "%s έτη, %s μήνες, %s ημέρες"
         return formatter % (self.years, self.months, self.days)
 
     def total300(self):
@@ -372,4 +373,4 @@ def test():
     assert str(sorted(DateRange.split_all(ranges), key=lambda r: (r.start, r.end))) == "[[1/1/2012 - 30/2/2012], [1/1/2012 - 19/3/2012], [1/1/2012 - 30/3/2012], [1/3/2012 - 19/3/2012], [20/3/2012 - 30/3/2012], [20/3/2012 - 1/5/2012], [1/4/2012 - 20/4/2012], [1/4/2012 - 1/5/2012], [21/4/2012 - 1/5/2012]]"
     assert DateRange.split_all([]) == []
     assert DateRange.split_all([r0103_3003]) == tuple([r0103_3003])
-    print "tests pass"
+    print("tests pass")

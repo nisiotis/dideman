@@ -35,9 +35,9 @@ class Command(XlsFileCommand):
             ama=cell_unicode(worksheet, row, 20).replace(".0", "")[:10],
             marital_status=int(cell_unicode(worksheet, row, 21)[:1]))
         try:
-            print np
-            print np.vat_number, np.profession, np.transfer_area, np.identity_number, \
-                np.birth_date, np.ama, np.social_security_registration_number
+            print(np)
+            print(np.vat_number, np.profession, np.transfer_area, np.identity_number, \
+                np.birth_date, np.ama, np.social_security_registration_number)
             np.clean_fields()
             np.save()
         except Exception as ex:
@@ -45,4 +45,4 @@ class Command(XlsFileCommand):
             print(ex)
 
     def on_file_end(self, workbook, worksheet, total_rows, options):
-        print total_rows - 1, " ", self.errors
+        print(total_rows - 1, " ", self.errors)

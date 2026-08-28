@@ -15,11 +15,11 @@ class Command(XlsFileCommand):
             profession=Profession.objects.get(pk=cell_unicode(worksheet, row, 4)),
             transfer_area=TransferArea.objects.get(pk=int(worksheet.cell_value(row, 5))),
             order_hired=cell_unicode(worksheet, row, 6))
-        print p
+        print(p)
         try:
             p.save()
         except Exception as ex:
             print(ex)
 
     def on_file_end(self, workbook, worksheet, total_rows, options):
-        print total_rows
+        print(total_rows)

@@ -29,7 +29,7 @@ class Command(BaseCommand):
             driver_cell = worksheet.cell(curr_row, 0)
             cell = worksheet.cell(curr_row, idx)
             try:
-                perm = Permanent.objects.filter(registration_number=unicode(driver_cell.value)[:6]).first()
+                perm = Permanent.objects.filter(registration_number=str(driver_cell.value)[:6]).first()
                 nonp = NonPermanent.objects.filter(vat_number=vat_to_text(cell.value)).first()
             except Exception:
                 perm = None
@@ -42,10 +42,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         workbook, worksheet = open_worksheet_or_exit(options['f'], options['ws'])
         idx = options['ci'] if options['ci'] else 1
-        print "Worksheet name %s, Rows %s" % (worksheet.name, worksheet.nrows)
+        print("Worksheet name %s, Rows %s" % (worksheet.name, worksheet.nrows))
 
         matches = self.find_matches(worksheet, idx)
-        print "Found records to update %s" % len(matches)
+        print("Found records to update %s" % len(matches))
         if not confirm():
             exit()
 
@@ -62,4 +62,4 @@ class Command(BaseCommand):
             except Exception as ex:
                 print(ex)
         if upd_rows > 0:
-            print upd_rows, " updated"
+            print(upd_rows, " updated")

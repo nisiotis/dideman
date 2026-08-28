@@ -110,7 +110,7 @@ def read(file, filerec, istaxed):
                     sql += "insert into dide_paymentcategory "
                     sql += "(id, paymentreport_id, title_id, start_date, "
                     sql += "end_date, month, year) "
-                    values = dict(p.items())
+                    values = dict(list(p.items()))
                     str_values = ",".join(
                         [query_value(f, values.get(f, 'NULL'))
                          for f in payment_category_fields])
@@ -131,7 +131,7 @@ def read(file, filerec, istaxed):
                             sql += " @lastcat, '" + rmv_nsp(elm) + "',"
                             if int(elm.get('code')) not in paycodesdic:
                                 pc = PaymentCode(id=int(elm.get('code')),
-                                                 description=u'-', group_name=u'', calc_type=0)
+                                                 description='-', group_name='', calc_type=0)
                                 pc.save()
                                 paycodesdic.add(pc.id)
                             sql += elm.get('code') + ","
@@ -148,7 +148,7 @@ def read(file, filerec, istaxed):
                         try:
                             cursor.execute(s_s)
                         except:
-                            print s_s
+                            print(s_s)
                             raise
                 sql = ''
             else:

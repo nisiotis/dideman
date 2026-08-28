@@ -8,8 +8,8 @@ def cc(obj):
     if hasattr(obj['non_permanent__organization_serving'], 'organization'):
         ret.append(obj['non_permanent__organization_serving'].organization.name)       
     if obj['affects_payment']:
-        ret.append(u'Εκκαθαριστής')
-    ret.append(u'Α.Φ.')
+        ret.append('Εκκαθαριστής')
+    ret.append('Α.Φ.')
     return ret
 
 
@@ -46,18 +46,18 @@ class LeaveDocxReport(DocxReport):
 
 
 non_permanent_leave_docx_reports = [
-    LeaveDocxReport(u'Αιμοδοτική', 'aimodotiki.xml', custom_context={'subject': u'Χορήγηση άδειας αιμοδοσίας'}),
-    LeaveDocxReport(u'Αναρρωτική', 'anarrotiki.xml', custom_context={'subject': u'Χορήγηση αναρρωτικής άδειας'}),
-    LeaveDocxReport(u'Αναρρωτική χωρίς αποδοχές', 'anarrotiki_xoris.xml', custom_context={'subject': u'Χορήγηση αναρρωτικής άδειας'}),    
-    LeaveDocxReport(u'Ανατροφής 4 μήνες χωρίς αποδοχές', 'anatrofis_4_xoris.xml', custom_context={'subject': u'Χορήγηση άδειας ανατροφής (4 μηνών χωρίς αποδοχές'}),
-    LeaveDocxReport(u'Γονική', 'goniki.xml', custom_context={'subject': u'Χορήγηση γονικής άδειας'}), 
-    LeaveDocxReport(u'Διευκόλυνσης', 'diefkolinsis.xml', custom_context={'subject': u'Χορήγηση άδειας διευκόλυνσης'}), 
-    LeaveDocxReport(u'Ειδική 22 ημερών', 'adeia_22.xml', custom_context={'subject': u'Χορήγηση ειδικής άδειας'}),
-    LeaveDocxReport(u'Εκλογική', 'eklogiki.xml', custom_context={'subject': u'Χορήγηση ειδικής άδειας λόγω εκλογών'}),
-    LeaveDocxReport(u'Εξετάσεων', 'eksetaseon.xml', custom_context={'subject': u'Χορήγηση ειδικής άδειας εξετάσεων'}),
-    LeaveDocxReport(u'Κανονική', 'kanoniki.xml', custom_context={'subject': u'Χορήγηση κανονικής άδειας απουσίας'}),
-    LeaveDocxReport(u'Κύησης-Λοχείας', 'kyisisloxeias.xml', custom_context={'subject': u'Χορήγηση άδειας Κύησης-Λοχείας'}),
-    LeaveDocxReport(u'Κύησης', 'kyisis.xml', custom_context={'subject': u'Χορήγηση άδειας Κύησης'}),
-    LeaveDocxReport(u'Λοχείας', 'loxeias.xml', custom_context={'subject': u'Χορήγηση άδειας λοχείας'}),
-    LeaveDocxReport(u'Τοκετού Πατέρα', 'toketou.xml', custom_context={'subject': u'Χορήγηση άδειας τοκετού πατέρα'})
+    LeaveDocxReport('Αιμοδοτική', 'aimodotiki.xml', custom_context={'subject': 'Χορήγηση άδειας αιμοδοσίας'}),
+    LeaveDocxReport('Αναρρωτική', 'anarrotiki.xml', custom_context={'subject': 'Χορήγηση αναρρωτικής άδειας'}),
+    LeaveDocxReport('Αναρρωτική χωρίς αποδοχές', 'anarrotiki_xoris.xml', custom_context={'subject': 'Χορήγηση αναρρωτικής άδειας'}),    
+    LeaveDocxReport('Ανατροφής 4 μήνες χωρίς αποδοχές', 'anatrofis_4_xoris.xml', custom_context={'subject': 'Χορήγηση άδειας ανατροφής (4 μηνών χωρίς αποδοχές'}),
+    LeaveDocxReport('Γονική', 'goniki.xml', custom_context={'subject': 'Χορήγηση γονικής άδειας'}), 
+    LeaveDocxReport('Διευκόλυνσης', 'diefkolinsis.xml', custom_context={'subject': 'Χορήγηση άδειας διευκόλυνσης'}), 
+    LeaveDocxReport('Ειδική 22 ημερών', 'adeia_22.xml', custom_context={'subject': 'Χορήγηση ειδικής άδειας'}),
+    LeaveDocxReport('Εκλογική', 'eklogiki.xml', custom_context={'subject': 'Χορήγηση ειδικής άδειας λόγω εκλογών'}),
+    LeaveDocxReport('Εξετάσεων', 'eksetaseon.xml', custom_context={'subject': 'Χορήγηση ειδικής άδειας εξετάσεων'}),
+    LeaveDocxReport('Κανονική', 'kanoniki.xml', custom_context={'subject': 'Χορήγηση κανονικής άδειας απουσίας'}),
+    LeaveDocxReport('Κύησης-Λοχείας', 'kyisisloxeias.xml', custom_context={'subject': 'Χορήγηση άδειας Κύησης-Λοχείας'}),
+    LeaveDocxReport('Κύησης', 'kyisis.xml', custom_context={'subject': 'Χορήγηση άδειας Κύησης'}),
+    LeaveDocxReport('Λοχείας', 'loxeias.xml', custom_context={'subject': 'Χορήγηση άδειας λοχείας'}),
+    LeaveDocxReport('Τοκετού Πατέρα', 'toketou.xml', custom_context={'subject': 'Χορήγηση άδειας τοκετού πατέρα'})
     ]

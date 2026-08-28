@@ -27,14 +27,14 @@ def open_worksheet_or_exit(path, sheet_index=None):
     try:
         workbook = xlrd.open_workbook(path)
     except Exception:
-        print "--f <file>: xls file required / not found"
+        print("--f <file>: xls file required / not found")
         exit()
     worksheet = workbook.sheet_by_index(sheet_index) if sheet_index else workbook.sheet_by_index(0)
     return workbook, worksheet
 
 
 def cell_unicode(worksheet, row, col):
-    return unicode(worksheet.cell_value(row, col))
+    return str(worksheet.cell_value(row, col))
 
 
 def vat_to_text(value):
@@ -44,7 +44,7 @@ def vat_to_text(value):
         v = int(value)
         text = str(v).zfill(9)
     except (TypeError, ValueError):
-        text = unicode(value).zfill(9)
+        text = str(value).zfill(9)
     return text[:9]
 
 
@@ -57,8 +57,8 @@ def find_model_field(model, field_name):
 
 
 def confirm(prompt='Continue? '):
-    print prompt
-    answer = str(raw_input())
+    print(prompt)
+    answer = str(input())
     return answer in ('y', 'yes')
 
 
@@ -83,7 +83,7 @@ class XlsFileCommand(BaseCommand):
 
     def handle(self, *args, **options):
         if not args:
-            print "No arguments found"
+            print("No arguments found")
             return
         for path in args:
             self.process_file(path, options)

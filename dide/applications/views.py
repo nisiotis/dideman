@@ -75,38 +75,38 @@ def print_app(request, set_id):
     doc = SimpleDocTemplate(response, pagesize=A4)
     elements = []
 
-    elements.append(Paragraph(u'Δ.Δ.Ε. %s' % SETTINGS['dide_place'],
+    elements.append(Paragraph('Δ.Δ.Ε. %s' % SETTINGS['dide_place'],
                               heading_style['Center']))
-    elements.append(Paragraph(u'%s' % set.title, heading_style['Center']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph('%s' % set.title, heading_style['Center']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
     headdata = [
-        [Paragraph(u'ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
+        [Paragraph('ΑΡ. ΜΗΤΡΩΟΥ', tbl_style['Left']),
          Paragraph('%s' % emp.registration_number, tbl_style['Left']),
          Paragraph('ΚΛΑΔΟΣ', tbl_style['Left']),
-         Paragraph(u'%s' % emp.profession, tbl_style['Left'])],
-        [Paragraph(u'ΕΠΩΝΥΜΟ', tbl_style['Left']),
+         Paragraph('%s' % emp.profession, tbl_style['Left'])],
+        [Paragraph('ΕΠΩΝΥΜΟ', tbl_style['Left']),
          Paragraph('%s' % emp.lastname, tbl_style['Left']),
          Paragraph('', tbl_style['Left']),
          Paragraph('', tbl_style['Left'])],
-        [Paragraph(u'ΟΝΟΜΑ', tbl_style['Left']),
+        [Paragraph('ΟΝΟΜΑ', tbl_style['Left']),
          Paragraph('%s' % emp.firstname, tbl_style['Left']),
-         Paragraph(u'ΠΕΡΙΟΧΗ ΜΕΤΑΘΕΣΗΣ', tbl_style['Left']),
-         Paragraph(u'%s' % emp.transfer_area, tbl_style['Left'])],
-        [Paragraph(u'Α.Α. ΑΙΤΗΣΗΣ', tbl_style['Left']),
+         Paragraph('ΠΕΡΙΟΧΗ ΜΕΤΑΘΕΣΗΣ', tbl_style['Left']),
+         Paragraph('%s' % emp.transfer_area, tbl_style['Left'])],
+        [Paragraph('Α.Α. ΑΙΤΗΣΗΣ', tbl_style['Left']),
          Paragraph('%s' % app.id, tbl_style['Left']),
-         Paragraph(u' ', tbl_style['Left']),
-         Paragraph(u' ', tbl_style['Left'])]]
+         Paragraph(' ', tbl_style['Left']),
+         Paragraph(' ', tbl_style['Left'])]]
     table1 = Table(headdata, style=tsh, colWidths=[3 * cm, 6 * cm,
                                                    4 * cm, 4 * cm])
     elements.append(table1)
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
 
     data = []
     for field in form.base_fields:
         val = getattr(app, field)
         if val:
             if val is True:
-                val = u'Ναι'
+                val = 'Ναι'
             data.append(
                 [Paragraph('%s' % app._meta.get_field(field).verbose_name,
                            tbl_style['Left']),
@@ -114,8 +114,8 @@ def print_app(request, set_id):
 
     table2 = Table(data, style=ts, colWidths=[10.0 * cm, 7.0 * cm])
     elements.append(table2)
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
     del data
     data = []
     data.append([Paragraph('Επιλογές', tbl_style['BoldLeft'])])
@@ -124,31 +124,31 @@ def print_app(request, set_id):
         data.append(
             [Paragraph('%s. %s' % (x.position + 1, x.choice.name),
                        tbl_style['Left'])])
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
     table3 = Table(data, style=ts, colWidths=[17.0 * cm])
     elements.append(table3)
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
-    elements.append(Paragraph(u' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
+    elements.append(Paragraph(' ', heading_style['Spacer']))
     del data
     data = []
     today = datetime.date.today()
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u'Ρόδος, %s / %s / %s' %
+    data.append([Paragraph(' ', signature['Center']),
+                 Paragraph('Ρόδος, %s / %s / %s' %
                            (today.day, today.month, today.year),
                            signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u' ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u'Υπογραφή', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u'  ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u'  ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u'  ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
-                 Paragraph(u'  ', signature['Center'])])
-    data.append([Paragraph(u' ', signature['Center']),
+    data.append([Paragraph(' ', signature['Center']),
+                 Paragraph(' ', signature['Center'])])
+    data.append([Paragraph(' ', signature['Center']),
+                 Paragraph('Υπογραφή', signature['Center'])])
+    data.append([Paragraph(' ', signature['Center']),
+                 Paragraph('  ', signature['Center'])])
+    data.append([Paragraph(' ', signature['Center']),
+                 Paragraph('  ', signature['Center'])])
+    data.append([Paragraph(' ', signature['Center']),
+                 Paragraph('  ', signature['Center'])])
+    data.append([Paragraph(' ', signature['Center']),
+                 Paragraph('  ', signature['Center'])])
+    data.append([Paragraph(' ', signature['Center']),
                  Paragraph('%s %s' % (emp.firstname, emp.lastname),
                            signature['Center'])])
     table4 = Table(data, style=tsf, colWidths=[11.0 * cm, 6.0 * cm])
@@ -208,7 +208,7 @@ def edit(request, set_id):
                     if hasattr(app, key) and form.cleaned_data[key]:
                         setattr(app, key, form.cleaned_data[key])
             else:
-                for n, f in form.fields.items():
+                for n, f in list(form.fields.items()):
                     try:
                         value = f.clean(
                             f.widget.value_from_datadict(form.data,

@@ -52,7 +52,7 @@ class PrivateTeacherAdmin(DideAdmin):
                     'identity_number', 'telephone_number1',
                     'telephone_number2', 'email', 'birth_date', 'not_service_days',
                     'active', 'date_created']}),
-        (u'Οικονομικά στοιχεία', {
+        ('Οικονομικά στοιχεία', {
                 'fields': ['vat_number', 'tax_office', 'bank',
                            'bank_account_number', 'iban',
                            'social_security_registration_number']})]

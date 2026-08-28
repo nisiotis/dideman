@@ -99,10 +99,10 @@ def alter_get_query_string(fn):
             remove = []
         p = MultiValueDict(self.param_lists)
         for r in remove:
-            for k in p.keys():
+            for k in list(p.keys()):
                 if k.startswith(r):
                     del p[k]
-        for k, v in new_params.items():
+        for k, v in list(new_params.items()):
             if v is None:
                 if k in p:
                     del p[k]
@@ -133,7 +133,7 @@ def alter_changelist_constructor(fn):
 def alter_choices(fn):
     def choices(self, cl):
         gen = fn(self, cl)
-        yield gen.next()
+        yield next(gen)
         first_param = self.lookup_param
         other_params = [getattr(self, p)
                         for p in ['lookup_kwarg2', 'lookup_kwarg_isnull']
@@ -141,7 +141,7 @@ def alter_choices(fn):
         second_param = other_params[0] if other_params else None
 
         while 1:
-            choice = gen.next()
+            choice = next(gen)
             query_dict = cl.request.GET.copy()
             parent_query_dict = QueryDict(choice['query_string'][1:]).copy()
             parent_second_value = parent_query_dict.get(second_param, None)
@@ -183,7 +183,7 @@ def alter_filter_constructor(fn):
            field_path, *args, **kwargs)
         self.lookup_param = self.lookup_kwarg
         self.modifier_name = '_m_' + self.lookup_param
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        self.modifier_value = request.GET.get(self.modifier_name, 'AND')
         views.__dict__['IGNORED_PARAMS'].append(self.modifier_name)
     return __init__
 
@@ -212,22 +212,22 @@ class BaseModifierFilter(object):
         modifier_and = {
            'selected': self.modifier_value == 'AND',
            'query_string': qs_and,
-           'display': u'Αποκλεισμός',
+           'display': 'Αποκλεισμός',
         }
         modifier_or = {
             'selected': self.modifier_value == 'OR',
             'query_string': qs_or,
-            'display': u'Σύνθεση',
+            'display': 'Σύνθεση',
         }
         return [modifier_and, modifier_or]
 
     def queryset(self, request, queryset):
         query_dict = {}
-        params = dict(request.GET.items())
+        params = dict(list(request.GET.items()))
         for p in self.expected_parameters():
             if p in params:
                 query_dict[p] = params[p]
-        if self.modifier_value != u'OR':
+        if self.modifier_value != 'OR':
             return self.filter_param(queryset, query_dict)
         else:
             try:
@@ -266,7 +266,7 @@ class ModifierSimpleListFilter(BaseModifierFilter, SimpleListFilter):
                                                        params, *args, **kwargs)
         self.modifier_name = "_m_" + self.parameter_name
         self.lookup_param = self.parameter_name
-        self.modifier_value = request.GET.get(self.modifier_name, u'AND')
+        self.modifier_value = request.GET.get(self.modifier_name, 'AND')
         views.__dict__['IGNORED_PARAMS'] += [self.modifier_name]
         DideAdmin.add_filter_parameter(self.parameter_name)
         BaseModifierFilter.registered_filters.append(self)
@@ -285,9 +285,9 @@ AllValuesFieldListFilter.__bases__ = (ModifierFieldListFilter, )
 
 monkey_patch_method(RelatedFieldListFilter, 'choices', alter_choices)
 monkey_patch_method(BooleanFieldListFilter, 'choices', alter_choices)
-setattr(BooleanFieldListFilter, 'lookup_choices', ((None, u'Όλα'),
-                                                   ('1', u'Ναι'),
-                                                   ('0', u'Όχι')))
+setattr(BooleanFieldListFilter, 'lookup_choices', ((None, 'Όλα'),
+                                                   ('1', 'Ναι'),
+                                                   ('0', 'Όχι')))
 monkey_patch_method(ChoicesFieldListFilter, 'choices', alter_choices)
 monkey_patch_method(AllValuesFieldListFilter, 'choices', alter_choices)
 monkey_patch_method(SimpleListFilter, 'choices', alter_choices)

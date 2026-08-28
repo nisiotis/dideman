@@ -7,10 +7,10 @@ from django.db.models import Q
 
 
 class EmployeeMatchForm(forms.Form):
-    identification_number = forms.CharField(label=u'Αναγνωριστικό',
+    identification_number = forms.CharField(label='Αναγνωριστικό',
                                                max_length=9)
-    lastname = forms.CharField(label=u'Επώνυμο', max_length=100)
-    iban_4 = forms.CharField(label=u'IBAN (4 τελευταία ψηφία',
+    lastname = forms.CharField(label='Επώνυμο', max_length=100)
+    iban_4 = forms.CharField(label='IBAN (4 τελευταία ψηφία',
                              widget=forms.PasswordInput,
                              min_length=4, max_length=4)
 

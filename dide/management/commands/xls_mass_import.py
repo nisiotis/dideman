@@ -24,7 +24,7 @@ class Command(XlsFileCommand):
         try:
             nonp = NonPermanent.objects.filter(vat_number=cell_unicode(worksheet, row, 12)[:9])
             if nonp:
-                print "FOUND ", nonp
+                print("FOUND ", nonp)
                 self.found_nonpermanent += 1
                 vat_to_in = None
                 id_no = None
@@ -33,23 +33,23 @@ class Command(XlsFileCommand):
                 id_no = cell_unicode(worksheet, row, 10).replace(" ", "")
 
             t_area = 0
-            if cell_unicode(worksheet, row, 11)[:1] == u"Α":
+            if cell_unicode(worksheet, row, 11)[:1] == "Α":
                 t_area = 1
-            if cell_unicode(worksheet, row, 11)[:1] == u"Β":
+            if cell_unicode(worksheet, row, 11)[:1] == "Β":
                 t_area = 2
-            if cell_unicode(worksheet, row, 11)[:1] == u"Γ":
+            if cell_unicode(worksheet, row, 11)[:1] == "Γ":
                 t_area = 3
-            if cell_unicode(worksheet, row, 11)[:1] == u"Δ":
+            if cell_unicode(worksheet, row, 11)[:1] == "Δ":
                 t_area = 4
 
             sex_t = "Άνδρας"
-            if cell_unicode(worksheet, row, 6)[:1] == u"Γ":
+            if cell_unicode(worksheet, row, 6)[:1] == "Γ":
                 sex_t = "Γυναίκα"
 
             mar_s = 0
-            if cell_unicode(worksheet, row, 17)[:1] == u"Δ":
+            if cell_unicode(worksheet, row, 17)[:1] == "Δ":
                 mar_s = 2
-            if cell_unicode(worksheet, row, 17)[:1] == u"Ε":
+            if cell_unicode(worksheet, row, 17)[:1] == "Ε":
                 mar_s = 1
 
             dob = None
@@ -106,14 +106,14 @@ class Command(XlsFileCommand):
                 birth_date=dob)
             p.save()
             self.success += 1
-            print p
+            print(p)
         except Exception as ex:
             print(ex)
             self.failed += 1
 
     def on_file_end(self, workbook, worksheet, total_rows, options):
-        print "TOTAL IN EXCEL", total_rows - 1
+        print("TOTAL IN EXCEL", total_rows - 1)
         if self.found_nonpermanent > 0:
-            print "FOUND NONPERMANENT", self.found_nonpermanent
-        print "Success ", self.success
-        print "Failed", self.failed
+            print("FOUND NONPERMANENT", self.found_nonpermanent)
+        print("Success ", self.success)
+        print("Failed", self.failed)

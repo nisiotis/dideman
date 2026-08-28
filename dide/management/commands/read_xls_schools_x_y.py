@@ -23,12 +23,12 @@ class Command(XlsFileCommand):
                 "where parent_organization_id = %s", [x, y, schools[0].id])
             self.updated += 1
         elif schools:
-            print "Not sole:"
+            print("Not sole:")
             for sch in schools:
-                print "%s" % sch.email
+                print("%s" % sch.email)
         else:
-            print "%s Not found" % email
+            print("%s Not found" % email)
 
     def on_file_end(self, workbook, worksheet, total_rows, options):
-        print "Total %s" % total_rows
-        print "Inserted %s" % self.updated
+        print("Total %s" % total_rows)
+        print("Inserted %s" % self.updated)

@@ -5,29 +5,29 @@ from django.utils.translation import ugettext as _
 from dideman.dide.myinfo.myselect import MySelectDateWidget
 
 
-SEX_TYPES = ((u'', u'---------'),
-             (u'Άνδρας', u'Άνδρας'),
-             (u'Γυναίκα', u'Γυναίκα'))
+SEX_TYPES = (('', '---------'),
+             ('Άνδρας', 'Άνδρας'),
+             ('Γυναίκα', 'Γυναίκα'))
 
 class MyInfoForm(forms.Form):
-    sex = forms.ChoiceField(label=u'Φύλο', required=False, choices=SEX_TYPES)
-    email = forms.EmailField(label=u'Email',
+    sex = forms.ChoiceField(label='Φύλο', required=False, choices=SEX_TYPES)
+    email = forms.EmailField(label='Email',
                              required=False, widget=forms.TextInput(attrs={'size':30}))
-    telephone_number1 = forms.CharField(label=u'Σταθερό Τηλέφωνο',
+    telephone_number1 = forms.CharField(label='Σταθερό Τηλέφωνο',
                                         required=False)
-    telephone_number2 = forms.CharField(label=u'Κινητό Τηλέφωνο',
+    telephone_number2 = forms.CharField(label='Κινητό Τηλέφωνο',
                                         required=False)
-    mothername = forms.CharField(label=u'Όνομα Μητέρας', required=False,
+    mothername = forms.CharField(label='Όνομα Μητέρας', required=False,
                                     widget=forms.TextInput(attrs={'size':20}))
-    social_security_registration_number = forms.CharField(label=u'Α.Μ.Κ.Α.',
+    social_security_registration_number = forms.CharField(label='Α.Μ.Κ.Α.',
                                                           required=False)
-    ama = forms.CharField(label=u'ΑΜΑ ΙΚΑ ΕΤΑΜ', required=False)
-    address = forms.CharField(label=u'Διεύθυνση Κατοικίας - Οδός', max_length=200, required=False,
+    ama = forms.CharField(label='ΑΜΑ ΙΚΑ ΕΤΑΜ', required=False)
+    address = forms.CharField(label='Διεύθυνση Κατοικίας - Οδός', max_length=200, required=False,
                               widget=forms.TextInput(attrs={'size':60}))
-    address_postcode = forms.CharField(label=u'Ταχ. Κωδικός', max_length=6, required=False,
+    address_postcode = forms.CharField(label='Ταχ. Κωδικός', max_length=6, required=False,
                               widget=forms.TextInput(attrs={'size':6}))
-    address_city = forms.CharField(label=u'Πόλη', max_length=30, required=False,
+    address_city = forms.CharField(label='Πόλη', max_length=30, required=False,
                               widget=forms.TextInput(attrs={'size':30}))
 
-    tax_office = forms.CharField(label=u'Δ.Ο.Υ.', required=False)
-    birth_date = forms.DateField(label=u'Ημερομηνία Γέννησης', required=False, widget=MySelectDateWidget(years=range(1930, 2030)))
+    tax_office = forms.CharField(label='Δ.Ο.Υ.', required=False)
+    birth_date = forms.DateField(label='Ημερομηνία Γέννησης', required=False, widget=MySelectDateWidget(years=list(range(1930, 2030))))

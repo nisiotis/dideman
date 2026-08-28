@@ -4,9 +4,9 @@ from django import VERSION as djangoversion
 
 
 class DideSite(AdminSite):
-	#@never_cache
-	#def index(self, request, extra_context=None):
-	#	super(AdminSite, self).index(request, extra_context=None)
+        #@never_cache
+        #def index(self, request, extra_context=None):
+        #	super(AdminSite, self).index(request, extra_context=None)
 
     #@never_cache
     def index(self, request, extra_context=None):
@@ -16,7 +16,7 @@ class DideSite(AdminSite):
         """
         app_dict = {}
         user = request.user
-        for model, model_admin in self._registry.items():
+        for model, model_admin in list(self._registry.items()):
             app_label = model._meta.app_label
             has_module_perms = user.has_module_perms(app_label)
 
@@ -25,7 +25,7 @@ class DideSite(AdminSite):
 
                 # Check whether user has any perm for this module.
                 # If so, add the module to the model_list.
-                if True in perms.values():
+                if True in list(perms.values()):
                     info = (app_label, model._meta.module_name)
                     model_dict = {
                         'name': capfirst(model._meta.verbose_name_plural),
@@ -73,14 +73,14 @@ class DideSite(AdminSite):
         user = request.user
         has_module_perms = user.has_module_perms(app_label)
         app_dict = {}
-        for model, model_admin in self._registry.items():
+        for model, model_admin in list(self._registry.items()):
             if app_label == model._meta.app_label:
                 if has_module_perms:
                     perms = model_admin.get_model_perms(request)
 
                     # Check whether user has any perm for this module.
                     # If so, add the module to the model_list.
-                    if True in perms.values():
+                    if True in list(perms.values()):
                         info = (app_label, model._meta.module_name)
                         model_dict = {
                             'name': capfirst(model._meta.verbose_name_plural),

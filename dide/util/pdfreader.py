@@ -11,7 +11,7 @@ from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.layout import LAParams
-from cStringIO import StringIO
+from io import StringIO
 from django.db import connection, transaction
 from dideman.dide.util.settings import SETTINGS
 
@@ -47,7 +47,7 @@ def read(pdffile, pdffiletype, obj_id):
                 if li[8:] != SETTINGS['afm_dide']:
                     new_file = '%s.%s.%s.pdf' % (pdffile.name.replace(os.path.join(settings.MEDIA_ROOT,'pdffiles'),'')[1:-4],li[7:].strip(),datetime.datetime.now().strftime('%H%M%S%f'))
 
-                    print li
+                    print(li)
                     out_file = open(os.path.join(settings.MEDIA_ROOT,'pdffiles', 'extracted', new_file), 'wb')
                     pdf_out.write(out_file)
                     out_file.close()

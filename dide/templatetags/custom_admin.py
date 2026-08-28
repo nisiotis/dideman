@@ -69,10 +69,10 @@ def paginator_number_with_qs_params(cl, i):
     Generates an individual page index link in a paginated list.
     """
     if i == '.':
-        return u'... '
+        return '... '
     elif i == cl.page_num:
-        return mark_safe(u'<span class="this-page">%d</span> ' % (i+1))
+        return mark_safe('<span class="this-page">%d</span> ' % (i+1))
     else:
         qd = cl.request.GET.copy()
         qd[PAGE_VAR] = i;
-        return u'<a href="?%s"%s>%d</a> ' % (qd.urlencode(), (i == cl.paginator.num_pages-1 and ' class="end"' or ''), i+1)
+        return '<a href="?%s"%s>%d</a> ' % (qd.urlencode(), (i == cl.paginator.num_pages-1 and ' class="end"' or ''), i+1)

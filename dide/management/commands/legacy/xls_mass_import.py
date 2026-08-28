@@ -30,32 +30,32 @@ class Command(BaseCommand):
             while curr_row < worksheet.nrows:
                 try:
 
-                    nonp = NonPermanent.objects.filter(vat_number = unicode(worksheet.cell_value(curr_row,12))[:9])
+                    nonp = NonPermanent.objects.filter(vat_number = str(worksheet.cell_value(curr_row,12))[:9])
                     if nonp:
-                        print "FOUND ", nonp
+                        print("FOUND ", nonp)
                         np += 1
                         vat_to_in = None
                         id_no = None
                     else:
-                        vat_to_in = unicode(worksheet.cell_value(curr_row,12))[:9]
-                        id_no = unicode(worksheet.cell_value(curr_row,10)).replace(" ", "")
+                        vat_to_in = str(worksheet.cell_value(curr_row,12))[:9]
+                        id_no = str(worksheet.cell_value(curr_row,10)).replace(" ", "")
                     t_area = 0
                 
-                    if unicode(worksheet.cell_value(curr_row,11))[:1] == u"Α":
+                    if str(worksheet.cell_value(curr_row,11))[:1] == "Α":
                         t_area = 1
-                    if unicode(worksheet.cell_value(curr_row,11))[:1] == u"Β":
+                    if str(worksheet.cell_value(curr_row,11))[:1] == "Β":
                         t_area = 2
-                    if unicode(worksheet.cell_value(curr_row,11))[:1] == u"Γ":
+                    if str(worksheet.cell_value(curr_row,11))[:1] == "Γ":
                         t_area = 3
-                    if unicode(worksheet.cell_value(curr_row,11))[:1] == u"Δ":
+                    if str(worksheet.cell_value(curr_row,11))[:1] == "Δ":
                         t_area = 4
                     sex_t = "Άνδρας"
-                    if unicode(worksheet.cell_value(curr_row,6))[:1] == u"Γ":
+                    if str(worksheet.cell_value(curr_row,6))[:1] == "Γ":
                         sex_t = "Γυναίκα"
                     mar_s = 0
-                    if unicode(worksheet.cell_value(curr_row,17))[:1] == u"Δ":
+                    if str(worksheet.cell_value(curr_row,17))[:1] == "Δ":
                         mar_s = 2
-                    if unicode(worksheet.cell_value(curr_row,17))[:1] == u"Ε":
+                    if str(worksheet.cell_value(curr_row,17))[:1] == "Ε":
                         mar_s = 1
                     dob = None
                     try:
@@ -69,34 +69,34 @@ class Command(BaseCommand):
                         pass
                     b93 = 0
                     try:
-                        b93 = int(unicode(worksheet.cell_value(curr_row,19))[:1])
+                        b93 = int(str(worksheet.cell_value(curr_row,19))[:1])
                     except:
                         pass
                     tn1 = ""
                     try:
-                        tn1 = int(unicode(worksheet.cell_value(curr_row,16))[:10])
+                        tn1 = int(str(worksheet.cell_value(curr_row,16))[:10])
                     except:
                         pass
                     
                     iban_in = ""
                     if worksheet.cell_value(curr_row,15) != "":
-                        iban_in = unicode(worksheet.cell_value(curr_row,15)).replace(" ","")
+                        iban_in = str(worksheet.cell_value(curr_row,15)).replace(" ","")
                     p = Permanent(vat_number=vat_to_in,
-                                      registration_number=unicode(worksheet.cell_value(curr_row,0))[:6],
-                                      lastname=unicode(worksheet.cell_value(curr_row,1)),
-                                      firstname=unicode(worksheet.cell_value(curr_row,2)),
-                                      fathername=unicode(worksheet.cell_value(curr_row,3)),
-                                      mothername=unicode(worksheet.cell_value(curr_row,4)),
-                                      profession=Profession.objects.get(pk=unicode(worksheet.cell_value(curr_row,5))), #fix
+                                      registration_number=str(worksheet.cell_value(curr_row,0))[:6],
+                                      lastname=str(worksheet.cell_value(curr_row,1)),
+                                      firstname=str(worksheet.cell_value(curr_row,2)),
+                                      fathername=str(worksheet.cell_value(curr_row,3)),
+                                      mothername=str(worksheet.cell_value(curr_row,4)),
+                                      profession=Profession.objects.get(pk=str(worksheet.cell_value(curr_row,5))), #fix
                                       sex=sex_t,
                                       transfer_area=TransferArea.objects.get(pk=t_area), #fix
                                       telephone_number1=tn1,
-                                      email=unicode(worksheet.cell_value(curr_row,14)),
-                                      order_hired=unicode(worksheet.cell_value(curr_row,23)),
-                                      address=unicode(worksheet.cell_value(curr_row,7)),
-                                      address_postcode=unicode(worksheet.cell_value(curr_row,9))[:5],
-                                      address_city=unicode(worksheet.cell_value(curr_row,8)),
-                                      tax_office=unicode(worksheet.cell_value(curr_row,13)),
+                                      email=str(worksheet.cell_value(curr_row,14)),
+                                      order_hired=str(worksheet.cell_value(curr_row,23)),
+                                      address=str(worksheet.cell_value(curr_row,7)),
+                                      address_postcode=str(worksheet.cell_value(curr_row,9))[:5],
+                                      address_city=str(worksheet.cell_value(curr_row,8)),
+                                      tax_office=str(worksheet.cell_value(curr_row,13)),
                                       iban=iban_in,
                                       marital_status=mar_s,
                                       before_93=b93, 
@@ -106,16 +106,16 @@ class Command(BaseCommand):
                                       birth_date=dob)                        
                     p.save()
                     sr+=1
-                    print p
+                    print(p)
                 except Exception as ex:
                     print(ex)
                     fr+=1
                 curr_row += 1
                 
-            print "TOTAL IN EXCEL", curr_row - 1
+            print("TOTAL IN EXCEL", curr_row - 1)
             if np > 0:
-                print "FOUND NONPERMANENT", np
-            print "Success ", sr
-            print "Failed", fr
+                print("FOUND NONPERMANENT", np)
+            print("Success ", sr)
+            print("Failed", fr)
         if args == ():
-            print "No arguments found"
+            print("No arguments found")

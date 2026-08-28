@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import StringIO as StrIO
-from cStringIO import StringIO
+import io as StrIO
+from io import StringIO
 
 from dideman.dide.util.pay_reports import (generate_pdf_structure,
                                            generate_pdf_landscape_structure,
@@ -57,8 +57,7 @@ import zipfile
 
 
 def timestamp():
-    return filter(lambda x: x >= '0' and x <= '9',
-                  str(datetime.datetime.now()))
+    return [x for x in str(datetime.datetime.now()) if x >= '0' and x <= '9']
 
 
 class TemplateAction(object):
@@ -141,13 +140,13 @@ class TemplateAction(object):
         elif not value:
             return ''
         elif encode_in_iso:
-            if isinstance(value, unicode):
+            if isinstance(value, str):
                 return value.encode('iso8859-7', 'ignore')
             elif hasattr(value, '__unicode__'):
-                return unicode(value).encode('iso8859-7', 'ignore')
+                return str(value).encode('iso8859-7', 'ignore')
             else:
                 return str(value)
-        elif isinstance(value, unicode):
+        elif isinstance(value, str):
             return value
         else:
             return "%s" % str(value)
@@ -193,11 +192,11 @@ class DocxReport(TemplateAction):
         # does not get cleared on each request bug??
         self.dictionary['data'] = []
         for obj in queryset:
-            d1 = dict(zip(self.fields, [self.field_value(obj, field)
-                                        for field in self.fields]))
-            d2 = dict(zip([f for f in self.model_fields],
+            d1 = dict(list(zip(self.fields, [self.field_value(obj, field)
+                                        for field in self.fields])))
+            d2 = dict(list(zip([f for f in self.model_fields],
                           [self.map_field_or_list(self.model_fields[f], d1)
-                           for f in self.model_fields]))
+                           for f in self.model_fields])))
             d1.update(d2)
             self.dictionary['data'].append(d1)
 
@@ -253,7 +252,7 @@ class DocxReport(TemplateAction):
 
 class CSVReport(TemplateAction):
 
-    def __init__(self, short_description=u'Εξαγωγή σε csv',
+    def __init__(self, short_description='Εξαγωγή σε csv',
                  fields=None, add=None, exclude=None):
         self.fields = fields
         self.add = add
@@ -291,7 +290,7 @@ class CSVEconomicsReport(TemplateAction):
     
     To be deleted.
     """
-    def __init__(self, short_description=u'Εξαγωγή λίστας ΚΕΠΥΟ %s' % str(datetime.date.today().year - 1),
+    def __init__(self, short_description='Εξαγωγή λίστας ΚΕΠΥΟ %s' % str(datetime.date.today().year - 1),
                  fields=None, add=None, exclude=None, types=None):
         self.fields = fields
         self.add = add
@@ -314,7 +313,7 @@ class CSVEconomicsReport(TemplateAction):
             reports = []
             r_list = []
             for empx in u:
-                r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, emp_payments))
+                r_list = calc_reports([s for s in emp_payments if s['employee_id'] == empx])
             hd = []
             ft = []
             if len(r_list) > 0:
@@ -329,10 +328,10 @@ class CSVEconomicsReport(TemplateAction):
             output = dict()
             for sublist in dt:
                 try:
-                    output[sublist[0]] = map(operator.add, output[sublist[0]], sublist[1:])
+                    output[sublist[0]] = list(map(operator.add, output[sublist[0]], sublist[1:]))
                 except KeyError:
                     output[sublist[0]] = sublist[1:]
-            for key in output.keys():
+            for key in list(output.keys()):
                 newlist.append([key] + output[key])
             newlist.sort(key=lambda x: x[0], reverse=True)
             r_list = [hd] + newlist + ft
@@ -340,14 +339,14 @@ class CSVEconomicsReport(TemplateAction):
         
         data = []
         dtFrame = []
-        for emp, values in emp_dict.iteritems():
+        for emp, values in emp_dict.items():
             localhd = values[0]
-            r = range(len(localhd))
+            r = list(range(len(localhd)))
         
             fin = defaultdict(list)
             for row in values[1:]:
                 for i in r:                    
-                    fin[localhd[i]].append(unicode(row[i]))
+                    fin[localhd[i]].append(str(row[i]))
             data.append({emp: fin})
 
         for data_rows in data:
@@ -355,9 +354,9 @@ class CSVEconomicsReport(TemplateAction):
                 for head_item in data_rows[i]:
                     dtFrame.append([i, head_item, data_rows[i][head_item]])
         dfA = pd.DataFrame(dtFrame)
-        dfA.columns = [u'Εργαζόμενος','field','data']
-        dfB = dfA.groupby(u'Εργαζόμενος').apply(
-            lambda grp: pd.DataFrame(zip(*grp['data']), columns=grp['field']))
+        dfA.columns = ['Εργαζόμενος','field','data']
+        dfB = dfA.groupby('Εργαζόμενος').apply(
+            lambda grp: pd.DataFrame(list(zip(*grp['data'])), columns=grp['field']))
         dfB.index = dfB.index.droplevel(-1)
         data = StringIO()
         dfB.to_csv(data, sep=';', encoding='utf-8')
@@ -409,15 +408,15 @@ class CreatePDF(object):
                            c.fathername,
                            c.address,
                            c.tax_office,
-                           u'%s' % c.profession,
-                           u'%s' % c.profession.description,
+                           '%s' % c.profession,
+                           '%s' % c.profession.description,
                            c.telephone_number1,
                            self.sch(c)] for c in Employee.objects.filter(id__in=u)}
             
         elements = []
         reports = []
         for empx in u:
-            r_list = calc_reports(filter(lambda s: s['employee_id'] == empx, all_emp))
+            r_list = calc_reports([s for s in all_emp if s['employee_id'] == empx])
             report = {}
             report['report_type'] = '1'
             report['type'] = ''
@@ -481,9 +480,9 @@ class FieldAction(object):
                     if old != getattr(o, self.field_name):
                         rows_updated += 1
             if rows_updated == 1:
-                msg = u'%s αντικείμενο τροποποιήθηκε'
+                msg = '%s αντικείμενο τροποποιήθηκε'
             else:
-                msg = u'%s αντικείμενα τροποποιήθηκαν'
+                msg = '%s αντικείμενα τροποποιήθηκαν'
             modeladmin.message_user(request, msg % rows_updated)
             return None
 
@@ -529,9 +528,9 @@ class ShowOption(object):
             o.save()
 
         if len(queryset) == 1:
-            msg = u'%s αντικείμενo τροποποιήθηκε.' % str(len(queryset))
+            msg = '%s αντικείμενo τροποποιήθηκε.' % str(len(queryset))
         else:
-            msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+            msg = '%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
         modeladmin.message_user(request, msg)
 
 
@@ -548,9 +547,9 @@ class HideOption(object):
             o.save()
 
         if len(queryset) == 1:
-            msg = u'%s αντικείμενo τροποποιήθηκε.' % str(len(queryset))
+            msg = '%s αντικείμενo τροποποιήθηκε.' % str(len(queryset))
         else:
-            msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
+            msg = '%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset))
         modeladmin.message_user(request, msg)
 
 
@@ -571,12 +570,12 @@ class EmployeeBecome(object):
             try:
                 employee.become(self.to_model)
             except Exception as e:
-                errors.append(unicode(employee))
+                errors.append(str(employee))
                 continue
 
-        msg = u'%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset) - len(errors))
+        msg = '%s αντικείμενα τροποποιήθηκαν.' % str(len(queryset) - len(errors))
         if errors:
-            msg += u"Λάθη για τους: %s" % ", ".join(errors)
+            msg += "Λάθη για τους: %s" % ", ".join(errors)
         modeladmin.message_user(request, msg)
 
 class DeleteAction(object):
@@ -687,9 +686,9 @@ class PDFReadAction(object):
                 rows_updated += 1
 
         if rows_updated == 1:
-            msg = u'%s αρχείο αναγνώστηκε'
+            msg = '%s αρχείο αναγνώστηκε'
         else:
-            msg = u'%s αρχεία αναγνώστηκαν'
+            msg = '%s αρχεία αναγνώστηκαν'
         modeladmin.message_user(request, msg % rows_updated)
 
 
@@ -716,36 +715,36 @@ class XLSReadAction(object):
                 recs_missed = xlsreader.xlsread(o.id, os.path.join(settings.MEDIA_ROOT,
                                                           str(o.xls_file1).split('/', 1)[0],
                                                           str(o.xls_file1).split('/', 1)[1]))
-                for (key), val in recs_missed.items():
+                for (key), val in list(recs_missed.items()):
                     read_results.append([o.description, key, val])
 
                 recs_missed = xlsreader.xlsread(o.id, os.path.join(settings.MEDIA_ROOT,
                                                           str(o.xls_file2).split('/', 1)[0],
                                                           str(o.xls_file2).split('/', 1)[1]))
-                for (key), val in recs_missed.items():
+                for (key), val in list(recs_missed.items()):
                     read_results.append([o.description, key, val])
 
                 recs_missed = xlsreader.xlsread(o.id, os.path.join(settings.MEDIA_ROOT,
                                                           str(o.xls_file3).split('/', 1)[0],
                                                           str(o.xls_file3).split('/', 1)[1]))
-                for (key), val in recs_missed.items():
+                for (key), val in list(recs_missed.items()):
                     read_results.append([o.description, key, val])
                 o.status = 1
                 o.save()
                 rows_updated += 1
         if rows_updated == 1:
-            msg = u'%s αρχείο αναγνώστηκε'
+            msg = '%s αρχείο αναγνώστηκε'
         else:
-            msg = u'%s αρχεία αναγνώστηκαν'
+            msg = '%s αρχεία αναγνώστηκαν'
         modeladmin.message_user(request, msg % rows_updated)
 
         if len(queryset) == 1:
             objects_name = force_unicode(opts.verbose_name)
-            title = u"Αποτελέσματα ανάγνωσης αρχείου XLS"
+            title = "Αποτελέσματα ανάγνωσης αρχείου XLS"
 
         else:
             objects_name = force_unicode(opts.verbose_name_plural)
-            title = u"Αποτελέσματα ανάγνωσης αρχείων XLS"
+            title = "Αποτελέσματα ανάγνωσης αρχείων XLS"
 
         context = {
             "title": title,
@@ -766,19 +765,19 @@ class XLSReadAction(object):
 
 
 def manage_len(f, l):
-    sl = len(unicode(f))
-    return u"%s%s" % (f, (" " * (l-sl)))
+    sl = len(str(f))
+    return "%s%s" % (f, (" " * (l-sl)))
 
 
 def xml_escape(value):
     if value is None:
-        return u''
-    return unicode(value).replace(u'&', u'&amp;') \
-                         .replace(u'<', u'&lt;') \
-                         .replace(u'>', u'&gt;')
+        return ''
+    return str(value).replace('&', '&amp;') \
+                         .replace('<', '&lt;') \
+                         .replace('>', '&gt;')
 
 
-def try_value(fn, default=u''):
+def try_value(fn, default=''):
     """Evaluate fn(), falling back to default on any error or None."""
     try:
         v = fn()
@@ -787,10 +786,10 @@ def try_value(fn, default=u''):
     return default if v is None else v
 
 
-def format_ergani_date(d, default=u'01/01/2001'):
+def format_ergani_date(d, default='01/01/2001'):
     if not d:
         return default
-    return u'%02d/%02d/%s' % (d.day, d.month, d.year)
+    return '%02d/%02d/%s' % (d.day, d.month, d.year)
 
 
 def parse_amount(value):
@@ -800,14 +799,14 @@ def parse_amount(value):
     '1688', '1688.00', '1688,00' and '1.688,00' depending on who typed
     it. Returns a float, or None when nothing numeric can be read.
     """
-    s = unicode(value if value is not None else u'').strip()
+    s = str(value if value is not None else '').strip()
     if not s:
         return None
-    if u',' in s and u'.' in s:
+    if ',' in s and '.' in s:
         # 1.688,00 -- dot groups thousands, comma is the decimal mark
-        s = s.replace(u'.', u'').replace(u',', u'.')
-    elif u',' in s:
-        s = s.replace(u',', u'.')
+        s = s.replace('.', '').replace(',', '.')
+    elif ',' in s:
+        s = s.replace(',', '.')
     try:
         return float(s)
     except ValueError:
@@ -821,9 +820,9 @@ def format_ergani_amount(value):
     """
     f = parse_amount(value)
     if f is None:
-        return u'0,00'
-    s = u'{:,.2f}'.format(f)
-    return s.replace(u',', u'X').replace(u'.', u',').replace(u'X', u'.')
+        return '0,00'
+    s = '{:,.2f}'.format(f)
+    return s.replace(',', 'X').replace('.', ',').replace('X', '.')
 
 
 def format_legacy_amount(value):
@@ -835,8 +834,8 @@ def format_legacy_amount(value):
     """
     f = parse_amount(value)
     if f is None:
-        return u'0,00'
-    return u'{:.2f}'.format(f).replace(u'.', u',')
+        return '0,00'
+    return '{:.2f}'.format(f).replace('.', ',')
 
 
 def write_ergani_fields(out, fields, indent):
@@ -847,15 +846,15 @@ def write_ergani_fields(out, fields, indent):
     """
     for tag, value in fields:
         if isinstance(value, (list, tuple)):
-            out.write(u'%s<%s>\n' % (indent, tag))
-            write_ergani_fields(out, value, indent + u'\t')
-            out.write(u'%s</%s>\n' % (indent, tag))
+            out.write('%s<%s>\n' % (indent, tag))
+            write_ergani_fields(out, value, indent + '\t')
+            out.write('%s</%s>\n' % (indent, tag))
         else:
             text = xml_escape(value)
-            if text == u'':
-                out.write(u'%s<%s/>\n' % (indent, tag))
+            if text == '':
+                out.write('%s<%s/>\n' % (indent, tag))
             else:
-                out.write(u'%s<%s>%s</%s>\n' % (indent, tag, text, tag))
+                out.write('%s<%s>%s</%s>\n' % (indent, tag, text, tag))
 
 
 def render_ergani_document(root_tag, record_tag, namespace, records,
@@ -867,46 +866,46 @@ def render_ergani_document(root_tag, record_tag, namespace, records,
     below it is in no namespace at all.
     """
     out = StrIO.StringIO()
-    out.write(u'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n')
-    root_attrs = u'xmlns="%s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' % namespace
+    out.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n')
+    root_attrs = 'xmlns="%s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' % namespace
     if schema_location:
-        root_attrs += u' xsi:schemaLocation="%s %s"' % (namespace, schema_location)
-    out.write(u'<%s %s>\n' % (root_tag, root_attrs))
+        root_attrs += ' xsi:schemaLocation="%s %s"' % (namespace, schema_location)
+    out.write('<%s %s>\n' % (root_tag, root_attrs))
     for fields in records:
-        out.write(u'\t<%s xmlns="">\n' % record_tag)
-        write_ergani_fields(out, fields, u'\t\t')
-        out.write(u'\t</%s>\n' % record_tag)
-    out.write(u'</%s>\n' % root_tag)
+        out.write('\t<%s xmlns="">\n' % record_tag)
+        write_ergani_fields(out, fields, '\t\t')
+        out.write('\t</%s>\n' % record_tag)
+    out.write('</%s>\n' % root_tag)
     return out
 
 
 # Πεδία που πρόσθεσε το E3N και δεν προκύπτουν από την βάση.
 # Ακολουθεί τις τιμές του convertE3.py.
 E3N_DEFAULTS = [
-    ('f_trial_period', u'0'),
-    ('f_trial_date_to', u''),
-    ('f_basics_acceptance', u'1'),  # με αποδοχή όρων από myergani
-    ('f_file', u''),
-    ('f_file_symbash', u''),
-    ('f_comments', u''),
-    ('f_foreign_file', u''),
-    ('f_young_file', u''),
-    ('f_xronos_katavolis_apodoxon', u'καθε 10 επομενου μήνα '),
-    ('f_ipoxreotiki_katartisi', u'0'),
-    ('f_efarmoste_sillogiki_simbasi', u'0'),
-    ('f_efarmoste_sillogiki_simbasi_comments', u''),
-    ('f_kyria_asfalisi', u'001'),
+    ('f_trial_period', '0'),
+    ('f_trial_date_to', ''),
+    ('f_basics_acceptance', '1'),  # με αποδοχή όρων από myergani
+    ('f_file', ''),
+    ('f_file_symbash', ''),
+    ('f_comments', ''),
+    ('f_foreign_file', ''),
+    ('f_young_file', ''),
+    ('f_xronos_katavolis_apodoxon', 'καθε 10 επομενου μήνα '),
+    ('f_ipoxreotiki_katartisi', '0'),
+    ('f_efarmoste_sillogiki_simbasi', '0'),
+    ('f_efarmoste_sillogiki_simbasi_comments', ''),
+    ('f_kyria_asfalisi', '001'),
     # Το EpikourikiSelections παρεμβάλλεται εδώ, αμέσως μετά το
     # f_kyria_asfalisi, όπως το παράγει ο convertE3.py.
     ('EpikourikiSelections',
-     [('EpikourikiSelectionsE3N', [('f_kod_epikourikis', u'001')])]),
-    ('f_prosthetes_asfalistikes', u''),
-    ('f_mh_provlepsimo_programma', u'0'),
-    ('f_paraggelia_hmeres_hours', u''),
-    ('f_paraggelia_min_notification', u''),
-    ('f_paraggelia_notes', u''),
-    ('f_topos_ergasias', u'0'),
-    ('f_topos_ergasias_comment', u''),
+     [('EpikourikiSelectionsE3N', [('f_kod_epikourikis', '001')])]),
+    ('f_prosthetes_asfalistikes', ''),
+    ('f_mh_provlepsimo_programma', '0'),
+    ('f_paraggelia_hmeres_hours', ''),
+    ('f_paraggelia_min_notification', ''),
+    ('f_paraggelia_notes', ''),
+    ('f_topos_ergasias', '0'),
+    ('f_topos_ergasias_comment', ''),
 ]
 
 
@@ -942,7 +941,7 @@ class ErganiXMLAction(object):
         if not os.path.exists(schema_path):
             messages.warning(
                 request,
-                u'Το αρχείο δεν ελέγχθηκε: λείπει το σχήμα %s από τον φάκελο xsd.'
+                'Το αρχείο δεν ελέγχθηκε: λείπει το σχήμα %s από τον φάκελο xsd.'
                 % self.schema_file)
             return True, ''
         with open(schema_path, 'r') as f:
@@ -950,7 +949,7 @@ class ErganiXMLAction(object):
         exml = etree.XML(bytes(bytearray(xml_value, encoding='utf-8')))
         if schema.validate(exml):
             return True, ''
-        return False, u''.join([u'Γραμμή %s: %s' % (e.line, e.message)
+        return False, ''.join(['Γραμμή %s: %s' % (e.line, e.message)
                                 for e in schema.error_log])
 
     def __call__(self, modeladmin, request, queryset):
@@ -979,7 +978,7 @@ class ErganiXMLAction(object):
             return self.response
 
         messages.error(request,
-                       u'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)
+                       'Σφάλμα έκδοσης XML. Δεν ακολουθεί το πρότυπο. %s' % res)
         context = {
             "title": 'Σφάλμα εξαγωγής XML',
             'queryset': queryset,
@@ -1000,45 +999,45 @@ class ErganiXMLAction(object):
         """The person block shared by E3N and E7N, in schema order."""
         children = Child.objects.filter(employee=o.parent.id).count()
         return [
-            ('f_aa_pararthmatos', u'0'),
-            ('f_rel_protocol', u''),
-            ('f_rel_date', u''),
+            ('f_aa_pararthmatos', '0'),
+            ('f_rel_protocol', ''),
+            ('f_rel_date', ''),
             ('f_ypiresia_sepe', SETTINGS['ergani_sepe']),
             ('f_ypiresia_oaed', SETTINGS['ergani_oaed']),
             ('f_kad_pararthmatos', SETTINGS['ergani_kad_parartimatos']),
             ('f_kallikratis_pararthmatos', SETTINGS['ergani_kallikratis']),
-            ('f_eponymo', manage_len(o.parent.lastname or u'', 50)),
-            ('f_onoma', manage_len(o.parent.firstname or u'', 30)),
-            ('f_onoma_patros', manage_len(o.parent.fathername or u'', 30)),
-            ('f_onoma_mitros', manage_len(o.parent.mothername or u'', 30)),
-            ('f_birthdate', format_ergani_date(o.parent.birth_date, u'01/01/1901')),
-            ('f_sex', u'0' if o.parent.sex == u'Άνδρας' else u'1'),
-            ('f_yphkoothta', o.parent.citizenship_code or u''),
-            ('f_typos_taytothtas', u'ΔAT'),
-            ('f_ar_taytothtas', o.parent.identity_number or u''),
-            ('f_ekdousa_arxh', u''),
-            ('f_date_ekdosis', u''),
-            ('f_date_ekdosis_lixi', u''),
-            ('f_res_permit_inst', u''),
-            ('f_res_permit_inst_type', u''),
-            ('f_res_permit_inst_ar', u''),
-            ('f_res_permit_inst_lixi', u''),
-            ('f_res_permit_ap', u''),
-            ('f_res_permit_ap_type', u''),
-            ('f_res_permit_ap_ar', u''),
-            ('f_res_permit_ap_lixi', u''),
-            ('f_res_permit_visa', u''),
-            ('f_res_permit_visa_ar', u''),
-            ('f_res_permit_visa_from', u''),
-            ('f_res_permit_visa_to', u''),
-            ('f_marital_status', o.parent.marital_status or u'0'),
+            ('f_eponymo', manage_len(o.parent.lastname or '', 50)),
+            ('f_onoma', manage_len(o.parent.firstname or '', 30)),
+            ('f_onoma_patros', manage_len(o.parent.fathername or '', 30)),
+            ('f_onoma_mitros', manage_len(o.parent.mothername or '', 30)),
+            ('f_birthdate', format_ergani_date(o.parent.birth_date, '01/01/1901')),
+            ('f_sex', '0' if o.parent.sex == 'Άνδρας' else '1'),
+            ('f_yphkoothta', o.parent.citizenship_code or ''),
+            ('f_typos_taytothtas', 'ΔAT'),
+            ('f_ar_taytothtas', o.parent.identity_number or ''),
+            ('f_ekdousa_arxh', ''),
+            ('f_date_ekdosis', ''),
+            ('f_date_ekdosis_lixi', ''),
+            ('f_res_permit_inst', ''),
+            ('f_res_permit_inst_type', ''),
+            ('f_res_permit_inst_ar', ''),
+            ('f_res_permit_inst_lixi', ''),
+            ('f_res_permit_ap', ''),
+            ('f_res_permit_ap_type', ''),
+            ('f_res_permit_ap_ar', ''),
+            ('f_res_permit_ap_lixi', ''),
+            ('f_res_permit_visa', ''),
+            ('f_res_permit_visa_ar', ''),
+            ('f_res_permit_visa_from', ''),
+            ('f_res_permit_visa_to', ''),
+            ('f_marital_status', o.parent.marital_status or '0'),
             ('f_arithmos_teknon', children),
-            ('f_afm', o.parent.vat_number or u''),
-            ('f_doy', u''),
-            ('f_amika', u''),
-            ('f_amka', o.parent.social_security_registration_number or u''),
-            ('f_code_anergias', u''),
-            ('f_ar_vivliou_anilikou', u''),
+            ('f_afm', o.parent.vat_number or ''),
+            ('f_doy', ''),
+            ('f_amika', ''),
+            ('f_amka', o.parent.social_security_registration_number or ''),
+            ('f_code_anergias', ''),
+            ('f_ar_vivliou_anilikou', ''),
             ('f_epipedo_morfosis', o.educational_level),
         ]
 
@@ -1062,41 +1061,41 @@ class XMLWriteE3Action(ErganiXMLAction):
         start = try_value(lambda: sub.date_from_show or sub.date_from, None)
         end = try_value(lambda: placement.date_to, None)
         hours = parse_amount(try_value(lambda: sub.week_hours, None))
-        week_hours = u'{:3.1f}'.format(hours).replace(u'.', u',') \
-            if hours is not None else u'23,0'
+        week_hours = '{:3.1f}'.format(hours).replace('.', ',') \
+            if hours is not None else '23,0'
 
         return self.identity_fields(o) + [
             ('f_proslipsidate', format_ergani_date(start)),
             ('f_proslipsitime',
              (datetime.datetime.now() + timedelta(hours=2)).strftime('%H:%M')),
-            ('f_apoxwrisitime', u'20:00'),
+            ('f_apoxwrisitime', '20:00'),
             ('f_week_hours', week_hours),
-            ('f_eidikothta', o.profession_code_oaed or u''),
-            ('f_eidikothta_anal', u''),
+            ('f_eidikothta', o.profession_code_oaed or ''),
+            ('f_eidikothta_anal', ''),
             ('f_proipiresia', try_value(lambda: sub.work_experience_years)),
             ('f_apodoxes',
              format_legacy_amount(try_value(lambda: sub.last_total_grosspay, 0))),
             ('f_hour_apodoxes',
              format_legacy_amount(try_value(lambda: sub.last_hourspay, 0))),
-            ('f_sxeshapasxolisis', u'1'),
+            ('f_sxeshapasxolisis', '1'),
             ('f_orismenou_apo', format_ergani_date(start)),
             ('f_orismenou_ews', format_ergani_date(end)),
             ('f_kathestosapasxolisis', try_value(lambda: o.type().work_mode)),
-            ('f_xaraktirismos', u'1'),
-            ('f_special_case', u''),
-            ('f_responsible_position', u''),
-            ('f_working_time_digital_organization', u'0'),
-            ('f_full_employment_hours', u'030,0'),
-            ('f_week_days', u'5'),
-            ('f_euelikto_wrario_minutes', u'0'),
-            ('f_working_card', u'0'),
-            ('f_dialeimma_minutes', u'0'),
-            ('f_dialeimma_entos_wrariou', u'0'),
-            ('f_topothetisioaed', u'0'),
-            ('f_programaoaed', u''),
-            ('f_replaceprograma', u''),
-            ('f_replaceprograma_afm', u''),
-            ('f_replaceprograma_amka', u''),
+            ('f_xaraktirismos', '1'),
+            ('f_special_case', ''),
+            ('f_responsible_position', ''),
+            ('f_working_time_digital_organization', '0'),
+            ('f_full_employment_hours', '030,0'),
+            ('f_week_days', '5'),
+            ('f_euelikto_wrario_minutes', '0'),
+            ('f_working_card', '0'),
+            ('f_dialeimma_minutes', '0'),
+            ('f_dialeimma_entos_wrariou', '0'),
+            ('f_topothetisioaed', '0'),
+            ('f_programaoaed', ''),
+            ('f_replaceprograma', ''),
+            ('f_replaceprograma_afm', ''),
+            ('f_replaceprograma_amka', ''),
         ] + E3N_DEFAULTS
 
 
@@ -1120,21 +1119,21 @@ class XMLWriteE7Action(ErganiXMLAction):
         end = try_value(lambda: placement.date_to, None)
 
         return self.identity_fields(o) + [
-            ('f_xaraktirismos', u'1'),
-            ('f_sxeshapasxolisis', u'1'),
-            ('f_kathestosapasxolisis', try_value(lambda: o.type().work_mode, u'0')),
-            ('f_oros', u'0'),
-            ('f_eidikothta', o.profession_code_oaed or u''),
+            ('f_xaraktirismos', '1'),
+            ('f_sxeshapasxolisis', '1'),
+            ('f_kathestosapasxolisis', try_value(lambda: o.type().work_mode, '0')),
+            ('f_oros', '0'),
+            ('f_eidikothta', o.profession_code_oaed or ''),
             ('f_apodoxes',
              format_ergani_amount(try_value(lambda: sub.last_total_grosspay, 0))),
             ('f_proslipsidate', format_ergani_date(start)),
             ('f_lixisymbashdate', format_ergani_date(end)),
             ('f_apolysisdate', format_ergani_date(end)),
-            ('f_comments', u''),
-            ('f_logosperatosis', u'0'),
-            ('f_logosperatosiscomments', u''),
-            ('f_foreign_file', u''),
-            ('f_young_file', u''),
+            ('f_comments', ''),
+            ('f_logosperatosis', '0'),
+            ('f_logosperatosiscomments', ''),
+            ('f_foreign_file', ''),
+            ('f_young_file', ''),
         ]
 
 
@@ -1171,20 +1170,20 @@ class XMLReadAction(object):
 
                 total_elapsed += elapsed
                 rows_updated += 1
-                for (key), val in recs_missed.items():
+                for (key), val in list(recs_missed.items()):
                     read_results.append([o.description, key, val])
         if rows_updated == 1:
-            msg = u'%s αρχείο αναγνώστηκε'
+            msg = '%s αρχείο αναγνώστηκε'
         else:
-            msg = u'%s αρχεία αναγνώστηκαν'
+            msg = '%s αρχεία αναγνώστηκαν'
         modeladmin.message_user(request, msg % rows_updated)
         if len(queryset) == 1:
             objects_name = force_unicode(opts.verbose_name)
-            title = u"Αποτελέσματα ανάγνωσης αρχείου XML"
+            title = "Αποτελέσματα ανάγνωσης αρχείου XML"
 
         else:
             objects_name = force_unicode(opts.verbose_name_plural)
-            title = u"Αποτελέσματα ανάγνωσης αρχείων XML"
+            title = "Αποτελέσματα ανάγνωσης αρχείων XML"
 
         context = {
             "title": title,

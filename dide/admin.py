@@ -57,7 +57,7 @@ class NonPermanentInsuranceFileAdmin(DideAdmin):
     readonly_fields = ['status']
     list_display = ('description', 'status')
     search_fields = ('description',)
-    actions = [XLSReadAction(u'Ενημέρωση βάσης από εγγραφή')]
+    actions = [XLSReadAction('Ενημέρωση βάσης από εγγραφή')]
 
     def save_model(self, request, obj, form, change):
         pf1 = force_unicode(obj.xls_file1.name, 'cp737', 'ignore')
@@ -67,7 +67,7 @@ class NonPermanentInsuranceFileAdmin(DideAdmin):
         if pf1[-4:] == ".xls" and pf2[-4:] == ".xls" and pf3[-4:] == ".xls":
             obj.save()
         else:
-            msg = u'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής xls.'
+            msg = 'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής xls.'
             self.message_user(request, msg, level=messages.ERROR)
 
             
@@ -96,14 +96,14 @@ class PaymentFileNameAdmin(DideAdmin):
     list_display = ('description', 'status', 'imported_records', 'taxed')
     search_fields = ('description',)
 
-    actions = [XMLReadAction(u'Ανάγνωση XML')]
+    actions = [XMLReadAction('Ανάγνωση XML')]
 
     def save_model(self, request, obj, form, change):
         pf = force_unicode(obj.xml_file.name, 'cp737', 'ignore')
         if pf[-4:] == ".xml":
             obj.save()
         else:
-            msg = u'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής xml.'
+            msg = 'Η εγγραφή δεν αποθηκεύθηκε. Ένα ή περισσότερα αρχεία δεν είναι της μορφής xml.'
             self.message_user(request, msg, level=messages.ERROR)
 
 
@@ -115,7 +115,7 @@ class PaymentFileNameAdmin(DideAdmin):
     def admin_add_zip(self, request):
         opts = self.model._meta
         form = PaymentFileNameMassForm
-        title = u"Προσθήκη αρχείου ZIP"
+        title = "Προσθήκη αρχείου ZIP"
 
         if request.POST:
             form = PaymentFileNameMassForm(request.POST, request.FILES)
@@ -123,7 +123,7 @@ class PaymentFileNameAdmin(DideAdmin):
                 if zipfile.is_zipfile(request.FILES['xml_file']):
                     zf = zipfile.ZipFile(request.FILES['xml_file'], 'r')
                     try:
-                        xml_li = [f for f in zf.namelist() if unicode(f, "cp437").encode('cp737','ignore').decode('utf8').lower().endswith('.xml')]
+                        xml_li = [f for f in zf.namelist() if str(f, "cp437").encode('cp737','ignore').decode('utf8').lower().endswith('.xml')]
                     except:
                         xml_li = [f for f in zf.namelist() if f.lower().endswith('.xml')]
 
@@ -140,7 +140,7 @@ class PaymentFileNameAdmin(DideAdmin):
                                              status=0, taxed=taxedfound)
                         pf.save()
 
-                    msg = u'Το αρχείο %s περιείχε %s xml αρχεία.' % (request.FILES['xml_file'], len(xml_li))
+                    msg = 'Το αρχείο %s περιείχε %s xml αρχεία.' % (request.FILES['xml_file'], len(xml_li))
 
                     self.message_user(request, msg)
                     post_url = reverse('admin:%s_%s_changelist' %
@@ -148,7 +148,7 @@ class PaymentFileNameAdmin(DideAdmin):
                                        current_app=self.admin_site.name)
                     return HttpResponseRedirect(post_url)
                 else:
-                    msg = u"Το αρχείο δεν είναι μορφής ZIP."
+                    msg = "Το αρχείο δεν είναι μορφής ZIP."
                     messages.error(request, msg)
 
         media = self.media
@@ -159,7 +159,7 @@ class PaymentFileNameAdmin(DideAdmin):
             'media': media,
             "app_label": opts.app_label,
             'errors': helpers.AdminErrorList(form, []),
-            'action_name': u'Προσθήκη αρχείου ZIP',
+            'action_name': 'Προσθήκη αρχείου ZIP',
             }
 
         # Display the confirmation page
@@ -335,7 +335,7 @@ class TemporaryPositionAllAreasAdmin(ApplicationAdmin):
     pass
 
 
-economic_fieldset = (u'Οικονομικά στοιχεία', {
+economic_fieldset = ('Οικονομικά στοιχεία', {
         'fields': ['vat_number', 'tax_office', 'bank', 'bank_account_number',
                    'iban', 'ama', 'before_93', # 'social_security_registration_number', 'ama', 'before_93',
                    'has_family_subsidy', 'other_social_security',
@@ -361,7 +361,7 @@ class EmployeeAdmin(DideAdmin):
     search_fields = ('lastname', 'identity_number', 'vat_number')
     inlines = [DegreeInline, ChildInline, LoanInline]
     fieldsets = [
-        (u'Βασικά στοιχεία', {
+        ('Βασικά στοιχεία', {
                 'fields': ['show_photo', 'currently_serves', 'transfer_area',
                            'firstname', 'lastname', 'fathername',
                            'mothername',  'profession',
@@ -376,12 +376,12 @@ class EmployeeAdmin(DideAdmin):
                        'date_created', 'profession_description', 'show_photo']
     list_max_show_all = 10000
     list_per_page = 100 #from 50
-    actions = [FieldAction(u'Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
-               ShowOption(u'Eμφάνιση Μισθοδοτικών Καταστάσεων', 'show_mass_pay'),
-               HideOption(u'Απόκρυψη Μισθοδοτικών Καταστάσεων', 'show_mass_pay'),
+    actions = [FieldAction('Αναστολή υπηρέτησης', 'currently_serves', lambda: False),
+               ShowOption('Eμφάνιση Μισθοδοτικών Καταστάσεων', 'show_mass_pay'),
+               HideOption('Απόκρυψη Μισθοδοτικών Καταστάσεων', 'show_mass_pay'),
 
-               CSVEconomicsReport(short_description = u'Εξαγωγή λίστας ΚΕΠΥΟ τακτικών %s' % str(datetime.date.today().year - 1), types=u'11,12'), 
-               CSVEconomicsReport(short_description = u'Εξαγωγή λίστας ΚΕΠΥΟ έκτακτων %s' % str(datetime.date.today().year - 1), types=u'21,23')]
+               CSVEconomicsReport(short_description = 'Εξαγωγή λίστας ΚΕΠΥΟ τακτικών %s' % str(datetime.date.today().year - 1), types='11,12'), 
+               CSVEconomicsReport(short_description = 'Εξαγωγή λίστας ΚΕΠΥΟ έκτακτων %s' % str(datetime.date.today().year - 1), types='21,23')]
 
 
 class SubstituteMinistryOrderAdmin(DideAdmin):
@@ -394,8 +394,8 @@ class SubstituteMinistryOrderAdmin(DideAdmin):
     search_fields = ['order', 'web_code']
     inlines = [OrderedSubstitutionInline]
     extra = 0
-    actions = [ShowOption(u'Εμφάνιση στον χρήστη', 'show_online_order'),
-               HideOption(u'Απόκρυψη στον χρήστη', 'show_online_order')]               
+    actions = [ShowOption('Εμφάνιση στον χρήστη', 'show_online_order'),
+               HideOption('Απόκρυψη στον χρήστη', 'show_online_order')]               
 
 
 class OtherOrganizationAdmin(DideAdmin):
@@ -600,8 +600,8 @@ class EmployeeLeaveForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EmployeeLeaveForm, self).__init__(*args, **kwargs)
-        self.fields['employee'] = EmployeeChoiceField(label=u'Υπάλληλος')
-        self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=False)
+        self.fields['employee'] = EmployeeChoiceField(label='Υπάλληλος')
+        self.fields['leave'] = LeaveChoiceField(label='Κατηγορία άδειας', for_non_permanents=False)
 
 
 class EmployeeChoiceField(ModelChoiceField):
@@ -624,7 +624,7 @@ class NonPermanentLeaveForm(ModelForm):
         
     def __init__(self, *args, **kwargs):
         super(NonPermanentLeaveForm, self).__init__(*args, **kwargs)
-        self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=True)
+        self.fields['leave'] = LeaveChoiceField(label='Κατηγορία άδειας', for_non_permanents=True)
 
 
 class NonPermanentLeaveAdmin(DideAdmin):
@@ -642,12 +642,12 @@ class NonPermanentLeaveAdmin(DideAdmin):
         #from reports.permanentleave import leave_docx_reports
         leave_qs = NonPermanentLeave.objects.filter(pk=employeeleave_id)
         if len(leave_qs) != 1:
-            return HttpResponse(u'Η άδεια δεν βρέθηκε')
+            return HttpResponse('Η άδεια δεν βρέθηκε')
         leave = leave_qs[0]
         for r in leave_docx_reports:
             if r.short_description == leave.leave.name:
                 return r(self, request, leave_qs)
-        return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
+        return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
     
     def get_urls(self):
         from django.conf.urls import patterns, url      
@@ -676,13 +676,13 @@ class EmployeeLeaveAdmin(DideAdmin):
         from django.http import HttpResponse
         leave_qs = EmployeeLeave.objects.filter(pk=employeeleave_id)
         if (len(leave_qs) != 1):
-            return HttpResponse(u'Η άδεια δεν βρέθηκε')
+            return HttpResponse('Η άδεια δεν βρέθηκε')
         leave = leave_qs[0]
        
         for r in leave_docx_reports:
             if r.short_description == leave.leave.name:
                 return r(self, request, leave_qs)
-        return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
+        return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
 
     def get_urls(self):
         from django.conf.urls import patterns, url
@@ -700,12 +700,12 @@ class AdministrativeLeaveForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AdministrativeLeaveForm, self).__init__(*args, **kwargs)
-        self.fields['employee'] = AdministrativeChoiceField(label=u'Υπάλληλος')
-        self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=False)
+        self.fields['employee'] = AdministrativeChoiceField(label='Υπάλληλος')
+        self.fields['leave'] = LeaveChoiceField(label='Κατηγορία άδειας', for_non_permanents=False)
 
 class AdministrativeChoiceField(ModelChoiceField):
     def __init__(self, *args, **kwargs):
-	self.choices = Administrative.objects.choices()
+        self.choices = Administrative.objects.choices()
         return super(AdministrativeChoiceField, self).__init__(Employee.objects, *args, **kwargs)
 
 
@@ -729,14 +729,14 @@ class AdministrativeLeaveAdmin(DideAdmin):
     def print_leave(self, request, employeeleave_id):
         from django.http import HttpResponse
         leave_qs = AdministrativeLeave.objects.filter(pk=employeeleave_id)
-	if (len(leave_qs) != 1):
-            return HttpResponse(u'Η άδεια δεν βρέθηκε')
-	leave = leave_qs[0]
+        if (len(leave_qs) != 1):
+            return HttpResponse('Η άδεια δεν βρέθηκε')
+        leave = leave_qs[0]
 
-	for r in leave_docx_reports:
+        for r in leave_docx_reports:
             if r.short_description == leave.leave.name:
                 return r(self, request, leave_qs)
-        return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
+        return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
 
     def get_urls(self):
         from django.conf.urls import patterns, url
@@ -749,17 +749,17 @@ class PermanentLeaveForm(ModelForm):
 
     class Meta:
         model = PermanentLeave
-	fields = '__all__'
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-	super(PermanentLeaveForm, self).__init__(*args, **kwargs)
-        self.fields['employee'] = PermanentChoiceField(label=u'Μόνιμος εκπαιδευτικός')
-        self.fields['leave'] = LeaveChoiceField(label=u'Κατηγορία άδειας', for_non_permanents=False)
+        super(PermanentLeaveForm, self).__init__(*args, **kwargs)
+        self.fields['employee'] = PermanentChoiceField(label='Μόνιμος εκπαιδευτικός')
+        self.fields['leave'] = LeaveChoiceField(label='Κατηγορία άδειας', for_non_permanents=False)
 
 class PermanentChoiceField(ModelChoiceField):
     def __init__(self, *args, **kwargs):
         self.choices = Permanent.objects.choices()	
-	return super(PermanentChoiceField, self).__init__(Employee.objects, *args, **kwargs)
+        return super(PermanentChoiceField, self).__init__(Employee.objects, *args, **kwargs)
 
 class PermanentLeaveAdmin(DideAdmin): 
 
@@ -781,14 +781,14 @@ class PermanentLeaveAdmin(DideAdmin):
     def print_leave(self, request, employeeleave_id):
         from django.http import HttpResponse
         leave_qs = PermanentLeave.objects.filter(pk=employeeleave_id)
-	if (len(leave_qs) != 1):
-            return HttpResponse(u'Η άδεια δεν βρέθηκε')
-	leave = leave_qs[0]
+        if (len(leave_qs) != 1):
+            return HttpResponse('Η άδεια δεν βρέθηκε')
+        leave = leave_qs[0]
 
-	for r in leave_docx_reports:
+        for r in leave_docx_reports:
             if r.short_description == leave.leave.name:
                 return r(self, request, leave_qs)
-        return HttpResponse(u'Δεν βρέθηκε αναφορά για την άδεια')
+        return HttpResponse('Δεν βρέθηκε αναφορά για την άδεια')
 
     def get_urls(self):
         from django.conf.urls import patterns, url
@@ -840,7 +840,7 @@ class NonPermanentAdmin(EmployeeAdmin):
     actions = sorted([#to_permanent, to_administrative, to_private_teacher,
                     CSVReport(add=['current_placement', 'organization_serving', 'profession__description', 'order', 'type'],
                         exclude=['photo','photo_type']),
-                  ] + nonpermanent_docx_reports + [XMLWriteE3Action(u'Δημιουργία Εργάνη XML E3')] + [XMLWriteE7Action(u'Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
+                  ] + nonpermanent_docx_reports + [XMLWriteE3Action('Δημιουργία Εργάνη XML E3')] + [XMLWriteE7Action('Δημιουργία Εργάνη XML E7')], key=lambda k: k.short_description)
 
 
 class NonPermanentTypeAdmin(admin.ModelAdmin):
@@ -862,7 +862,7 @@ class GeoSchoolAdmin(admin.ModelAdmin):
 class ImportExportAdmin(admin.ModelAdmin):
     pass
 
-map(lambda t: admin.site.register(*t), (
+list(map(lambda t: admin.site.register(*t), (
     (ImportExport, ImportExportAdmin),
     (GeoSchool, GeoSchoolAdmin),
     (Settings, SettingsAdmin),
@@ -895,7 +895,7 @@ map(lambda t: admin.site.register(*t), (
     (SocialSecurity, SocialSecurityAdmin),
     (Leave, LeaveAdmin)
 
-))
+)))
 
 
 admin.site.register((TransferArea, Island, Responsibility,

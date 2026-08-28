@@ -20,39 +20,39 @@ class Command(BaseCommand):
             curr_row = 1
             er_r = 0
             while curr_row < worksheet.nrows:
-                np = NonPermanent(email=unicode(worksheet.cell_value(curr_row,0)),
-                                  telephone_number1=unicode(worksheet.cell_value(curr_row,1)).replace(".0",""),
-                                  vat_number=unicode(worksheet.cell_value(curr_row,2))[:9], 
-                                  lastname=unicode(worksheet.cell_value(curr_row,3)),
-                                  firstname=unicode(worksheet.cell_value(curr_row,4)),
-                                  fathername=unicode(worksheet.cell_value(curr_row,5)),
-                                  mothername=unicode(worksheet.cell_value(curr_row,6)),
-                                  profession_code_oaed=unicode(worksheet.cell_value(curr_row,7)).replace(".0",""),
-                                  profession=Profession.objects.get(pk=unicode(worksheet.cell_value(curr_row,8))),
+                np = NonPermanent(email=str(worksheet.cell_value(curr_row,0)),
+                                  telephone_number1=str(worksheet.cell_value(curr_row,1)).replace(".0",""),
+                                  vat_number=str(worksheet.cell_value(curr_row,2))[:9], 
+                                  lastname=str(worksheet.cell_value(curr_row,3)),
+                                  firstname=str(worksheet.cell_value(curr_row,4)),
+                                  fathername=str(worksheet.cell_value(curr_row,5)),
+                                  mothername=str(worksheet.cell_value(curr_row,6)),
+                                  profession_code_oaed=str(worksheet.cell_value(curr_row,7)).replace(".0",""),
+                                  profession=Profession.objects.get(pk=str(worksheet.cell_value(curr_row,8))),
                                   transfer_area=TransferArea.objects.get(pk=int(worksheet.cell_value(curr_row,9))),
-                                  identity_number=unicode(worksheet.cell_value(curr_row,10)).replace(" ",""),
-                                  birth_date=unicode(worksheet.cell_value(curr_row,11)),
-                                  social_security_registration_number=unicode(worksheet.cell_value(curr_row,12))[:11].replace(".", ""),
-                                  address=unicode(worksheet.cell_value(curr_row,13)),
-                                  address_postcode=unicode(worksheet.cell_value(curr_row,14))[:5],
-                                  address_city=unicode(worksheet.cell_value(curr_row,15)),
-                                  educational_level=int(unicode(worksheet.cell_value(curr_row,16))[:2]),
-                                  tax_office=unicode(worksheet.cell_value(curr_row,17)),
-                                  bank=unicode(worksheet.cell_value(curr_row,18)),
-                                  iban=unicode(worksheet.cell_value(curr_row,19))[:27],
-                                  ama=unicode(worksheet.cell_value(curr_row,20)).replace(".0","")[:10],
-                                  marital_status=int(unicode(worksheet.cell_value(curr_row,21))[:1]))
+                                  identity_number=str(worksheet.cell_value(curr_row,10)).replace(" ",""),
+                                  birth_date=str(worksheet.cell_value(curr_row,11)),
+                                  social_security_registration_number=str(worksheet.cell_value(curr_row,12))[:11].replace(".", ""),
+                                  address=str(worksheet.cell_value(curr_row,13)),
+                                  address_postcode=str(worksheet.cell_value(curr_row,14))[:5],
+                                  address_city=str(worksheet.cell_value(curr_row,15)),
+                                  educational_level=int(str(worksheet.cell_value(curr_row,16))[:2]),
+                                  tax_office=str(worksheet.cell_value(curr_row,17)),
+                                  bank=str(worksheet.cell_value(curr_row,18)),
+                                  iban=str(worksheet.cell_value(curr_row,19))[:27],
+                                  ama=str(worksheet.cell_value(curr_row,20)).replace(".0","")[:10],
+                                  marital_status=int(str(worksheet.cell_value(curr_row,21))[:1]))
                 
                 try:
-                    print np
-                    print np.vat_number, np.profession, np.transfer_area, np.identity_number, np.birth_date, np.ama, np.social_security_registration_number
+                    print(np)
+                    print(np.vat_number, np.profession, np.transfer_area, np.identity_number, np.birth_date, np.ama, np.social_security_registration_number)
                     np.clean_fields()
                     np.save()
                 except Exception as ex:
                     er_r += 1
                     print(ex)
                 curr_row += 1
-            print curr_row - 1, " ", er_r
+            print(curr_row - 1, " ", er_r)
 
         if args == ():
-            print "No arguments found"
+            print("No arguments found")

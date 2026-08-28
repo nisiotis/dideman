@@ -25,12 +25,12 @@ class Command(BaseCommand):
                 # Cell Types: 0=Empty, 1=Text, 2=Number, 3=Date, 4=Boolean, 5=Error, 6=Blank
 
                 try:
-                    o = Permanent.objects.filter(registration_number=unicode(worksheet.cell_value(curr_row,0)))
+                    o = Permanent.objects.filter(registration_number=str(worksheet.cell_value(curr_row,0)))
                     p = Permanent.objects.get(id=o[0].id)
 
-                    p.non_educational_experience = unicode(worksheet.cell_value(curr_row, 7))
+                    p.non_educational_experience = str(worksheet.cell_value(curr_row, 7))
                     p.save()
-                    print "Inserted %s %s (%s)" % (p.firstname, p.lastname, p.non_educational_experience)
+                    print("Inserted %s %s (%s)" % (p.firstname, p.lastname, p.non_educational_experience))
                     ins_row += 1
 
                 except Exception as ex:
@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
                 curr_row += 1
 
-        print "Rows inserted: %s" % ins_row        
+        print("Rows inserted: %s" % ins_row)        
 
         if args == ():
-            print "No arguments found"
+            print("No arguments found")

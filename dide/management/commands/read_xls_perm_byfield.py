@@ -25,13 +25,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         fld = find_model_field(Permanent, options['df'])
         if not fld:
-            print "--df <datafield> not found"
+            print("--df <datafield> not found")
             exit()
 
         workbook, worksheet = open_worksheet_or_exit(options['f'], options['ws'])
         idx = options['ci'] if options['ci'] else 1
-        print "Field to inport: %s" % fld.name
-        print "Worksheet name %s, Rows %s" % (worksheet.name, worksheet.nrows)
+        print("Field to inport: %s" % fld.name)
+        print("Worksheet name %s, Rows %s" % (worksheet.name, worksheet.nrows))
         if not confirm():
             exit()
 
@@ -41,12 +41,12 @@ class Command(BaseCommand):
         while curr_row < worksheet.nrows:
             driver_cell = worksheet.cell(curr_row, 0)
             cell = worksheet.cell(curr_row, idx)
-            p = Permanent.objects.filter(registration_number=unicode(driver_cell.value)[:6]).first()
+            p = Permanent.objects.filter(registration_number=str(driver_cell.value)[:6]).first()
             if p:
                 if fld.name == 'vat_number':
                     e = Employee.objects.filter(vat_number=vat_to_text(cell.value)).first()
                     if e:
-                        print e
+                        print(e)
                         perm_rows += 1
                     else:
                         try:
@@ -61,13 +61,13 @@ class Command(BaseCommand):
                         p.save()
                         upd_rows += 1
                     else:
-                        print unicode(driver_cell.value)[:6], getattr(p, fld.name), cell.value
+                        print(str(driver_cell.value)[:6], getattr(p, fld.name), cell.value)
             else:
-                print unicode(driver_cell.value)[:6], cell.value
+                print(str(driver_cell.value)[:6], cell.value)
             curr_row += 1
 
-        print curr_row, "rows found "
+        print(curr_row, "rows found ")
         if upd_rows > 0:
-            print upd_rows, " updated"
+            print(upd_rows, " updated")
         if perm_rows > 0:
-            print perm_rows, " exist in Employee"
+            print(perm_rows, " exist in Employee")

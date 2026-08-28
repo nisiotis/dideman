@@ -16,11 +16,11 @@ class Command(XlsFileCommand):
             permanent = Permanent.objects.get(registration_number=registration_number)
             permanent.non_educational_experience = cell_unicode(worksheet, row, 7)
             permanent.save()
-            print "Inserted %s %s (%s)" % (permanent.firstname, permanent.lastname,
-                                           permanent.non_educational_experience)
+            print("Inserted %s %s (%s)" % (permanent.firstname, permanent.lastname,
+                                           permanent.non_educational_experience))
             self.inserted += 1
         except Exception as ex:
             print(ex)
 
     def on_file_end(self, workbook, worksheet, total_rows, options):
-        print "Rows inserted: %s" % self.inserted
+        print("Rows inserted: %s" % self.inserted)

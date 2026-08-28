@@ -13,8 +13,8 @@ GREEK_WINDOWS = 'cp1253'
 
 # (κωδικός, ετικέτα για τον χρήστη). Η σειρά είναι και η σειρά εμφάνισης.
 ENCODING_CHOICES = [
-    (UTF8, u'UTF-8 (Unicode)'),
-    (GREEK_WINDOWS, u'Ελληνικά Windows (Windows-1253)'),
+    (UTF8, 'UTF-8 (Unicode)'),
+    (GREEK_WINDOWS, 'Ελληνικά Windows (Windows-1253)'),
 ]
 
 DEFAULT_ENCODING = UTF8
@@ -60,6 +60,6 @@ def encode(value, encoding=DEFAULT_ENCODING, errors='replace'):
         return ''
     if isinstance(value, str):
         return value
-    if not isinstance(value, unicode):
-        value = unicode(value)
+    if not isinstance(value, str):
+        value = str(value)
     return value.encode(encoding, errors)

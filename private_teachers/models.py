@@ -7,6 +7,7 @@ from dideman.dide import models as dide
 from dideman.lib.ranking import RANKS, next_index
 import datetime
 import operator
+from functools import reduce
 
 
 def int300(days):
@@ -16,17 +17,17 @@ def int300(days):
 class PrivateTeacher(dide.Employee):
 
     class Meta:
-        verbose_name = u'Ιδιωτικός Εκπαιδευτικός'
-        verbose_name_plural = u'Ιδιωτικοί Εκπαιδευτικοί'
+        verbose_name = 'Ιδιωτικός Εκπαιδευτικός'
+        verbose_name_plural = 'Ιδιωτικοί Εκπαιδευτικοί'
         ordering = ['lastname']
 
     parent = models.OneToOneField(dide.Employee, parent_link=True)
-    school = models.ForeignKey('PrivateSchool', verbose_name=u'Σχολείο', blank=True, null=True)
-    not_service_days = models.IntegerField(u'Μέρες εκτός υπηρεσίας', default=0)
-    series_number = models.CharField(u'Αρ. Επετηρίδας', max_length=20, blank=True, null=True)
-    active = models.BooleanField(u'Ενεργός', default=True)
-    current_hours = models.IntegerField(u'Τρέχον ωράριο', null=True, blank=True, default=18)
-    current_placement_date = models.DateField(u'Ημερομηνία τρέχουσας τοποθέτησης', blank=True, null=True)
+    school = models.ForeignKey('PrivateSchool', verbose_name='Σχολείο', blank=True, null=True)
+    not_service_days = models.IntegerField('Μέρες εκτός υπηρεσίας', default=0)
+    series_number = models.CharField('Αρ. Επετηρίδας', max_length=20, blank=True, null=True)
+    active = models.BooleanField('Ενεργός', default=True)
+    current_hours = models.IntegerField('Τρέχον ωράριο', null=True, blank=True, default=18)
+    current_placement_date = models.DateField('Ημερομηνία τρέχουσας τοποθέτησης', blank=True, null=True)
 
     def object_name(self):
         return self._meta.object_name
@@ -46,19 +47,19 @@ class PrivateTeacher(dide.Employee):
             d[r].append(p)
 
         exp = [(r.total, sum([p.range_experience(r) for p in l]))
-               for r, l in d.items()]
+               for r, l in list(d.items())]
 
         # all the reduced experience is summed before the conversion
         # Δ2/2988/27.2.89
-        total, reduced = map(sum,
-                             zip(*[(t, 0) if r * 1.2 > t else (0, r)
-                                   for t, r in exp])) or (0, 0)
+        total, reduced = list(map(sum,
+                             list(zip(*[(t, 0) if r * 1.2 > t else (0, r)
+                                   for t, r in exp])))) or (0, 0)
         return total, reduced
 
     def total_experience(self, periods=None):
         total, reduced = self._total_days(periods)
         return DateInterval(int(total)) + int300(int(reduced))
-    total_experience.short_description = u"Προϋπηρεσία"
+    total_experience.short_description = "Προϋπηρεσία"
 
     def total_service(self):
         if not self.current_placement_date:
@@ -76,7 +77,7 @@ class PrivateTeacher(dide.Employee):
                      DateInterval("000000"))
         
         return total_experience - DateInterval(self.not_service_days) + dli
-    total_service.short_description = u'Συνολική υπηρεσία'
+    total_service.short_description = 'Συνολική υπηρεσία'
 
 # added by vasilis 
 # functions to calculate service up to today and up to 31/12/2015
@@ -97,7 +98,7 @@ class PrivateTeacher(dide.Employee):
                      DateInterval("000000"))
         #import pdb; pdb.set_trace() 
         return total_experience - DateInterval(self.not_service_days) + dli
-    total_service_today.short_description = u'Συνολική υπηρεσία μέχρι σήμερα'
+    total_service_today.short_description = 'Συνολική υπηρεσία μέχρι σήμερα'
 
 
     def total_service_311215(self):
@@ -126,14 +127,14 @@ class PrivateTeacher(dide.Employee):
                       for l in self.leavewithoutpay_set.all()],
                      DateInterval("000000"))
         return total_experience - DateInterval(self.not_service_days) + dli
-    total_service_311215.short_description = u'Υπηρεσία μέχρι 31/12/2015'
+    total_service_311215.short_description = 'Υπηρεσία μέχρι 31/12/2015'
 # --
 
     def rank(self):
         r, mk = RANKS[min(
                 self.total_service().years + self.postgrad_extra().years, 40)]
-        return u"%s%s" % (r, mk)
-    rank.short_description = u'Βαθμός (εκτίμηση)'
+        return "%s%s" % (r, mk)
+    rank.short_description = 'Βαθμός (εκτίμηση)'
 
     def postgrad_extra(self):
         degrees = self.employeedegree_set.all().select_related('degree')
@@ -161,7 +162,7 @@ class PrivateTeacher(dide.Employee):
                 return di.strftime("%d-%m-%Y")
         else:
             return "-"
-    next_rank_date.short_description = u'Ημερομηνία αλλαγής Μ.Κ. (εκτίμηση)'
+    next_rank_date.short_description = 'Ημερομηνία αλλαγής Μ.Κ. (εκτίμηση)'
 
     def save(self, *args, **kwargs):
         self.currently_serves = False
@@ -177,17 +178,17 @@ class PrivateTeacher(dide.Employee):
 class WorkingPeriod(models.Model):
 
     class Meta:
-        verbose_name = u'Περίοδος Εργασίας'
-        verbose_name_plural = u'Περίοδοι Εργασίας'
+        verbose_name = 'Περίοδος Εργασίας'
+        verbose_name_plural = 'Περίοδοι Εργασίας'
         ordering = ["-date_to"]
 
     teacher = models.ForeignKey(dide.Employee)
-    date_from = models.DateField(u'Από')
-    date_to = models.DateField(u'Μέχρι')
-    hours_weekly = models.IntegerField(u'Εβδομαδιαίες ώρες εργασίας', max_length=2, null=True, blank=True)
-    hours_total = models.IntegerField(u'Συνολικές ώρες εργασίας', max_length=4, null=True, blank=True)
-    full_week = models.IntegerField(u'Εβδομαδιαίο ωράριο', max_length=2, default=18)
-    comments = models.CharField(u'Σχόλια', max_length=255, null=True, blank=True)
+    date_from = models.DateField('Από')
+    date_to = models.DateField('Μέχρι')
+    hours_weekly = models.IntegerField('Εβδομαδιαίες ώρες εργασίας', max_length=2, null=True, blank=True)
+    hours_total = models.IntegerField('Συνολικές ώρες εργασίας', max_length=4, null=True, blank=True)
+    full_week = models.IntegerField('Εβδομαδιαίο ωράριο', max_length=2, default=18)
+    comments = models.CharField('Σχόλια', max_length=255, null=True, blank=True)
 
     def range_experience(self, arange):
         try:
@@ -217,13 +218,13 @@ class WorkingPeriod(models.Model):
 class LeaveWithoutPay(models.Model):
 
     class Meta:
-        verbose_name = u'Άδεια άνευ αποδοχών'
-        verbose_name_plural = u'Άδειες άνευ αποδοχών'
+        verbose_name = 'Άδεια άνευ αποδοχών'
+        verbose_name_plural = 'Άδειες άνευ αποδοχών'
 
     teacher = models.ForeignKey(dide.Employee)
-    date_from = models.DateField(u'Από')
-    date_to = models.DateField(u'Μέχρι')
-    recognised_experience = models.CharField(u'Αναγνωρίσιμη Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True, default='000000', max_length=8)
+    date_from = models.DateField('Από')
+    date_to = models.DateField('Μέχρι')
+    recognised_experience = models.CharField('Αναγνωρίσιμη Προϋπηρεσία (ΕΕΜΜΗΜΗΜ)', null=True, blank=True, default='000000', max_length=8)
 
     def __repr__(self):
         return self.__unicode__()
@@ -236,13 +237,13 @@ class LeaveWithoutPay(models.Model):
 class PrivateSchool(dide.Organization):
 
     class Meta:
-        verbose_name = u'Ιδιωτικό Σχολείο'
-        verbose_name_plural = u'Ιδιωτικά Σχολεία'
+        verbose_name = 'Ιδιωτικό Σχολείο'
+        verbose_name_plural = 'Ιδιωτικά Σχολεία'
         ordering = ['name']
 
     parent = models.OneToOneField(dide.Organization, parent_link=True)
-    address = models.CharField(u'Διεύθυνση', max_length=200, null=True, blank=True)
-    post_code = models.CharField(u'Τ.Κ.', max_length=5, null=True, blank=True)
-    telephone_number = models.CharField(u'Αρ. Τηλεφώνου', max_length=14, null=True, blank=True)
-    fax_number = models.CharField(u'Αρ. Fax', max_length=14, null=True, blank=True)
+    address = models.CharField('Διεύθυνση', max_length=200, null=True, blank=True)
+    post_code = models.CharField('Τ.Κ.', max_length=5, null=True, blank=True)
+    telephone_number = models.CharField('Αρ. Τηλεφώνου', max_length=14, null=True, blank=True)
+    fax_number = models.CharField('Αρ. Fax', max_length=14, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)

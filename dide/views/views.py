@@ -24,8 +24,8 @@ from dideman.lib.common import without_accented
 from dideman.dide.util.encoding import (ENCODING_CHOICES, DEFAULT_ENCODING,
                                         clean_encoding, charset_name,
                                         bom_for, encode as encode_text)
-from cStringIO import StringIO
-from urllib import urlencode
+from io import StringIO
+from urllib.parse import urlencode
 import csv
 import json
 import datetime, base64
@@ -41,7 +41,7 @@ def identity_key(lastname, firstname, fathername, profession_id):
     the same person.
     """
     def norm(v):
-        return without_accented(unicode(v if v is not None else u'').strip().upper())
+        return without_accented(str(v if v is not None else '').strip().upper())
     return (norm(lastname), norm(firstname), norm(fathername), norm(profession_id))
 
 
@@ -84,24 +84,24 @@ def elided_page_range(paginator, number, on_each_side=3, on_ends=2):
 
     page_range = []
     if number > (on_each_side + on_ends + 1):
-        page_range.extend(range(1, on_ends + 1))
+        page_range.extend(list(range(1, on_ends + 1)))
         page_range.append(0)
-        page_range.extend(range(number - on_each_side, number + 1))
+        page_range.extend(list(range(number - on_each_side, number + 1)))
     else:
-        page_range.extend(range(1, number + 1))
+        page_range.extend(list(range(1, number + 1)))
 
     if number < (num_pages - on_each_side - on_ends):
-        page_range.extend(range(number + 1, number + on_each_side + 1))
+        page_range.extend(list(range(number + 1, number + on_each_side + 1)))
         page_range.append(0)
-        page_range.extend(range(num_pages - on_ends + 1, num_pages + 1))
+        page_range.extend(list(range(num_pages - on_ends + 1, num_pages + 1)))
     else:
-        page_range.extend(range(number + 1, num_pages + 1))
+        page_range.extend(list(range(number + 1, num_pages + 1)))
     return page_range
 
 
 def search_query_string(q, category):
     """The q/cat pair that every pagination link has to carry along."""
-    params = [('q', (q or u'').encode('utf-8'))]
+    params = [('q', (q or '').encode('utf-8'))]
     if category:
         params.append(('cat', category.encode('utf-8')))
     return urlencode(params)
@@ -114,7 +114,7 @@ def search_result_details(label, o):
     read defensively: an attribute that does not exist on this category
     simply comes back empty instead of breaking the whole page.
     """
-    def attr(name, default=u''):
+    def attr(name, default=''):
         try:
             v = getattr(o, name)
             if callable(v):
@@ -131,11 +131,11 @@ def search_result_details(label, o):
     number = attr('registration_number') or attr('series_number')
 
     if attr('currently_serves', None) is not None:
-        status = u'Υπηρετεί' if attr('currently_serves') else u'Δεν υπηρετεί'
+        status = 'Υπηρετεί' if attr('currently_serves') else 'Δεν υπηρετεί'
     elif attr('active', None) is not None:
-        status = u'Ενεργός' if attr('active') else u'Ανενεργός'
+        status = 'Ενεργός' if attr('active') else 'Ανενεργός'
     else:
-        status = u''
+        status = ''
 
     return {
         'category': label,
@@ -169,9 +169,9 @@ def search_groups(q, search_model, today, active_nonpermanents, duplicates):
                                model.objects.exclude(photo__exact='')
                                             .exclude(photo__isnull=True)))
     elif q == '/nonpermanent':
-        groups.append((u'Ενεργοί αναπληρωτές', active_nonpermanents))
+        groups.append(('Ενεργοί αναπληρωτές', active_nonpermanents))
     elif q == '/dublicates':
-        groups.append((u'Διπλές Εγγραφές', duplicates))
+        groups.append(('Διπλές Εγγραφές', duplicates))
     elif q == '/lastedit':
         for model in search_model:
             if model.__name__ in ("Permanent", "NonPermanent",
@@ -231,16 +231,16 @@ def index(self, request, extra_context=None):
         tot_day_mod = Employee.objects.filter(date_modified__year=today.year,
                                                 date_modified__month=today.month,
                                                 date_modified__day=today.day).count()
-    for model, model_admin in self._registry.items():
+    for model, model_admin in list(self._registry.items()):
         if model._meta.app_label == "dide":
             app_label = model._meta.app_label
-            app_text = u"Διεύθυνση"
+            app_text = "Διεύθυνση"
         elif model._meta.app_label == "auth":
             app_label = model._meta.app_label
-            app_text = u"Χρήστες"
+            app_text = "Χρήστες"
         elif model._meta.app_label == "private_teachers":
             app_label = model._meta.app_label
-            app_text = u"Ιδιωτικά Σχολεία"
+            app_text = "Ιδιωτικά Σχολεία"
         else:
             app_text = model._meta.app_label
             app_label = model._meta.app_label
@@ -251,7 +251,7 @@ def index(self, request, extra_context=None):
 
             # Check whether user has any perm for this module.
             # If so, add the module to the model_list.
-            if True in perms.values():
+            if True in list(perms.values()):
                 info = (app_label, model._meta.model_name)
                 search_model.append(model)
                 featured = FEATURED_MODELS.get(info)
@@ -340,12 +340,12 @@ def index(self, request, extra_context=None):
         total_results = len(rows)
 
         # Περιορισμός σε μία κατηγορία, από τους συνδέσμους της σύνοψης.
-        category = request.GET.get('cat', u'')
+        category = request.GET.get('cat', '')
         if category:
             rows = [r for r in rows if r[0] == category]
 
-        rows.sort(key=lambda r: (getattr(r[1], 'lastname', u'') or u'',
-                                 getattr(r[1], 'firstname', u'') or u''))
+        rows.sort(key=lambda r: (getattr(r[1], 'lastname', '') or '',
+                                 getattr(r[1], 'firstname', '') or ''))
 
         paginator = Paginator(rows, SEARCH_PAGE_SIZE)
         try:
@@ -467,7 +467,7 @@ def _normalize_vat_number(value):
     try:
         digits = str(int(float(value)))
     except (TypeError, ValueError):
-        digits = ''.join(ch for ch in unicode(value) if ch.isdigit())
+        digits = ''.join(ch for ch in str(value) if ch.isdigit())
     if not digits:
         return None
     return digits.zfill(9)[:9]
@@ -496,7 +496,7 @@ def _fill_required_defaults(obj):
         if default is not None:
             setattr(obj, f.attname, default)
         elif getattr(f, 'rel', None) is not None:
-            missing.append(unicode(f.verbose_name))
+            missing.append(str(f.verbose_name))
         elif f.get_internal_type() == "BooleanField":
             setattr(obj, f.attname, False)
         elif f.get_internal_type() in ("CharField", "TextField"):
@@ -519,7 +519,7 @@ def _build_import_record(model, mf, request, row):
         if not raw_value:
             continue
         if field_name not in mf:
-            warnings.append(u"%s: άγνωστο πεδίο" % field_name)
+            warnings.append("%s: άγνωστο πεδίο" % field_name)
             continue
 
         if field_name == 'vat_number':
@@ -527,30 +527,30 @@ def _build_import_record(model, mf, request, row):
             if vat:
                 setattr(p, field_name, vat)
             else:
-                warnings.append(u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+                warnings.append("%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
 
         elif mf[field_name] == "ForeignKey":
             if field_name in ("profession", "second_profession"):
                 try:
                     setattr(p, field_name,
-                            Profession.objects.get(pk=unicode(raw_value)))
+                            Profession.objects.get(pk=str(raw_value)))
                 except Exception:
                     warnings.append(
-                        u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
+                        "%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
             elif field_name == "transfer_area":
                 try:
                     setattr(p, field_name,
                             TransferArea.objects.filter(
-                                name__istartswith=unicode(raw_value)[:1])[0])
+                                name__istartswith=str(raw_value)[:1])[0])
                 except Exception:
                     warnings.append(
-                        u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
+                        "%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value))
             else:
                 try:
                     setattr(p, field_name, int(raw_value))
                 except Exception:
                     warnings.append(
-                        u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+                        "%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
 
         elif mf[field_name] in ("IntegerField", "OneToOneField"):
             try:
@@ -558,14 +558,14 @@ def _build_import_record(model, mf, request, row):
                         int(''.join(v for v in raw_value if v.isdigit())))
             except Exception:
                 warnings.append(
-                    u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+                    "%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
 
         elif mf[field_name] in ("BooleanField", "NullBooleanField"):
             try:
                 setattr(p, field_name, int(raw_value[:1]))
             except Exception:
                 warnings.append(
-                    u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
+                    "%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value))
 
         else:
             setattr(p, field_name, raw_value)
@@ -580,10 +580,10 @@ def import_export_view(request):
     model = _import_model(import_model_name)
 
     context = {
-        "title": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+        "title": 'Εισαγωγή - Εξαγωγή Δεδομένων',
         "opts": [],
         "form": [],
-        "app_label": u'Εισαγωγή - Εξαγωγή Δεδομένων',
+        "app_label": 'Εισαγωγή - Εξαγωγή Δεδομένων',
         "errors": [],
         "import_model": import_model_name,
         "import_model_label": model._meta.verbose_name,
@@ -608,8 +608,8 @@ def import_export_view(request):
 
                     missing = _fill_required_defaults(p)
                     if missing:
-                        p.import_error = u'Λείπουν υποχρεωτικά πεδία: %s' % \
-                            u', '.join(missing)
+                        p.import_error = 'Λείπουν υποχρεωτικά πεδία: %s' % \
+                            ', '.join(missing)
                         notins.append(p)
                         continue
 
@@ -623,7 +623,7 @@ def import_export_view(request):
                         existing = Employee.objects.filter(vat_number=vat).first()
                         if existing:
                             p.import_error = \
-                                u'Υπάρχει ήδη εγγραφή με Α.Φ.Μ. %s: %s' % (vat, existing)
+                                'Υπάρχει ήδη εγγραφή με Α.Φ.Μ. %s: %s' % (vat, existing)
                             foundins.append(p)
                             continue
 
@@ -631,7 +631,7 @@ def import_export_view(request):
                         p.save()
                         saved.append(p)
                     except Exception as ex:
-                        p.import_error = unicode(ex)
+                        p.import_error = str(ex)
                         notins.append(p)
 
             context.update({
@@ -674,7 +674,7 @@ def import_export_view(request):
                     "dataselected": ds,
                     "dublicates": dbl,
                     "imported_file": request.POST['imported_file'],
-                    "cols": range(1, int(request.POST['columns'])+1),
+                    "cols": list(range(1, int(request.POST['columns'])+1)),
                     "iterator": itertools.count(),
                     "field_titles": fset,
                 })
@@ -691,13 +691,13 @@ def import_export_view(request):
                 while curr_row < worksheet.nrows:
                     d = {}
                     for i in range(ncols):
-                        d[i] = unicode(worksheet.cell_value(curr_row,i))
+                        d[i] = str(worksheet.cell_value(curr_row,i))
                     xlsdata.append(d)
                     curr_row += 1
                 context.update({
                     "import_file": importfile.name,
                     "fields": mf,
-                    "cols": range(ncols),
+                    "cols": list(range(ncols)),
                     "iterator": itertools.count(),
                     "data": xlsdata,
                 })
@@ -773,9 +773,9 @@ def export_view(request):
     encoding = clean_encoding(request.POST.get('encoding'))
 
     context = {
-        "title": u'Εξαγωγή Δεδομένων',
+        "title": 'Εξαγωγή Δεδομένων',
         "opts": [],
-        "app_label": u'Εξαγωγή Δεδομένων',
+        "app_label": 'Εξαγωγή Δεδομένων',
         "errors": [],
         "export_model_choices": _model_choices(EXPORT_MODELS),
         "encoding_choices": ENCODING_CHOICES,
@@ -783,7 +783,7 @@ def export_view(request):
     }
 
     if request.POST and model:
-        field_choices = [(f.name, unicode(f.verbose_name))
+        field_choices = [(f.name, str(f.verbose_name))
                          for f in exportable_fields(model)]
 
         if "download" in request.GET:
@@ -793,7 +793,7 @@ def export_view(request):
             if selected_fields:
                 return _export_csv_response(model, selected_fields, encoding)
             context.update({
-                "errors": [u'Επιλέξτε τουλάχιστον ένα πεδίο προς εξαγωγή.'],
+                "errors": ['Επιλέξτε τουλάχιστον ένα πεδίο προς εξαγωγή.'],
                 "export_model": export_model_name,
                 "export_field_choices": field_choices,
             })
@@ -812,10 +812,10 @@ def export_view(request):
 # Οι τέσσερις κατηγορίες υπαλλήλων. Όλες κληρονομούν από το Employee, οπότε
 # μία εγγραφή Employee μπορεί να εμφανίζεται σε περισσότερες από μία.
 def employee_role_models():
-    return [(u'Μόνιμος', Permanent),
-            (u'Αναπληρωτής/Ωρομίσθιος', NonPermanent),
-            (u'Διοικητικός', Administrative),
-            (u'Ιδιωτικός Εκπαιδευτικός', PrivateTeacher)]
+    return [('Μόνιμος', Permanent),
+            ('Αναπληρωτής/Ωρομίσθιος', NonPermanent),
+            ('Διοικητικός', Administrative),
+            ('Ιδιωτικός Εκπαιδευτικός', PrivateTeacher)]
 
 
 def admin_change_url(app_label, model_name, pk):
@@ -864,7 +864,7 @@ def duplicate_employees_view(request):
     duplicates = []
     total_records = 0
     total_multi_role = 0
-    for records in groups.values():
+    for records in list(groups.values()):
         multi_role = [r for r in records if r['role_count'] > 1]
         # Ενδιαφέρουν είτε οι πολλαπλές εγγραφές του ίδιου προσώπου είτε
         # η μία εγγραφή που ανήκει σε πολλές κατηγορίες.
@@ -884,11 +884,11 @@ def duplicate_employees_view(request):
         total_records += len(records)
         total_multi_role += len(multi_role)
 
-    duplicates.sort(key=lambda g: (g['lastname'] or u'', g['firstname'] or u''))
+    duplicates.sort(key=lambda g: (g['lastname'] or '', g['firstname'] or ''))
 
     context = {
-        "title": u'Έλεγχος διπλοεγγραφών',
-        "app_label": u'Έλεγχος διπλοεγγραφών',
+        "title": 'Έλεγχος διπλοεγγραφών',
+        "app_label": 'Έλεγχος διπλοεγγραφών',
         "opts": [],
         "errors": [],
         "duplicates": duplicates,
@@ -933,7 +933,7 @@ def school_geo_view(request):
         total_np += c_npr
 
         def text(value):
-            return unicode(value) if value else u''
+            return str(value) if value else ''
 
         unit = {
             'id': item.id,
@@ -977,10 +977,10 @@ def school_geo_view(request):
         "om_x": map_settings[0],
         "om_y": map_settings[1],
         "om_zoom": map_settings[2],
-        "title": u'Γεωγραφική Απεικόνιση Σχολείων',
+        "title": 'Γεωγραφική Απεικόνιση Σχολείων',
         "opts": opts,
         "form": [],
-        "app_label": u'Γεωγραφική Απεικόνιση Σχολείων',
+        "app_label": 'Γεωγραφική Απεικόνιση Σχολείων',
         "errors": [],
     }
 

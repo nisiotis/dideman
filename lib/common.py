@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import functools
 
-_accent_map = {u'Ά': u'Α', u'Έ': u'Ε', u'Ή': u'Η', u'Ό': u'Ο',
-               u'Ί': u'Ι', u'Ύ': u'Υ', u'Ώ': u'Ω'}
+_accent_map = {'Ά': 'Α', 'Έ': 'Ε', 'Ή': 'Η', 'Ό': 'Ο',
+               'Ί': 'Ι', 'Ύ': 'Υ', 'Ώ': 'Ω'}
 
 
 def filter_nested(l, pred):
@@ -51,7 +51,7 @@ def try_many(*exps, **kwargs):
     for e in exps:
         try:
             return e()
-        except Exception, error:
+        except Exception as error:
             continue
     if 'default' in kwargs:
         return kwargs['default']

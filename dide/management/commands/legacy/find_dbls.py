@@ -46,7 +46,7 @@ class Command(BaseCommand):
             try:
                 workbook = xlrd.open_workbook(options['f'])
             except:
-                print "--f <file>: xls file required / not found"
+                print("--f <file>: xls file required / not found")
                 exit()
             worksheet = workbook.sheet_by_index(options['ws']) if options['ws'] else workbook.sheet_by_index(0)
             curr_row = 0
@@ -54,12 +54,12 @@ class Command(BaseCommand):
             perm_rows = 0
             row = 0
             idx = options['ci'] if options['ci'] else 1
-            print "Worksheet name %s, Rows %s" %(worksheet.name, worksheet.nrows)
+            print("Worksheet name %s, Rows %s" %(worksheet.name, worksheet.nrows))
             while curr_row < worksheet.nrows:
-	        driver_cell = worksheet.cell(curr_row,0)
+                driver_cell = worksheet.cell(curr_row,0)
                 cell = worksheet.cell(curr_row,idx)
                 try:
-                    perm = Permanent.objects.filter(registration_number=unicode(driver_cell.value)[:6]).first()
+                    perm = Permanent.objects.filter(registration_number=str(driver_cell.value)[:6]).first()
                     nonp = NonPermanent.objects.filter(vat_number=self.vat_to_text(cell.value)).first()
                 except:
                     perm = []
@@ -67,9 +67,9 @@ class Command(BaseCommand):
                 if perm and nonp:
                     row += 1
                 curr_row += 1
-            print "Found records to update %s" % row
-            print "Continue? "
-            iv = str(raw_input())
+            print("Found records to update %s" % row)
+            print("Continue? ")
+            iv = str(input())
             if iv != 'y' and iv != 'yes':
                 exit()
             curr_row = 0
@@ -77,10 +77,10 @@ class Command(BaseCommand):
             perm_rows = 0
             row = 0
             while curr_row < worksheet.nrows:
-	        driver_cell = worksheet.cell(curr_row,0)
+                driver_cell = worksheet.cell(curr_row,0)
                 cell = worksheet.cell(curr_row,idx)
                 try:
-                    perm = Permanent.objects.filter(registration_number=unicode(driver_cell.value)[:6]).first()
+                    perm = Permanent.objects.filter(registration_number=str(driver_cell.value)[:6]).first()
                     nonp = NonPermanent.objects.filter(vat_number=self.vat_to_text(cell.value)).first()
                 except:
                     perm = []
@@ -93,8 +93,8 @@ class Command(BaseCommand):
                         perm.save()
                         upd_rows += 1
                     except Exception as ex:
-                        print ex
+                        print(ex)
                 curr_row += 1
-            if upd_rows > 0: print upd_rows, " updated"
+            if upd_rows > 0: print(upd_rows, " updated")
                         
 
