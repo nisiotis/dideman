@@ -11,3 +11,10 @@ it requires a MySQL database and a long list of python libraries, such as Report
 statistics, PIL image and a caching engine, johnny-cache.
 
 New version in new_version branch for django 1.7.11 including a somewhat new interface.
+
+New updates with the help of AI code. Branch new_overhaul fixes some issues that have never been 
+addressed with the same django version 1.7.11. Branch django52 goes much further and updates the 
+framework to version 5.2 and Pytrhon 3.10. Also implements SSO authentication and retouches the 
+interface. 
+
+
