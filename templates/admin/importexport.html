@@ -45,74 +45,7 @@
   </script>
 {% endblock %}
 
-{% block extrastyle %}{{ block.super }}
-  <style>
-    /* Οριζόντια κύλιση: τα αρχεία εισαγωγής έχουν συχνά 20+ στήλες, που δεν
-       χωρούν στο πλάτος της σελίδας. Ο πίνακας κυλάει μέσα στο δικό του
-       πλαίσιο, ώστε το σώμα της σελίδας να μη χρειάζεται ποτέ οριζόντια
-       κύλιση. Η πρώτη στήλη (επιλογή γραμμής) και η γραμμή επικεφαλίδας
-       μένουν καρφιτσωμένες. */
-    .dide-hscroll {
-        overflow: auto;
-        max-width: 100%;
-        /* Με όριο ύψους ο πίνακας κυλάει και στους δύο άξονες μέσα στο δικό
-           του πλαίσιο: η επικεφαλίδα μένει καρφιτσωμένη και το κουμπί
-           υποβολής παραμένει προσιτό χωρίς να προσπεράσει κανείς 300
-           γραμμές. */
-        max-height: 70vh;
-        margin-bottom: 15px;
-        border: 1px solid var(--hairline-color, #e0e0e0);
-        border-radius: 4px;
-    }
-    /* border-collapse: collapse (η προεπιλογή του admin) σπάει τα sticky
-       κελιά: τα περιθώρια των συγκολλημένων πλαισίων αφήνουν χαραμάδα από
-       την οποία φαίνονται οι γραμμές που κυλούν από κάτω. */
-    .dide-hscroll > table {
-        margin: 0;
-        border: 0;
-        width: auto;
-        min-width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    .dide-hscroll th, .dide-hscroll td {
-        white-space: nowrap;
-        padding: 6px 10px;
-        border-bottom: 1px solid var(--hairline-color, #eee);
-    }
-    .dide-hscroll thead th {
-        position: sticky;
-        top: 0;
-        z-index: 3;
-        background: var(--darkened-bg, #f8f8f8);
-        background-clip: padding-box;
-        border-bottom: 1px solid var(--hairline-color, #ccc);
-        text-align: left;
-        font-weight: 600;
-    }
-    /* Καρφιτσωμένη πρώτη στήλη. */
-    .dide-hscroll th.pin, .dide-hscroll td.pin {
-        position: sticky;
-        left: 0;
-        z-index: 2;
-        background: var(--body-bg, #fff);
-        border-right: 1px solid var(--hairline-color, #e0e0e0);
-    }
-    .dide-hscroll thead th.pin { z-index: 4; background: var(--darkened-bg, #f8f8f8); }
-    .dide-hscroll tr.dup td { color: var(--error-fg, #ba2121); }
-    .dide-hscroll tr.dup td.pin { background: var(--body-bg, #fff); }
-    /* Σταθερό πλάτος: αλλιώς κάθε επιλογέας πλαταίνει όσο το μακρύτερο
-       όνομα πεδίου («social_security_registration_number»), και μια στήλη
-       με δύο ψηφία δεδομένων έπιανε 300 pixel. */
-    .dide-hscroll select.fieldmap { width: 11em; }
-    .dide-hscroll td { max-width: 22em; overflow: hidden; text-overflow: ellipsis; }
-    .dide-import .helptext { color: var(--body-quiet-color, #666); }
-    .dide-import .submit-row { margin-top: 12px; }
-    .dide-hscroll.dide-report { max-height: none; }
-    .dide-report td { padding: 4px 8px; max-width: none; }
-    .dide-report img { vertical-align: middle; }
-  </style>
-{% endblock %}
+
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -124,7 +57,9 @@
 {% block content %}
 <div id="content-main" class="dide-import">
 
-<p><strong>Εισαγωγή</strong> | <a href="{% url 'dide_export' %}">Εξαγωγή</a></p>
+<p><strong>Εισαγωγή</strong> |
+   <a href="{% url 'dide_importupdate' %}">Ενημέρωση</a> |
+   <a href="{% url 'dide_export' %}">Εξαγωγή</a></p>
 
 {% if errors %}
 <ul class="errorlist">

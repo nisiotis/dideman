@@ -33,6 +33,8 @@ urlpatterns = [
             name='dide_importexport'),
     re_path(r'^admin/dide/importexport/export/$', dide_views.export_view,
             name='dide_export'),
+    re_path(r'^admin/dide/importexport/update/$', dide_views.import_update_view,
+            name='dide_importupdate'),
     re_path(r'^admin/dide/duplicates/$', dide_views.duplicate_employees_view),
     re_path(r'^admin/dide/geoschool/$', dide_views.school_geo_view),
     re_path(r'^admin/', admin.site.urls),

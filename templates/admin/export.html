@@ -67,7 +67,9 @@
 {% block content %}
 <div id="content-main" class="dide-export">
 
-<p><a href="{% url 'dide_importexport' %}">Εισαγωγή</a> | <strong>Εξαγωγή</strong></p>
+<p><a href="{% url 'dide_importexport' %}">Εισαγωγή</a> |
+   <a href="{% url 'dide_importupdate' %}">Ενημέρωση</a> |
+   <strong>Εξαγωγή</strong></p>
 
 {% if errors %}
 <ul class="errorlist">
