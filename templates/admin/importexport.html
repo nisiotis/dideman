@@ -3,6 +3,10 @@
 {% load i18n admin_static admin_list %}
 {% load url from future %}
 {% load admin_urls %}
+{% block extrastyle %}{{ block.super }}
+{% include "admin/includes/import_tables.html" %}
+{% endblock %}
+
 {% block extrahead %}
 {% if data %}
 <script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
@@ -34,7 +38,9 @@ $(document).ready(function () {
 
 {% block content %}
 
-<p><strong>Εισαγωγή</strong> | <a href="/admin/dide/importexport/export/">Εξαγωγή</a></p>
+<p><strong>Εισαγωγή</strong> |
+   <a href="/admin/dide/importexport/update/">Ενημέρωση</a> |
+   <a href="/admin/dide/importexport/export/">Εξαγωγή</a></p>
 
 <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
 {% if not dataimported %}
@@ -78,56 +84,69 @@ $(document).ready(function () {
 <input type="hidden" name="columns" id="columns" value="{{ cols|length }}">
 <input type="hidden" name="imported_file" id="imported_file" value="{{ import_file }}">
 
+<div class="dide-hscroll">
 <table>
+  <thead>
   <tr>
-    <td>{% if data %}<input id="selectall" name="selectall" type="checkbox">{% endif %}</td>
+    <th class="pin">{% if data %}<input id="selectall" name="selectall" type="checkbox" title="Επιλογή όλων">{% endif %}</th>
     {% for i in cols %}
-    <td><select name="field_{{ i }}" id="field_{{ i }}" style="width: 100px;">
+    <th><select name="field_{{ i }}" id="field_{{ i }}" class="fieldmap">
 	<option value="">---</option>
 	{% for o in fields %}<option value="{{ o }}">{{ o }}</option>{% endfor %}
-    </select></td>
+    </select></th>
     {% endfor %}
   </tr>
+  </thead>
+  <tbody>
   {% for o in data %}
   {% with r=iterator.next %}
   <tr>
-    <td><input class="selectedId" id="check_{{ r }}" name="check_{{ r }}" type="checkbox" value="{{ o.0 }}"></td>
+    <td class="pin"><input class="selectedId" id="check_{{ r }}" name="check_{{ r }}" type="checkbox" value="{{ o.0 }}"></td>
 {% for key, value in o.items %}
-<td style="white-space:nowrap;"><input id="row_{{ r }}_item_{{ forloop.counter }}" name="row_{{ r }}_item_{{ forloop.counter }}" type="hidden" value="{{ value }}" >{{ value }}</td>
+<td><input id="row_{{ r }}_item_{{ forloop.counter }}" name="row_{{ r }}_item_{{ forloop.counter }}" type="hidden" value="{{ value }}" >{{ value }}</td>
     
   {% endfor %}
   </tr>
   {% endwith %}
 {% endfor %}
+  </tbody>
 </table>
+</div>
 {% endif %}
 
+{% comment %}
+Ο πίνακας επιβεβαίωσης ήταν έξω από το «if dataselected», οπότε στο πρώτο
+βήμα αποδιδόταν ένας κενός πίνακας με μία άδεια γραμμή.
+{% endcomment %}
 {% if dataselected %}
 <p>Παρακάτω εμφανίζονται {{ dataselected|length }} εγγραφές του αρχείου {{ imported_file }} που επιλέχθηκαν. </p>
 <input type="hidden" name="datalength" id="datalength" value="{{ dataselected|length }}">
 <input type="hidden" name="fieldlength" id="fieldlength" value="{{ field_titles|length }}">
 
-{% endif %}
 {% if dublicates > 0 %}
-<p>Εμφανίζονται {{ dublicates }} εγγραφές με κόκκινο που εχουν βρεθεί στη βάση.</p>
+<p class="errornote">Εμφανίζονται {{ dublicates }} εγγραφές με κόκκινο που εχουν βρεθεί στη βάση.</p>
 {% endif %}
+
+<div class="dide-hscroll">
 <table>
+  <thead>
     <tr>
-      <td></td>
+      <th class="pin">Ενέργεια</th>
     {% for f in field_titles %}
-    <td><input id="field_item_{{ forloop.counter }}" name="field_item_{{ forloop.counter }}" type="hidden" value="{{ f }}" >{{ f }}:</td>
+    <th><input id="field_item_{{ forloop.counter }}" name="field_item_{{ forloop.counter }}" type="hidden" value="{{ f }}" >{{ f }}</th>
     {% endfor %}
   </tr>
-
+  </thead>
+  <tbody>
   {% for o in dataselected %}
   {% with r=iterator.next %}
-    <tr {% for key, value in o.items %}{% if key == 'found' and value != '' %}style="color:red;" {% endif %}{% endfor %}>
-      <td><select name="select_{{ r }}" id="select_{{ r }}"><option selected value=0>Εισαγωγή</option><option value=1>Παράκαμψη</option></select> </td>
+    <tr {% for key, value in o.items %}{% if key == 'found' and value != '' %}class="dup" {% endif %}{% endfor %}>
+      <td class="pin"><select name="select_{{ r }}" id="select_{{ r }}"><option selected value=0>Εισαγωγή</option><option value=1>Παράκαμψη</option></select> </td>
     {% for key, value in o.items %}
     {% if key != 'found' %}
-<td style="white-space:nowrap;"><input id="row_{{ r }}_item_{{ forloop.counter }}" name="row_{{ r }}_item_{{ forloop.counter }}" type="hidden" value="{{ value }}" >{{ value }}</td>
+<td><input id="row_{{ r }}_item_{{ forloop.counter }}" name="row_{{ r }}_item_{{ forloop.counter }}" type="hidden" value="{{ value }}" >{{ value }}</td>
 {% else %}
-<td style="white-space:nowrap;"><input id="found_item_{{ r }}" name="found_item_{{ r }}" type="hidden" value="{{ value }}" ></td>
+<td><input id="found_item_{{ r }}" name="found_item_{{ r }}" type="hidden" value="{{ value }}" ></td>
 
 {% endif %}
 
@@ -135,7 +154,10 @@ $(document).ready(function () {
   </tr>
   {% endwith %}
 {% endfor %}
+  </tbody>
 </table>
+</div>
+{% endif %}
 
 {% if notinserted %}
 <p>Παρακάτω εμφανίζονται {{ notinserted|length }} εγγραφές που δεν αποθηκεύθηκαν. </p>
@@ -171,5 +193,10 @@ $(document).ready(function () {
 </table>
 {% endif %}
 
+{% comment %}
+Η φόρμα και το περιβάλλον στοιχείο έμεναν ανοιχτά ως το τέλος του προτύπου.
+{% endcomment %}
+</div>
+</form>
 
 {% endblock %}

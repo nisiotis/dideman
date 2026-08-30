@@ -17,6 +17,28 @@ $(document).ready(function () {
 </script>
 {% endif %}
 {% endblock %}
+{% block extrastyle %}{{ block.super }}
+<style type="text/css">
+    .fieldpick {
+        -webkit-columns: 260px 4;
+        -moz-columns: 260px 4;
+        columns: 260px 4;
+        column-gap: 24px;
+        max-width: 100%;
+        margin-bottom: 15px;
+    }
+    .fieldpick p {
+        -webkit-column-break-inside: avoid;
+        break-inside: avoid;
+        margin: 0 0 6px 0;
+        display: flex;
+        align-items: flex-start;
+    }
+    .fieldpick input { margin-right: 6px; margin-top: 3px; flex: none; }
+    .fieldpick label { display: inline; font-weight: normal; cursor: pointer; }
+</style>
+{% endblock %}
+
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
@@ -28,7 +50,9 @@ $(document).ready(function () {
 
 {% block content %}
 
-<p><a href="/admin/dide/importexport/">Εισαγωγή</a> | <strong>Εξαγωγή</strong></p>
+<p><a href="/admin/dide/importexport/">Εισαγωγή</a> |
+   <a href="/admin/dide/importexport/update/">Ενημέρωση</a> |
+   <strong>Εξαγωγή</strong></p>
 
 {% if errors %}
 <ul class="errorlist">
@@ -59,13 +83,18 @@ $(document).ready(function () {
 </select>
 <span class="help">Επιλέξτε «Ελληνικά Windows» αν το αρχείο θα ανοιχτεί σε παλαιότερο Excel.</span></p>
 
-<p>Επιλέξτε τα πεδία που θα εξαχθούν:</p>
+<h2>Πεδία προς εξαγωγή</h2>
 <p><input id="selectall" type="checkbox"> <label for="selectall">Επιλογή όλων</label></p>
-<table>
+{% comment %}
+Ήταν πίνακας μιας στήλης: 55 πεδία σε 55 γραμμές, με ατέρμονη κύλιση. Σε
+στήλες, με τις μακριές ετικέτες να αναδιπλώνονται αντί να ξεχειλίζουν.
+{% endcomment %}
+<div class="fieldpick">
 {% for name, label in export_field_choices %}
-<tr><td><input class="exportfield" type="checkbox" name="export_fields" value="{{ name }}" id="ef_{{ name }}"></td><td><label for="ef_{{ name }}">{{ label }}</label></td></tr>
+<p><input class="exportfield" type="checkbox" name="export_fields" value="{{ name }}" id="ef_{{ name }}">
+   <label for="ef_{{ name }}">{{ label }}</label></p>
 {% endfor %}
-</table>
+</div>
 <button type="submit" value="Εξαγωγή" id="download" name="download" formaction="?download=True">Εξαγωγή σε CSV</button>
 {% endif %}
 

@@ -1,0 +1,265 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% comment %}
+Οδηγός ενημέρωσης σε τρία βήματα: μεταφόρτωση αρχείου -> αντιστοίχιση στηλών
+-> προεπισκόπηση των αλλαγών και εφαρμογή.
+
+Διαφέρει από τον οδηγό εισαγωγής σε δύο πράγματα: μία στήλη πρέπει
+οπωσδήποτε να αντιστοιχιστεί στο πεδίο-κλειδί (Α.Φ.Μ.), και πριν γραφτεί
+οτιδήποτε εμφανίζεται πεδίο προς πεδίο η τρέχουσα και η νέα τιμή. Οι
+αλλαγές υπολογίζονται ξανά τη στιγμή της εφαρμογής, οπότε ό,τι άλλαξε στη
+βάση στο μεταξύ λαμβάνεται υπόψη.
+
+Οι διαδρομές των στατικών αρχείων γράφονται όπως και στα υπόλοιπα πρότυπα
+του καταλόγου, με τη jQuery 1.7 που συνοδεύει την εφαρμογή.
+{% endcomment %}
+
+{% block extrahead %}
+<script type="text/javascript" src="/static/js/jquery.1.7.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+    var $all = $('#selectall'), $rows = $('.rowaction');
+
+    // Το κουτάκι της επικεφαλίδας ορίζει όλες τις γραμμές μαζί.
+    $all.change(function () {
+        $rows.val(this.checked ? '0' : '1');
+    });
+
+    $rows.change(function () {
+        $all.prop('checked',
+                  $rows.filter(function () { return this.value === '0'; })
+                       .length === $rows.length);
+    });
+});
+</script>
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+{% include "admin/includes/import_tables.html" %}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="/admin/">{% trans 'Home' %}</a>
+  &rsaquo; <a href="/admin/dide/importexport/">Εισαγωγή - Εξαγωγή Δεδομένων</a>
+  &rsaquo; {{ app_label|capfirst|escape }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" class="dide-update">
+
+<p><a href="/admin/dide/importexport/">Εισαγωγή</a> |
+   <strong>Ενημέρωση</strong> |
+   <a href="/admin/dide/importexport/export/">Εξαγωγή</a></p>
+
+{% if errors %}
+<ul class="errorlist">
+  {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+
+{% comment %} Βήμα 1: επιλογή τύπου και μεταφόρτωση. {% endcomment %}
+{% if not updated and not failed %}
+  <div class="module aligned">
+    {% if data or matched or notfound %}
+      <p>Τύπος εγγραφών: <strong>{{ import_model_label }}</strong>
+        <input type="hidden" name="import_model" value="{{ import_model }}"></p>
+    {% else %}
+      <p><label for="import_model">Τύπος εγγραφών προς ενημέρωση:</label>
+        <select name="import_model" id="import_model">
+          {% for key, label in import_model_choices %}
+          <option value="{{ key }}"{% if key == import_model %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select></p>
+    {% endif %}
+
+    <p><input type="file" id="xls_upload" name="xls_upload">
+      <button type="submit" value="Μεταφόρτωση" id="upload" name="upload"
+              formaction="?upload=True">Μεταφόρτωση</button></p>
+
+    <p class="helptext">Αρχείο Excel «Excel 1997-2004 Workbook (.xls)» με τα
+      δεδομένα στο πρώτο φύλλο. Μία στήλη πρέπει να αντιστοιχιστεί στο
+      πεδίο-κλειδί <strong>{{ key_field }}</strong>: με αυτό εντοπίζεται η
+      εγγραφή που θα ενημερωθεί.</p>
+    <p class="helptext">Ενημερώνονται μόνο όσες εγγραφές υπάρχουν ήδη. Κενά
+      κελιά αγνοούνται — δεν σβήνουν την υπάρχουσα τιμή.</p>
+  </div>
+{% endif %}
+
+{% comment %} Βήμα 2: αντιστοίχιση στηλών. {% endcomment %}
+{% if data %}
+  <p>Το αρχείο {{ import_file }} έχει {{ data|length }} γραμμές.
+    Αντιστοιχίστε τις στήλες που θέλετε να ενημερωθούν — και οπωσδήποτε τη
+    στήλη του <strong>{{ key_field }}</strong>.</p>
+
+  <div class="dide-hscroll">
+    <table>
+      <thead>
+        <tr>
+          <th class="pin">#</th>
+          {% for col in cols %}
+          <th><select name="field_{{ col.index }}" id="field_{{ col.index }}"
+                      class="fieldmap">
+            <option value="">---</option>
+            {% for o in fields %}
+            <option value="{{ o }}"{% if o == col.selected %} selected{% endif %}>{{ o }}</option>
+            {% endfor %}
+          </select></th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+        <tr>
+          <td class="pin">{{ forloop.counter }}</td>
+          {% for value in row %}<td>{{ value }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="submit-row">
+    <button type="submit" class="default" value="Προεπισκόπηση" id="preview"
+            name="preview" formaction="?preview=True">Προεπισκόπηση αλλαγών</button>
+  </div>
+{% endif %}
+
+{% comment %} Βήμα 3: προεπισκόπηση των αλλαγών. {% endcomment %}
+{% if preview_done %}
+  <div class="dide-summary">
+    <div>Θα ενημερωθούν <b>{{ matched|length }}</b> εγγραφές</div>
+    <div>σε <b>{{ total_changes }}</b> πεδία</div>
+    <div>Χωρίς αλλαγές: <b>{{ unchanged|length }}</b></div>
+    <div>Δεν βρέθηκαν: <b>{{ notfound|length }}</b></div>
+  </div>
+
+  {% if matched %}
+  <div class="dide-hscroll">
+    <table>
+      <thead>
+        <tr>
+          <th class="pin"><input type="checkbox" id="selectall" checked
+                                 title="Επιλογή όλων"> Ενέργεια</th>
+          <th>{{ key_field }}</th>
+          <th>Εγγραφή</th>
+          <th>Αλλαγές</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in matched %}
+        <tr>
+          <td class="pin">
+            <select name="select_{{ forloop.counter0 }}"
+                    id="select_{{ forloop.counter0 }}" class="rowaction">
+              <option selected value="0">Ενημέρωση</option>
+              <option value="1">Παράκαμψη</option>
+            </select>
+          </td>
+          <td>{{ m.vat }}</td>
+          <td>{{ m.label }}</td>
+          <td class="changes">
+            <ul class="dide-change">
+              {% for c in m.changes %}
+              <li><span class="fname">{{ c.label }}:</span>
+                <span class="old">{{ c.old }}</span> &rarr;
+                <span class="new">{{ c.new }}</span></li>
+              {% endfor %}
+              {% for w in m.warnings %}
+              <li class="fname">&#9888; {{ w }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="submit-row">
+    <button type="submit" class="default" value="Εφαρμογή" id="final"
+            name="final" formaction="?final=True">Εφαρμογή αλλαγών</button>
+  </div>
+  {% else %}
+  <p class="errornote">Καμία εγγραφή δεν χρειάζεται ενημέρωση: από τις
+    γραμμές του αρχείου, {{ unchanged|length }} έχουν ήδη τις τιμές που
+    δίνει το αρχείο και {{ notfound|length }} δεν αντιστοιχούν σε
+    εγγραφή.</p>
+  {% endif %}
+{% endif %}
+
+</form>
+
+{% comment %} Γραμμές που δεν αντιστοιχήθηκαν σε εγγραφή. {% endcomment %}
+{% if notfound %}
+  <h2>Δεν βρέθηκαν {{ notfound|length }} γραμμές</h2>
+  <div class="dide-hscroll dide-report">
+    <table>
+      <tbody>
+        {% for n in notfound %}
+        <tr>
+          <td class="pin"><img src="/static/admin/img/icon_alert.gif" alt="False"></td>
+          <td>Γραμμή {{ n.row|add:1 }}</td>
+          <td>{{ n.vat }}</td>
+          <td style="color:red;">{{ n.reason }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+
+{% comment %} Αποτέλεσμα της εφαρμογής. {% endcomment %}
+{% if updated %}
+  <h2>Ενημερώθηκαν {{ updated|length }} εγγραφές</h2>
+  <div class="dide-hscroll dide-report">
+    <table>
+      <tbody>
+        {% for u in updated %}
+        <tr>
+          <td class="pin"><img src="/static/admin/img/icon-yes.gif" alt="True"></td>
+          <td>{{ u.vat }}</td>
+          <td>{{ u.label }}</td>
+          <td class="changes">
+            <ul class="dide-change">
+              {% for c in u.changes %}
+              <li><span class="fname">{{ c.label }}:</span>
+                <span class="old">{{ c.old }}</span> &rarr;
+                <span class="new">{{ c.new }}</span></li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+
+{% if failed %}
+  <h2>Απέτυχαν {{ failed|length }} εγγραφές</h2>
+  <div class="dide-hscroll dide-report">
+    <table>
+      <tbody>
+        {% for f in failed %}
+        <tr>
+          <td class="pin"><img src="/static/admin/img/icon_alert.gif" alt="False"></td>
+          <td>{{ f.vat }}</td>
+          <td>{{ f.label }}</td>
+          <td style="color:red;">{{ f.error }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+
+{% if updated or failed %}
+  <p><a class="button" href="/admin/dide/importexport/update/">Νέα ενημέρωση</a></p>
+{% endif %}
+
+</div>
+{% endblock %}

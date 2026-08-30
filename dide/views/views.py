@@ -691,7 +691,12 @@ def import_export_view(request):
                 while curr_row < worksheet.nrows:
                     d = {}
                     for i in range(ncols):
-                        d[i] = unicode(worksheet.cell_value(curr_row,i))
+                        # Ήταν unicode(cell_value): κάθε αριθμητικό κελί
+                        # έφτανε ως float, οπότε το «900001» γινόταν
+                        # «900001.0» και ο ακέραιος δεκαπλάσιος (9000010),
+                        # ενώ οι ημερομηνίες έμεναν αδιάβαστες («29465.0»).
+                        d[i] = _xls_cell(worksheet, workbook.datemode,
+                                         curr_row, i)
                     xlsdata.append(d)
                     curr_row += 1
                 context.update({
@@ -704,6 +709,372 @@ def import_export_view(request):
 
     r = render_to_response('admin/importexport.html', context, RequestContext(request))
     return r
+
+
+UPDATE_WIZARD_KEY = 'importupdate_wizard'
+
+# Το κλειδί με το οποίο εντοπίζεται η υπάρχουσα εγγραφή. Δεν επιλέγεται
+# από τον χειριστή: ενημέρωση χωρίς σταθερό κλειδί είναι επικίνδυνη.
+UPDATE_KEY_FIELD = 'vat_number'
+
+
+def _xls_cell(worksheet, datemode, r, c):
+    """Ένα κελί ως συμβολοσειρά, με τη μορφή που περιμένει το μοντέλο.
+
+    Το xlrd δίνει κάθε αριθμητικό κελί ως float: το «900001» φτάνει ως
+    «900001.0» και η ημερομηνία ως «29465.0». Έτσι οι ακέραιοι έβγαιναν
+    δεκαπλάσιοι (κρατώντας μόνο τα ψηφία) και οι ημερομηνίες ήταν
+    αδιάβαστες. Εδώ ο ακέραιος γράφεται χωρίς δεκαδικά και η ημερομηνία
+    σε ISO.
+    """
+    kind = worksheet.cell_type(r, c)
+    value = worksheet.cell_value(r, c)
+
+    if kind == xlrd.XL_CELL_DATE:
+        try:
+            y, mo, d, h, mi, sec = xlrd.xldate_as_tuple(value, datemode)
+            if (y, mo, d) != (0, 0, 0):
+                return u'%04d-%02d-%02d' % (y, mo, d)
+            return u'%02d:%02d:%02d' % (h, mi, sec)
+        except Exception:
+            return unicode(value)
+
+    if kind == xlrd.XL_CELL_NUMBER:
+        return unicode(int(value)) if float(value).is_integer() \
+            else unicode(value)
+
+    if kind == xlrd.XL_CELL_BOOLEAN:
+        return u'1' if value else u'0'
+
+    if kind in (xlrd.XL_CELL_EMPTY, xlrd.XL_CELL_BLANK):
+        return u''
+
+    return unicode(value)
+
+
+def _read_xls(uploaded):
+    """Το πρώτο φύλλο του αρχείου ως λίστα από λίστες συμβολοσειρών."""
+    workbook = xlrd.open_workbook(file_contents=uploaded.read())
+    worksheet = workbook.sheet_by_index(0)
+    datemode = workbook.datemode
+    return [[_xls_cell(worksheet, datemode, r, c)
+             for c in range(worksheet.ncols)]
+            for r in range(1, worksheet.nrows)]
+
+
+def _coerce_value(mf, field_name, raw_value):
+    """Μετατρέπει ένα κελί του φύλλου σε τιμή πεδίου του μοντέλου.
+
+    Επιστρέφει (ok, value, warning): ok=False όταν η τιμή δεν μπόρεσε να
+    μετατραπεί, οπότε το warning λέει γιατί.
+    """
+    if field_name not in mf:
+        return False, None, u"%s: άγνωστο πεδίο" % field_name
+
+    kind = mf[field_name]
+
+    if field_name == 'vat_number':
+        vat = _normalize_vat_number(raw_value)
+        if vat:
+            return True, vat, None
+        return False, None, u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value)
+
+    if kind == "ForeignKey":
+        if field_name in ("profession", "second_profession"):
+            try:
+                return True, Profession.objects.get(pk=unicode(raw_value)), None
+            except Exception:
+                return False, None, \
+                    u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value)
+        if field_name == "transfer_area":
+            try:
+                return True, TransferArea.objects.filter(
+                    name__istartswith=unicode(raw_value)[:1])[0], None
+            except Exception:
+                return False, None, \
+                    u"%s: δεν βρέθηκε η τιμή '%s'" % (field_name, raw_value)
+        try:
+            return True, int(raw_value), None
+        except Exception:
+            return False, None, \
+                u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value)
+
+    if kind in ("DateField", "DateTimeField"):
+        for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y', '%d.%m.%Y'):
+            try:
+                return True, datetime.datetime.strptime(
+                    raw_value.strip(), fmt).date(), None
+            except ValueError:
+                continue
+        return False, None, \
+            u"%s: μη έγκυρη ημερομηνία '%s'" % (field_name, raw_value)
+
+    if kind in ("IntegerField", "OneToOneField"):
+        try:
+            # Το xlrd δίνει τους αριθμούς ως float, οπότε το «900001»
+            # φτάνει ως «900001.0»· κρατώντας μόνο τα ψηφία έβγαινε
+            # 9000010. Κόβεται πρώτα το δεκαδικό μέρος.
+            text = unicode(raw_value).strip().split('.')[0]
+            return True, int(''.join(v for v in text if v.isdigit())), None
+        except Exception:
+            return False, None, \
+                u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value)
+
+    if kind in ("BooleanField", "NullBooleanField"):
+        try:
+            return True, bool(int(raw_value[:1])), None
+        except Exception:
+            return False, None, \
+                u"%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value)
+
+    return True, raw_value, None
+
+
+def _mapping_columns(ncols, chosen):
+    """Οι στήλες του αρχείου για τον επιλογέα αντιστοίχισης.
+
+    Κάθε στήλη κουβαλά την τρέχουσα επιλογή της, ώστε όταν η φόρμα
+    επιστρέφει με σφάλμα ο χειριστής να μη χάνει τη δουλειά που έκανε.
+    """
+    return [{'index': c, 'selected': chosen.get(c, '')}
+            for c in range(ncols)]
+
+
+def _display_value(value):
+    """Η τιμή ενός πεδίου ως κείμενο, για τον πίνακα αλλαγών."""
+    if value is None or value == '':
+        return u'—'
+    if value is True:
+        return u'Ναι'
+    if value is False:
+        return u'Όχι'
+    return unicode(value)
+
+
+def _diff_record(obj, mf, pairs):
+    """Ποια πεδία του `obj` θα άλλαζαν αν εφαρμοζόταν η γραμμή.
+
+    Επιστρέφει (changes, warnings). Κάθε change έχει το όνομα και την
+    ετικέτα του πεδίου, την τρέχουσα και τη νέα τιμή ως κείμενο, ώστε ο
+    χειριστής να δει ακριβώς τι πρόκειται να γίνει πριν γίνει.
+    """
+    changes = []
+    warnings = []
+    for field_name, raw_value in pairs:
+        if not field_name or field_name == UPDATE_KEY_FIELD:
+            continue
+        if raw_value == '':
+            # Κενό κελί σημαίνει «δεν το πειράζεις», όχι «σβήσ' το»:
+            # αλλιώς ένα ελλιπές αρχείο θα άδειαζε στήλες χωρίς να το
+            # ζητήσει κανείς.
+            continue
+        ok, value, warning = _coerce_value(mf, field_name, raw_value)
+        if warning:
+            warnings.append(warning)
+        if not ok:
+            continue
+        try:
+            old = getattr(obj, field_name)
+        except Exception:
+            old = None
+        if old == value:
+            continue
+        changes.append({
+            'field': field_name,
+            'label': unicode(obj._meta.get_field(field_name).verbose_name),
+            'old': _display_value(old),
+            'new': _display_value(value),
+            'value': value,
+        })
+    return changes, warnings
+
+
+def _update_rows(model, rows, mapping, key_column):
+    """Συγκρίνει κάθε γραμμή του αρχείου με την εγγραφή της βάσης.
+
+    Επιστρέφει (matched, notfound, unchanged).
+    """
+    mf = dict((x.name, x.get_internal_type()) for x in model._meta.fields)
+    matched, notfound, unchanged = [], [], []
+
+    for i, row in enumerate(rows):
+        vat = _normalize_vat_number(row[key_column]) if row else None
+        if not vat:
+            notfound.append({'row': i,
+                             'vat': row[key_column] if row else u'',
+                             'reason': u'Μη έγκυρο Α.Φ.Μ.'})
+            continue
+
+        obj = model.objects.filter(vat_number=vat).first()
+        if obj is None:
+            reason = u'Δεν βρέθηκε εγγραφή'
+            if Employee.objects.filter(vat_number=vat).exists():
+                reason = u'Υπάρχει υπάλληλος με αυτό το Α.Φ.Μ., αλλά όχι ως %s' \
+                    % model._meta.verbose_name
+            notfound.append({'row': i, 'vat': vat, 'reason': reason})
+            continue
+
+        pairs = [(name, row[c].strip()) for c, name in mapping]
+        changes, warnings = _diff_record(obj, mf, pairs)
+        entry = {'row': i, 'vat': vat, 'label': unicode(obj),
+                 'changes': changes, 'warnings': warnings, 'pk': obj.pk}
+        if changes:
+            matched.append(entry)
+        else:
+            unchanged.append(entry)
+
+    return matched, notfound, unchanged
+
+
+@csrf_protect
+@staff_member_required
+def import_update_view(request):
+    """Ενημέρωση υπαρχουσών εγγραφών από αρχείο Excel, με κλειδί το Α.Φ.Μ.
+
+    Τρία βήματα: μεταφόρτωση -> αντιστοίχιση στηλών -> προεπισκόπηση των
+    αλλαγών και εφαρμογή. Οι αλλαγές υπολογίζονται ξανά τη στιγμή της
+    εφαρμογής, πάνω στην τρέχουσα κατάσταση της βάσης, ώστε να μη
+    γραφτεί ποτέ κάτι που ο χειριστής δεν είδε.
+
+    Τα δεδομένα του αρχείου κρατιούνται στη συνεδρία και όχι ως κρυφά
+    πεδία της φόρμας: μια υποβολή μεταφέρει έτσι δεκάδες πεδία αντί για
+    χιλιάδες.
+    """
+    wizard = request.session.get(UPDATE_WIZARD_KEY) or {}
+    import_model_name = request.POST.get(
+        'import_model', wizard.get('model', 'Permanent'))
+    model = _import_model(import_model_name)
+
+    context = {
+        "title": u'Ενημέρωση Δεδομένων',
+        "opts": [],
+        "form": [],
+        "app_label": u'Ενημέρωση Δεδομένων',
+        "errors": [],
+        "import_model": import_model_name,
+        "import_model_label": model._meta.verbose_name,
+        "import_model_choices": _model_choices(IMPORT_MODELS),
+        "key_field": UPDATE_KEY_FIELD,
+    }
+
+    def page():
+        return render_to_response('admin/importupdate.html', context,
+                                  RequestContext(request))
+
+    if request.method != 'POST':
+        request.session.pop(UPDATE_WIZARD_KEY, None)
+        return page()
+
+    # --- βήμα 1: μεταφόρτωση ---------------------------------------------
+    if "upload" in request.GET:
+        uploaded = request.FILES.get('xls_upload')
+        if not uploaded:
+            context["errors"] = [u'Επιλέξτε αρχείο προς μεταφόρτωση.']
+            return page()
+        try:
+            rows = _read_xls(uploaded)
+        except Exception as ex:
+            context["errors"] = [
+                u'Το αρχείο δεν διαβάστηκε ως βιβλίο Excel (.xls): %s' % ex]
+            return page()
+        if not rows:
+            context["errors"] = [u'Το πρώτο φύλλο του αρχείου δεν έχει δεδομένα.']
+            return page()
+
+        request.session[UPDATE_WIZARD_KEY] = {
+            'model': import_model_name,
+            'file': uploaded.name,
+            'rows': rows,
+        }
+        context.update({
+            "import_file": uploaded.name,
+            "fields": [x.name for x in model._meta.fields],
+            "cols": _mapping_columns(len(rows[0]), {}),
+            "data": rows,
+        })
+        return page()
+
+    rows = wizard.get('rows')
+    if not rows:
+        context["errors"] = [
+            u'Η συνεδρία έληξε ή δεν έχει μεταφορτωθεί αρχείο. '
+            u'Ξεκινήστε ξανά από τη μεταφόρτωση.']
+        return page()
+
+    # --- βήμα 2: αντιστοίχιση στηλών και προεπισκόπηση --------------------
+    if "preview" in request.GET:
+        ncols = len(rows[0])
+        mapping = [(c, request.POST.get('field_%d' % c, '').strip())
+                   for c in range(ncols)]
+        mapping = [(c, name) for c, name in mapping if name]
+
+        key_columns = [c for c, name in mapping if name == UPDATE_KEY_FIELD]
+        if not key_columns:
+            context.update({
+                "errors": [u'Αντιστοιχίστε μία στήλη στο πεδίο-κλειδί «%s»: '
+                           u'χωρίς αυτό δεν μπορεί να βρεθεί η εγγραφή που θα '
+                           u'ενημερωθεί.' % UPDATE_KEY_FIELD],
+                "import_file": wizard.get('file', ''),
+                "fields": [x.name for x in model._meta.fields],
+                "cols": _mapping_columns(ncols, dict(mapping)),
+                "data": rows,
+            })
+            return page()
+
+        key_column = key_columns[0]
+        matched, notfound, unchanged = _update_rows(
+            model, rows, mapping, key_column)
+
+        new_wizard = dict(wizard)
+        new_wizard['mapping'] = mapping
+        new_wizard['key_column'] = key_column
+        request.session[UPDATE_WIZARD_KEY] = new_wizard
+
+        context.update({
+            "matched": matched,
+            "notfound": notfound,
+            "unchanged": unchanged,
+            # Σημαία για το πρότυπο: χωρίς αυτήν, ένα αρχείο που δεν φέρνει
+            # καμία αλλαγή εμφάνιζε κενή σελίδα.
+            "preview_done": True,
+            "imported_file": wizard.get('file', ''),
+            "total_changes": sum(len(m['changes']) for m in matched),
+        })
+        return page()
+
+    # --- βήμα 3: εφαρμογή -------------------------------------------------
+    if "final" in request.GET:
+        mapping = [tuple(m) for m in wizard.get('mapping', [])]
+        key_column = wizard.get('key_column', 0)
+        matched, notfound, unchanged = _update_rows(
+            model, rows, mapping, key_column)
+
+        updated, failed = [], []
+        for k, entry in enumerate(matched):
+            if request.POST.get('select_%d' % k, '0') != '0':
+                continue
+            obj = model.objects.filter(vat_number=entry['vat']).first()
+            if obj is None:
+                entry['error'] = u'Η εγγραφή δεν υπάρχει πλέον'
+                failed.append(entry)
+                continue
+            for change in entry['changes']:
+                setattr(obj, change['field'], change['value'])
+            try:
+                obj.save()
+                updated.append(entry)
+            except Exception as ex:
+                entry['error'] = unicode(ex)
+                failed.append(entry)
+
+        request.session.pop(UPDATE_WIZARD_KEY, None)
+        context.update({
+            "updated": updated,
+            "failed": failed,
+            "notfound": notfound,
+        })
+
+    return page()
 
 
 def _export_field_value(obj, field, encoding=DEFAULT_ENCODING):

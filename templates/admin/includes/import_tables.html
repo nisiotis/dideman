@@ -1,0 +1,78 @@
+{% comment %}
+Κοινοί κανόνες εμφάνισης για τους πίνακες των οδηγών εισαγωγής και
+ενημέρωσης: οριζόντια κύλιση μέσα στο πλαίσιο του πίνακα, καρφιτσωμένη
+επικεφαλίδα και πρώτη στήλη. Είναι σε ξεχωριστό αρχείο ώστε να μην
+αντιγράφονται σε δύο πρότυπα· το dide-admin.css φορτώνεται μόνο μέσα από
+τα Media των ModelAdmin, οπότε δεν φτάνει σε αυτές τις σελίδες.
+{% endcomment %}
+<style type="text/css">
+    /* Οριζόντια κύλιση: τα αρχεία έχουν συχνά 20+ στήλες, που δεν χωρούν
+       στο πλάτος της σελίδας. Ο πίνακας κυλάει και στους δύο άξονες μέσα
+       στο δικό του πλαίσιο, ώστε το σώμα της σελίδας να μη χρειάζεται
+       ποτέ οριζόντια κύλιση και το κουμπί υποβολής να μένει προσιτό. Η
+       επικεφαλίδα και η πρώτη στήλη μένουν καρφιτσωμένες. */
+    .dide-hscroll {
+        overflow: auto;
+        max-width: 100%;
+        max-height: 70vh;
+        margin-bottom: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+    /* border-collapse: collapse (η προεπιλογή του admin) σπάει τα sticky
+       κελιά: τα περιθώρια αφήνουν χαραμάδα από την οποία φαίνονται οι
+       γραμμές που κυλούν από κάτω. */
+    .dide-hscroll > table {
+        margin: 0;
+        border: 0;
+        width: auto;
+        min-width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .dide-hscroll th, .dide-hscroll td {
+        white-space: nowrap;
+        padding: 6px 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .dide-hscroll thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: #f8f8f8;
+        background-clip: padding-box;
+        border-bottom: 1px solid #ccc;
+        text-align: left;
+        font-weight: 600;
+    }
+    .dide-hscroll th.pin, .dide-hscroll td.pin {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: #fff;
+        border-right: 1px solid #e0e0e0;
+    }
+    .dide-hscroll thead th.pin { z-index: 4; background: #f8f8f8; }
+    /* Σταθερό πλάτος: αλλιώς κάθε επιλογέας πλαταίνει όσο το μακρύτερο
+       όνομα πεδίου και μια στήλη με δύο ψηφία έπιανε 300 pixel. */
+    .dide-hscroll select.fieldmap { width: 11em; }
+    .dide-hscroll tr.dup td { color: #ba2121; }
+    .dide-hscroll tr.dup td.pin { background: #fff; }
+    .dide-hscroll.dide-report { max-height: none; }
+    .dide-report td { padding: 4px 8px; }
+    .dide-report img { vertical-align: middle; }
+
+    .dide-change { margin: 0; padding: 0; list-style: none; }
+    .dide-change li { margin: 0; padding: 1px 0; list-style: none;
+                      white-space: normal; }
+    .dide-change .fname { color: #666; }
+    .dide-change .old { text-decoration: line-through; color: #888; }
+    .dide-change .new { font-weight: 600; }
+    .dide-hscroll td.changes { white-space: normal; max-width: 40em; }
+    .dide-summary { display: flex; flex-wrap: wrap; margin: 0 0 12px; }
+    .dide-summary div { padding: 6px 12px; margin-right: 18px;
+                        border-radius: 4px; background: #f4f4f4; }
+    .dide-summary b { font-size: 1.1em; }
+    .dide-update .helptext { color: #666; }
+    .dide-update .submit-row { margin-top: 12px; }
+</style>
