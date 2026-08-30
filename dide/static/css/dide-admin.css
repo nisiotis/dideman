@@ -54,10 +54,75 @@ span.modifier a { margin: 0px; }
            του πλαίσιο: η επικεφαλίδα μένει καρφιτσωμένη και το κουμπί
            υποβολής παραμένει προσιτό χωρίς να προσπεράσει κανείς 300
            γραμμές. */
+        /* Εφεδρικό: το dide-hscroll.js το αντικαθιστά με ύψος μετρημένο
+           από τη θέση του πλαισίου, ώστε η οριζόντια μπάρα να μένει
+           πάντα μέσα στο ορατό παράθυρο. */
         max-height: 70vh;
         margin-bottom: 15px;
         border: 1px solid var(--hairline-color, #e0e0e0);
         border-radius: 4px;
+
+        /* Κανονική, πάντα ορατή μπάρα κύλισης. Η προεπιλογή του
+           φυλλομετρητή είναι επικαλυπτόμενη μπάρα 2 pixel, που στα
+           Windows μόλις διακρίνεται και στο macOS κρύβεται εντελώς όσο
+           δεν κυλάει κανείς -- οπότε τίποτα δεν έδειχνε ότι ο πίνακας
+           συνεχίζεται δεξιά. */
+        scrollbar-width: auto;
+        scrollbar-color: #8f9aa6 #eceff2;
+    }
+    .dide-hscroll::-webkit-scrollbar { width: 14px; height: 14px; }
+    .dide-hscroll::-webkit-scrollbar-track { background: #eceff2; }
+    .dide-hscroll::-webkit-scrollbar-thumb {
+        background: #8f9aa6;
+        border-radius: 7px;
+        border: 3px solid #eceff2;
+    }
+    .dide-hscroll::-webkit-scrollbar-thumb:hover { background: #6f7a86; }
+    .dide-hscroll::-webkit-scrollbar-corner { background: #eceff2; }
+
+    /* Σκιά στην άκρη όπου υπάρχει κι άλλο περιεχόμενο. Το box-shadow
+       μένει στο πλαίσιο και δεν κυλάει μαζί με τον πίνακα. Τις κλάσεις
+       τις βάζει το dide-hscroll.js. */
+    .dide-hscroll.has-more {
+        box-shadow: inset -14px 0 12px -12px rgba(0, 0, 0, 0.28);
+    }
+    .dide-hscroll.has-less {
+        box-shadow: inset 14px 0 12px -12px rgba(0, 0, 0, 0.28);
+    }
+    .dide-hscroll.has-more.has-less {
+        box-shadow: inset 14px 0 12px -12px rgba(0, 0, 0, 0.28),
+                    inset -14px 0 12px -12px rgba(0, 0, 0, 0.28);
+    }
+    /* Κουμπιά κύλισης: τα φτιάχνει το dide-hscroll.js και εμφανίζονται
+       μόνο όταν ο πίνακας συνεχίζεται προς εκείνη την κατεύθυνση. */
+    .dide-hscroll-wrap { position: relative; }
+    .dide-pan {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        display: none;
+        width: 28px;
+        height: 46px;
+        padding: 0;
+        line-height: 44px;
+        font-size: 20px;
+        cursor: pointer;
+        border: 1px solid var(--hairline-color, #ccc);
+        border-radius: 4px;
+        background: var(--body-bg, #fff);
+        color: var(--body-fg, #333);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+        z-index: 5;
+    }
+    .dide-pan:hover { background: var(--darkened-bg, #f0f0f0); }
+    .dide-pan-left { left: 4px; }
+    .dide-pan-right { right: 4px; }
+    .dide-hscroll-wrap.can-left .dide-pan-left { display: block; }
+    .dide-hscroll-wrap.can-right .dide-pan-right { display: block; }
+
+    .dide-hscroll:focus {
+        outline: 2px solid var(--link-fg, #417690);
+        outline-offset: -2px;
     }
     /* border-collapse: collapse (η προεπιλογή του admin) σπάει τα sticky
        κελιά: τα περιθώρια των συγκολλημένων πλαισίων αφήνουν χαραμάδα από
