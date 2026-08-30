@@ -593,7 +593,12 @@ def _coerce_value(mf, field_name, raw_value):
             # φτάνει εδώ ως «900001.0»· κρατώντας μόνο τα ψηφία έβγαινε
             # 9000010. Κόβεται πρώτα το δεκαδικό μέρος.
             text = str(raw_value).strip().split('.')[0]
-            return True, int(''.join(v for v in text if v.isdigit())), None
+            # Το φιλτράρισμα των ψηφίων πετάει και το πρόσημο: το «-42»
+            # γινόταν σιωπηλά 42. Κρατιέται ξεχωριστά.
+            negative = text.startswith('-')
+            digits = ''.join(v for v in text if v.isdigit())
+            value = int(digits)
+            return True, -value if negative else value, None
         except Exception:
             return False, None, \
                 "%s: μη έγκυρη τιμή '%s'" % (field_name, raw_value)
