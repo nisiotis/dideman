@@ -131,7 +131,7 @@ leave_docx_reports = [
     LeaveDocxReport(u'Ανατροφής (3 μήνες - τρίτου τέκνου)',
                     'adeia_anatrofis_3months.xml',
                     custom_context={'subject':
-                                        u'Χορήγηση άδειας τριών μηνών για '
+                                        u'Χορήγηση άδειας άνευ αποδοχών τριών μηνών για '
                                     u'ανατροφή τρίτου τέκνου και άνω.'}),
 
     LeaveDocxReport(u'Ανατροφής (9 μήνες)', 'adeia_anatrofis_9months.xml',

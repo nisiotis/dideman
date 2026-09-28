@@ -899,7 +899,7 @@ E3N_DEFAULTS = [
     # Το EpikourikiSelections παρεμβάλλεται εδώ, αμέσως μετά το
     # f_kyria_asfalisi, όπως το παράγει ο convertE3.py.
     ('EpikourikiSelections',
-     [('EpikourikiSelectionsE3N', [('f_kod_epikourikis', u'001')])]),
+     [('EpikourikiSelectionsE3N', [('f_kod_epikourikis', u'001')])]),# αν εχει αλλο ταμειο ΤΕΚΑ πρεπει να γινεται 002
     ('f_prosthetes_asfalistikes', u''),
     ('f_mh_provlepsimo_programma', u'0'),
     ('f_paraggelia_hmeres_hours', u''),
@@ -1085,7 +1085,7 @@ class XMLWriteE3Action(ErganiXMLAction):
             ('f_xaraktirismos', u'1'),
             ('f_special_case', u''),
             ('f_responsible_position', u''),
-            ('f_working_time_digital_organization', u'0'),
+            ('f_working_time_digital_organization', u'1'),
             ('f_full_employment_hours', u'030,0'),
             ('f_week_days', u'5'),
             ('f_euelikto_wrario_minutes', u'0'),
